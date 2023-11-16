@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="menu_online.png">
+	<!-- Created with Adobe Animate version 22.0.8.217 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="online basic0000" x="0" y="0" width="422" height="137"/>
+	<SubTexture name="online basic0001" x="0" y="0" width="422" height="137"/>
+	<SubTexture name="online basic0002" x="0" y="0" width="422" height="137"/>
+	<SubTexture name="online basic0003" x="422" y="0" width="422" height="137"/>
+	<SubTexture name="online basic0004" x="422" y="0" width="422" height="137"/>
+	<SubTexture name="online basic0005" x="422" y="0" width="422" height="137"/>
+	<SubTexture name="online basic0006" x="0" y="137" width="422" height="137"/>
+	<SubTexture name="online basic0007" x="0" y="137" width="422" height="137"/>
+	<SubTexture name="online basic0008" x="0" y="137" width="422" height="137"/>
+	<SubTexture name="online white0000" x="422" y="137" width="467" height="153"/>
+	<SubTexture name="online white0001" x="0" y="290" width="467" height="153"/>
+	<SubTexture name="online white0002" x="467" y="290" width="467" height="153"/>
+</TextureAtlas>
