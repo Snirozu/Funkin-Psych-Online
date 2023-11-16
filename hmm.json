@@ -3,62 +3,47 @@
     {
       "name": "lime",
       "type": "haxelib",
-      "version": null
+      "version": "8.0.2"
     },
     {
       "name": "openfl",
       "type": "haxelib",
-      "version": null
+      "version": "9.2.2"
     },
     {
       "name": "flixel",
       "type": "haxelib",
-      "version": null
+      "version": "5.3.1"
     },
     {
       "name": "flixel-addons",
       "type": "haxelib",
-      "version": null
-    },
-    {
-      "name": "flixel-tools",
-      "type": "haxelib",
-      "version": null
+      "version": "3.1.1"
     },
     {
       "name": "flixel-ui",
       "type": "haxelib",
-      "version": null
+      "version": "2.5.0"
     },
     {
       "name": "hxcpp",
       "type": "haxelib",
-      "version": null
+      "version": "4.3.2"
     },
     {
       "name": "tjson",
       "type": "haxelib",
-      "version": null
-    },
-    {
-      "name": "hxjsonast",
-      "type": "haxelib",
-      "version": null
+      "version": "1.4.0"
     },
     {
       "name": "hxCodec",
       "type": "haxelib",
-      "version": null
+      "version": "3.0.2"
     },
     {
       "name": "SScript",
       "type": "haxelib",
-      "version": "7.0.0"
-    },
-    {
-      "name": "hxcpp-debug-server",
-      "type": "haxelib",
-      "version": null
+      "version": "7.7.0"
     },
     {
       "name": "discord_rpc",
@@ -77,7 +62,7 @@
     {
       "name": "colyseus",
       "type": "haxelib",
-      "version": null
+      "version": "0.15.2"
     }
   ]
 }
