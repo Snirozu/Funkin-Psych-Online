@@ -306,6 +306,7 @@ class FreeplayState extends MusicBeatState
 			}
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			if (GameClient.isConnected()) {
+				GameClient.clearOnMessage();
 				MusicBeatState.switchState(new Room());
 			}
 			else {
@@ -358,6 +359,7 @@ class FreeplayState extends MusicBeatState
 						trace("verifying song: " + GameClient.room.state.song + " | " + GameClient.room.state.folder + " : " + hash);
 						GameClient.room.send("verifyChart", hash);
 						destroyFreeplayVocals();
+						GameClient.clearOnMessage();
 						MusicBeatState.switchState(new Room());
 					}
 					catch (exc) {

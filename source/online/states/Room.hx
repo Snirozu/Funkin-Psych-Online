@@ -100,6 +100,7 @@ class Room extends MusicBeatState {
 				PlayState.SONG = Song.loadFromJson(GameClient.room.state.song, GameClient.room.state.folder);
 				PlayState.isStoryMode = false;
 				PlayState.storyDifficulty = GameClient.room.state.diff;
+				GameClient.clearOnMessage();
 				LoadingState.loadAndSwitchState(new PlayState());
 
 				FlxG.sound.music.volume = 0;
@@ -151,6 +152,7 @@ class Room extends MusicBeatState {
 
 			if (FlxG.keys.justPressed.SPACE) {
 				if (GameClient.isOwner) {
+					GameClient.clearOnMessage();
 					MusicBeatState.switchState(new FreeplayState());
 				}
 			}

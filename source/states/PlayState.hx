@@ -2377,6 +2377,7 @@ class PlayState extends MusicBeatState
 
 			if (GameClient.isConnected()) {
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				GameClient.clearOnMessage();
 				MusicBeatState.switchState(new Room());
 			}
 			else if (isStoryMode)

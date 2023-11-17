@@ -115,4 +115,9 @@ class GameClient {
     public static function isConnected() {
 		return room != null;
     }
+
+	public static function clearOnMessage() {
+		if (GameClient.isConnected())
+			@:privateAccess GameClient.room.onMessageHandlers.clear();
+	}
 }
