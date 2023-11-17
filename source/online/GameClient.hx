@@ -43,8 +43,9 @@ class GameClient {
 			GameClient.isOwner = true;
 
 			GameClient.room.onError += (id:Int, e:String) -> {
-				leaveRoom();
-				Application.current.window.alert("Error " + id + ": " + e, "Disconnected!");
+				Sys.println("Room.onError: " + id + " - " + e);
+				// leaveRoom();
+				// Application.current.window.alert("Error " + id + ": " + e, "Disconnected!");
 			}
 
 			GameClient.room.onLeave += () -> {
@@ -71,8 +72,9 @@ class GameClient {
 			GameClient.isOwner = false;
 
 			GameClient.room.onError += (id:Int, e:String) -> {
-				leaveRoom();
-				Application.current.window.alert("Error " + id + ": " + e, "Disconnected!");
+				Sys.println("Room.onError: " + id + " - " + e);
+				//leaveRoom();
+				//Application.current.window.alert("Error " + id + ": " + e, "Disconnected!");
 			}
 
 			GameClient.room.onLeave += () -> {
