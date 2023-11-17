@@ -3735,6 +3735,10 @@ class PlayState extends MusicBeatState
 
 		GameClient.room.onMessage("strumPlay", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
+				if (message == null || message[1] == null || message[2] == null) {
+					return;
+				}
+
 				var spr = getOpponentStrums().members[message[1]];
 				if (spr != null) {
 					spr.playAnim(message[0] + "", true);
@@ -3745,13 +3749,17 @@ class PlayState extends MusicBeatState
 
 		GameClient.room.onMessage("charPlay", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
-				if (getOpponent() != null)
+				if (message != null && getOpponent() != null)
 					getOpponent().playAnim(message[0], true);
 			});
 		});
 
 		GameClient.room.onMessage("noteHit", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
+				if (message == null || message[0] == null || message[1] == null || message[2] == null || message.length < 3) {
+					return;
+				}
+
 				notes.forEachAlive(function(note:Note) {
 					if (!isPlayerNote(note)
 						&& note.noteData == message[1]
@@ -3770,6 +3778,10 @@ class PlayState extends MusicBeatState
 
 		GameClient.room.onMessage("noteMiss", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
+				if (message == null || message[0] == null || message[1] == null || message[2] == null || message.length < 3) {
+					return;
+				}
+
 				notes.forEachAlive(function(note:Note) {
 					if (!isPlayerNote(note)
 						&& note.noteData == message[1]
