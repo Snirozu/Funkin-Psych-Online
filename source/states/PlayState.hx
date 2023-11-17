@@ -133,6 +133,8 @@ class PlayState extends MusicBeatState
 
 	public var playbackRate(default, set):Float = 1;
 
+	public static var opponentMode:Bool = false;
+
 	public var boyfriendGroup:FlxSpriteGroup;
 	public var dadGroup:FlxSpriteGroup;
 	public var gfGroup:FlxSpriteGroup;
@@ -1661,6 +1663,19 @@ class PlayState extends MusicBeatState
 
 	override public function update(elapsed:Float)
 	{
+		if (!GameClient.isConnected() && FlxG.keys.justPressed.F8) {
+			opponentMode = !opponentMode;
+			songScore = 0;
+			boyfriend.isPlayer = !boyfriend.isPlayer;
+			dad.isPlayer = !dad.isPlayer;
+			addHealth(2);
+		}
+
+		//if player 2 left then go back to lobby
+		if (GameClient.isConnected() && GameClient.room.state.player2.name == "") {
+			endSong();
+		}
+
 		/*if (FlxG.keys.justPressed.NINE)
 		{
 			iconP1.swapOldIcon();
@@ -2952,12 +2967,16 @@ class PlayState extends MusicBeatState
 			getOpponent().specialAnim = true;
 			getOpponent().heyTimer = 0.6;
 		} else if(!note.noAnimation) {
-			var altAnim:String = note.animSuffix;
+			var altAnim:String = "";
 
-			if (SONG.notes[curSection] != null)
-			{
-				if (SONG.notes[curSection].altAnim && !SONG.notes[curSection].gfSection) {
-					altAnim = '-alt';
+			if (playsAsBF()) {
+				altAnim = note.animSuffix;
+
+				if (SONG.notes[curSection] != null)
+				{
+					if (SONG.notes[curSection].altAnim && !SONG.notes[curSection].gfSection) {
+						altAnim = '-alt';
+					}
 				}
 			}
 
@@ -3037,7 +3056,19 @@ class PlayState extends MusicBeatState
 			addHealth(note.hitHealth * healthGain);
 
 			if(!note.noAnimation) {
-				var animToPlay:String = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length-1, note.noteData)))];
+				var altAnim:String = "";
+				
+				if (!playsAsBF()) {
+					altAnim = note.animSuffix;
+
+					if (SONG.notes[curSection] != null) {
+						if (SONG.notes[curSection].altAnim && !SONG.notes[curSection].gfSection) {
+							altAnim = '-alt';
+						}
+					}
+				}
+
+				var animToPlay:String = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length - 1, note.noteData)))] + altAnim;
 
 				var char:Character = getPlayer();
 				var animCheck:String = 'hey';
@@ -3660,7 +3691,7 @@ class PlayState extends MusicBeatState
 		if (GameClient.isConnected()) {
 			return !GameClient.isOwner;
 		}
-		return true;
+		return !opponentMode;
 	}
 
 	public static function isPlayerNote(note:Note):Bool {
