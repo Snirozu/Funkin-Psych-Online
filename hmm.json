@@ -21,6 +21,11 @@
       "version": "3.1.1"
     },
     {
+      "name": "flixel-tools",
+      "type": "haxelib",
+      "version": "1.5.1"
+    },
+    {
       "name": "flixel-ui",
       "type": "haxelib",
       "version": "2.5.0"
@@ -34,6 +39,11 @@
       "name": "tjson",
       "type": "haxelib",
       "version": "1.4.0"
+    },
+    {
+      "name": "hxjsonast",
+      "type": "haxelib",
+      "version": "1.1.0"
     },
     {
       "name": "hxCodec",
