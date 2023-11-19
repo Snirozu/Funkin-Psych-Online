@@ -123,7 +123,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 			return;
 		}
 		else if (key == 13) { // enter
-			GameClient.room.send("chat", typeText.text);
+			GameClient.send("chat", typeText.text);
 			typeText.text = "";
 			return;
 		}

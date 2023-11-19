@@ -78,7 +78,7 @@ class FindRoom extends MusicBeatState {
                 if (err != null) {
 					FlxG.switchState(new MainMenuState());
 					FlxG.sound.play(Paths.sound('cancelMenu'));
-                    Application.current.window.alert("ERROR: " + err.code + " - " + err.message + (err.code == 0 ? "\nTry again in a few minutes! The server is probably restarting!" : ""), "Couldn't connect!");
+					Alert.alert("Couldn't connect!", "ERROR: " + err.code + " - " + err.message + (err.code == 0 ? "\nTry again in a few minutes! The server is probably restarting!" : ""));
                     return;
                 }
 

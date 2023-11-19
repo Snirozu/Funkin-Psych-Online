@@ -284,10 +284,10 @@ class PlayState extends MusicBeatState
 		}
 		else {
 			startCallback = () -> {
-				GameClient.room.send("playerReady");
+				GameClient.send("playerReady");
 			};
 			endCallback = () -> {
-				GameClient.room.send("playerEnded");
+				GameClient.send("playerEnded");
 			};
 		}
 
@@ -1084,11 +1084,11 @@ class PlayState extends MusicBeatState
 				}
 
 				notes.forEachAlive(function(note:Note) {
-					if(ClientPrefs.data.opponentStrums || note.mustPress)
+					if(ClientPrefs.data.opponentStrums || isPlayerNote(note))
 					{
 						note.copyAlpha = false;
 						note.alpha = note.multAlpha;
-						if(ClientPrefs.data.middleScroll && !note.mustPress)
+						if (ClientPrefs.data.middleScroll && !isPlayerNote(note))
 							note.alpha *= 0.35;
 					}
 				});
@@ -1179,8 +1179,7 @@ class PlayState extends MusicBeatState
 	{
 		var scoreTextObject = scoreTxt;
 		if (GameClient.isConnected()) {
-			// scoreTxtP1
-			scoreTextObject = (GameClient.isOwner ? scoreTxtP1 : scoreTxtP2);
+			scoreTextObject = (playerSide() ? scoreTxtP1 : scoreTxtP2);
 		}
 
 		var str:String = ratingName;
@@ -1510,13 +1509,13 @@ class PlayState extends MusicBeatState
 			var targetAlpha:Float = 1;
 
 			if (GameClient.isConnected()) {
-				if (GameClient.isOwner)
+				if (playerSide())
 					targetAlpha = (player == 0 ? 1 : 0.7);
 				else
 					targetAlpha = (player == 0 ? 0.7 : 1);
 			}
 
-			if (player < 1)
+			if (!isPlayerStrumNote(player))
 			{
 				if(!ClientPrefs.data.opponentStrums) targetAlpha = 0;
 				else if(ClientPrefs.data.middleScroll) targetAlpha = 0.35;
@@ -1533,17 +1532,17 @@ class PlayState extends MusicBeatState
 			else
 				babyArrow.alpha = targetAlpha;
 
+			if (!isPlayerStrumNote(player) && ClientPrefs.data.middleScroll) {
+				babyArrow.x += 310;
+				if (i > 1) { // Up and Right
+					babyArrow.x += FlxG.width / 2 + 25;
+				}
+			}
+
 			if (player == 1)
 				playerStrums.add(babyArrow);
 			else
 			{
-				if(ClientPrefs.data.middleScroll)
-				{
-					babyArrow.x += 310;
-					if(i > 1) { //Up and Right
-						babyArrow.x += FlxG.width / 2 + 25;
-					}
-				}
 				opponentStrums.add(babyArrow);
 			}
 
@@ -1670,6 +1669,12 @@ class PlayState extends MusicBeatState
 			dad.isPlayer = !dad.isPlayer;
 			addHealth(2);
 		}
+
+		#if LOCAL
+		if (FlxG.keys.justPressed.F9 && GameClient.isConnected()) {
+			GameClient.room.connection.close();
+		}
+		#end
 
 		//if player 2 left then go back to lobby
 		if (GameClient.isConnected() && GameClient.room.state.player2.name == "") {
@@ -2545,13 +2550,13 @@ class PlayState extends MusicBeatState
 
 		if(!practiceMode && !cpuControlled) {
 			songScore += score;
-			roomSend("addScore", score);
+			GameClient.send("addScore", score);
 			if(!note.ratingDisabled)
 			{
 				songHits++;
 				totalPlayed++;
 				RecalculateRating(false);
-				roomSend("addHitJudge", note.rating);
+				GameClient.send("addHitJudge", note.rating);
 			}
 		}
 
@@ -2767,7 +2772,7 @@ class PlayState extends MusicBeatState
 			var spr:StrumNote = getPlayerStrums().members[key];
 			if(strumsBlocked[key] != true && spr != null && spr.animation.curAnim.name != 'confirm')
 			{
-				roomSend("strumPlay", ["pressed", key, 0]);
+				GameClient.send("strumPlay", ["pressed", key, 0]);
 				spr.playAnim('pressed');
 				spr.resetAnim = 0;
 			}
@@ -2801,7 +2806,7 @@ class PlayState extends MusicBeatState
 			var spr:StrumNote = getPlayerStrums().members[key];
 			if(spr != null)
 			{
-				roomSend("strumPlay", ["static", key, 0]);
+				GameClient.send("strumPlay", ["static", key, 0]);
 				spr.playAnim('static');
 				spr.resetAnim = 0;
 			}
@@ -2924,16 +2929,16 @@ class PlayState extends MusicBeatState
 
 		if(!practiceMode) {
 			songScore -= 10;
-			roomSend("addScore", -10);
+			GameClient.send("addScore", -10);
 		}
 		if(!endingSong) {
 			songMisses++;
-			roomSend("addMiss");
+			GameClient.send("addMiss");
 		}
 		totalPlayed++;
 		RecalculateRating(true);
 		if (note != null)
-			roomSend("noteMiss", [note.strumTime, note.noteData, note.isSustainNote]);
+			GameClient.send("noteMiss", [note.strumTime, note.noteData, note.isSustainNote]);
 
 		// play character anims
 		var char:Character = getPlayer();
@@ -2946,7 +2951,7 @@ class PlayState extends MusicBeatState
 
 			var animToPlay:String = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length-1, direction)))] + 'miss' + suffix;
 			char.playAnim(animToPlay, true);
-			roomSend("charPlay", [animToPlay]);
+			GameClient.send("charPlay", [animToPlay]);
 			
 			if(char != gf && combo > 5 && gf != null && gf.animOffsets.exists('sad'))
 			{
@@ -3045,7 +3050,7 @@ class PlayState extends MusicBeatState
 				return;
 			}
 
-			roomSend("noteHit", [note.strumTime, note.noteData, note.isSustainNote]);
+			GameClient.send("noteHit", [note.strumTime, note.noteData, note.isSustainNote]);
 
 			if (!note.isSustainNote)
 			{
@@ -3083,7 +3088,7 @@ class PlayState extends MusicBeatState
 					char.playAnim(animToPlay + note.animSuffix, true);
 					char.holdTimer = 0;
 
-					roomSend("charPlay", [animToPlay + note.animSuffix]);
+					GameClient.send("charPlay", [animToPlay + note.animSuffix]);
 					
 					if(note.noteType == 'Hey!') {
 						if(char.animOffsets.exists(animCheck)) {
@@ -3098,7 +3103,7 @@ class PlayState extends MusicBeatState
 			if(!cpuControlled)
 			{
 				var spr = getPlayerStrums().members[note.noteData];
-				roomSend("strumPlay", ["confirm", note.noteData, 0]);
+				GameClient.send("strumPlay", ["confirm", note.noteData, 0]);
 				if(spr != null) spr.playAnim('confirm', true);
 			}
 			else strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
@@ -3475,7 +3480,7 @@ class PlayState extends MusicBeatState
 			spr = getOpponentStrums().members[id];
 		} else {
 			spr = getPlayerStrums().members[id];
-			roomSend("strumPlay", ["confirm", id, time]);
+			GameClient.send("strumPlay", ["confirm", id, time]);
 		}
 
 		if(spr != null) {
@@ -3689,9 +3694,16 @@ class PlayState extends MusicBeatState
 
 	public static function playsAsBF() {
 		if (GameClient.isConnected()) {
-			return !GameClient.isOwner;
+			return !playerSide();
 		}
 		return !opponentMode;
+	}
+
+	public static function playerSide() {
+		if (GameClient.isConnected()) {
+			return GameClient.room.state.swagSides ? !GameClient.isOwner : GameClient.isOwner;
+		}
+		return opponentMode;
 	}
 
 	public static function isPlayerNote(note:Note):Bool {
@@ -3699,6 +3711,13 @@ class PlayState extends MusicBeatState
 			return note.mustPress;
 		}
 		return !note.mustPress;
+	}
+
+	public static function isPlayerStrumNote(player:Int):Bool {
+		if (playsAsBF()) {
+			return player == 1;
+		}
+		return player == 0;
 	}
 
 	public function getPlayerStrums() {
@@ -3813,11 +3832,6 @@ class PlayState extends MusicBeatState
 		});
 	}
 
-	function roomSend(type:String, ?message:Dynamic) {
-		if (GameClient.isConnected())
-			GameClient.room.send(type, message);
-	}
-
 	var opRatingPercent = 0.;
 	var opRatingName = "?";
 	var opRatingFC:String = "SFC";
@@ -3870,7 +3884,7 @@ class PlayState extends MusicBeatState
 			str += ' ($percent%) - $opRatingFC';
 		}
 
-		(GameClient.isOwner ? scoreTxtP2 : scoreTxtP1).text = 
+		(playerSide() ? scoreTxtP2 : scoreTxtP1).text = 
 			//op.sicks + " " + op.goods + " " + op.bads + " " + op.shits + " " + op.misses
 			op.name + '\nScore: ' + op.score + '\nMisses: ' + op.misses + '\nRating: ' + str
 		;

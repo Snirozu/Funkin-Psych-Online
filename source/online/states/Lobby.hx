@@ -12,7 +12,8 @@ class Lobby extends MusicBeatState {
         "JOIN",
         "HOST",
         "FIND",
-		"NAME"
+		"NAME",
+		"DISCORD"
     ];
 
 	var itemDesc:FlxText;
@@ -140,6 +141,8 @@ class Lobby extends MusicBeatState {
 				itemDesc.text = "Opens a list of all available public rooms";
 			case 3:
 				itemDesc.text = "Set your nickname here!";
+			case 4:
+				itemDesc.text = "Also join the Discord server of this mod!";
 		}
 		itemDesc.screenCenter(X);
 
@@ -152,6 +155,8 @@ class Lobby extends MusicBeatState {
 					FlxG.switchState(new FindRoom());
 				case "host":
 					GameClient.createRoom(onRoomJoin);
+				case "discord":
+					FlxG.openURL("https://discord.gg/juHypjWuNc");
 			}
 			if (curSelected == 3) {
 				inputWait = true;

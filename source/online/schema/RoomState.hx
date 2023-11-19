@@ -35,4 +35,10 @@ class RoomState extends Schema {
 	@:type("boolean")
 	public var isStarted: Bool = false;
 
+	@:type("boolean")
+	public var swagSides:Bool = false;
+
+	@:type("boolean")
+	public var anarchyMode:Bool = false;
+
 }

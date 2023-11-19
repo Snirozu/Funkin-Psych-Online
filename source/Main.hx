@@ -1,5 +1,6 @@
 package;
 
+import online.Alert;
 import online.Waiter;
 import flixel.graphics.FlxGraphic;
 
@@ -133,6 +134,8 @@ class Main extends Sprite
 		     if (FlxG.game != null)
 			 resetSpriteCache(FlxG.game);
 		});
+
+		addChild(new Alert());
 
 		FlxG.plugins.add(new Waiter());
 	}

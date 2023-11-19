@@ -1,5 +1,6 @@
 package states;
 
+import online.Waiter;
 import haxe.crypto.Md5;
 import online.states.Room;
 import online.GameClient;
@@ -354,19 +355,21 @@ class FreeplayState extends MusicBeatState
 			if (GameClient.isConnected()) {
 				//weird ass
 				GameClient.room.onMessage("checkChart", function(message) {
-					try {
-						var hash = Md5.encode(Song.loadRawSong(GameClient.room.state.song, GameClient.room.state.folder));
-						trace("verifying song: " + GameClient.room.state.song + " | " + GameClient.room.state.folder + " : " + hash);
-						GameClient.room.send("verifyChart", hash);
-						destroyFreeplayVocals();
-						GameClient.clearOnMessage();
-						MusicBeatState.switchState(new Room());
-					}
-					catch (exc) {
-						Sys.println(exc);
-					}
+					Waiter.put(() -> {
+						try {
+							var hash = Md5.encode(Song.loadRawSong(GameClient.room.state.song, GameClient.room.state.folder));
+							trace("verifying song: " + GameClient.room.state.song + " | " + GameClient.room.state.folder + " : " + hash);
+							GameClient.send("verifyChart", hash);
+							destroyFreeplayVocals();
+							GameClient.clearOnMessage();
+							MusicBeatState.switchState(new Room());
+						}
+						catch (exc) {
+							Sys.println(exc);
+						}
+					});
 				});
-				GameClient.room.send("setFSD", [
+				GameClient.send("setFSD", [
 					songLowercase,
 					poop,
 					curDifficulty,
