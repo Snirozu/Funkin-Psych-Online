@@ -1818,6 +1818,7 @@ class PlayState extends MusicBeatState
 					//boyfriend.animation.curAnim.finish();
 				}
 
+				var forceShowOpStrums = false;
 				if(notes.length > 0)
 				{
 					if(startedCountdown)
@@ -1829,6 +1830,12 @@ class PlayState extends MusicBeatState
 							if(!daNote.mustPress) strumGroup = opponentStrums;
 
 							var strum:StrumNote = strumGroup.members[daNote.noteData];
+							if (!playsAsBF()) {
+								forceShowOpStrums = true;
+								daNote.visible = true;
+								daNote.alpha = 1;
+							}
+								
 							daNote.followStrumNote(strum, fakeCrochet, songSpeed / playbackRate);
 
 							if (GameClient.isConnected() && daNote.strumTime <= Conductor.songPosition) {
@@ -1868,6 +1875,15 @@ class PlayState extends MusicBeatState
 							daNote.canBeHit = false;
 							daNote.wasGoodHit = false;
 						});
+					}
+				}
+
+				if (forceShowOpStrums) {
+					for (strum in opponentStrums) {
+						camHUD.visible = true;
+						camHUD.alpha = 1;
+						strum.alpha = 1;
+						strum.visible = true;
 					}
 				}
 			}
@@ -3017,6 +3033,9 @@ class PlayState extends MusicBeatState
 
 	function goodNoteHit(note:Note):Void
 	{
+		if (Paths.formatToSongPath(SONG.song) != 'tutorial')
+			camZooming = true;
+
 		if (!note.wasGoodHit)
 		{
 			if(cpuControlled && (note.ignoreNote || note.hitCausesMiss)) return;
