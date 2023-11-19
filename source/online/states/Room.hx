@@ -6,6 +6,7 @@ import backend.WeekData;
 import backend.Song;
 import haxe.crypto.Md5;
 import states.FreeplayState;
+import options.OptionsState;
 
 class Room extends MusicBeatState {
 	var player1Text:FlxText;
@@ -21,6 +22,7 @@ class Room extends MusicBeatState {
 	var swapSidesTip:FlxText;
 	var anarchyMode:FlxText;
 	var anarchyModeTip:FlxText;
+	var enterOptionstxt:FlxText;
 
 	var chatBox:ChatBox;
 	var chatBoxTip:FlxText;
@@ -105,6 +107,10 @@ class Room extends MusicBeatState {
 		anarchyModeTip.screenCenter(X);
 		add(anarchyModeTip);
 
+		enterOptionstxt = new FlxText(-20, roomCodeTip.y + 5, FlxG.width, "(Press O to enter the Options Menu)");
+		enterOptionstxt.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(enterOptionstxt);
+
 		chatBox = new ChatBox();
 		chatBox.y = FlxG.height - chatBox.height;
 		add(chatBox);
@@ -182,6 +188,17 @@ class Room extends MusicBeatState {
 					GameClient.clearOnMessage();
 					MusicBeatState.switchState(new FreeplayState());
 				}
+			}
+			
+			if (FlxG.keys.justPressed.O) {
+				//	GameClient.clearOnMessage();
+					LoadingState.loadAndSwitchState(new OptionsState());
+					OptionsState.onPlayState = false;
+				if (PlayState.SONG != null) {
+						PlayState.SONG.arrowSkin = null;
+						PlayState.SONG.splashSkin = null;
+				}				
+				
 			}
 
 			if (FlxG.keys.justPressed.S) {

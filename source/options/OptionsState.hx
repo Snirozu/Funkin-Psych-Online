@@ -2,6 +2,10 @@ package options;
 
 import states.MainMenuState;
 import backend.StageData;
+import online.Waiter;
+import haxe.crypto.Md5;
+import online.states.Room;
+import online.GameClient;
 
 class OptionsState extends MusicBeatState
 {
@@ -83,11 +87,17 @@ class OptionsState extends MusicBeatState
 
 		if (controls.BACK) {
 			FlxG.sound.play(Paths.sound('cancelMenu'));
+			
 			if(onPlayState)
 			{
 				StageData.loadDirectory(PlayState.SONG);
 				LoadingState.loadAndSwitchState(new PlayState());
 				FlxG.sound.music.volume = 0;
+			}
+			
+			else if (GameClient.isConnected()) {
+				GameClient.clearOnMessage();
+				MusicBeatState.switchState(new Room());
 			}
 			else MusicBeatState.switchState(new MainMenuState());
 		}
