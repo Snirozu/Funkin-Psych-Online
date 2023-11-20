@@ -1,5 +1,6 @@
 package online.states;
 
+import lime.system.Clipboard;
 import haxe.Json;
 import states.MainMenuState;
 import openfl.events.KeyboardEvent;
@@ -65,6 +66,8 @@ class Lobby extends MusicBeatState {
 
     override function create() {
         super.create();
+
+		DiscordClient.changePresence("In online lobby.", null, null, true);
 
 		daName = ClientPrefs.data.nickname;
 
@@ -223,6 +226,10 @@ class Lobby extends MusicBeatState {
         else {
 			newText = newText.toLowerCase();
         }
+
+		if (key == 86 && e.ctrlKey) {
+			newText = Clipboard.text;
+		}
 
 		if (newText.length > 0) {
 			inputString += newText;
