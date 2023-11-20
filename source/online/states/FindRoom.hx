@@ -106,7 +106,7 @@ class RoomText extends FlxText {
 
     public function new(room:RoomAvailable) {
 		code = room.roomId;
-		daText = "Code: " + code + " | Player: " + room.metadata.name;
+		daText = "Code: " + code + " | Player: " + room.metadata.name + " | " + room.metadata.ping + "ms";
 
 		super(0, 0, FlxG.width, daText);
 	    setFormat("VCR OSD Mono", 30, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);

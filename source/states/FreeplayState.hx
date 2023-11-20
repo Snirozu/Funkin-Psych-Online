@@ -1,5 +1,6 @@
 package states;
 
+import online.Alert;
 import online.Waiter;
 import haxe.crypto.Md5;
 import online.states.Room;
@@ -179,6 +180,15 @@ class FreeplayState extends MusicBeatState
 		add(text);
 		
 		updateTexts();
+
+		if (GameClient.isConnected()) {
+			GameClient.room.onMessage("log", function(message) {
+				Waiter.put(() -> {
+					Alert.alert("New message", message);
+				});
+			});
+		}
+
 		super.create();
 	}
 

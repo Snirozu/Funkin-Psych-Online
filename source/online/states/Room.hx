@@ -1,5 +1,6 @@
 package online.states;
 
+import lime.system.Clipboard;
 import online.schema.Player;
 import backend.Rating;
 import backend.WeekData;
@@ -28,6 +29,13 @@ class Room extends MusicBeatState {
 	public function new() {
 		super();
 
+		if (GameClient.room.state.isPrivate) {
+			DiscordClient.changePresence("In a online room.", "Private room.", null, true);
+		}
+		else {
+			DiscordClient.changePresence("In a online room.", "Public room: " + GameClient.room.roomId, null, true);
+		}
+
 		WeekData.reloadWeekFiles(false);
 		for (i in 0...WeekData.weeksList.length) {
 			WeekData.setDirectoryFromWeek(WeekData.weeksLoaded.get(WeekData.weeksList[i]));
@@ -43,11 +51,11 @@ class Room extends MusicBeatState {
 		add(bg);
 
 		player1Text = new FlxText(0, 50, 0, "PLAYER 1");
-		player1Text.setFormat("VCR OSD Mono", 30, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		player1Text.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(player1Text);
 
 		player2Text = new FlxText(0, 50, 0, "PLAYER 2");
-		player2Text.setFormat("VCR OSD Mono", 30, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		player2Text.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(player2Text);
 
 		roomCode = new FlxText(0, 0, FlxG.width, "????");
@@ -56,7 +64,7 @@ class Room extends MusicBeatState {
 		roomCode.screenCenter(X);
 		add(roomCode);
 
-		roomCodeTip = new FlxText(0, roomCode.y + roomCode.height + 5, FlxG.width, "(Press S to show your room code)");
+		roomCodeTip = new FlxText(0, roomCode.y + roomCode.height + 5, FlxG.width, "(Press S to show your room code, CTRL+C to copy)");
 		roomCodeTip.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		roomCodeTip.screenCenter(X);
 		add(roomCodeTip);
@@ -154,7 +162,18 @@ class Room extends MusicBeatState {
 			});
 		});
 
+		GameClient.room.state.listen("isPrivate", (value, prev) -> {
+			if (value) {
+				DiscordClient.changePresence("In a online room.", "Private room.", null, true);
+			}
+			else {
+				DiscordClient.changePresence("In a online room.", "Public room: " + GameClient.room.roomId, null, true);
+			}
+		});
+
 		updateTexts();
+
+		new FlxTimer().start();
 	}
 
     override function update(elapsed) {
@@ -203,6 +222,10 @@ class Room extends MusicBeatState {
 				if (GameClient.hasPerms()) {
 					GameClient.send("anarchyMode");
 				}
+			}
+
+			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.C) {
+				Clipboard.text = GameClient.room.roomId;
 			}
 		}
 
@@ -259,7 +282,8 @@ class Room extends MusicBeatState {
             "Goods: " + GameClient.room.state.player1.goods + "\n" +
             "Bads: " + GameClient.room.state.player1.bads + "\n" + 
             "Shits: " + GameClient.room.state.player1.shits + "\n" +
-			"Misses: " + GameClient.room.state.player1.misses;
+			"Misses: " + GameClient.room.state.player1.misses + "\n" + 
+			"Ping: " + GameClient.room.state.player1.ping + "ms";
 
 		if (GameClient.room.state.player2 != null) {
             player2Text.text = "PLAYER 2\n" +
@@ -271,7 +295,8 @@ class Room extends MusicBeatState {
                 "Goods: " + GameClient.room.state.player2.goods + "\n" +
                 "Bads: " + GameClient.room.state.player2.bads + "\n" + 
                 "Shits: " + GameClient.room.state.player2.shits + "\n" + 
-				"Misses: " + GameClient.room.state.player2.misses;
+				"Misses: " + GameClient.room.state.player2.misses + "\n" +
+				"Ping: " + GameClient.room.state.player2.ping + "ms";
         }
         else {
 			player2Text.text = "WAITING FOR OPPONENT...";

@@ -10,6 +10,7 @@ package states;
 // "function eventEarlyTrigger" - Used for making your event start a few MILLISECONDS earlier
 // "function triggerEvent" - Called when the song hits your event's timestamp, this is probably what you were looking for
 
+import online.Alert;
 import online.Waiter;
 import online.states.Room;
 import online.GameClient;
@@ -289,6 +290,14 @@ class PlayState extends MusicBeatState
 			endCallback = () -> {
 				GameClient.send("playerEnded");
 			};
+		}
+
+		if (GameClient.isConnected()) {
+			GameClient.room.onMessage("log", function(message) {
+				Waiter.put(() -> {
+					Alert.alert("New message", message);
+				});
+			});
 		}
 
 		// for lua
@@ -590,8 +599,8 @@ class PlayState extends MusicBeatState
 			scoreTxtP2.visible = !ClientPrefs.data.hideHud;
 			add(scoreTxtP2);
 
-			scoreTxtP1.y -= scoreTxtP1.height * 2;
-			scoreTxtP2.y -= scoreTxtP2.height * 2;
+			scoreTxtP1.y -= scoreTxtP1.height * 3;
+			scoreTxtP2.y -= scoreTxtP2.height * 3;
 
 			scoreTxtP1.offset.x -= 30;
 			scoreTxtP2.offset.x += 30;
@@ -1189,7 +1198,11 @@ class PlayState extends MusicBeatState
 		}
 
 		if (GameClient.isConnected()) {
-			scoreTextObject.text = (GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).name + '\nScore: ' + songScore + '\nMisses: ' + songMisses + '\nRating: ' + str;
+			scoreTextObject.text = (GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).name
+				+ '\nScore: ' + songScore
+				+ '\nMisses: ' + songMisses
+				+ '\nRating: ' + str
+				+ "\nPing: " + (GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).ping;
 		}
 		else {
 			scoreTextObject.text = 'Score: ' + songScore + ' | Misses: ' + songMisses + ' | Rating: ' + str;
@@ -1676,9 +1689,15 @@ class PlayState extends MusicBeatState
 		}
 		#end
 
-		//if player 2 left then go back to lobby
-		if (GameClient.isConnected() && GameClient.room.state.player2.name == "") {
-			endSong();
+		if (GameClient.isConnected()) {
+			if (controls.BACK) {
+				GameClient.send("requestEndSong");
+			}
+
+			//if player 2 left then go back to lobby
+			if (GameClient.room.state.player2.name == "") {
+				endSong();
+			}
 		}
 
 		/*if (FlxG.keys.justPressed.NINE)
@@ -1686,6 +1705,9 @@ class PlayState extends MusicBeatState
 			iconP1.swapOldIcon();
 		}*/
 		callOnScripts('onUpdate', [elapsed]);
+
+		if (playbackRate != 1.)
+			playbackRate = 1;
 
 		if (cpuControlled && GameClient.isConnected()) {
 			cpuControlled = false;
@@ -2522,6 +2544,7 @@ class PlayState extends MusicBeatState
 
 	// stores the last judgement object
 	var lastRating:FlxSprite;
+	var lastRatingOP:FlxSprite;
 	// stores the last combo sprite object
 	var lastCombo:FlxSprite;
 	// stores the last combo score objects in an array
@@ -2543,12 +2566,119 @@ class PlayState extends MusicBeatState
 			Paths.image(uiPrefix + 'num' + i + uiSuffix);
 	}
 
+	private function popUpScoreOP(ratingImage:String) {
+		var placement:Float = FlxG.width * 0.35;
+		if (GameClient.isConnected()) {
+			placement = FlxG.width * (0.30 + (playerSide() ? 0.1 : -0.1));
+		}
+
+		var uiPrefix:String = "";
+		var uiSuffix:String = '';
+		var antialias:Bool = ClientPrefs.data.antialiasing;
+
+		if (stageUI != "normal") {
+			uiPrefix = '${stageUI}UI/';
+			if (PlayState.isPixelStage)
+				uiSuffix = '-pixel';
+			antialias = !isPixelStage;
+		}
+
+		var rating:FlxSprite = new FlxSprite();
+		rating.loadGraphic(Paths.image(uiPrefix + ratingImage + uiSuffix));
+		rating.cameras = [camHUD];
+		rating.screenCenter();
+		rating.x = placement - 40;
+		rating.y -= 60;
+		rating.acceleration.y = 550 * playbackRate * playbackRate;
+		rating.velocity.y -= FlxG.random.int(140, 175) * playbackRate;
+		rating.velocity.x -= FlxG.random.int(0, 10) * playbackRate;
+		rating.visible = (!ClientPrefs.data.hideHud && showRating);
+		rating.x += ClientPrefs.data.comboOffset[0];
+		rating.y -= ClientPrefs.data.comboOffset[1];
+		rating.antialiasing = antialias;
+
+		if (!ClientPrefs.data.comboStacking) {
+			if (lastRatingOP != null)
+				lastRatingOP.kill();
+			lastRatingOP = rating;
+		}
+
+		insert(members.indexOf(strumLineNotes), rating);
+
+		if (!PlayState.isPixelStage) {
+			rating.setGraphicSize(Std.int(rating.width * 0.7));
+		}
+		else {
+			rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.85));
+		}
+
+		rating.updateHitbox();
+
+		var seperatedScore:Array<Int> = [];
+
+		if (opCumboo >= 1000) {
+			seperatedScore.push(Math.floor(opCumboo / 1000) % 10);
+		}
+		seperatedScore.push(Math.floor(opCumboo / 100) % 10);
+		seperatedScore.push(Math.floor(opCumboo / 10) % 10);
+		seperatedScore.push(opCumboo % 10);
+
+		var daLoop:Int = 0;
+		var xThing:Float = 0;
+		for (i in seperatedScore) {
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiPrefix + 'num' + Std.int(i) + uiSuffix));
+			numScore.cameras = [camHUD];
+			numScore.screenCenter();
+			numScore.x = placement + (43 * daLoop) - 90 + ClientPrefs.data.comboOffset[2];
+			numScore.y += 80 - ClientPrefs.data.comboOffset[3];
+
+			if (!ClientPrefs.data.comboStacking)
+				lastScore.push(numScore);
+
+			if (!PlayState.isPixelStage)
+				numScore.setGraphicSize(Std.int(numScore.width * 0.5));
+			else
+				numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
+			numScore.updateHitbox();
+
+			numScore.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
+			numScore.velocity.y -= FlxG.random.int(140, 160) * playbackRate;
+			numScore.velocity.x = FlxG.random.float(-5, 5) * playbackRate;
+			numScore.visible = !ClientPrefs.data.hideHud;
+			numScore.antialiasing = antialias;
+
+			if (showComboNum)
+				insert(members.indexOf(strumLineNotes), numScore);
+
+			FlxTween.tween(numScore, {alpha: 0}, 0.2 / playbackRate, {
+				onComplete: function(tween:FlxTween) {
+					numScore.destroy();
+				},
+				startDelay: Conductor.crochet * 0.002 / playbackRate
+			});
+
+			daLoop++;
+			if (numScore.x > xThing)
+				xThing = numScore.x;
+		}
+
+		FlxTween.tween(rating, {alpha: 0}, 0.2 / playbackRate, {
+			startDelay: Conductor.crochet * 0.001 / playbackRate,
+			onComplete: function(tween:FlxTween) {
+				rating.destroy();
+			}
+		});
+	}
+
 	private function popUpScore(note:Note = null):Void
 	{
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.data.ratingOffset);
 		vocals.volume = 1;
 
-		var placement:Float =  FlxG.width * 0.35;
+		var placement:Float = FlxG.width * 0.35;
+		if (GameClient.isConnected()) {
+			placement = FlxG.width * (0.30 + (!playerSide() ? 0.1 : -0.1)); 
+		}
 		var rating:FlxSprite = new FlxSprite();
 		var score:Int = 350;
 
@@ -2560,6 +2690,8 @@ class PlayState extends MusicBeatState
 		if(!note.ratingDisabled) daRating.hits++;
 		note.rating = daRating.name;
 		score = daRating.score;
+
+		GameClient.send("noteHit", [note.strumTime, note.noteData, note.isSustainNote, daRating.image]);
 
 		if(daRating.noteSplash && !note.noteSplashData.disabled)
 			spawnNoteSplashOnNote(note);
@@ -3068,8 +3200,6 @@ class PlayState extends MusicBeatState
 				}
 				return;
 			}
-
-			GameClient.send("noteHit", [note.strumTime, note.noteData, note.isSustainNote]);
 
 			if (!note.isSustainNote)
 			{
@@ -3808,6 +3938,11 @@ class PlayState extends MusicBeatState
 					}
 				});
 
+				if (!message[2]) {
+					opCumboo++;
+					popUpScoreOP(message[3] ?? null);
+				}
+
 				updateOpAccuracy();
 				updateScoreOpponent();
 				vocals.volume = 1;
@@ -3835,6 +3970,7 @@ class PlayState extends MusicBeatState
 				updateOpAccuracy();
 				updateScoreOpponent();
 				vocals.volume = 0;
+				opCumboo = 0;
 			});
 		});
 
@@ -3854,6 +3990,7 @@ class PlayState extends MusicBeatState
 	var opRatingPercent = 0.;
 	var opRatingName = "?";
 	var opRatingFC:String = "SFC";
+	var opCumboo:Int = 0;
 
 	function updateOpAccuracy() {
 		var op = (GameClient.isOwner ? GameClient.room.state.player2 : GameClient.room.state.player1);
@@ -3905,7 +4042,7 @@ class PlayState extends MusicBeatState
 
 		(playerSide() ? scoreTxtP2 : scoreTxtP1).text = 
 			//op.sicks + " " + op.goods + " " + op.bads + " " + op.shits + " " + op.misses
-			op.name + '\nScore: ' + op.score + '\nMisses: ' + op.misses + '\nRating: ' + str
+			op.name + '\nScore: ' + op.score + '\nMisses: ' + op.misses + '\nRating: ' + str + "\nPing: " + op.ping
 		;
 	}
 }

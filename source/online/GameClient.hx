@@ -44,6 +44,7 @@ class GameClient {
 			FlxG.autoPause = false;
 
             GameClient.room = room;
+			clearOnMessage();
 			GameClient.isOwner = true;
 
 			GameClient.room.onError += (id:Int, e:String) -> {
@@ -78,6 +79,7 @@ class GameClient {
 			FlxG.autoPause = false;
 
             GameClient.room = room;
+			clearOnMessage();
 			GameClient.isOwner = false;
 
 			GameClient.room.onError += (id:Int, e:String) -> {
@@ -127,6 +129,7 @@ class GameClient {
 			Sys.println("reconnected!");
 
 			GameClient.room = room;
+			clearOnMessage();
 
 			GameClient.room.onError += (id:Int, e:String) -> {
 				Sys.println("Room.onError: " + id + " - " + e);
@@ -175,12 +178,19 @@ class GameClient {
 	}
 
     public static function isConnected() {
-		return client != null || reconnectTries > 0;
+		return client != null;
     }
 
+	@:access(io.colyseus.Room.onMessageHandlers)
 	public static function clearOnMessage() {
-		if (GameClient.isConnected())
-			@:privateAccess GameClient.room.onMessageHandlers.clear();
+		if (GameClient.isConnected() && GameClient.room?.onMessageHandlers != null)
+			GameClient.room.onMessageHandlers.clear();
+
+		GameClient.room.onMessage("ping", function(message) {
+			Waiter.put(() -> {
+				GameClient.send("pong");
+			});
+		});
 	}
 
 	public static function send(type:Dynamic, ?message:Null<Dynamic>) {
