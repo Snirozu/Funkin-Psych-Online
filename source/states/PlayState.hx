@@ -3940,7 +3940,8 @@ class PlayState extends MusicBeatState
 
 				if (!message[2]) {
 					opCumboo++;
-					popUpScoreOP(message[3] ?? null);
+					popUpScoreOP(message[3]#if(haxe >= "4.3.0") ?? null #end);
+
 				}
 
 				updateOpAccuracy();
