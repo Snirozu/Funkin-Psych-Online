@@ -76,7 +76,15 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
         chatText.text += "\n" + message;
 		chatText.y = typeBg.y - chatText.height;
+		#if(haxe <= "3.0.0")
 		var newClipRect = chatText.clipRect ?? new FlxRect();
+		#else
+		var newClipRect;
+		if(chatText.clipRect != null)
+			newClipRect = chatText.clipRect
+		else
+			newClipRect = new FlxRect();
+		#end
 		newClipRect.height = bg.height;
 		newClipRect.width = bg.width;
         newClipRect.y = chatText.height - bg.height;
