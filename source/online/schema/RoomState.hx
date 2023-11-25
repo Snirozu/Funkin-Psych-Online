@@ -41,4 +41,6 @@ class RoomState extends Schema {
 	@:type("boolean")
 	public var anarchyMode:Bool = false;
 
+	@:type("number")
+	public var health:Dynamic = 0;
 }

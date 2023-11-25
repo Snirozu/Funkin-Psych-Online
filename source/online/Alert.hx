@@ -1,5 +1,6 @@
 package online;
 
+import openfl.Lib;
 import openfl.Assets;
 import openfl.text.TextFormat;
 import openfl.text.TextField;
@@ -18,13 +19,13 @@ class Alert extends Sprite {
 
         instance = this;
 
-		bg = new Bitmap(new BitmapData(1, 1, true, FlxColor.BLACK));
+		bg = new Bitmap(new BitmapData(1, 1, true, 0xFF000000));
 		bg.alpha = 0.6;
         addChild(bg);
 
 		text = new TextField();
 		text.selectable = false;
-		text.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 20, FlxColor.WHITE);
+		text.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 20, 0xFFFFFFFF);
 		addChild(text);
 
 		_targetAlpha = 0;
@@ -38,8 +39,8 @@ class Alert extends Sprite {
 		bg.scaleX = text.width + 50;
 		bg.scaleY = text.height + 50;
 
-		bg.x = FlxG.width / 2 - bg.scaleX / 2;
-		text.x = FlxG.width / 2 - text.width / 2;
+		bg.x = Lib.application.window.width / 2 - bg.scaleX / 2;
+		text.x = Lib.application.window.width / 2 - text.width / 2;
         text.y = bg.scaleY / 2 - text.height / 2;
 
 		_targetAlpha = 5;

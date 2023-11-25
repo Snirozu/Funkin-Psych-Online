@@ -24,7 +24,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 	}
 
 	var bg:FlxSprite;
-    var chatText:FlxText;
+	var chatGroup:FlxTypedSpriteGroup<ChatMessage>;
 	var typeBg:FlxSprite;
     var typeText:FlxText;
     var typeTextHint:FlxText; // i can call it a hint or tip whatever i want
@@ -44,19 +44,18 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 		typeTextHint.alpha = 0.6;
 
 		typeBg = new FlxSprite(0, bg.y + bg.height);
-		typeBg.makeGraphic(Std.int(bg.width), Std.int(typeTextHint.height), FlxColor.BLACK);
+		typeBg.makeGraphic(/*Std.int(bg.width)*/ FlxG.width, Std.int(typeTextHint.height), FlxColor.BLACK);
 		add(typeBg);
 
-		chatText = new FlxText(0, 0, bg.width);
-		chatText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		chatGroup = new FlxTypedSpriteGroup<ChatMessage>();
+		add(chatGroup);
 
-		typeText = new FlxText(0, 0, bg.width);
+		typeText = new FlxText(0, 0, typeBg.width);
 		typeText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 
 		typeTextHint.y = typeBg.y;
 		typeText.y = typeBg.y;
 
-		add(chatText);
 		add(typeTextHint);
 		add(typeText);
 
@@ -74,16 +73,43 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
     public function addMessage(message:String) {
 		targetAlpha = 3;
 
-        chatText.text += "\n" + message;
-		chatText.y = typeBg.y - chatText.height;
-		var newClipRect = chatText.clipRect ?? new FlxRect();
+		var chat = new ChatMessage(bg.width, message);
+		chatGroup.insert(0, chat);
+
+		if (chatGroup.length >= 22) {
+			chatGroup.remove(chatGroup.members[chatGroup.length - 1], true);
+		}
+
+		var newClipRect = chatGroup.clipRect ?? new FlxRect();
 		newClipRect.height = bg.height;
 		newClipRect.width = bg.width;
-        newClipRect.y = chatText.height - bg.height;
-		chatText.clipRect = newClipRect;
+		//i give up with these hitboxes, needs to be fixed
+		chatGroup.clipRect = newClipRect;
     }
 
     override function update(elapsed) {
+		if (focused || alpha > 0) {
+			var i = -1;
+			while (++i < chatGroup.length) {
+				var msg = chatGroup.members[i];
+
+				if (i == 0) {
+					msg.y = typeBg.y - msg.height;
+				}
+				else if (chatGroup.members[i - 1] != null) {
+					msg.y = chatGroup.members[i - 1].y - msg.height;
+				}
+
+				msg.alpha = 0.8;
+				if (msg != null && FlxG.mouse.visible && FlxG.mouse.overlaps(msg)) {
+					msg.alpha = 1;
+					if (FlxG.mouse.justPressed && msg.link != null) {
+						FlxG.openURL(msg.link);
+					}
+				}
+			}
+		}
+
 		if (bg.alpha > 0.6)
 			bg.alpha = 0.6;
 		if (typeTextHint.alpha > 0.6)
@@ -91,7 +117,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
         super.update(elapsed);
 
-		if (FlxG.keys.justPressed.TAB) {
+		if (FlxG.keys.justPressed.TAB || FlxG.keys.justPressed.ESCAPE) {
 			focused = !focused;
 		}
 
@@ -128,7 +154,6 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 			return;
 		}
 		else if (key == 27) { // esc
-			focused = false;
 			return;
 		}
 
@@ -143,5 +168,42 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 		if (newText.length > 0) {
 			typeText.text += newText;
 		}
+	}
+}
+
+class ChatMessage extends FlxText {
+	public var link:String = null;
+
+	public function new(fieldWidth:Float = 0, message:String) {
+		super(0, 0, fieldWidth, message);
+		setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+
+		var _split = message.split("");
+		var i = -1;
+		var str = "";
+		var formatBeg = null;
+		var formatEnd = null;
+		while (++i < message.length) {
+			if (this.link == null && str.startsWith("https://")) {
+				if (_split[i].trim() == "") {
+					this.link = str;
+					formatEnd = i;
+				}
+				else if (i == message.length - 1) {
+					this.link = str + _split[i].trim();
+					formatEnd = i + 1;
+				}
+			}
+
+			str += _split[i];
+
+			if (this.link == null && str.endsWith("https://")) {
+				str = "https://";
+				formatBeg = i - 7;
+			}
+		}
+
+		if (link != null)
+			addFormat(new FlxTextFormat(FlxColor.CYAN), formatBeg, formatEnd);
 	}
 }
