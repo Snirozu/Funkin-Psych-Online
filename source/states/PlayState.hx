@@ -180,7 +180,20 @@ class PlayState extends MusicBeatState
 	private var curSong:String = "";
 
 	public var gfSpeed:Int = 1;
-	public var health:Float = 1;
+	var _health:Float = 1;
+	public var health(get, set):Float;
+	function get_health() {
+		if (GameClient.isConnected()) {
+			return GameClient.room.state.health;
+		}
+		return _health;
+	}
+	function set_health(v) {
+		if (GameClient.isConnected()) {
+			return GameClient.room.state.health;
+		}
+		return _health = v;
+	}
 	public var combo:Int = 0;
 
 	public var healthBar:HealthBar;
@@ -352,7 +365,13 @@ class PlayState extends MusicBeatState
 		storyDifficultyText = Difficulty.getString();
 
 		// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
-		if (isStoryMode)
+		if (GameClient.isConnected()) {
+			if (!GameClient.room.state.isPrivate)
+				detailsText = "Playing against: " + (GameClient.isOwner ? GameClient.room.state.player2.name : GameClient.room.state.player1.name) + "!";
+			else
+				detailsText = "Playing a online private game!";
+		}
+		else if (isStoryMode)
 			detailsText = "Story Mode: " + WeekData.getCurrentWeek().weekName;
 		else
 			detailsText = "Freeplay";
@@ -673,6 +692,7 @@ class PlayState extends MusicBeatState
 
 		startCallback();
 		RecalculateRating();
+		updateScoreOpponent();
 
 		//PRECACHING MISS SOUNDS BECAUSE I THINK THEY CAN LAG PEOPLE AND FUCK THEM UP IDK HOW HAXE WORKS
 		if(ClientPrefs.data.hitsoundVolume > 0) precacheList.set('hitsound', 'sound');
@@ -2670,7 +2690,7 @@ class PlayState extends MusicBeatState
 		});
 	}
 
-	private function popUpScore(note:Note = null):Void
+	private function popUpScore(note:Note = null):Rating
 	{
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.data.ratingOffset);
 		vocals.volume = 1;
@@ -2690,8 +2710,6 @@ class PlayState extends MusicBeatState
 		if(!note.ratingDisabled) daRating.hits++;
 		note.rating = daRating.name;
 		score = daRating.score;
-
-		GameClient.send("noteHit", [note.strumTime, note.noteData, note.isSustainNote, daRating.image]);
 
 		if(daRating.noteSplash && !note.noteSplashData.disabled)
 			spawnNoteSplashOnNote(note);
@@ -2844,6 +2862,8 @@ class PlayState extends MusicBeatState
 			},
 			startDelay: Conductor.crochet * 0.002 / playbackRate
 		});
+
+		return daRating;
 	}
 
 	public var strumsBlocked:Array<Bool> = [];
@@ -3099,7 +3119,7 @@ class PlayState extends MusicBeatState
 
 			var animToPlay:String = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length-1, direction)))] + 'miss' + suffix;
 			char.playAnim(animToPlay, true);
-			GameClient.send("charPlay", [animToPlay]);
+			GameClient.send("charPlay", [animToPlay, char == gf]);
 			
 			if(char != gf && combo > 5 && gf != null && gf.animOffsets.exists('sad'))
 			{
@@ -3201,13 +3221,16 @@ class PlayState extends MusicBeatState
 				return;
 			}
 
+			var rating:Rating = null;
 			if (!note.isSustainNote)
 			{
 				combo++;
 				if(combo > 9999) combo = 9999;
-				popUpScore(note);
+				rating = popUpScore(note);
 			}
 			addHealth(note.hitHealth * healthGain);
+
+			GameClient.send("noteHit", [note.strumTime, note.noteData, note.isSustainNote, rating?.image]);
 
 			if(!note.noAnimation) {
 				var altAnim:String = "";
@@ -3237,7 +3260,7 @@ class PlayState extends MusicBeatState
 					char.playAnim(animToPlay + note.animSuffix, true);
 					char.holdTimer = 0;
 
-					GameClient.send("charPlay", [animToPlay + note.animSuffix]);
+					GameClient.send("charPlay", [animToPlay + note.animSuffix, note.gfNote]);
 					
 					if(note.noteType == 'Hey!') {
 						if(char.animOffsets.exists(animCheck)) {
@@ -3917,8 +3940,11 @@ class PlayState extends MusicBeatState
 
 		GameClient.room.onMessage("charPlay", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
-				if (message != null && getOpponent() != null)
-					getOpponent().playAnim(message[0], true);
+				if (message != null && message.length == 2)
+					if (message[1] && gf != null)
+						gf.playAnim(message[0], true);
+					else if (!message[1] && getOpponent() != null)
+						getOpponent().playAnim(message[0], true);
 			});
 		});
 
@@ -3938,9 +3964,9 @@ class PlayState extends MusicBeatState
 					}
 				});
 
-				if (!message[2]) {
+				if (!message[2] && message[3] != null) {
 					opCumboo++;
-					popUpScoreOP(message[3] ?? null);
+					popUpScoreOP(message[3]);
 				}
 
 				updateOpAccuracy();

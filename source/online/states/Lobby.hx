@@ -19,7 +19,7 @@ class Lobby extends MusicBeatState {
 
 	var itemDesc:FlxText;
 
-	var curSelected = 0;
+	static var curSelected = 0;
 
 	var inputWait = false;
 	var inputString(get, set):String;
@@ -149,28 +149,35 @@ class Lobby extends MusicBeatState {
 		}
 		itemDesc.screenCenter(X);
 
-		if (controls.ACCEPT && !inputWait) {
-			switch (itms[curSelected].toLowerCase()) {
-				case "join":
+
+		if (!inputWait) {
+			if (controls.ACCEPT) {
+				switch (itms[curSelected].toLowerCase()) {
+					case "join":
+						inputWait = true;
+					case "find":
+						// FlxG.openURL(GameClient.serverAddress + "/rooms");
+						FlxG.switchState(new FindRoom());
+					case "host":
+						GameClient.createRoom(onRoomJoin);
+					case "discord":
+						FlxG.openURL("https://discord.gg/juHypjWuNc");
+				}
+				if (curSelected == 3) {
 					inputWait = true;
-                case "find":
-                    //FlxG.openURL(GameClient.serverAddress + "/rooms");
-					FlxG.switchState(new FindRoom());
-				case "host":
-					GameClient.createRoom(onRoomJoin);
-				case "discord":
-					FlxG.openURL("https://discord.gg/juHypjWuNc");
+				}
 			}
-			if (curSelected == 3) {
-				inputWait = true;
+
+			if (controls.BACK) {
+				FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+
+				FlxG.sound.play(Paths.sound('cancelMenu'));
+				MusicBeatState.switchState(new MainMenuState());
 			}
-		}
-
-		if (controls.BACK && !inputWait) {
-			FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-
-			FlxG.sound.play(Paths.sound('cancelMenu'));
-			MusicBeatState.switchState(new MainMenuState());
+			
+			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V) {
+				GameClient.joinRoom(Clipboard.text, onRoomJoin);
+			}
 		}
     }
 

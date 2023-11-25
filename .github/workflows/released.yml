@@ -1,0 +1,16 @@
+on:
+  release:
+    types: 
+        - published
+
+jobs:
+    released:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Bump gitVersion.txt version
+                uses: jaywcjlove/github-action-modify-file-content@main
+                with:
+                    path: gitVersion.txt
+                    body: overwrite file content ${{ github.ref_name }}
+                    overwrite: true
+                    message: Bump to ${{ github.ref_name }}

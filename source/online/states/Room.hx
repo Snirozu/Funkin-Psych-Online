@@ -17,14 +17,9 @@ class Room extends MusicBeatState {
 	var roomVisibleTip:FlxText;
 	var startGame:FlxText;
 	var startGameTip:FlxText;
-
-	var swapSides:FlxText;
-	var swapSidesTip:FlxText;
-	var anarchyMode:FlxText;
-	var anarchyModeTip:FlxText;
-
 	var chatBox:ChatBox;
 	var chatBoxTip:FlxText;
+	var settingsTip:FlxText;
 	
 	public function new() {
 		super();
@@ -51,11 +46,11 @@ class Room extends MusicBeatState {
 		add(bg);
 
 		player1Text = new FlxText(0, 50, 0, "PLAYER 1");
-		player1Text.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		player1Text.setFormat("VCR OSD Mono", 30, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(player1Text);
 
 		player2Text = new FlxText(0, 50, 0, "PLAYER 2");
-		player2Text.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		player2Text.setFormat("VCR OSD Mono", 30, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(player2Text);
 
 		roomCode = new FlxText(0, 0, FlxG.width, "????");
@@ -91,28 +86,6 @@ class Room extends MusicBeatState {
 		startGameTip.screenCenter(X);
 		add(startGameTip);
 
-		swapSides = new FlxText(0, 0, FlxG.width, "");
-		swapSides.setFormat("VCR OSD Mono", 22, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		swapSides.y = startGame.y - 70;
-		swapSides.screenCenter(X);
-		add(swapSides);
-
-		swapSidesTip = new FlxText(0, swapSides.y + swapSides.height + 5, FlxG.width, "");
-		swapSidesTip.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		swapSidesTip.screenCenter(X);
-		add(swapSidesTip);
-
-		anarchyMode = new FlxText(0, 0, FlxG.width, "");
-		anarchyMode.setFormat("VCR OSD Mono", 22, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		anarchyMode.y = swapSides.y - 70;
-		anarchyMode.screenCenter(X);
-		add(anarchyMode);
-
-		anarchyModeTip = new FlxText(0, anarchyMode.y + anarchyMode.height + 5, FlxG.width, "");
-		anarchyModeTip.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		anarchyModeTip.screenCenter(X);
-		add(anarchyModeTip);
-
 		chatBox = new ChatBox();
 		chatBox.y = FlxG.height - chatBox.height;
 		add(chatBox);
@@ -123,6 +96,13 @@ class Room extends MusicBeatState {
 		chatBoxTip.y -= 20;
 		chatBoxTip.x += 20;
 		add(chatBoxTip);
+
+		settingsTip = new FlxText(0, 0, 0, "(Press SHIFT to open settings)");
+		settingsTip.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		settingsTip.y = FlxG.height - settingsTip.height;
+		settingsTip.y -= 20;
+		settingsTip.x = FlxG.width - settingsTip.width - 20;
+		add(settingsTip);
 
 		GameClient.room.onMessage("gameStarted", function(message) {
 			Waiter.put(() -> {
@@ -172,24 +152,10 @@ class Room extends MusicBeatState {
 		});
 
 		updateTexts();
-
-		new FlxTimer().start();
 	}
 
     override function update(elapsed) {
-        super.update(elapsed);
-
-		chatBoxTip.visible = chatBox.alpha <= 0;
-
-		updateTexts();
-
 		if (!chatBox.focused) {
-			if (FlxG.keys.justPressed.A) {
-				if (GameClient.hasPerms()) {
-					GameClient.send("togglePrivate");
-				}
-			}
-
 			if (FlxG.keys.justPressed.ENTER) {
 				if (GameClient.hasPerms() && GameClient.room.state.player1.hasSong && GameClient.room.state.player2.hasSong) {
 					GameClient.send("startGame");
@@ -212,22 +178,20 @@ class Room extends MusicBeatState {
 				GameClient.leaveRoom();
 			}
 
-			if (FlxG.keys.justPressed.F1) {
-				if (GameClient.hasPerms()) {
-					GameClient.send("swapSides");
-				}
-			}
-
-			if (FlxG.keys.justPressed.F2) {
-				if (GameClient.hasPerms()) {
-					GameClient.send("anarchyMode");
-				}
-			}
-
 			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.C) {
 				Clipboard.text = GameClient.room.roomId;
 			}
+
+			if (FlxG.keys.justPressed.SHIFT) {
+				openSubState(new ServerSettingsSubstate());
+			}
 		}
+
+        super.update(elapsed);
+
+		chatBoxTip.visible = chatBox.alpha <= 0;
+
+		updateTexts();
 
 		player1Text.x = FlxG.width / 2 - 200 - player1Text.width;
 		player2Text.x = FlxG.width / 2 + 200;
@@ -247,18 +211,11 @@ class Room extends MusicBeatState {
 		if (!GameClient.hasPerms()) {
 			roomVisibleTip.text = "(You can't change that)";
 			startGameTip.text = "(Only the OP can do that)";
-			swapSidesTip.text = "(Only the OP can do that)";
-			anarchyModeTip.text = "(Only the OP can change that)";
 		}
 		else {
-			roomVisibleTip.text = "(Press A to toggle your room visibility)";
+			roomVisibleTip.text = "(This can be changed in the settings (SHIFT))";
 			startGameTip.text = "(Press: ENTER to Start Game; SPACE to select song)";
-			swapSidesTip.text = "(Press: F1 to swap sides with the opponent!)";
-			anarchyModeTip.text = "(F2 to enable Anarchy Mode; this gives player 2 OP permissions)";
 		}
-
-		swapSides.text = "Swapped Sides: " + (GameClient.room.state.swagSides ? "ENABLED" : "DISABLED");
-		anarchyMode.text = "Anarchy Mode: " + (GameClient.room.state.anarchyMode ? "ENABLED" : "DISABLED");
 
 		startGame.text = "Song: " + GameClient.room.state.song;
 		roomVisible.text = GameClient.room.state.isPrivate ? "CODE ONLY" : "PUBLIC";
