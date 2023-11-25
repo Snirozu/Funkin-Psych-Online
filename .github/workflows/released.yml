@@ -3,6 +3,8 @@ on:
     types: 
         - published
 
+name: Bump gitVersion.txt
+
 jobs:
     released:
         runs-on: ubuntu-latest
