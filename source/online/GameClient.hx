@@ -36,6 +36,7 @@ class GameClient {
 		client.create("room", ["name" => ClientPrefs.data.nickname, "version" => MainMenuState.psychOnlineVersion], RoomState, function(err, room) {
             if (err != null) {
 				Alert.alert("Couldn't connect!", "ERROR: " + err.code + " - " + err.message + (err.code == 0 ? "\nTry again in a few minutes! The server is probably restarting!" : ""));
+				client = null;
                 return;
             }
 
@@ -71,6 +72,7 @@ class GameClient {
 		client.joinById(roomID, ["name" => ClientPrefs.data.nickname, "version" => MainMenuState.psychOnlineVersion], RoomState, function(err, room) {
             if (err != null) {
 				Alert.alert("Couldn't connect!", "JOIN ERROR: " + err.code + " - " + err.message);
+				client = null;
                 return;
             }
 
@@ -157,7 +159,7 @@ class GameClient {
 
 	public static function leaveRoom() {
         Waiter.put(() -> {
-			Sys.println("consented leaving the room");
+			Sys.println("leaving the room");
 
 			FlxG.autoPause = ClientPrefs.data.autoPause;
 
