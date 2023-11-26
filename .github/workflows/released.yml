@@ -13,7 +13,7 @@ jobs:
                 uses: jaywcjlove/github-action-modify-file-content@main
                 with:
                     path: gitVersion.txt
-                    body: overwrite file content ${{ github.ref_name }}
+                    body: ${{ github.ref_name }}
                     overwrite: true
                     message: Bump to ${{ github.ref_name }}
                     branch: main
