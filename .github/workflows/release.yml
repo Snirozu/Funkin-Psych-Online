@@ -118,7 +118,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./windowsBuild.zip
+        asset_path: windowsBuild
         asset_name: windowsBuild.zip
         asset_content_type: application/zip
 
@@ -128,7 +128,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./linuxBuild.zip
+        asset_path: linuxBuild
         asset_name: linuxBuild.zip
         asset_content_type: application/zip
 
@@ -138,6 +138,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./macBuild.zip
+        asset_path: macBuild
         asset_name: macBuild.zip
         asset_content_type: application/zip
