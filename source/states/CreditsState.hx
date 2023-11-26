@@ -48,7 +48,7 @@ class CreditsState extends MusicBeatState
 			['Snirozu', 'snirozu', 'Developer', 'https://twitter.com/snirozu', '32a852'],
 			[''],
 			['Contributors'],
-			['Magniill', 'notmagniill', 'Remade the Online button sprite!', 'https://twitter.com/magniill', '055c9d'],
+			['Magniill', 'notmagniill', 'Remade the Online button sprite!', 'https://twitter.com/magniill', '910000'],
 			[''],
 			['Psych Engine Team'],
 			['Shadow Mario',		'shadowmario',		'Main Programmer of Psych Engine',								'https://twitter.com/Shadow_Mario_',	'444444'],
