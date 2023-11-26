@@ -46,6 +46,7 @@ class CreditsState extends MusicBeatState
 		var defaultList:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
 			['Psych Online'],
 			['Snirozu', 'snirozu', 'Developer', 'https://twitter.com/snirozu', '32a852'],
+			[''],
 			['Contributors'],
 			['Magniill', 'notmagniill', 'Remade the Online button sprite!', 'https://twitter.com/magniill', '055c9d'],
 			[''],
@@ -112,7 +113,7 @@ class CreditsState extends MusicBeatState
 		descBox.makeGraphic(1, 1, FlxColor.BLACK);
 		descBox.xAdd = -10;
 		descBox.yAdd = -10;
-		descBox.alphaMult = 0.6;
+		descBox.alphaMult = 0.8;
 		descBox.alpha = 0.6;
 		add(descBox);
 
