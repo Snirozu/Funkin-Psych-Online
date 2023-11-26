@@ -692,7 +692,8 @@ class PlayState extends MusicBeatState
 
 		startCallback();
 		RecalculateRating();
-		updateScoreOpponent();
+		if (GameClient.isConnected())
+			updateScoreOpponent();
 
 		//PRECACHING MISS SOUNDS BECAUSE I THINK THEY CAN LAG PEOPLE AND FUCK THEM UP IDK HOW HAXE WORKS
 		if(ClientPrefs.data.hitsoundVolume > 0) precacheList.set('hitsound', 'sound');
