@@ -3926,7 +3926,7 @@ class PlayState extends MusicBeatState
 
 		GameClient.room.onMessage("strumPlay", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
-				if (message == null || message[1] == null || message[2] == null) {
+				if (message == null || message[0] == null || message[1] == null || message[2] == null) {
 					return;
 				}
 
@@ -3940,17 +3940,19 @@ class PlayState extends MusicBeatState
 
 		GameClient.room.onMessage("charPlay", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
-				if (message != null && message.length == 2)
-					if (message[1] && gf != null)
-						gf.playAnim(message[0], true);
-					else if (!message[1] && getOpponent() != null)
-						getOpponent().playAnim(message[0], true);
+				if (message == null || message[0] == null || message[1] == null)
+					return;
+
+				if (message[1] && gf != null)
+					gf.playAnim(message[0], true);
+				else if (!message[1] && getOpponent() != null)
+					getOpponent().playAnim(message[0], true);
 			});
 		});
 
 		GameClient.room.onMessage("noteHit", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
-				if (message == null || message[0] == null || message[1] == null || message[2] == null || message.length < 3) {
+				if (message == null || message[0] == null || message[1] == null || message[2] == null) {
 					return;
 				}
 
@@ -3977,7 +3979,7 @@ class PlayState extends MusicBeatState
 
 		GameClient.room.onMessage("noteMiss", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
-				if (message == null || message[0] == null || message[1] == null || message[2] == null || message.length < 3) {
+				if (message == null || message[0] == null || message[1] == null || message[2] == null) {
 					return;
 				}
 
