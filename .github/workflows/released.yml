@@ -2,6 +2,7 @@ on:
   release:
     types: 
         - published
+        - edited
 
 name: Bump gitVersion.txt
 
@@ -16,3 +17,4 @@ jobs:
                     body: overwrite file content ${{ github.ref_name }}
                     overwrite: true
                     message: Bump to ${{ github.ref_name }}
+                    branch: main
