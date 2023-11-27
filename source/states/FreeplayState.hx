@@ -485,6 +485,7 @@ class FreeplayState extends MusicBeatState
 			DiscordClient.loadModRPC();
 			#end
 		}
+		}
 		else if(controls.RESET)
 		{
 			persistentUpdate = false;
