@@ -1,5 +1,6 @@
 package backend;
 
+import externs.WinAPI;
 import flixel.util.FlxSave;
 
 import openfl.utils.Assets;
@@ -124,5 +125,14 @@ class CoolUtil
 		return #if (flixel < "5.0.0") folder #else FlxG.stage.application.meta.get('company')
 			+ '/'
 			+ FlxSave.validate(FlxG.stage.application.meta.get('file')) #end;
+	}
+
+	public static function setDarkMode(enabled:Bool) {
+		WinAPI.setDarkMode(getWindowTitle(), enabled);
+	}
+
+	public static function getWindowTitle():String {
+		@:privateAccess var attributes = lime.app.Application.current.window.__attributes;
+		return Reflect.hasField(attributes, "title") ? attributes.title : "Lime Application";
 	}
 }

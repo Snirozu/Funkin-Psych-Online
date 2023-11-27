@@ -14,6 +14,7 @@ class Lobby extends MusicBeatState {
         "HOST",
         "FIND",
 		"NAME",
+		"SERVER",
 		"DISCORD"
     ];
 
@@ -29,6 +30,8 @@ class Lobby extends MusicBeatState {
 				return daCoomCode;
 			case 3:
 				return daName;
+			case 4:
+				return daAddress;
 		}
 		return null;
 	}
@@ -38,12 +41,15 @@ class Lobby extends MusicBeatState {
 				return daCoomCode = v;
 			case 3:
 				return daName = v;
+			case 4:
+				return daAddress = v;
 		}
 		return null;
 	}
 
 	var daCoomCode:String = "";
 	var daName:String;
+	var daAddress:String;
 
 	var disableInput = false;
 
@@ -61,6 +67,9 @@ class Lobby extends MusicBeatState {
 		if (curSelected == 3 && item.toLowerCase().startsWith("name") && inputWait) {
 			return "NAME: " + inputString;
 		}
+		if (curSelected == 4 && item.toLowerCase().startsWith("server") && inputWait) {
+			return "SERVER: " + inputString;
+		}
 		return item;
 	}
 
@@ -70,6 +79,7 @@ class Lobby extends MusicBeatState {
 		DiscordClient.changePresence("In online lobby.", null, null, true);
 
 		daName = ClientPrefs.data.nickname;
+		daAddress = GameClient.serverAddress;
 
         var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
         bg.color = 0xff6f2d83;
@@ -145,6 +155,8 @@ class Lobby extends MusicBeatState {
 			case 3:
 				itemDesc.text = "Set your nickname here!";
 			case 4:
+				itemDesc.text = "Set the server address here!\n(should begin with ws:// or wss://)\nSet to empty if you want to use the default server";
+			case 5:
 				itemDesc.text = "Also join the Discord server of this mod!";
 		}
 		itemDesc.screenCenter(X);
@@ -163,7 +175,7 @@ class Lobby extends MusicBeatState {
 					case "discord":
 						FlxG.openURL("https://discord.gg/juHypjWuNc");
 				}
-				if (curSelected == 3) {
+				if (curSelected == 3 || curSelected == 4) {
 					inputWait = true;
 				}
 			}
@@ -211,6 +223,9 @@ class Lobby extends MusicBeatState {
 					ClientPrefs.data.nickname = daName;
 					ClientPrefs.saveSettings();
 				}
+				if (curSelected == 4) {
+					GameClient.serverAddress = daAddress;
+				}
             }
 
 			tempDisableInput();
@@ -222,6 +237,9 @@ class Lobby extends MusicBeatState {
 			if (curSelected == 3) {
 				ClientPrefs.data.nickname = daName;
 				ClientPrefs.saveSettings();
+			}
+			if (curSelected == 4) {
+				GameClient.serverAddress = daAddress;
 			}
             return;
         }

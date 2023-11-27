@@ -15,23 +15,10 @@ class GameClient {
     public static var isOwner:Bool;
 	public static var reconnectTries:Int = 0;
 
-	public static var serverAddress:String = 
-		#if LOCAL
-		"localhost:2567"
-		#else
-		"gettinfreaky.onrender.com"
-		#end
-	;
-	public static var serverProtocol:String =
-		#if LOCAL
-		"ws"
-		#else
-		"wss"
-		#end
-	;
+	public static var serverAddress(get, set):String;
 
     public static function createRoom(?onJoin:()->Void) {
-		client = new Client(serverProtocol + "://" + serverAddress);
+		client = new Client(serverAddress);
 
 		client.create("room", ["name" => ClientPrefs.data.nickname, "version" => MainMenuState.psychOnlineVersion], RoomState, function(err, room) {
             if (err != null) {
@@ -67,7 +54,7 @@ class GameClient {
     }
 
     public static function joinRoom(roomID:String, ?onJoin:()->Void) {
-		client = new Client(serverProtocol + "://" + serverAddress);
+		client = new Client(serverAddress);
 
 		client.joinById(roomID, ["name" => ClientPrefs.data.nickname, "version" => MainMenuState.psychOnlineVersion], RoomState, function(err, room) {
             if (err != null) {
@@ -152,9 +139,7 @@ class GameClient {
 	}
 
 	public static function getAvailableRooms(result:(MatchMakeError, Array<RoomAvailable>)->Void) {
-		client = new Client(serverProtocol + "://" + serverAddress);
-
-		client.getAvailableRooms("room", result);
+		new Client(serverAddress).getAvailableRooms("room", result);
 	}
 
 	public static function leaveRoom() {
@@ -202,5 +187,31 @@ class GameClient {
 
 	public static function hasPerms() {
 		return GameClient.isOwner || GameClient.room.state.anarchyMode;
+	}
+
+	static final _defaultAddress:String = 
+		#if LOCAL
+		"ws://localhost:2567"
+		#else
+		"wss://gettinfreaky.onrender.com"
+		#end
+	;
+
+	static function get_serverAddress():String {
+		if (ClientPrefs.data.serverAddress != null) {
+			return ClientPrefs.data.serverAddress;
+		}
+		return _defaultAddress;
+	}
+
+	static function set_serverAddress(v:String):String {
+		if (v != null)
+			v = v.trim();
+		if (v == "" || v == _defaultAddress || v == "null")
+			v = null;
+
+		ClientPrefs.data.serverAddress = v;
+		ClientPrefs.saveSettings();
+		return serverAddress;
 	}
 }
