@@ -1209,7 +1209,7 @@ class PlayState extends MusicBeatState
 	{
 		var scoreTextObject = scoreTxt;
 		if (GameClient.isConnected()) {
-			scoreTextObject = (playerSide() ? scoreTxtP1 : scoreTxtP2);
+			scoreTextObject = (!playsAsBF() ? scoreTxtP1 : scoreTxtP2);
 		}
 
 		var str:String = ratingName;
@@ -1543,7 +1543,7 @@ class PlayState extends MusicBeatState
 			var targetAlpha:Float = 1;
 
 			if (GameClient.isConnected()) {
-				if (playerSide())
+				if (!playsAsBF())
 					targetAlpha = (player == 0 ? 1 : 0.7);
 				else
 					targetAlpha = (player == 0 ? 0.7 : 1);
@@ -2590,7 +2590,7 @@ class PlayState extends MusicBeatState
 	private function popUpScoreOP(ratingImage:String) {
 		var placement:Float = FlxG.width * 0.35;
 		if (GameClient.isConnected()) {
-			placement = FlxG.width * (0.30 + (playerSide() ? 0.1 : -0.1));
+			placement = FlxG.width * (0.30 + (!playsAsBF() ? 0.1 : -0.1));
 		}
 
 		var uiPrefix:String = "";
@@ -2698,7 +2698,7 @@ class PlayState extends MusicBeatState
 
 		var placement:Float = FlxG.width * 0.35;
 		if (GameClient.isConnected()) {
-			placement = FlxG.width * (0.30 + (!playerSide() ? 0.1 : -0.1)); 
+			placement = FlxG.width * (0.30 + (!playsAsBF() ? 0.1 : -0.1)); 
 		}
 		var rating:FlxSprite = new FlxSprite();
 		var score:Int = 350;
@@ -3867,16 +3867,9 @@ class PlayState extends MusicBeatState
 
 	public static function playsAsBF() {
 		if (GameClient.isConnected()) {
-			return !playerSide();
+			return GameClient.room.state.swagSides ? GameClient.isOwner : !GameClient.isOwner;
 		}
 		return !opponentMode;
-	}
-
-	public static function playerSide() {
-		if (GameClient.isConnected()) {
-			return GameClient.room.state.swagSides ? !GameClient.isOwner : GameClient.isOwner;
-		}
-		return opponentMode;
 	}
 
 	public static function isPlayerNote(note:Note):Bool {
@@ -4069,7 +4062,7 @@ class PlayState extends MusicBeatState
 			str += ' ($percent%) - $opRatingFC';
 		}
 
-		(playerSide() ? scoreTxtP2 : scoreTxtP1).text = 
+		(!playsAsBF() ? scoreTxtP2 : scoreTxtP1).text = 
 			//op.sicks + " " + op.goods + " " + op.bads + " " + op.shits + " " + op.misses
 			op.name + '\nScore: ' + op.score + '\nMisses: ' + op.misses + '\nRating: ' + str + "\nPing: " + op.ping
 		;
