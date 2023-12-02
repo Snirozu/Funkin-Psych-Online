@@ -75,6 +75,7 @@ class SaveVariables {
 	public var safeFrames:Float = 10;
 	public var discordRPC:Bool = true;
 	public var nickname:String = "Boyfriend";
+	public var serverAddress:String = null;
 
 	public function new()
 	{

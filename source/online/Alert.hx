@@ -49,6 +49,9 @@ class Alert extends Sprite {
     override function __enterFrame(delta) {
         super.__enterFrame(delta);
 
+		if (delta > 500)
+			return;
+
 		if (_targetAlpha > 0.)
 			_targetAlpha -= delta * 0.001;
 
