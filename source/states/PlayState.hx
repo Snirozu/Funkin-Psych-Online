@@ -305,14 +305,6 @@ class PlayState extends MusicBeatState
 			};
 		}
 
-		if (GameClient.isConnected()) {
-			GameClient.room.onMessage("log", function(message) {
-				Waiter.put(() -> {
-					Alert.alert("New message", message);
-				});
-			});
-		}
-
 		// for lua
 		instance = this;
 
@@ -1727,7 +1719,7 @@ class PlayState extends MusicBeatState
 		}*/
 		callOnScripts('onUpdate', [elapsed]);
 
-		if (playbackRate != 1.)
+		if (playbackRate != 1. && GameClient.isConnected())
 			playbackRate = 1;
 
 		if (cpuControlled && GameClient.isConnected()) {
@@ -3917,6 +3909,12 @@ class PlayState extends MusicBeatState
 	function registerMessages() {
 		if (!GameClient.isConnected())
 			return;
+
+		GameClient.room.onMessage("log", function(message) {
+			Waiter.put(() -> {
+				Alert.alert("New message", message);
+			});
+		});
 
 		GameClient.room.onMessage("strumPlay", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
