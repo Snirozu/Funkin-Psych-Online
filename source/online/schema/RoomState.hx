@@ -23,6 +23,9 @@ class RoomState extends Schema {
 	@:type("string")
 	public var modDir:String = "";
 
+	@:type("string")
+	public var modURL:String = "";
+
 	@:type("ref", Player)
 	public var player1: Player = new Player();
 

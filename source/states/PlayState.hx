@@ -1197,7 +1197,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	public function updateScore(miss:Bool = false)
+	public function updateScore(miss:Bool = false, ?skipRest:Bool = false)
 	{
 		var scoreTextObject = scoreTxt;
 		if (GameClient.isConnected()) {
@@ -1220,6 +1220,9 @@ class PlayState extends MusicBeatState
 		else {
 			scoreTextObject.text = 'Score: ' + songScore + ' | Misses: ' + songMisses + ' | Rating: ' + str;
 		}
+
+		if (skipRest)
+			return;
 
 		if (ClientPrefs.data.scoreZoom && !miss && !cpuControlled) {
 			if (scoreTxtTween != null) {
@@ -1728,7 +1731,8 @@ class PlayState extends MusicBeatState
 
 		FlxG.camera.followLerp = 0;
 		if(!inCutscene && !paused) {
-			FlxG.camera.followLerp = FlxMath.bound(elapsed * 2.4 * cameraSpeed * playbackRate / (FlxG.updateFramerate / 60), 0, 1);
+			//FlxG.camera.followLerp = FlxMath.bound(elapsed * 2.4 * cameraSpeed * playbackRate / (FlxG.updateFramerate / 60), 0, 1);
+			FlxG.camera.followLerp = 0.04 * cameraSpeed * playbackRate;
 			if(!startingSong && !endingSong && getPlayer().animation.curAnim != null && getPlayer().animation.curAnim.name.startsWith('idle')) {
 				boyfriendIdleTime += elapsed;
 				if(boyfriendIdleTime >= 0.15) { // Kind of a mercy thing for making the achievement easier to get as it's apparently frustrating to some playerss
@@ -2449,7 +2453,7 @@ class PlayState extends MusicBeatState
 			if (GameClient.isConnected()) {
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				GameClient.clearOnMessage();
-				MusicBeatState.switchState(new Room());
+				MusicBeatState.switchState(new online.states.PostGame());
 			}
 			else if (isStoryMode)
 			{
@@ -3909,6 +3913,22 @@ class PlayState extends MusicBeatState
 	function registerMessages() {
 		if (!GameClient.isConnected())
 			return;
+
+		GameClient.room.onMessage("ping", function(message) {
+			Waiter.put(() -> {
+				GameClient.send("pong");
+
+				updateScore(false, true);
+				updateScoreOpponent();
+			});
+		});
+
+		GameClient.room.onMessage("custom", function(message:Array<Dynamic>) {
+			Waiter.put(() -> {
+				callOnLuas('onMessage', message);
+				callOnHScript('onMessage', message);
+			});
+		});
 
 		GameClient.room.onMessage("log", function(message) {
 			Waiter.put(() -> {

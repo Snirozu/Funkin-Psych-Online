@@ -43,4 +43,7 @@ class Player extends Schema {
 
 	@:type("number")
 	public var ping:Dynamic = 0;
+
+	@:type("boolean")
+	public var isReady:Bool = false;
 }

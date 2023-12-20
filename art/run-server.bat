@@ -1,6 +1,7 @@
 @echo off
 color 8
 echo === RUNNING PSYCH ONLINE SERVER LOCALLY! ===
+echo If the server is outdated delete the '_server' directory and run this file again!
 
 WHERE npm /Q
 if %ERRORLEVEL% NEQ 0 (
@@ -24,13 +25,13 @@ tar -xf server.zip
 del server.zip
 ren Funkin-Online-Server-main _server
 echo Done!
-attrib +h _server /s /d
 
 cd _server
 echo Installing required libraries...
 call npm i
 echo Done!
 ) else (
+    attrib -h _server /d
     cd _server
 )
 

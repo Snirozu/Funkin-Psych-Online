@@ -25,6 +25,13 @@ class FindRoom extends MusicBeatState {
 		bg.scrollFactor.set(0, 0);
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		add(bg);
+
+		var lines:FlxSprite = new FlxSprite().loadGraphic(Paths.image('coolLines'));
+		lines.updateHitbox();
+		lines.screenCenter();
+		lines.antialiasing = ClientPrefs.data.antialiasing;
+		lines.scrollFactor.set(0, 0);
+		add(lines);
         
 		swagRooms = new FlxTypedSpriteGroup<RoomText>();
 		add(swagRooms);
@@ -76,7 +83,7 @@ class FindRoom extends MusicBeatState {
 		GameClient.getAvailableRooms((err, rooms) -> {
             Waiter.put(() -> {
                 if (err != null) {
-					FlxG.switchState(new MainMenuState());
+					FlxG.switchState(new Lobby());
 					FlxG.sound.play(Paths.sound('cancelMenu'));
 					Alert.alert("Couldn't connect!", "ERROR: " + err.code + " - " + err.message + (err.code == 0 ? "\nTry again in a few minutes! The server is probably restarting!" : ""));
                     return;

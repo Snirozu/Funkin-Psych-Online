@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="online_chat.png">
+	<!-- Created with Adobe Animate version 23.0.2.103 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="chat0000" x="0" y="0" width="85" height="84"/>
+	<SubTexture name="chat0001" x="0" y="0" width="85" height="84"/>
+	<SubTexture name="chat0002" x="0" y="0" width="85" height="84"/>
+	<SubTexture name="chat0003" x="85" y="0" width="85" height="84"/>
+	<SubTexture name="chat0004" x="85" y="0" width="85" height="84"/>
+	<SubTexture name="chat0005" x="85" y="0" width="85" height="84"/>
+</TextureAtlas>

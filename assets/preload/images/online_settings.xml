@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="online_settings.png">
+	<!-- Created with Adobe Animate version 23.0.2.103 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="settings0000" x="0" y="0" width="96" height="89"/>
+	<SubTexture name="settings0001" x="0" y="0" width="96" height="89"/>
+	<SubTexture name="settings0002" x="0" y="0" width="96" height="89"/>
+	<SubTexture name="settings0003" x="96" y="0" width="96" height="89"/>
+	<SubTexture name="settings0004" x="96" y="0" width="96" height="89"/>
+	<SubTexture name="settings0005" x="96" y="0" width="96" height="89"/>
+</TextureAtlas>

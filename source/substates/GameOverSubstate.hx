@@ -115,7 +115,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			{
 				if(boyfriend.animation.curAnim.curFrame >= 12 && !isFollowingAlready)
 				{
-					FlxG.camera.follow(camFollow, LOCKON, 0);
+					FlxG.camera.follow(camFollow, LOCKON, 0.01);
 					updateCamera = true;
 					isFollowingAlready = true;
 				}
@@ -143,8 +143,8 @@ class GameOverSubstate extends MusicBeatSubstate
 			}
 		}
 		
-		if(updateCamera) FlxG.camera.followLerp = FlxMath.bound(elapsed * 0.6 / (FlxG.updateFramerate / 60), 0, 1);
-		else FlxG.camera.followLerp = 0;
+		// if(updateCamera) FlxG.camera.followLerp = FlxMath.bound(elapsed * 0.6, 0, 1);
+		// else FlxG.camera.followLerp = 0;
 
 		if (FlxG.sound.music.playing)
 		{

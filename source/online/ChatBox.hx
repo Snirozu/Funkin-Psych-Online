@@ -1,11 +1,13 @@
 package online;
 
+import online.states.OpenURL;
 import flixel.math.FlxRect;
 import openfl.events.KeyboardEvent;
 import lime.system.Clipboard;
 
 // this class took me 2 days to make because my ass iz addicted to websites HELP
 class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
+	public static var instance:ChatBox;
 	var prevMouseVisibility:Bool = false;
 
     public var focused(default, set):Bool = false;
@@ -32,6 +34,8 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 	var targetAlpha:Float;
 
     public function new() {
+		instance = this;
+
         super();
         
         bg = new FlxSprite();
@@ -62,6 +66,15 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 
 		focused = false; // initial update
+
+		if (GameClient.isConnected())
+			GameClient.room.onMessage("log", function(message) {
+				Waiter.put(() -> {
+					addMessage(message);
+					var sond = FlxG.sound.play(Paths.sound('scrollMenu'));
+					sond.pitch = 1.5;
+				});
+			});
     }
 
 	override function destroy() {
@@ -79,12 +92,6 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 		if (chatGroup.length >= 22) {
 			chatGroup.remove(chatGroup.members[chatGroup.length - 1], true);
 		}
-
-		var newClipRect = chatGroup.clipRect ?? new FlxRect();
-		newClipRect.height = bg.height;
-		newClipRect.width = bg.width;
-		//i give up with these hitboxes, needs to be fixed
-		chatGroup.clipRect = newClipRect;
     }
 
     override function update(elapsed) {
@@ -104,9 +111,16 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 				if (msg != null && FlxG.mouse.visible && FlxG.mouse.overlaps(msg)) {
 					msg.alpha = 1;
 					if (FlxG.mouse.justPressed && msg.link != null) {
-						FlxG.openURL(msg.link);
+						focused = false;
+						OpenURL.open(msg.link);
 					}
 				}
+
+				var newClipRect = msg.clipRect ?? new FlxRect();
+				newClipRect.height = bg.height;
+				newClipRect.width = bg.width;
+				newClipRect.y = bg.y - msg.y;
+				msg.clipRect = newClipRect;
 			}
 		}
 
