@@ -15,10 +15,13 @@ class Lobby extends MusicBeatState {
         "FIND",
 		"NAME",
 		"SERVER",
-		"DISCORD"
+		"MODS",
+		"DISCORD",
+		"WIKI"
     ];
 
 	var itemDesc:FlxText;
+	var playersOnline:FlxText;
 
 	static var curSelected = 0;
 
@@ -53,6 +56,9 @@ class Lobby extends MusicBeatState {
 
 	var disableInput = false;
 
+	var selectLine:FlxSprite;
+	var descBox:FlxSprite;
+
     function onRoomJoin() {
 		Waiter.put(() -> {
 			MusicBeatState.switchState(new Room());
@@ -76,7 +82,12 @@ class Lobby extends MusicBeatState {
     override function create() {
         super.create();
 
-		DiscordClient.changePresence("In online lobby.", null, null, true);
+		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
+			FlxG.sound.playMusic(Paths.music('freakyMenu'));
+
+		OnlineMods.checkMods();
+
+		DiscordClient.changePresence("In online lobby.", null, null, false);
 
 		daName = ClientPrefs.data.nickname;
 		daAddress = GameClient.serverAddress;
@@ -87,6 +98,22 @@ class Lobby extends MusicBeatState {
         bg.screenCenter();
         bg.antialiasing = ClientPrefs.data.antialiasing;
         add(bg);
+
+		var lines:FlxSprite = new FlxSprite().loadGraphic(Paths.image('coolLines'));
+		lines.updateHitbox();
+		lines.screenCenter();
+		lines.antialiasing = ClientPrefs.data.antialiasing;
+		add(lines);
+
+		selectLine = new FlxSprite();
+		selectLine.makeGraphic(1, 1, FlxColor.BLACK);
+		selectLine.alpha = 0.3;
+		add(selectLine);
+
+		descBox = new FlxSprite(0, FlxG.height - 150);
+		descBox.makeGraphic(1, 1, FlxColor.BLACK);
+		descBox.alpha = 0.4;
+		add(descBox);
 
         items = new FlxTypedSpriteGroup<FlxText>();
 		var prevText:FlxText = null;
@@ -109,7 +136,24 @@ class Lobby extends MusicBeatState {
 		itemDesc.screenCenter(X);
 		add(itemDesc);
 
+		playersOnline = new FlxText(0, 50);
+		playersOnline.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		playersOnline.alpha = 0.7;
+		add(playersOnline);
+
+		GameClient.getPlayerCount((v) -> {
+			if (playersOnline == null)
+				return;
+			
+			playersOnline.text = "Players Online: " + v;
+			playersOnline.screenCenter(X);
+		});
+
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+
+		FlxG.mouse.visible = true;
+
+		changeSelection(0);
     }
 
 	override function destroy() {
@@ -123,7 +167,7 @@ class Lobby extends MusicBeatState {
 
 		for (item in items) {
 			item.text = getItemName(itms[item.ID]);
-            item.alpha = 0.8;
+			item.alpha = inputWait ? 0.5 : 0.8;
             if (item.ID == curSelected) {
 				item.text = "> " + item.text + " <";
 				item.alpha = 1;
@@ -133,17 +177,72 @@ class Lobby extends MusicBeatState {
 
         if (disableInput) return;
 
-		if (controls.UI_UP_P && !inputWait)
-			curSelected--;
-		else if (controls.UI_DOWN_P && !inputWait)
-			curSelected++;
+		var mouseInItems = FlxG.mouse.y > items.y && FlxG.mouse.y < items.y + items.members.length * 40;
 
-        if (curSelected >= items.length) {
+		if (FlxG.mouse.justPressed && inputWait && mouseInItems) {
+			enterInput();
+			return;
+		}
+
+		if (FlxG.mouse.justPressedRight && inputWait && Clipboard.text != null) {
+			inputString += Clipboard.text;
+		}
+
+		if (FlxG.mouse.justMoved && !inputWait && mouseInItems) {
+			curSelected = Std.int((FlxG.mouse.y - (items.y)) / 40);
+			changeSelection(0);
+		}
+
+		if (!inputWait) {
+			if (controls.UI_UP_P)
+				changeSelection(-1);
+			else if (controls.UI_DOWN_P)
+				changeSelection(1);
+
+			if (controls.ACCEPT || (FlxG.mouse.justPressed && mouseInItems)) {
+				switch (itms[curSelected].toLowerCase()) {
+					case "join":
+						inputWait = true;
+					case "find":
+						// FlxG.openURL(GameClient.serverAddress + "/rooms");
+						FlxG.switchState(new FindRoom());
+					case "host":
+						GameClient.createRoom(onRoomJoin);
+					case "mods":
+						FlxG.switchState(new SetupMods(Mods.getModDirectories()));
+					case "discord":
+						FlxG.openURL("https://discord.gg/juHypjWuNc");
+					case "wiki":
+						FlxG.openURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki");
+				}
+				if (curSelected == 3 || curSelected == 4) {
+					inputWait = true;
+				}
+			}
+
+			if (controls.BACK) {
+				FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+				FlxG.mouse.visible = false;
+
+				FlxG.sound.play(Paths.sound('cancelMenu'));
+				MusicBeatState.switchState(new MainMenuState());
+			}
+			
+			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V) {
+				GameClient.joinRoom(Clipboard.text, onRoomJoin);
+			}
+		}
+    }
+	
+	function changeSelection(diffe:Int) {
+		curSelected += diffe;
+
+		if (curSelected >= items.length) {
 			curSelected = 0;
-        }
+		}
 		else if (curSelected < 0) {
 			curSelected = items.length - 1;
-        }
+		}
 
 		switch (curSelected) {
 			case 0:
@@ -155,43 +254,24 @@ class Lobby extends MusicBeatState {
 			case 3:
 				itemDesc.text = "Set your nickname here!";
 			case 4:
-				itemDesc.text = "Set the server address here!\n(should begin with ws:// or wss://)\nSet to empty if you want to use the default server";
+				itemDesc.text = "Set the server address here!\nSet to empty if you want to use the default server\nSet to 'ws://localhost:2567' if you're playing in LAN";
 			case 5:
+				itemDesc.text = "Set URLs for your mods here!";
+			case 6:
 				itemDesc.text = "Also join the Discord server of this mod!";
+			case 7:
+				itemDesc.text = "Documentation, Tips, FAQ etc.";
 		}
 		itemDesc.screenCenter(X);
 
-
-		if (!inputWait) {
-			if (controls.ACCEPT) {
-				switch (itms[curSelected].toLowerCase()) {
-					case "join":
-						inputWait = true;
-					case "find":
-						// FlxG.openURL(GameClient.serverAddress + "/rooms");
-						FlxG.switchState(new FindRoom());
-					case "host":
-						GameClient.createRoom(onRoomJoin);
-					case "discord":
-						FlxG.openURL("https://discord.gg/juHypjWuNc");
-				}
-				if (curSelected == 3 || curSelected == 4) {
-					inputWait = true;
-				}
-			}
-
-			if (controls.BACK) {
-				FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-
-				FlxG.sound.play(Paths.sound('cancelMenu'));
-				MusicBeatState.switchState(new MainMenuState());
-			}
-			
-			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V) {
-				GameClient.joinRoom(Clipboard.text, onRoomJoin);
-			}
-		}
-    }
+		descBox.scale.set(FlxG.width - 100, (itemDesc.text.split("\n").length + 2) * (itemDesc.size));
+		descBox.y = (FlxG.height - 150) + descBox.scale.y * 0.5 - itemDesc.size;
+		descBox.screenCenter(X);
+		
+		selectLine.y = (items.y + 20) + (curSelected) * 40;
+		selectLine.scale.set(FlxG.width, 40);
+		selectLine.screenCenter(X);
+	}
 
     // some code from FlxInputText
 	function onKeyDown(e:KeyboardEvent) {
@@ -212,23 +292,7 @@ class Lobby extends MusicBeatState {
             return;
         }
 		else if (key == 13) { //enter
-			inputWait = false;
-
-            if (inputString.length >= 0) {
-				switch (itms[curSelected].toLowerCase()) {
-					case "join":
-						GameClient.joinRoom(daCoomCode, onRoomJoin);
-				}
-				if (curSelected == 3) {
-					ClientPrefs.data.nickname = daName;
-					ClientPrefs.saveSettings();
-				}
-				if (curSelected == 4) {
-					GameClient.serverAddress = daAddress;
-				}
-            }
-
-			tempDisableInput();
+			enterInput();
             return;
         }
 		else if (key == 27) { //esc
@@ -260,6 +324,26 @@ class Lobby extends MusicBeatState {
 			inputString += newText;
 		}
     }
+
+	function enterInput() {
+		inputWait = false;
+
+		if (inputString.length >= 0) {
+			switch (itms[curSelected].toLowerCase()) {
+				case "join":
+					GameClient.joinRoom(daCoomCode, onRoomJoin);
+			}
+			if (curSelected == 3) {
+				ClientPrefs.data.nickname = daName;
+				ClientPrefs.saveSettings();
+			}
+			if (curSelected == 4) {
+				GameClient.serverAddress = daAddress;
+			}
+		}
+
+		tempDisableInput();
+	}
 
     function tempDisableInput() {
 		disableInput = true;

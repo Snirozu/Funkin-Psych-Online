@@ -312,6 +312,9 @@ class Character extends FlxSprite
 		else
 			offset.set(0, 0);
 
+		if (scale.x != 1. || scale.y != 1.)
+			updateHitbox();
+
 		if (curCharacter.startsWith('gf'))
 		{
 			if (AnimName == 'singLEFT')

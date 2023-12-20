@@ -208,6 +208,10 @@ class FunkinLua {
 
 			return runningScripts;
 		});
+
+		addLocalCallback("sendMessage", function(value:Dynamic) {
+			online.GameClient.send("custom", value);
+		});
 		
 		addLocalCallback("setOnScripts", function(varName:String, arg:Dynamic, ?ignoreSelf:Bool = false, ?exclusions:Array<String> = null) {
 			if(exclusions == null) exclusions = [];

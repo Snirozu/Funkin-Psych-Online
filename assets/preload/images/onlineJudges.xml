@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="onlineJudges.png">
+	<!-- Created with Adobe Animate version 23.0.2.103 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="loser0000" x="0" y="0" width="282" height="130"/>
+	<SubTexture name="loser0001" x="0" y="0" width="282" height="130"/>
+	<SubTexture name="loser0002" x="0" y="0" width="282" height="130"/>
+	<SubTexture name="loser0003" x="282" y="0" width="282" height="130"/>
+	<SubTexture name="loser0004" x="282" y="0" width="282" height="130"/>
+	<SubTexture name="loser0005" x="282" y="0" width="282" height="130"/>
+	<SubTexture name="loser0006" x="564" y="0" width="282" height="130"/>
+	<SubTexture name="loser0007" x="564" y="0" width="282" height="130"/>
+	<SubTexture name="loser0008" x="564" y="0" width="282" height="130"/>
+	<SubTexture name="weiner0000" x="0" y="130" width="354" height="146"/>
+	<SubTexture name="weiner0001" x="0" y="130" width="354" height="146"/>
+	<SubTexture name="weiner0002" x="0" y="130" width="354" height="146"/>
+	<SubTexture name="weiner0003" x="354" y="130" width="354" height="146"/>
+	<SubTexture name="weiner0004" x="354" y="130" width="354" height="146"/>
+	<SubTexture name="weiner0005" x="354" y="130" width="354" height="146"/>
+</TextureAtlas>

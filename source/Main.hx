@@ -140,6 +140,11 @@ class Main extends Sprite
 		addChild(new Alert());
 
 		FlxG.plugins.add(new Waiter());
+		
+		//for some reason only cancels 2 downloads
+		Lib.application.window.onClose.add(() -> {
+			online.Downloader.cancelAll();
+		});
 	}
 
 	static function resetSpriteCache(sprite:Sprite):Void {
