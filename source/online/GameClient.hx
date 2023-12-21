@@ -234,11 +234,15 @@ class GameClient {
 			var http = new Http(swagAddress + "/online");
 
 			http.onData = function(data:String) {
-				callback(Std.parseInt(data));
+				Waiter.put(() -> {
+					callback(Std.parseInt(data));
+				});
 			}
 
 			http.onError = function(error) {
-				callback(0);
+				Waiter.put(() -> {
+					callback(0);
+				});
 			}
 
 			http.request();

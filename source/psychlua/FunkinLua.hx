@@ -209,8 +209,8 @@ class FunkinLua {
 			return runningScripts;
 		});
 
-		addLocalCallback("sendMessage", function(value:Dynamic) {
-			online.GameClient.send("custom", value);
+		addLocalCallback("sendMessage", function(type:String, message:Dynamic) {
+			online.GameClient.send("custom", [type, message]);
 		});
 		
 		addLocalCallback("setOnScripts", function(varName:String, arg:Dynamic, ?ignoreSelf:Bool = false, ?exclusions:Array<String> = null) {
