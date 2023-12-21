@@ -54,7 +54,7 @@ class SetupMods extends MusicBeatState {
 		add(items);
 
 		var title = new FlxText(0, 0, FlxG.width, 
-        "Before you play, you need to set links for your mods!\nGamebanana mod links need to look similiar to this: https://gamebanana.com/mods/479714\nSelect them with ACCEPT, paste links with CTRL + V\nWhen you finish or if you want to skip press BACK"
+        "Before you play, it is recommended to set links for your mods!\nGamebanana mod links need to look similiar to this: https://gamebanana.com/mods/479714\nSelect them with ACCEPT, paste links with CTRL + V\nWhen you finish or if you want to skip press BACK"
         );
 		title.setFormat("VCR OSD Mono", 22, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		title.y = 50;

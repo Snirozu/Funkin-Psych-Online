@@ -402,7 +402,23 @@ class Room extends MusicBeatState {
 					case 1:
 						chatBox.focused = true;
 					case 2:
-						GameClient.send("startGame");
+						var selfPlayer:Player;
+						if (GameClient.isOwner)
+							selfPlayer = GameClient.room.state.player1;
+						else
+							selfPlayer = GameClient.room.state.player2;
+
+						if (!selfPlayer.hasSong && GameClient.room.state.song != "" && (Mods.getModDirectories().contains(GameClient.room.state.modDir) || GameClient.room.state.modDir == "")) {
+							Mods.currentModDirectory = GameClient.room.state.modDir;
+							try {
+								GameClient.send("verifyChart", Md5.encode(Song.loadRawSong(GameClient.room.state.song, GameClient.room.state.folder)));
+							}
+							catch (exc) {
+							}
+						}
+						else {
+							GameClient.send("startGame");
+						}
 					case 3:
 						roomCode.text = "Room Code: " + GameClient.room.roomId;
 						roomCode.x = settingsIconBg.x + settingsIconBg.width - roomCode.width;
