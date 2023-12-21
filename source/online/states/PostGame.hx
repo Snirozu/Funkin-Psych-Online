@@ -93,6 +93,9 @@ class PostGame extends MusicBeatState {
 		chatBox.y = FlxG.height - chatBox.height;
 		add(chatBox);
 
+		if (!GameClient.isConnected())
+			return;
+
 		p1Accuracy = GameClient.getPlayerAccuracyPercent(GameClient.room.state.player1);
 		p2Accuracy = GameClient.getPlayerAccuracyPercent(GameClient.room.state.player2);
 
