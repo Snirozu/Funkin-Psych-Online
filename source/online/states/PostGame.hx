@@ -93,18 +93,18 @@ class PostGame extends MusicBeatState {
 		chatBox.y = FlxG.height - chatBox.height;
 		add(chatBox);
 
-		var _p1Accuracy = GameClient.getPlayerAccuracyPercent(GameClient.room.state.player1);
-		var _p2Accuracy = GameClient.getPlayerAccuracyPercent(GameClient.room.state.player2);
+		p1Accuracy = GameClient.getPlayerAccuracyPercent(GameClient.room.state.player1);
+		p2Accuracy = GameClient.getPlayerAccuracyPercent(GameClient.room.state.player2);
 
 		if (p1Accuracy >= p2Accuracy) {
-			winnerAccuracy = _p1Accuracy;
-			loserAccuracy = _p2Accuracy;
+			winnerAccuracy = p1Accuracy;
+			loserAccuracy = p2Accuracy;
 			winner = GameClient.room.state.player1;
 			loser = GameClient.room.state.player2;
         }
         else {
-			winnerAccuracy = _p2Accuracy;
-			loserAccuracy = _p1Accuracy;
+			winnerAccuracy = p2Accuracy;
+			loserAccuracy = p1Accuracy;
 			winner = GameClient.room.state.player2;
 			loser = GameClient.room.state.player1;
         }
