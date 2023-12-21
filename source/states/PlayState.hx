@@ -3924,6 +3924,9 @@ class PlayState extends MusicBeatState
 		});
 
 		GameClient.room.onMessage("custom", function(message:Array<Dynamic>) {
+			if (message.length != 2)
+				return;
+
 			Waiter.put(() -> {
 				callOnLuas('onMessage', message);
 				callOnHScript('onMessage', message);
