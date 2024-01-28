@@ -45,10 +45,14 @@ class FPS extends TextField
 		currentFPS = 0;
 		selectable = false;
 		mouseEnabled = false;
-		defaultTextFormat = new TextFormat("_sans", 14, color);
+		defaultTextFormat = new TextFormat("_sans", 13, color);
+		#if HACKER
+		defaultTextFormat = new TextFormat("_sans", 16, color);
+		#end
 		autoSize = LEFT;
 		multiline = true;
 		text = "FPS: ";
+		alpha = 0.9;
 
 		cacheCount = 0;
 		currentTime = 0;
@@ -86,7 +90,19 @@ class FPS extends TextField
 			
 			#if openfl
 			memoryMegas = Math.abs(FlxMath.roundDecimal(System.totalMemory / 1000000, 1));
-			text += "\nMemory: " + memoryMegas + " MB";
+			text += "\nRAM: " + memoryMegas + " MB";
+			#end
+
+			#if HACKER
+			text = "";
+			text += "Frames Per Second: " + currentFPS + "\n";
+			text += "Computer Memory: " + memoryMegas + "MB\n";
+			@:privateAccess
+			text += "Graphics Card: " + Std.string(flixel.FlxG.stage.context3D.gl.getParameter(flixel.FlxG.stage.context3D.gl.RENDERER)).split("/")[0].trim() + "\n";
+			text += "Operating System: " + lime.system.System.platformLabel + " " + lime.system.System.platformName + " " + lime.system.System.platformVersion + "\n";
+			text += "Device Model: " + lime.system.System.deviceModel + " " + lime.system.System.deviceVendor + "\n";
+			text += "Number of Connected Monitors: " + lime.system.System.numDisplays + "\n";
+			text += "Game Location: " + lime.system.System.applicationDirectory + "\n";
 			#end
 
 			textColor = 0xFFFFFFFF;

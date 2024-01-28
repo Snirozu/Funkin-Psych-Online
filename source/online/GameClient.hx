@@ -1,12 +1,13 @@
 package online;
 
+import backend.Song;
 import sys.thread.Thread;
 import backend.Rating;
 import online.schema.Player;
 import haxe.Http;
 import sys.io.File;
 import sys.FileSystem;
-import online.states.Lobby;
+import online.states.OnlineState;
 import io.colyseus.error.MatchMakeError;
 import lime.app.Application;
 import io.colyseus.events.EventHandler;
@@ -24,80 +25,93 @@ class GameClient {
 	public static var serverAddress(get, set):String;
 
     public static function createRoom(?onJoin:()->Void) {
-		client = new Client(serverAddress);
+		LoadingScreen.toggle(true);
+		
+		Thread.create(() -> {
+			client = new Client(serverAddress);
 
-		client.create("room", ["name" => ClientPrefs.data.nickname, "version" => MainMenuState.psychOnlineVersion], RoomState, function(err, room) {
-            if (err != null) {
-				Alert.alert("Couldn't connect!", "ERROR: " + err.code + " - " + err.message + (err.code == 0 ? "\nTry again in a few minutes! The server is probably restarting!" : ""));
-				client = null;
-                return;
-            }
+			client.create("room", getOptions(), RoomState, function(err, room) {
+				Waiter.put(() -> {
+					LoadingScreen.toggle(false);
 
-			Sys.println("joined!");
+					if (err != null) {
+						Alert.alert("Couldn't connect!", "ERROR: " + err.code + " - " + err.message + (err.code == 0 ? "\nTry again in a few minutes! The server is probably restarting!" : ""));
+						client = null;
+						return;
+					}
 
-			FlxG.autoPause = false;
+					Sys.println("joined!");
 
-            GameClient.room = room;
-			clearOnMessage();
-			GameClient.isOwner = true;
+					FlxG.autoPause = false;
 
-			GameClient.room.onError += (id:Int, e:String) -> {
-				Sys.println("Room.onError: " + id + " - " + e);
-			}
+					GameClient.room = room;
+					clearOnMessage();
+					GameClient.isOwner = true;
 
-			GameClient.room.onLeave += () -> {
-				if (client == null) {
-					leaveRoom();
-					Alert.alert("Disconnected!");
-				}
-				else {
-					reconnect();
-				}
-			}
+					GameClient.room.onError += (id:Int, e:String) -> {
+						Sys.println("Room.onError: " + id + " - " + e);
+					}
 
-			onJoin();
-        });
+					GameClient.room.onLeave += () -> {
+						if (client == null) {
+							leaveRoom("");
+						}
+						else {
+							reconnect();
+						}
+					}
+
+					onJoin();
+				});
+			});
+		});
     }
 
     public static function joinRoom(roomID:String, ?onJoin:()->Void) {
-		client = new Client(serverAddress);
+		LoadingScreen.toggle(true);
 
-		client.joinById(roomID, ["name" => ClientPrefs.data.nickname, "version" => MainMenuState.psychOnlineVersion], RoomState, function(err, room) {
-            if (err != null) {
-				Alert.alert("Couldn't connect!", "JOIN ERROR: " + err.code + " - " + err.message);
-				client = null;
-                return;
-            }
+		Thread.create(() -> {
+			client = new Client(serverAddress);
 
-			Sys.println("joined!");
+			client.joinById(roomID, getOptions(), RoomState, function(err, room) {
+				Waiter.put(() -> {
+					LoadingScreen.toggle(false);
 
-			FlxG.autoPause = false;
+					if (err != null) {
+						Alert.alert("Couldn't connect!", "JOIN ERROR: " + err.code + " - " + err.message);
+						client = null;
+						return;
+					}
 
-            GameClient.room = room;
-			clearOnMessage();
-			GameClient.isOwner = false;
+					Sys.println("joined!");
 
-			GameClient.room.onError += (id:Int, e:String) -> {
-				Sys.println("Room.onError: " + id + " - " + e);
-			}
+					FlxG.autoPause = false;
 
-			GameClient.room.onLeave += () -> {
-				if (client == null) {
-					leaveRoom();
-					Alert.alert("Disconnected!");
-				}
-				else {
-					reconnect();
-				}
-			}
+					GameClient.room = room;
+					clearOnMessage();
+					GameClient.isOwner = false;
 
-			onJoin();
-        });
+					GameClient.room.onError += (id:Int, e:String) -> {
+						Sys.println("Room.onError: " + id + " - " + e);
+					}
+
+					GameClient.room.onLeave += () -> {
+						if (client == null) {
+							leaveRoom("");
+						}
+						else {
+							reconnect();
+						}
+					}
+
+					onJoin();
+				});
+			});
+		});
     }
 
 	public static function reconnect(?nextTry:Bool = false) {
-		leaveRoom();
-		Alert.alert("Disconnected!");
+		leaveRoom("");
 		return;
 		//i give up on reconnection stuff, probably a colyseus bug
 		// reconnection token invalid or expired?
@@ -132,8 +146,7 @@ class GameClient {
 
 			GameClient.room.onLeave += () -> {
 				if (client == null) {
-					leaveRoom();
-					Alert.alert("Disconnected!");
+					leaveRoom("");
 				}
 				else {
 					reconnect();
@@ -144,21 +157,40 @@ class GameClient {
 		});
 	}
 
-	public static function getAvailableRooms(result:(MatchMakeError, Array<RoomAvailable>)->Void) {
-		new Client(serverAddress).getAvailableRooms("room", result);
+	static function getOptions():Map<String, Dynamic> {
+		var options:Map<String, Dynamic> = ["name" => Wrapper.prefNickname, "version" => MainMenuState.psychOnlineVersion];
+
+		if (Wrapper.prefModSkin != null && Wrapper.prefModSkin.length >= 2) {
+			options.set("skinMod", Wrapper.prefModSkin[0]);
+			options.set("skinName", Wrapper.prefModSkin[1]);
+			options.set("skinURL", OnlineMods.getModURL(Wrapper.prefModSkin[0]));
+		}
+
+		return options;
 	}
 
-	public static function leaveRoom() {
+	public static function getAvailableRooms(result:(MatchMakeError, Array<RoomAvailable>)->Void) {
+		Thread.create(() -> {
+			new Client(serverAddress).getAvailableRooms("room", result);
+		});
+	}
+
+	public static function leaveRoom(?reason:String = null) {
+		if (!isConnected())
+			return;
+		
+		GameClient.client = null;
+		
         Waiter.put(() -> {
+			if (reason != null)
+				Alert.alert("Disconnected!", reason.trim() != "" ? reason : null);
 			Sys.println("leaving the room");
 
-			FlxG.autoPause = ClientPrefs.data.autoPause;
+			FlxG.autoPause = Wrapper.prefAutoPause;
 
-			FlxG.switchState(new Lobby());
+			MusicBeatState.switchState(new OnlineState());
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
-
-			GameClient.client = null;
 
 			if (GameClient.room?.connection != null) {
 				GameClient.room.connection.close();
@@ -168,7 +200,7 @@ class GameClient {
 			GameClient.room = null;
 			GameClient.isOwner = false;
 
-			Downloader.cancelAll();
+			//Downloader.cancelAll();
         });
 	}
 
@@ -186,6 +218,26 @@ class GameClient {
 				GameClient.send("pong");
 			});
 		});
+
+		GameClient.room.onMessage("gameStarted", function(message) {
+			Waiter.put(() -> {
+				FlxG.mouse.visible = false;
+
+				Mods.currentModDirectory = GameClient.room.state.modDir;
+				trace("WOWO : " + GameClient.room.state.song + " | " + GameClient.room.state.folder);
+				PlayState.SONG = Song.loadFromJson(GameClient.room.state.song, GameClient.room.state.folder);
+				PlayState.isStoryMode = false;
+				PlayState.storyDifficulty = GameClient.room.state.diff;
+				GameClient.clearOnMessage();
+				LoadingState.loadAndSwitchState(new PlayState());
+
+				FlxG.sound.music.volume = 0;
+
+				#if MODS_ALLOWED
+				DiscordClient.loadModRPC();
+				#end
+			});
+		});
 	}
 
 	public static function send(type:Dynamic, ?message:Null<Dynamic>) {
@@ -194,6 +246,9 @@ class GameClient {
 	}
 
 	public static function hasPerms() {
+		if (!GameClient.isConnected())
+			return false;
+
 		return GameClient.isOwner || GameClient.room.state.anarchyMode;
 	}
 
@@ -206,8 +261,8 @@ class GameClient {
 	;
 
 	static function get_serverAddress():String {
-		if (ClientPrefs.data.serverAddress != null) {
-			return ClientPrefs.data.serverAddress;
+		if (Wrapper.prefServerAddress != null) {
+			return Wrapper.prefServerAddress;
 		}
 		return _defaultAddress;
 	}
@@ -218,12 +273,12 @@ class GameClient {
 		if (v == "" || v == _defaultAddress || v == "null")
 			v = null;
 
-		ClientPrefs.data.serverAddress = v;
+		Wrapper.prefServerAddress = v;
 		ClientPrefs.saveSettings();
 		return serverAddress;
 	}
 
-	public static function getPlayerCount(callback:(v:Int)->Void) {
+	public static function getPlayerCount(callback:(v:Null<Int>)->Void) {
 		Thread.create(() -> {
 			var swagAddress = serverAddress.split("//")[1];
 			if (serverAddress.startsWith("wss"))
@@ -241,7 +296,7 @@ class GameClient {
 
 			http.onError = function(error) {
 				Waiter.put(() -> {
-					callback(0);
+					callback(null);
 				});
 			}
 

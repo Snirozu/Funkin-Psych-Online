@@ -18,23 +18,36 @@ class SetupMods extends MusicBeatState {
 	var inInput = false;
     var modsInput:Array<String> = [];
 
+	var selectLine:FlxSprite;
+
     override function create() {
         super.create();
+
+		DiscordClient.changePresence("In Setup Mods state.", null, null, false);
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff5a1f46;
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.antialiasing = ClientPrefs.data.antialiasing;
+		bg.antialiasing = Wrapper.prefAntialiasing;
 		bg.scrollFactor.set(0, 0);
 		add(bg);
 
 		var lines:FlxSprite = new FlxSprite().loadGraphic(Paths.image('coolLines'));
 		lines.updateHitbox();
 		lines.screenCenter();
-		lines.antialiasing = ClientPrefs.data.antialiasing;
+		lines.antialiasing = Wrapper.prefAntialiasing;
 		lines.scrollFactor.set(0, 0);
 		add(lines);
+
+		selectLine = new FlxSprite();
+		selectLine.makeGraphic(1, 1, FlxColor.BLACK);
+		selectLine.alpha = 0.3;
+		selectLine.scale.set(FlxG.width, 30);
+		selectLine.screenCenter(XY);
+		selectLine.y -= 7;
+		selectLine.scrollFactor.set(0, 0);
+		add(selectLine);
 
 		items = new FlxTypedSpriteGroup<FlxText>();
 		var prevText:FlxText = null;
@@ -54,7 +67,7 @@ class SetupMods extends MusicBeatState {
 		add(items);
 
 		var title = new FlxText(0, 0, FlxG.width, 
-        "Before you play, it is recommended to set links for your mods!\nGamebanana mod links need to look similiar to this: https://gamebanana.com/mods/479714\nSelect them with ACCEPT, paste links with CTRL + V\nWhen you finish or if you want to skip press BACK"
+        "Before you play, it is recommended to set links for your mods!\nGamebanana mod links need to look similiar to this: https://gamebanana.com/mods/479714\nSelect mods with ACCEPT, Paste links with CTRL + V, Leave with BACK"
         );
 		title.setFormat("VCR OSD Mono", 22, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		title.y = 50;
@@ -82,28 +95,35 @@ class SetupMods extends MusicBeatState {
         if (disableInput) return;
 
 		if (!inInput) {
-			if (controls.ACCEPT) {
+			if (controls.ACCEPT || FlxG.mouse.justPressed) {
 				inInput = true;
 				changeSelection(0);
 			}
             
-			if (controls.UI_UP_P)
+			if (controls.UI_UP_P || FlxG.mouse.wheel == 1)
 				changeSelection(-1);
-			else if (controls.UI_DOWN_P)
+			else if (controls.UI_DOWN_P || FlxG.mouse.wheel == -1)
 				changeSelection(1);
 
-			if (controls.BACK) {
+			if (controls.BACK || FlxG.mouse.justPressedRight) {
                 var i = 0;
                 for (mod in swagMods) {
 					OnlineMods.saveModURL(mod, modsInput[i]);
                     i++;
                 }
 
-				FlxG.switchState(new Lobby());
+				MusicBeatState.switchState(new OnlineState());
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			}
         }
+		else {
+			if (FlxG.mouse.justPressedRight) {
+				tempDisableInput();
+				inInput = false;
+				changeSelection(0);
+			}
+		}
     }
 
     function changeSelection(difference:Int) {

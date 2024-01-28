@@ -231,6 +231,8 @@ class Paths
 		#end
 	}
 
+	static var lastImageErrorFile:String = null;
+
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
 	static public function image(key:String, ?library:String = null, ?allowGPU:Bool = true):FlxGraphic
 	{
@@ -278,7 +280,11 @@ class Paths
 			return newGraphic;
 		}
 
-		trace('oh no its returning null NOOOO ($file)');
+		//STOP FUCKING USING TRACE ITS CPU HEAVY
+		if (lastImageErrorFile != file) {
+			Sys.println('Paths.image(): oh no its returning null NOOOO ($file)');
+			lastImageErrorFile = file;
+		}
 		return null;
 	}
 

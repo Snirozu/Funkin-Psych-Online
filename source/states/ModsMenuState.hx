@@ -1,5 +1,7 @@
 package states;
 
+import online.FileUtils;
+import haxe.io.Path;
 import backend.WeekData;
 import backend.Mods;
 
@@ -229,6 +231,7 @@ class ModsMenuState extends MusicBeatState
 		setAllLabelsOffset(installButton, 2, 24);
 		add(installButton);
 		startX -= 180;
+		*/
 
 		removeButton = new FlxButton(startX, 620, "Delete Selected Mod", function()
 		{
@@ -238,7 +241,7 @@ class ModsMenuState extends MusicBeatState
 				trace('Trying to delete directory ' + path);
 				try
 				{
-					FileSystem.deleteFile(path); //FUCK YOU HAXE WHY DONT YOU WORK WAAAAAAAAAAAAH
+					FileUtils.removeFiles(path);
 
 					var icon = mods[curSelected].icon;
 					var alphabet = mods[curSelected].alphabet;
@@ -256,6 +259,10 @@ class ModsMenuState extends MusicBeatState
 				{
 					trace('Error deleting directory: ' + e);
 				}
+
+				if (mods.length <= 0) {
+					selector.sprTracker = null;
+				}
 			}
 		});
 		removeButton.setGraphicSize(150, 70);
@@ -264,8 +271,6 @@ class ModsMenuState extends MusicBeatState
 		removeButton.label.fieldWidth = 135;
 		removeButton.label.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
 		setAllLabelsOffset(removeButton, 2, 15);
-		add(removeButton);
-		visibleWhenHasMods.push(removeButton);*/
 
 		///////
 		descriptionTxt = new FlxText(148, 0, FlxG.width - 216, "", 32);
@@ -320,6 +325,9 @@ class ModsMenuState extends MusicBeatState
 			add(newMod.icon);
 			i++;
 		}
+
+		add(removeButton);
+		visibleWhenHasMods.push(removeButton);
 
 		if(curSelected >= mods.length) curSelected = 0;
 

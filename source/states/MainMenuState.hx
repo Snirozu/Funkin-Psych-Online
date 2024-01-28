@@ -1,6 +1,6 @@
 package states;
 
-import online.states.Lobby;
+import online.states.OnlineState;
 import backend.WeekData;
 import backend.Achievements;
 
@@ -17,7 +17,7 @@ import options.OptionsState;
 
 class MainMenuState extends MusicBeatState
 {
-	public static var psychOnlineVersion:String = "0.3.2";
+	public static var psychOnlineVersion:String = "0.4.0";
 	public static var psychEngineVersion:String = '0.7.1h'; //This is also used for Discord RPC
 	public static var curSelected:Int = 0;
 
@@ -42,9 +42,9 @@ class MainMenuState extends MusicBeatState
 	public function new() {
 		super();
 
-		if (TitleState.offlineMode) {
-			optionShit.remove('online');
-		}
+		// if (TitleState.offlineMode) {
+		// 	optionShit.remove('online');
+		// }
 	}
 
 	override function create()
@@ -249,13 +249,14 @@ class MainMenuState extends MusicBeatState
 									case 'options':
 										LoadingState.loadAndSwitchState(new OptionsState());
 										OptionsState.onPlayState = false;
+										OptionsState.onOnlineRoom = false;
 										if (PlayState.SONG != null)
 										{
 											PlayState.SONG.arrowSkin = null;
 											PlayState.SONG.splashSkin = null;
 										}
 									case 'online':
-										MusicBeatState.switchState(new Lobby());
+										MusicBeatState.switchState(new OnlineState());
 								}
 							});
 						}

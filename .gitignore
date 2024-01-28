@@ -20,4 +20,4 @@ export/*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-changelog.txt
+changeloge.md

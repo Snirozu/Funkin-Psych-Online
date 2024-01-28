@@ -6,6 +6,7 @@ import backend.StageData;
 import objects.Character;
 import objects.HealthBar;
 import flixel.addons.display.shapes.FlxShapeCircle;
+import online.states.ServerSettingsSubstate.Option as SwagOption;
 
 import states.stages.StageWeek1 as BackgroundStage;
 
@@ -36,6 +37,30 @@ class NoteOffsetState extends MusicBeatState
 
 	var controllerPointer:FlxSprite;
 	var _lastControllerMode:Bool = false;
+
+	var isP1:Bool = true;
+	var isOnline:Bool = false;
+	var switchOnline:SwagOption;
+	var switchPlayerOption:SwagOption;
+
+	function getComboOffset() {
+		if (!isOnline) {
+			return online.Wrapper.prefComboOffset;
+		}
+
+		if (isP1)
+			return online.Wrapper.prefComboOffsetOP1;
+		else
+			return online.Wrapper.prefComboOffsetOP2;
+	}
+
+	function getComboPos() {
+		var placement:Float = FlxG.width * 0.35;
+		if (isOnline) {
+			placement = FlxG.width * (0.30 + (!isP1 ? 0.1 : -0.1));
+		}
+		return placement;
+	}
 
 	override public function create()
 	{
@@ -163,6 +188,48 @@ class NoteOffsetState extends MusicBeatState
 		controllerPointer.alpha = 0.6;
 		controllerPointer.cameras = [camHUD];
 		add(controllerPointer);
+
+		add(switchPlayerOption = new SwagOption("Switch Players", "If checked, the combo offset of player 2 will be chosen.", () -> {
+			if (!onComboMenu || !isOnline)
+				return;
+
+			isP1 = !isP1;
+			repositionCombo();
+		}, (elapsed) -> {
+			if (holdingObjectType == null && FlxG.mouse.overlaps(switchPlayerOption.checkbox, camHUD) && FlxG.mouse.justPressed) {
+				switchPlayerOption.onClick();
+			}
+
+			switchPlayerOption.visible = onComboMenu;
+			switchPlayerOption.checked = !isP1;
+			switchPlayerOption.alpha = 1;
+			if (!isOnline) {
+				switchPlayerOption.alpha = 0.6;
+			}
+		}, 0, 0, !isP1));
+		switchPlayerOption.cameras = [camHUD];
+		switchPlayerOption.box.visible = true;
+		switchPlayerOption.x = 20;
+		switchPlayerOption.y = FlxG.height - switchPlayerOption.height - 20;
+
+		add(switchOnline = new SwagOption("Online Placements", "If checked, online offsets are used.", () -> {
+			if (!onComboMenu)
+				return;
+
+			isOnline = !isOnline;
+			repositionCombo();
+		}, (elapsed) -> {
+			if (holdingObjectType == null && FlxG.mouse.overlaps(switchOnline.checkbox, camHUD) && FlxG.mouse.justPressed) {
+				switchOnline.onClick();
+			}
+
+			switchOnline.visible = onComboMenu;
+			switchOnline.checked = isOnline;
+		}, 0, 0, isOnline));
+		switchOnline.cameras = [camHUD];
+		switchOnline.box.visible = true;
+		switchOnline.x = switchPlayerOption.x;
+		switchOnline.y = switchPlayerOption.y - switchOnline.height - 10;
 		
 		updateMode();
 		_lastControllerMode = true;
@@ -254,21 +321,21 @@ class NoteOffsetState extends MusicBeatState
 							switch(i)
 							{
 								case 0:
-									ClientPrefs.data.comboOffset[0] -= addNum;
+									getComboOffset()[0] -= addNum;
 								case 1:
-									ClientPrefs.data.comboOffset[0] += addNum;
+									getComboOffset()[0] += addNum;
 								case 2:
-									ClientPrefs.data.comboOffset[1] += addNum;
+									getComboOffset()[1] += addNum;
 								case 3:
-									ClientPrefs.data.comboOffset[1] -= addNum;
+									getComboOffset()[1] -= addNum;
 								case 4:
-									ClientPrefs.data.comboOffset[2] -= addNum;
+									getComboOffset()[2] -= addNum;
 								case 5:
-									ClientPrefs.data.comboOffset[2] += addNum;
+									getComboOffset()[2] += addNum;
 								case 6:
-									ClientPrefs.data.comboOffset[3] += addNum;
+									getComboOffset()[3] += addNum;
 								case 7:
-									ClientPrefs.data.comboOffset[3] -= addNum;
+									getComboOffset()[3] -= addNum;
 							}
 						}
 					}
@@ -311,16 +378,16 @@ class NoteOffsetState extends MusicBeatState
 					startMousePos.y - comboNums.y >= 0 && startMousePos.y - comboNums.y <= comboNums.height)
 				{
 					holdingObjectType = true;
-					startComboOffset.x = ClientPrefs.data.comboOffset[2];
-					startComboOffset.y = ClientPrefs.data.comboOffset[3];
+					startComboOffset.x = getComboOffset()[2];
+					startComboOffset.y = getComboOffset()[3];
 					//trace('yo bro');
 				}
 				else if (startMousePos.x - rating.x >= 0 && startMousePos.x - rating.x <= rating.width &&
 						 startMousePos.y - rating.y >= 0 && startMousePos.y - rating.y <= rating.height)
 				{
 					holdingObjectType = false;
-					startComboOffset.x = ClientPrefs.data.comboOffset[0];
-					startComboOffset.y = ClientPrefs.data.comboOffset[1];
+					startComboOffset.x = getComboOffset()[0];
+					startComboOffset.y = getComboOffset()[1];
 					//trace('heya');
 				}
 			}
@@ -340,17 +407,17 @@ class NoteOffsetState extends MusicBeatState
 						mousePos = controllerPointer.getScreenPosition(camHUD);
 
 					var addNum:Int = holdingObjectType ? 2 : 0;
-					ClientPrefs.data.comboOffset[addNum + 0] = Math.round((mousePos.x - startMousePos.x) + startComboOffset.x);
-					ClientPrefs.data.comboOffset[addNum + 1] = -Math.round((mousePos.y - startMousePos.y) - startComboOffset.y);
+					getComboOffset()[addNum + 0] = Math.round((mousePos.x - startMousePos.x) + startComboOffset.x);
+					getComboOffset()[addNum + 1] = -Math.round((mousePos.y - startMousePos.y) - startComboOffset.y);
 					repositionCombo();
 				}
 			}
 
 			if(controls.RESET)
 			{
-				for (i in 0...ClientPrefs.data.comboOffset.length)
+				for (i in 0...getComboOffset().length)
 				{
-					ClientPrefs.data.comboOffset[i] = 0;
+					getComboOffset()[i] = 0;
 				}
 				repositionCombo();
 			}
@@ -466,13 +533,15 @@ class NoteOffsetState extends MusicBeatState
 
 	function repositionCombo()
 	{
+		coolText.x = getComboPos();
+
 		rating.screenCenter();
-		rating.x = coolText.x - 40 + ClientPrefs.data.comboOffset[0];
-		rating.y -= 60 + ClientPrefs.data.comboOffset[1];
+		rating.x = coolText.x - 40 + getComboOffset()[0];
+		rating.y -= 60 + getComboOffset()[1];
 
 		comboNums.screenCenter();
-		comboNums.x = coolText.x - 90 + ClientPrefs.data.comboOffset[2];
-		comboNums.y += 80 - ClientPrefs.data.comboOffset[3];
+		comboNums.x = coolText.x - 90 + getComboOffset()[2];
+		comboNums.y += 80 - getComboOffset()[3];
 		reloadTexts();
 	}
 
@@ -501,9 +570,9 @@ class NoteOffsetState extends MusicBeatState
 			switch(i)
 			{
 				case 0: dumbTexts.members[i].text = 'Rating Offset:';
-				case 1: dumbTexts.members[i].text = '[' + ClientPrefs.data.comboOffset[0] + ', ' + ClientPrefs.data.comboOffset[1] + ']';
+				case 1: dumbTexts.members[i].text = '[' + getComboOffset()[0] + ', ' + getComboOffset()[1] + ']';
 				case 2: dumbTexts.members[i].text = 'Numbers Offset:';
-				case 3: dumbTexts.members[i].text = '[' + ClientPrefs.data.comboOffset[2] + ', ' + ClientPrefs.data.comboOffset[3] + ']';
+				case 3: dumbTexts.members[i].text = '[' + getComboOffset()[2] + ', ' + getComboOffset()[3] + ']';
 			}
 		}
 	}
