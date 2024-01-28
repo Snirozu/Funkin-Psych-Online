@@ -1,7 +1,13 @@
 package online;
 
+import openfl.utils.ByteArray;
+import openfl.display.PNGEncoderOptions;
+import openfl.geom.Rectangle;
+import openfl.display.BitmapData;
+import lime.system.System;
+import states.ModsMenuState.ModMetadata;
+import sys.thread.Thread;
 import online.states.OpenURL;
-import online.states.Room;
 import backend.Song;
 import haxe.crypto.Md5;
 import haxe.zip.Entry;
@@ -20,6 +26,34 @@ typedef GBMod = {
 	var game:String;
 	var trashed:Bool;
 	var withheld:Bool;
+	var rootCategory:String;
+}
+
+typedef GBSub = {
+	var _sName:String;
+	var _sProfileUrl:String;
+	var _aPreviewMedia:GBPrevMedia;
+	var _aRootCategory:GBCategory;
+	var _sVersion:String;
+	var _nLikeCount:Null<Int>; // "null cant be used as int!!!" then why does this return null instead of 0
+}
+
+typedef GBPrevMedia = {
+	var _aImages:Array<GBImage>;
+}
+
+typedef GBImage = {
+	var _sBaseUrl:String;
+	var _sFile:String;
+	var _sFile220:String; //only on the first
+	var _wFile220:Int;
+	var _hFile220:Int;
+	var _sFile100:String;
+}
+
+typedef GBCategory = {
+	var _sName:String;
+	var _sIconUrl:String;
 }
 
 typedef DownloadProp = {
@@ -30,104 +64,83 @@ typedef DownloadProp = {
 }
 
 class GameBanana {
+	public static function searchMods(?search:String, page:Int, response:(mods:Array<GBSub>, err:Dynamic) -> Void) {
+		Thread.create(() -> {
+			var http = new Http(
+			'https://gamebanana.com/apiv11/Game/8694/Subfeed?_nPage=${page}&_sSort=default&_csvModelInclusions=Mod' + (search != null ? '&_sName=$search' : '')
+			);
+
+			http.onData = function(data:String) {
+				Waiter.put(() -> {
+					var json:Dynamic = Json.parse(data);
+					response(cast(json._aRecords), json._sErrorCode != null ? json._sErrorCode : null);
+				});
+			}
+
+			http.onError = function(error) {
+				Waiter.put(() -> {
+					response(null, error);
+				});
+			}
+
+			http.request();
+		});
+	}
+
 	public static function getMod(id:String, response:(mod:GBMod, err:Dynamic)->Void) {
-		var http = new Http(
-		"https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=" + id + 
-        "&fields=name,description,Files().aFiles(),Url().sDownloadUrl(),Game().name,Trash().bIsTrashed(),Withhold().bIsWithheld()"
-        );
+		Thread.create(() -> {
+			var http = new Http(
+			"https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=" + id + 
+			"&fields=name,description,Files().aFiles(),Url().sDownloadUrl(),Game().name,Trash().bIsTrashed(),Withhold().bIsWithheld(),RootCategory().name"
+			);
 
-		http.onData = function(data:String) {
-			var arr:Array<Dynamic> = Json.parse(data);
-            
-			response({
-				_id: id,
-				name: arr[0],
-				description: arr[1],
-				downloads: arr[2],
-				pageDownload: arr[3],
-				game: arr[4],
-				trashed: arr[5],
-				withheld: arr[6]
-            }, null);
-		}
+			http.onData = function(data:String) {
+				var arr:Array<Dynamic> = Json.parse(data);
+				
+				response({
+					_id: id,
+					name: arr[0],
+					description: arr[1],
+					downloads: arr[2],
+					pageDownload: arr[3],
+					game: arr[4],
+					trashed: arr[5],
+					withheld: arr[6],
+					rootCategory: arr[7]
+				}, null);
+			}
 
-		http.onError = function(error) {
-			response(null, error);
-		}
+			http.onError = function(error) {
+				response(null, error);
+			}
 
-		http.request();
+			http.request();
+		});
     }
 
-    public static function downloadMod(mod:GBMod) {
+	public static function downloadMod(mod:GBMod, ?onSuccess:String->Void) {
         if (mod.trashed || mod.withheld) {
 			Alert.alert("Failed to download!", "That mod is deleted!");
 			return;
         }
 
         var daModUrl:String = null;
+		var dlFileName:String = null;
 		for (_download in Reflect.fields(mod.downloads)) {
 			var download = Reflect.field(mod.downloads, _download);
-			if (StringTools.endsWith(download._sFile, ".zip") && download._bContainsExe == false && download._sClamAvResult == "clean") {
+			if (FileUtils.isArchiveSupported(download._sFile) && download._bContainsExe == false && download._sClamAvResult == "clean") {
 				daModUrl = download._sDownloadUrl;
+				dlFileName = download._sFile;
                 break;
             }
         }
 
-        if (daModUrl != null) {
-			new Downloader().download(daModUrl, daModUrl, (fileName) -> {
-				var file = File.read(fileName, true);
-				var zipFiles = Reader.readZip(file);
-				file.close();
-                var beginFolder = "";
-				var parentFolder = Paths.mods();
-				for (entry in zipFiles) {
-					if (StringTools.endsWith(entry.fileName, "/songs/")) {
-						beginFolder = entry.fileName.substring(0, entry.fileName.length - "/songs/".length);
-						var splat = beginFolder.split("/");
-						parentFolder += splat[splat.length - 1];
-                        break;
-                    }
-				}
-				for (entry in zipFiles) {
-					_unzip(entry, beginFolder, parentFolder);
-				}
-				FileSystem.deleteFile(fileName);
-				OnlineMods.saveModURL(parentFolder.substring(Paths.mods().length), "https://gamebanana.com/mods/" + mod._id);
-				Waiter.put(() -> {
-					Alert.alert("Completed the download!", "Downloaded mod: " + parentFolder);
-
-					if (Mods.getModDirectories().contains(GameClient.room.state.modDir)) {
-						Mods.currentModDirectory = GameClient.room.state.modDir;
-						GameClient.send("verifyChart", Md5.encode(Song.loadRawSong(GameClient.room.state.song, GameClient.room.state.folder)));
-					}
-				});
-            }, mod);
+		if (daModUrl == null) {
+			Alert.alert("Failed to download!", "Unsupported file archive type!\n(Only ZIP, TAR, TGZ archives are supported!)");
+			OpenURL.open(mod.pageDownload, "The following mod needs to be installed from this source", null, null, true);
+			return;
 		}
-        else {
-			Alert.alert("Failed to download!", "Unsupported file archive type!\n(Only ZIP archives are supported!)");
-			OpenURL.open(mod.pageDownload, "The following mod needs to be installed from this source");
-            return;
-        }
+
+		OnlineMods.startDownloadMod(dlFileName, daModUrl, mod, onSuccess);
     }
-
-	private static function _unzip(entry:Entry, begins:String, newParent:String) {
-        if (!StringTools.startsWith(entry.fileName, begins)) {
-            return;
-        }
-
-		if (entry.fileName.endsWith("/")) {
-			_unzipFolder(entry, begins, newParent);
-		}
-		else {
-			_unzipFile(entry, begins, newParent);
-		}
-	}
-
-	private static function _unzipFolder(entry:Entry, begins:String, newParent:String) {
-		FileSystem.createDirectory(newParent + entry.fileName.substring(begins.length, entry.fileName.length));
-	}
-
-	private static function _unzipFile(entry:Entry, begins:String, newParent:String) {
-		File.saveBytes(newParent + entry.fileName.substring(begins.length, entry.fileName.length), Reader.unzip(entry));
-	}
 }

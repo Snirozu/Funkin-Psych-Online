@@ -6,6 +6,8 @@ class OpenURL extends MusicBeatSubstate {
     final url:String;
 	var yes:FlxText;
 	var yesBg:FlxSprite;
+	var yesOnce:FlxText;
+	var yesOnceBg:FlxSprite;
 	var no:FlxText;
 	var noBg:FlxSprite;
 
@@ -13,17 +15,41 @@ class OpenURL extends MusicBeatSubstate {
 
 	var swagPrompt:String = "Do you want to open URL:";
 
-	public static function open(url:String, ?swagPrompt:String) { 
+	var isDownload:Bool = false;
+	var onDownloadFinished:String->Void;
+
+	var disableAutoRedirect:Bool = false;
+
+	public static function open(url:String, ?swagPrompt:String, ?isDownload:Bool = false, ?onDownloadFinished:String->Void, ?disableAutoRedirect:Bool = false) { 
         if (FlxG.state.subState != null)
 			FlxG.state.subState.close();
-		FlxG.state.openSubState(new OpenURL(url, swagPrompt));
+
+		if (!disableAutoRedirect) {
+			for (source in Wrapper.prefTrustedSources) {
+				if (StringTools.startsWith(url, source)) {
+					if (isDownload) {
+						OnlineMods.startDownloadMod(url, url, null, onDownloadFinished);
+					}
+					else {
+						FlxG.openURL(url);
+					}
+
+					return;
+				}
+			}
+		}
+
+		FlxG.state.openSubState(new OpenURL(url, swagPrompt, isDownload, onDownloadFinished, disableAutoRedirect));
     }
-	function new(url:String, ?swagPrompt:String) {
+	function new(url:String, ?swagPrompt:String, ?isDownload:Bool = false, ?onDownloadFinished:String->Void, ?disableAutoRedirect:Bool = false) {
         super();
 
 		this.url = url.trim();
 		if (swagPrompt != null)
 		    this.swagPrompt = swagPrompt;
+		this.isDownload = isDownload;
+		this.onDownloadFinished = onDownloadFinished;
+		this.disableAutoRedirect = disableAutoRedirect;
     }
 
     override function create() {
@@ -41,9 +67,9 @@ class OpenURL extends MusicBeatSubstate {
 		prompt.screenCenter(X);
 		add(prompt);
 
-		yes = new FlxText(0, 0, 0, "Open");
+		yes = new FlxText(0, 0, 0, isDownload ? "Download & Trust" : "Open & Trust");
 		yes.setFormat("VCR OSD Mono", 30, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		yes.x = FlxG.width / 2 - yes.width - 100;
+		yes.x = FlxG.width / 2 - yes.width / 2 - 150;
 		yes.y = 400;
 		yes.scrollFactor.set(0, 0);
 		yesBg = new FlxSprite();
@@ -56,10 +82,25 @@ class OpenURL extends MusicBeatSubstate {
 		add(yesBg);
         add(yes);
 
-		no = new FlxText(0, 0, 0, "Close");
+		yesOnce = new FlxText(0, 0, 0, isDownload ? "Download Once" : "Open Once");
+		yesOnce.setFormat("VCR OSD Mono", 30, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		yesOnce.x = FlxG.width / 2 - yesOnce.width / 2 + 150;
+		yesOnce.y = yes.y;
+		yesOnce.scrollFactor.set(0, 0);
+		yesOnceBg = new FlxSprite();
+		yesOnceBg.makeGraphic(1, 1, 0x5D000000);
+		yesOnceBg.updateHitbox();
+		yesOnceBg.y = yesOnce.y;
+		yesOnceBg.x = yesOnce.x;
+		yesOnceBg.scale.set(yesOnce.width, yesOnce.height);
+		yesOnceBg.updateHitbox();
+		add(yesOnceBg);
+		add(yesOnce);
+
+		no = new FlxText(0, 0, 0, "Cancel");
 		no.setFormat("VCR OSD Mono", 30, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		no.x = FlxG.width / 2 - no.width + 100;
-		no.y = yes.y;
+		no.x = FlxG.width / 2 - no.width / 2;
+		no.y = 500;
 		no.scrollFactor.set(0, 0);
 		noBg = new FlxSprite();
 		noBg.makeGraphic(1, 1, 0x5D000000);
@@ -70,17 +111,37 @@ class OpenURL extends MusicBeatSubstate {
 		noBg.updateHitbox();
 		add(noBg);
 		add(no);
+
+		if (disableAutoRedirect) {
+			yes.visible = false;
+			yesBg.visible = false;
+			no.setPosition(yesOnce.x, yesOnce.y);
+			noBg.setPosition(yesOnceBg.x, yesOnceBg.y);
+			yesOnce.setPosition(yes.x, yes.y);
+			yesOnceBg.setPosition(yesBg.x, yesBg.y);
+		}
     }
 
     override function update(elapsed:Float) {
         super.update(elapsed);
 
+		var len = disableAutoRedirect ? 1 : 2;
+
         if (FlxG.mouse.justMoved) {
-			if (mouseInsideOf(yesBg)) {
+			if (FlxG.mouse.overlaps(yesBg, camera)) {
 				selected = 0;
             }
-			else if (mouseInsideOf(noBg)) {
-				selected = 1;
+			else if (FlxG.mouse.overlaps(yesOnceBg, camera)) {
+				if (disableAutoRedirect)
+					selected = 0;
+				else
+					selected = 1;
+			}
+			else if (FlxG.mouse.overlaps(noBg, camera)) {
+				if (disableAutoRedirect)
+					selected = 1;
+				else 
+					selected = 2;
 			}
             else {
 				selected = -1;
@@ -90,43 +151,94 @@ class OpenURL extends MusicBeatSubstate {
 		if (controls.UI_LEFT_P || controls.UI_RIGHT_P) {
 			selected++;
 
-			if (selected > 1) {
+			if (selected > len) {
 				selected = 0;
 			}
 			else if (selected < 0) {
-				selected = 1;
+				selected = len;
 			}
         }
 
-		if (selected == 0) {
-            if (controls.ACCEPT || FlxG.mouse.justPressed) {
-				FlxG.openURL(url);
-				close();
-            }
-			yes.alpha = 1;
-			no.alpha = 0.7;
+		if (!disableAutoRedirect) {
+			if (selected == 0) {
+				if (controls.ACCEPT || FlxG.mouse.justPressed) {
+					var splitURL = url.split("//");
+					Wrapper.prefTrustedSources.push(splitURL[0] + "//" + splitURL[1].split("/")[0]);
+					ClientPrefs.saveSettings();
+
+					if (isDownload) {
+						OnlineMods.startDownloadMod(url, url, null, onDownloadFinished);
+					}
+					else {
+						FlxG.openURL(url);
+					}
+					close();
+				}
+				yes.alpha = 1;
+				no.alpha = 0.7;
+				yesOnce.alpha = 0.7;
+			}
+			else if (selected == 1) {
+				if (controls.ACCEPT || FlxG.mouse.justPressed) {
+					if (isDownload) {
+						OnlineMods.startDownloadMod(url, url, null, onDownloadFinished);
+					}
+					else {
+						FlxG.openURL(url);
+					}
+					close();
+				}
+				yes.alpha = 0.7;
+				no.alpha = 0.7;
+				yesOnce.alpha = 1;
+			}
+			else if (selected == 2) {
+				if (controls.ACCEPT || FlxG.mouse.justPressed) {
+					close();
+				}
+				yes.alpha = 0.7;
+				no.alpha = 1;
+				yesOnce.alpha = 0.7;
+			}
+			else {
+				yes.alpha = 0.7;
+				no.alpha = 0.7;
+				yesOnce.alpha = 0.7;
+			}
 		}
-		else if (selected == 1) {
-			if (controls.ACCEPT || FlxG.mouse.justPressed) {
-                close();
-            }
-			yes.alpha = 0.7;
-			no.alpha = 1;
-        }
-        else {
-			yes.alpha = 0.7;
-			no.alpha = 0.7;
-        }
+		else {
+			if (selected == 0) {
+				if (controls.ACCEPT || FlxG.mouse.justPressed) {
+					if (isDownload) {
+						OnlineMods.startDownloadMod(url, url, null, onDownloadFinished);
+					}
+					else {
+						FlxG.openURL(url);
+					}
+					close();
+				}
+				yes.alpha = 0.7;
+				no.alpha = 0.7;
+				yesOnce.alpha = 1;
+			}
+			else if (selected == 1) {
+				if (controls.ACCEPT || FlxG.mouse.justPressed) {
+					close();
+				}
+				yes.alpha = 0.7;
+				no.alpha = 1;
+				yesOnce.alpha = 0.7;
+			}
+			else {
+				yes.alpha = 0.7;
+				no.alpha = 0.7;
+				yesOnce.alpha = 0.7;
+			}
+		}
+
         
 		if (controls.BACK) {
 			close();
 		}
     }
-
-	function mouseInsideOf(object:FlxObject) {
-		return FlxG.mouse.x >= object.x
-			&& FlxG.mouse.x <= object.x + object.width
-			&& FlxG.mouse.y >= object.y
-			&& FlxG.mouse.y <= object.y + object.height;
-	}
 }

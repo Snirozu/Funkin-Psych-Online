@@ -260,10 +260,10 @@ class Character extends FlxSprite
 
 			if (animation.curAnim.name.startsWith('sing'))
 				holdTimer += elapsed;
-			else if(isPlayer)
+			else if(PlayState.isCharacterPlayer(this))
 				holdTimer = 0;
 
-			if (!isPlayer && holdTimer >= Conductor.stepCrochet * (0.0011 / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1)) * singDuration)
+			if (!PlayState.isCharacterPlayer(this) && holdTimer >= Conductor.stepCrochet * (0.0011 / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1)) * singDuration)
 			{
 				dance();
 				holdTimer = 0;
@@ -304,6 +304,15 @@ class Character extends FlxSprite
 		specialAnim = false;
 		animation.play(AnimName, Force, Reversed, Frame);
 
+		@:privateAccess
+		if (AnimName == null || animation._animations.get(AnimName) == null) {
+			Sys.println("No animation called \"" + AnimName + "\"");
+			if (AnimName != null && AnimName.endsWith("-alt")) {
+				playAnim(AnimName.substring(0, AnimName.length - "-alt".length), Force, Reversed);
+			}
+			return;
+		}
+
 		var daOffset = animOffsets.get(AnimName);
 		if (animOffsets.exists(AnimName))
 		{
@@ -311,9 +320,6 @@ class Character extends FlxSprite
 		}
 		else
 			offset.set(0, 0);
-
-		if (scale.x != 1. || scale.y != 1.)
-			updateHitbox();
 
 		if (curCharacter.startsWith('gf'))
 		{

@@ -1,7 +1,5 @@
 package;
 
-import online.Alert;
-import online.Waiter;
 import flixel.graphics.FlxGraphic;
 
 import flixel.FlxGame;
@@ -137,13 +135,20 @@ class Main extends Sprite
 			 resetSpriteCache(FlxG.game);
 		});
 
-		addChild(new Alert());
+		//ONLINE STUFF, BELOW CODE USE FOR BACKPORTING
 
-		FlxG.plugins.add(new Waiter());
+		online.Downloader.checkDeleteDlDir();
+
+		addChild(new online.Alert());
+		addChild(new online.DownloadAlert.DownloadAlerts());
+		addChild(new online.LoadingScreen());
+
+		FlxG.plugins.add(new online.Waiter());
 		
 		//for some reason only cancels 2 downloads
 		Lib.application.window.onClose.add(() -> {
 			online.Downloader.cancelAll();
+			online.Downloader.checkDeleteDlDir();
 		});
 	}
 

@@ -23,6 +23,8 @@ class PostGame extends MusicBeatState {
 
     override function create() {
         super.create();
+
+		DiscordClient.changePresence("Viewing song results.", null, null, false);
         
         FlxG.sound.music.stop();
 
@@ -33,11 +35,11 @@ class PostGame extends MusicBeatState {
 		bg.color = 0xff353535;
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.antialiasing = ClientPrefs.data.antialiasing;
+		bg.antialiasing = Wrapper.prefAntialiasing;
 		add(bg);
 
 		win = new FlxSprite();
-		win.antialiasing = ClientPrefs.data.antialiasing;
+		win.antialiasing = Wrapper.prefAntialiasing;
 		win.frames = Paths.getSparrowAtlas('onlineJudges');
 		win.animation.addByPrefix('idle', "weiner", 24);
 		win.animation.play('idle');
@@ -48,7 +50,7 @@ class PostGame extends MusicBeatState {
 		add(win);
 
 		winText = new Alphabet(0, 0, "", false);
-		winText.antialiasing = ClientPrefs.data.antialiasing;
+		winText.antialiasing = Wrapper.prefAntialiasing;
 		winText.screenCenter(X);
 		winText.y = win.y + win.height + 10;
 		winText.scaleX = 0.55;
@@ -57,7 +59,7 @@ class PostGame extends MusicBeatState {
 		add(winText);
 
 		lose = new FlxSprite();
-		lose.antialiasing = ClientPrefs.data.antialiasing;
+		lose.antialiasing = Wrapper.prefAntialiasing;
 		lose.frames = Paths.getSparrowAtlas('onlineJudges');
 		lose.animation.addByPrefix('idle', "loser", 24);
 		lose.animation.play('idle');
@@ -68,7 +70,7 @@ class PostGame extends MusicBeatState {
 		add(lose);
 
 		loseText = new Alphabet(0, 0, "", false);
-		loseText.antialiasing = ClientPrefs.data.antialiasing;
+		loseText.antialiasing = Wrapper.prefAntialiasing;
 		loseText.screenCenter(X);
 		loseText.y = lose.y + lose.height + 10;
 		loseText.scaleX = 0.5;
@@ -77,7 +79,7 @@ class PostGame extends MusicBeatState {
 		add(loseText);
 
 		back = new FlxSprite();
-		back.antialiasing = ClientPrefs.data.antialiasing;
+		back.antialiasing = Wrapper.prefAntialiasing;
 		back.frames = Paths.getSparrowAtlas('backspace');
 		back.animation.addByPrefix('idle', "backspace to exit white", 24);
 		back.animation.addByPrefix('black', "backspace to exit0", 24);
@@ -89,12 +91,14 @@ class PostGame extends MusicBeatState {
 		back.alpha = 0;
 		add(back);
 
-		chatBox = new ChatBox();
+		chatBox = new ChatBox(camera);
 		chatBox.y = FlxG.height - chatBox.height;
 		add(chatBox);
 
-		if (!GameClient.isConnected())
+		if (!GameClient.isConnected()) {
+			MusicBeatState.switchState(new OnlineState());
 			return;
+		}
 
 		p1Accuracy = GameClient.getPlayerAccuracyPercent(GameClient.room.state.player1);
 		p2Accuracy = GameClient.getPlayerAccuracyPercent(GameClient.room.state.player2);
@@ -153,7 +157,7 @@ class PostGame extends MusicBeatState {
 			if (back.animation.curAnim.name != "press")
 				back.animation.play('idle');
 
-			if (!chatBox.focused && !FlxG.keys.justPressed.TAB && controls.ACCEPT || controls.BACK || FlxG.keys.justPressed.BACKSPACE) {
+			if (!chatBox.focused && (!FlxG.keys.justPressed.TAB && controls.ACCEPT || controls.BACK || FlxG.keys.justPressed.BACKSPACE)) {
 				FlxG.sound.music.stop();
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 

@@ -46,4 +46,13 @@ class Player extends Schema {
 
 	@:type("boolean")
 	public var isReady:Bool = false;
+
+	@:type("string")
+	public var skinMod:String = null;
+
+	@:type("string")
+	public var skinName:String = null;
+
+	@:type("string")
+	public var skinURL:String = null;
 }

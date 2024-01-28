@@ -74,8 +74,14 @@ class SaveVariables {
 	public var badWindow:Int = 135;
 	public var safeFrames:Float = 10;
 	public var discordRPC:Bool = true;
+	//ONLINE
 	public var nickname:String = "Boyfriend";
 	public var serverAddress:String = null;
+	public var modSkin:Array<String> = null;
+	public var trustedSources:Array<String> = ["https://gamebanana.com/"];
+	public var comboOffsetOP1:Array<Int> = [0, 0, 0, 0];
+	public var comboOffsetOP2:Array<Int> = [0, 0, 0, 0];
+
 
 	public function new()
 	{

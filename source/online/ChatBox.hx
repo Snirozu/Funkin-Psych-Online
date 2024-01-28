@@ -33,10 +33,14 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
 	var targetAlpha:Float;
 
-    public function new() {
+	var onCommand:(String, Array<String>) -> Bool;
+
+	public function new(camera:FlxCamera, ?onCommand:(command:String, args:Array<String>) -> Bool) {
+		super();
 		instance = this;
 
-        super();
+		this.onCommand = onCommand;
+		cameras = [camera];
         
         bg = new FlxSprite();
         bg.makeGraphic(600, 400, FlxColor.BLACK);
@@ -80,6 +84,8 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 	override function destroy() {
 		super.destroy();
 
+		instance = null;
+
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 	}
 
@@ -96,6 +102,10 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
     override function update(elapsed) {
 		if (focused || alpha > 0) {
+			if (FlxG.keys.justPressed.ESCAPE) {
+				focused = false;
+			}
+
 			var i = -1;
 			while (++i < chatGroup.length) {
 				var msg = chatGroup.members[i];
@@ -108,12 +118,15 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 				}
 
 				msg.alpha = 0.8;
-				if (msg != null && FlxG.mouse.visible && FlxG.mouse.overlaps(msg)) {
+				if (msg != null && FlxG.mouse.visible && FlxG.mouse.overlaps(msg, camera)) {
 					msg.alpha = 1;
 					if (FlxG.mouse.justPressed && msg.link != null) {
 						focused = false;
 						OpenURL.open(msg.link);
 					}
+				}
+				if (msg.alpha > targetAlpha) {
+					msg.alpha = targetAlpha;
 				}
 
 				var newClipRect = msg.clipRect ?? new FlxRect();
@@ -131,7 +144,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
         super.update(elapsed);
 
-		if (FlxG.keys.justPressed.TAB || FlxG.keys.justPressed.ESCAPE) {
+		if (FlxG.keys.justPressed.TAB) {
 			focused = !focused;
 		}
 
@@ -163,7 +176,14 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 			return;
 		}
 		else if (key == 13) { // enter
-			GameClient.send("chat", typeText.text);
+			if (StringTools.startsWith(typeText.text, "/"))
+				if (onCommand != null)
+					parseCommand(typeText.text);
+				else
+					addMessage("No available commands!");
+			else
+				GameClient.send("chat", typeText.text);
+			
 			typeText.text = "";
 			return;
 		}
@@ -181,6 +201,18 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
 		if (newText.length > 0) {
 			typeText.text += newText;
+		}
+	}
+
+	function parseCommand(text:String) {
+		var splitText:Array<String> = text.split(" ");
+		var command = splitText.shift().substr(1);
+		if (!onCommand(command, splitText)) {
+			if (command == "/help") {
+				addMessage("No available commands!");
+				return;
+			}
+			addMessage("Unknown command; try /help for command list!");
 		}
 	}
 }

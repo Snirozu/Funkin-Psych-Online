@@ -1,5 +1,6 @@
 package psychlua;
 
+import online.GameClient;
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
@@ -211,6 +212,149 @@ class FunkinLua {
 
 		addLocalCallback("sendMessage", function(type:String, message:Dynamic) {
 			online.GameClient.send("custom", [type, message]);
+		});
+
+		addLocalCallback("playsAsBF", function() {
+			return PlayState.playsAsBF();
+		});
+
+		addLocalCallback("isRoomOwner", function() {
+			return GameClient.isOwner;
+		});
+
+		addLocalCallback("hasRoomPerms", function() {
+			return GameClient.hasPerms();
+		});
+
+		addLocalCallback("isRoomConnected", function() {
+			return GameClient.isConnected();
+		});
+
+		addLocalCallback("getStateSong", function() {
+			return GameClient.room.state.song;
+		});
+
+		addLocalCallback("getStateFolder", function() {
+			return GameClient.room.state.folder;
+		});
+
+		addLocalCallback("getStateDiff", function() {
+			return GameClient.room.state.diff;
+		});
+
+		addLocalCallback("getStateModDir", function() {
+			return GameClient.room.state.modDir;
+		});
+
+		addLocalCallback("getStateModURL", function() {
+			return GameClient.room.state.modURL;
+		});
+
+		addLocalCallback("getStateIsPrivate", function() {
+			return GameClient.room.state.isPrivate;
+		});
+
+		addLocalCallback("getStateIsStarted", function() {
+			return GameClient.room.state.isStarted;
+		});
+
+		addLocalCallback("isSwapSides", function() {
+			return GameClient.room.state.swagSides;
+		});
+
+		addLocalCallback("isAnarchyMode", function() {
+			return GameClient.room.state.anarchyMode;
+		});
+
+		addLocalCallback("getPlayerScore", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.score;
+			else
+				return GameClient.room.state.player2.score;
+		});
+
+		addLocalCallback("getPlayerMisses", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.misses;
+			else
+				return GameClient.room.state.player2.misses;
+		});
+
+		addLocalCallback("getPlayerSicks", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.sicks;
+			else
+				return GameClient.room.state.player2.sicks;
+		});
+
+		addLocalCallback("getPlayerGoods", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.goods;
+			else
+				return GameClient.room.state.player2.goods;
+		});
+
+		addLocalCallback("getPlayerBads", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.bads;
+			else
+				return GameClient.room.state.player2.bads;
+		});
+
+		addLocalCallback("getPlayerShits", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.shits;
+			else
+				return GameClient.room.state.player2.shits;
+		});
+
+		addLocalCallback("getPlayerName", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.name;
+			else
+				return GameClient.room.state.player2.name;
+		});
+
+		addLocalCallback("getPlayerHasLoaded", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.hasLoaded;
+			else
+				return GameClient.room.state.player2.hasLoaded;
+		});
+
+		addLocalCallback("getPlayerHasEnded", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.hasEnded;
+			else
+				return GameClient.room.state.player2.hasEnded;
+		});
+
+		addLocalCallback("getPlayerPing", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.ping;
+			else
+				return GameClient.room.state.player2.ping;
+		});
+
+		addLocalCallback("getPlayerSkinMod", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.skinMod;
+			else
+				return GameClient.room.state.player2.skinMod;
+		});
+
+		addLocalCallback("getPlayerSkinName", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.skinName;
+			else
+				return GameClient.room.state.player2.skinName;
+		});
+
+		addLocalCallback("getPlayerSkinURL", function(player:Int) {
+			if (player == 1)
+				return GameClient.room.state.player1.skinURL;
+			else
+				return GameClient.room.state.player2.skinURL;
 		});
 		
 		addLocalCallback("setOnScripts", function(varName:String, arg:Dynamic, ?ignoreSelf:Bool = false, ?exclusions:Array<String> = null) {

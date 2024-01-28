@@ -317,6 +317,7 @@ class FreeplayState extends MusicBeatState
 			}
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			if (GameClient.isConnected()) {
+				destroyFreeplayVocals();
 				GameClient.clearOnMessage();
 				MusicBeatState.switchState(new Room());
 			}
@@ -334,25 +335,41 @@ class FreeplayState extends MusicBeatState
 		{
 			if(instPlaying != curSelected)
 			{
-				#if PRELOAD_ALL
-				destroyFreeplayVocals();
-				FlxG.sound.music.volume = 0;
-				Mods.currentModDirectory = songs[curSelected].folder;
-				var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
-				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
-				if (PlayState.SONG.needsVoices)
-					vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
-				else
-					vocals = new FlxSound();
+				try {
+					#if PRELOAD_ALL
+					destroyFreeplayVocals();
+					FlxG.sound.music.volume = 0;
+					Mods.currentModDirectory = songs[curSelected].folder;
+					var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
+					PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+					if (PlayState.SONG.needsVoices)
+						vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
+					else
+						vocals = new FlxSound();
 
-				FlxG.sound.list.add(vocals);
-				FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 0.7);
-				vocals.play();
-				vocals.persist = true;
-				vocals.looped = true;
-				vocals.volume = 0.7;
-				instPlaying = curSelected;
-				#end
+					FlxG.sound.list.add(vocals);
+					FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 0.7);
+					vocals.play();
+					vocals.persist = true;
+					vocals.looped = true;
+					vocals.volume = 0.7;
+					instPlaying = curSelected;
+					#end
+				}
+				catch (e) {
+					trace('ERROR! $e');
+
+					var errorStr:String = e.toString();
+					if (errorStr.startsWith('[file_contents,assets/data/'))
+						errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length - 1); // Missing chart
+					missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
+					missingText.screenCenter(Y);
+					missingText.visible = true;
+					missingTextBG.visible = true;
+					FlxG.sound.play(Paths.sound('cancelMenu'));
+
+					updateTexts(elapsed);
+				}
 			}
 		}
 
@@ -381,14 +398,30 @@ class FreeplayState extends MusicBeatState
 				});
 				Mods.currentModDirectory = songs[curSelected].folder;
 				trace('Song mod directory: "${Mods.currentModDirectory}"');
-				GameClient.send("setFSD", [
-					songLowercase,
-					poop,
-					curDifficulty,
-					Md5.encode(Song.loadRawSong(poop, songLowercase)),
-					Mods.currentModDirectory,
-					online.OnlineMods.getModURL(Mods.currentModDirectory)
-				]);
+				try {
+					GameClient.send("setFSD", [
+						songLowercase,
+						poop,
+						curDifficulty,
+						Md5.encode(Song.loadRawSong(poop, songLowercase)),
+						Mods.currentModDirectory,
+						online.OnlineMods.getModURL(Mods.currentModDirectory)
+					]);
+				}
+				catch (e) {
+					trace('ERROR! $e');
+
+					var errorStr:String = e.toString();
+					if (errorStr.startsWith('[file_contents,assets/data/'))
+						errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length - 1); // Missing chart
+					missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
+					missingText.screenCenter(Y);
+					missingText.visible = true;
+					missingTextBG.visible = true;
+					FlxG.sound.play(Paths.sound('cancelMenu'));
+
+					updateTexts(elapsed);
+				}
 			}
 			else {
 				/*#if MODS_ALLOWED

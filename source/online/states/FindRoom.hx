@@ -13,26 +13,43 @@ class FindRoom extends MusicBeatState {
 
     var noRoomsText:FlxText;
 
+	var selectLine:FlxSprite;
+
     public function new() {
         super();
 
 		coolControls = controls;
+    }
+
+    override function create() {
+		super.create();
+
+		DiscordClient.changePresence("Finding a room.", null, null, false);
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.color = 0xff2d3683;
+		bg.color = 0xff252844;
 		bg.updateHitbox();
 		bg.screenCenter();
 		bg.scrollFactor.set(0, 0);
-		bg.antialiasing = ClientPrefs.data.antialiasing;
+		bg.antialiasing = Wrapper.prefAntialiasing;
 		add(bg);
 
 		var lines:FlxSprite = new FlxSprite().loadGraphic(Paths.image('coolLines'));
 		lines.updateHitbox();
 		lines.screenCenter();
-		lines.antialiasing = ClientPrefs.data.antialiasing;
+		lines.antialiasing = Wrapper.prefAntialiasing;
 		lines.scrollFactor.set(0, 0);
 		add(lines);
-        
+
+		selectLine = new FlxSprite();
+		selectLine.makeGraphic(1, 1, FlxColor.BLACK);
+		selectLine.alpha = 0.3;
+		selectLine.scale.set(FlxG.width, 25);
+		selectLine.screenCenter(XY);
+		selectLine.y -= 8;
+		selectLine.scrollFactor.set(0, 0);
+		add(selectLine);
+
 		swagRooms = new FlxTypedSpriteGroup<RoomText>();
 		add(swagRooms);
 		curSelected = 0;
@@ -42,9 +59,7 @@ class FindRoom extends MusicBeatState {
 		noRoomsText.screenCenter(XY);
 		noRoomsText.scrollFactor.set(0, 0);
 		add(noRoomsText);
-    }
 
-    override function create() {
 		refreshRooms();
     }
 
@@ -52,26 +67,26 @@ class FindRoom extends MusicBeatState {
         super.update(elapsed);
 
 		noRoomsText.visible = swagRooms.length <= 0;
+		selectLine.visible = swagRooms.length > 0;
 
         if (FlxG.keys.justPressed.R) {
             refreshRooms();
         }
 
-		if (controls.UI_UP_P)
+		if (controls.UI_UP_P || FlxG.mouse.wheel == 1)
 			curSelected--;
-		else if (controls.UI_DOWN_P)
+		else if (controls.UI_DOWN_P || FlxG.mouse.wheel == -1)
 			curSelected++;
 
 		if (curSelected >= swagRooms.length) {
-			curSelected = 0;
-		}
-		else if (curSelected < 0) {
 			curSelected = swagRooms.length - 1;
 		}
-
+		else if (curSelected < 0) {
+			curSelected = 0;
+		}
 		
-        if (controls.BACK) {
-			FlxG.switchState(new Lobby());
+		if (controls.BACK || FlxG.mouse.justPressedRight) {
+			MusicBeatState.switchState(new OnlineState());
 			FlxG.sound.play(Paths.sound('cancelMenu'));
         }
     }
@@ -80,10 +95,13 @@ class FindRoom extends MusicBeatState {
 		curSelected = 0;
 		swagRooms.clear();
 
+		LoadingScreen.toggle(true);
 		GameClient.getAvailableRooms((err, rooms) -> {
             Waiter.put(() -> {
+				LoadingScreen.toggle(false);
+				
                 if (err != null) {
-					FlxG.switchState(new Lobby());
+					MusicBeatState.switchState(new OnlineState());
 					FlxG.sound.play(Paths.sound('cancelMenu'));
 					Alert.alert("Couldn't connect!", "ERROR: " + err.code + " - " + err.message + (err.code == 0 ? "\nTry again in a few minutes! The server is probably restarting!" : ""));
                     return;
@@ -113,7 +131,7 @@ class RoomText extends FlxText {
 
     public function new(room:RoomAvailable) {
 		code = room.roomId;
-		daText = "Code: " + code + " | Player: " + room.metadata.name + " | " + room.metadata.ping + "ms";
+		daText = "Code: " + code + " • Player: " + room.metadata.name + " • " + room.metadata.ping + "ms";
 
 		super(0, 0, FlxG.width, daText);
 	    setFormat("VCR OSD Mono", 30, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -130,7 +148,7 @@ class RoomText extends FlxText {
 			}
 			else {
 				text = daText;
-				alpha = 0.8;
+				alpha = 0.5;
 			}
         }
 

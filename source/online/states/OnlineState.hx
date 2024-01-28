@@ -1,12 +1,13 @@
 package online.states;
 
+import states.FreeplayState;
 import lime.system.Clipboard;
 import haxe.Json;
 import states.MainMenuState;
 import openfl.events.KeyboardEvent;
 import flixel.addons.text.FlxTextField;
 
-class Lobby extends MusicBeatState {
+class OnlineState extends MusicBeatState {
 	var items:FlxTypedSpriteGroup<FlxText>;
 
 	var itms:Array<String> = [
@@ -15,7 +16,9 @@ class Lobby extends MusicBeatState {
         "FIND",
 		"NAME",
 		"SERVER",
-		"MODS",
+		"MOD DOWNLOADER",
+		"SKINS",
+		"SETUP MODS",
 		"DISCORD",
 		"WIKI"
     ];
@@ -82,6 +85,7 @@ class Lobby extends MusicBeatState {
     override function create() {
         super.create();
 
+		if(FreeplayState.vocals != null) FreeplayState.vocals.destroy();
 		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
@@ -89,20 +93,20 @@ class Lobby extends MusicBeatState {
 
 		DiscordClient.changePresence("In online lobby.", null, null, false);
 
-		daName = ClientPrefs.data.nickname;
+		daName = Wrapper.prefNickname;
 		daAddress = GameClient.serverAddress;
 
         var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-        bg.color = 0xff6f2d83;
+        bg.color = 0xff412664;
         bg.updateHitbox();
         bg.screenCenter();
-        bg.antialiasing = ClientPrefs.data.antialiasing;
+        bg.antialiasing = Wrapper.prefAntialiasing;
         add(bg);
 
 		var lines:FlxSprite = new FlxSprite().loadGraphic(Paths.image('coolLines'));
 		lines.updateHitbox();
 		lines.screenCenter();
-		lines.antialiasing = ClientPrefs.data.antialiasing;
+		lines.antialiasing = Wrapper.prefAntialiasing;
 		add(lines);
 
 		selectLine = new FlxSprite();
@@ -110,7 +114,7 @@ class Lobby extends MusicBeatState {
 		selectLine.alpha = 0.3;
 		add(selectLine);
 
-		descBox = new FlxSprite(0, FlxG.height - 150);
+		descBox = new FlxSprite(0, FlxG.height - 125);
 		descBox.makeGraphic(1, 1, FlxColor.BLACK);
 		descBox.alpha = 0.4;
 		add(descBox);
@@ -125,13 +129,18 @@ class Lobby extends MusicBeatState {
 			}
             text.ID = i;
 			text.setFormat("VCR OSD Mono", 40, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			text.alpha = inputWait ? 0.5 : 0.8;
+			if (text.ID == curSelected) {
+				text.text = "> " + text.text + " <";
+				text.alpha = 1;
+			}
 			items.add(prevText = text);
 			i++;
         }
 		items.screenCenter(Y);
         add(items);
 
-		itemDesc = new FlxText(0, FlxG.height - 150);
+		itemDesc = new FlxText(0, FlxG.height - 125);
 		itemDesc.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		itemDesc.screenCenter(X);
 		add(itemDesc);
@@ -140,20 +149,26 @@ class Lobby extends MusicBeatState {
 		playersOnline.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		playersOnline.alpha = 0.7;
 		add(playersOnline);
+		
+		changeSelection(0);
 
 		GameClient.getPlayerCount((v) -> {
-			if (playersOnline == null)
-				return;
+			if (v == null) {
+				playersOnline.text = "OFFLINE";
+				//thought this would look cool
+				//playersOnline.applyMarkup("$•$ OFFLINE $•$", [new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GRAY), "$")]);
+			}
+			else {
+				playersOnline.text = 'Players Online: $v';
+				//playersOnline.applyMarkup("$•$ Players Online: " + v + " $•$", [new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GREEN), "$")]);
+			}
 			
-			playersOnline.text = "Players Online: " + v;
 			playersOnline.screenCenter(X);
 		});
 
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 
 		FlxG.mouse.visible = true;
-
-		changeSelection(0);
     }
 
 	override function destroy() {
@@ -165,17 +180,17 @@ class Lobby extends MusicBeatState {
     override function update(elapsed) {
         super.update(elapsed);
 
+        if (disableInput) return;
+
 		for (item in items) {
 			item.text = getItemName(itms[item.ID]);
 			item.alpha = inputWait ? 0.5 : 0.8;
-            if (item.ID == curSelected) {
+			if (item.ID == curSelected) {
 				item.text = "> " + item.text + " <";
 				item.alpha = 1;
-            }
-            item.screenCenter(X);
-        }
-
-        if (disableInput) return;
+			}
+			item.screenCenter(X);
+		}
 
 		var mouseInItems = FlxG.mouse.y > items.y && FlxG.mouse.y < items.y + items.members.length * 40;
 
@@ -205,11 +220,15 @@ class Lobby extends MusicBeatState {
 						inputWait = true;
 					case "find":
 						// FlxG.openURL(GameClient.serverAddress + "/rooms");
-						FlxG.switchState(new FindRoom());
+						MusicBeatState.switchState(new FindRoom());
 					case "host":
 						GameClient.createRoom(onRoomJoin);
-					case "mods":
-						FlxG.switchState(new SetupMods(Mods.getModDirectories()));
+					case "mod downloader":
+						MusicBeatState.switchState(new BananaDownload());
+					case "skins":
+						LoadingState.loadAndSwitchState(new SkinsState());
+					case "setup mods":
+						MusicBeatState.switchState(new SetupMods(Mods.getModDirectories()));
 					case "discord":
 						FlxG.openURL("https://discord.gg/juHypjWuNc");
 					case "wiki":
@@ -256,21 +275,35 @@ class Lobby extends MusicBeatState {
 			case 4:
 				itemDesc.text = "Set the server address here!\nSet to empty if you want to use the default server\nSet to 'ws://localhost:2567' if you're playing in LAN";
 			case 5:
-				itemDesc.text = "Set URLs for your mods here!";
+				itemDesc.text = "Download mods from Gamebanana here!";
 			case 6:
-				itemDesc.text = "Also join the Discord server of this mod!";
+				itemDesc.text = "Select your skin here!";
 			case 7:
+				itemDesc.text = "Set URLs for your mods here!";
+			case 8:
+				itemDesc.text = "Also join the Discord server of this mod!";
+			case 9:
 				itemDesc.text = "Documentation, Tips, FAQ etc.";
 		}
 		itemDesc.screenCenter(X);
 
 		descBox.scale.set(FlxG.width - 100, (itemDesc.text.split("\n").length + 2) * (itemDesc.size));
-		descBox.y = (FlxG.height - 150) + descBox.scale.y * 0.5 - itemDesc.size;
+		descBox.y = (FlxG.height - 125) + descBox.scale.y * 0.5 - itemDesc.size;
 		descBox.screenCenter(X);
 		
 		selectLine.y = (items.y + 20) + (curSelected) * 40;
 		selectLine.scale.set(FlxG.width, 40);
 		selectLine.screenCenter(X);
+
+		for (item in items) {
+			item.text = getItemName(itms[item.ID]);
+			item.alpha = inputWait ? 0.5 : 0.8;
+			if (item.ID == curSelected) {
+				item.text = "> " + item.text + " <";
+				item.alpha = 1;
+			}
+			item.screenCenter(X);
+		}
 	}
 
     // some code from FlxInputText
@@ -299,7 +332,7 @@ class Lobby extends MusicBeatState {
 			inputWait = false;
 			tempDisableInput();
 			if (curSelected == 3) {
-				ClientPrefs.data.nickname = daName;
+				Wrapper.prefNickname = daName;
 				ClientPrefs.saveSettings();
 			}
 			if (curSelected == 4) {
@@ -334,7 +367,7 @@ class Lobby extends MusicBeatState {
 					GameClient.joinRoom(daCoomCode, onRoomJoin);
 			}
 			if (curSelected == 3) {
-				ClientPrefs.data.nickname = daName;
+				Wrapper.prefNickname = daName;
 				ClientPrefs.saveSettings();
 			}
 			if (curSelected == 4) {

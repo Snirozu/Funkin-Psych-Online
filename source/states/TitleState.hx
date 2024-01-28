@@ -69,7 +69,7 @@ class TitleState extends MusicBeatState
 	#end
 
 	var mustUpdate:Bool = false;
-	public static var offlineMode:Bool = false;
+	//public static var offlineMode:Bool = false;
 
 	var titleJSON:TitleData;
 
@@ -110,7 +110,7 @@ class TitleState extends MusicBeatState
 				if(updateVersion != curVersion) {
 					trace('versions arent matching!');
 					mustUpdate = true;
-					offlineMode = true;
+					//offlineMode = true;
 				}
 			}
 
