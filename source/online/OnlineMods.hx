@@ -85,18 +85,31 @@ class OnlineMods {
 			file.close();
 			var beginFolder = null;
 			var parentFolder = Paths.mods();
+			var ignoreRest = false;
+			var fileSize = 0;
+			var dataSize = 0;
 			for (entry in zipFiles) {
-				var entryPathSplit = entry.fileName.split("/");
-				if (Mods.ignoreModFolders.contains(entryPathSplit[entryPathSplit.length - 2])) {
-					// beginFolder = entry.fileName.substring(0, entry.fileName.length - "/songs/".length);
-					beginFolder = entry.fileName.substring(0, entry.fileName.length - (entryPathSplit[entryPathSplit.length - 2].length + 2));
-					var splat = beginFolder.split("/");
-					if (splat[splat.length - 1] == "mods" || splat[splat.length - 1].trim() == "")
-						parentFolder += (gbMod != null ? gbMod._id : swagFileName) + "/";
-					else
-						parentFolder += splat[splat.length - 1];
-					break;
+				fileSize += entry.fileSize;
+				dataSize += entry.dataSize;
+				if (!ignoreRest) {
+					var entryPathSplit = entry.fileName.split("/");
+					if (Mods.ignoreModFolders.contains(entryPathSplit[entryPathSplit.length - 2])) {
+						// beginFolder = entry.fileName.substring(0, entry.fileName.length - "/songs/".length);
+						beginFolder = entry.fileName.substring(0, entry.fileName.length - (entryPathSplit[entryPathSplit.length - 2].length + 2));
+						var splat = beginFolder.split("/");
+						if (splat[splat.length - 1] == "mods" || splat[splat.length - 1].trim() == "")
+							parentFolder += (gbMod != null ? gbMod._id : swagFileName) + "/";
+						else
+							parentFolder += splat[splat.length - 1];
+						ignoreRest = true;
+					}
 				}
+			}
+			if (Math.min(fileSize, dataSize) < 0 || Math.max(fileSize, dataSize) >= 3000000000) {
+				Waiter.put(() -> {
+					Alert.alert("Downloading Cancelled", 'Mod\'s archive file is WAY too big!\n${FlxMath.roundDecimal(Math.max(fileSize, dataSize) / 1000000000, 4)}GB');
+				});
+				return;
 			}
 			if (beginFolder == null) {
 				System.openFile(downloader.tryRenameFile());
