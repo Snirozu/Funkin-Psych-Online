@@ -62,6 +62,13 @@ class Downloader {
 			writeIncoming();
 		});
 		stream.addEventListener(ProgressEvent.PROGRESS, (event) -> {
+			if (event.bytesTotal < 0 || event.bytesTotal >= 3000000000) {
+				Waiter.put(() -> {
+					Alert.alert("Downloading Cancelled", 'Mod\'s archive file is WAY too big/small!\n${FlxMath.roundDecimal(event.bytesTotal / 1000000000, 4)}GB');
+				});
+				cancel();
+				return;
+			}
 			Waiter.put(() -> {
 				alert.updateProgress(event.bytesLoaded, event.bytesTotal);
 			});
