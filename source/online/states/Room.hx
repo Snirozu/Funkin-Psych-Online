@@ -147,15 +147,18 @@ class Room extends MusicBeatState {
 		@:privateAccess {
 			stage.phillyTrain.sound.volume = 0;
 
-			stage.bg.setGraphicSize(Std.int(stage.bg.width * 1));
-			stage.bg.updateHitbox();
+			if (!ClientPrefs.data.lowQuality) {
+				stage.bg.setGraphicSize(Std.int(stage.bg.width * 1));
+				stage.bg.updateHitbox();
+
+				stage.bg.x -= 80;
+				stage.bg.y -= 50;
+			}
 			stage.city.setGraphicSize(Std.int(stage.city.width * 1.1));
 			stage.city.updateHitbox();
 			stage.phillyWindow.setGraphicSize(Std.int(stage.phillyWindow.width * 1.1));
 			stage.phillyWindow.updateHitbox();
 
-			stage.bg.x -= 80;
-			stage.bg.y -= 50;
 			stage.city.x -= 80;
 			stage.phillyWindow.x -= 80;
 			stage.city.y -= 20;
