@@ -39,7 +39,7 @@ class BananaDownload extends MusicBeatState {
 		add(items);
 
 		searchBg = new FlxSprite();
-		searchBg.makeGraphic(600, 60, FlxColor.BLACK);
+		searchBg.makeGraphic(800, 60, FlxColor.BLACK);
 		searchBg.screenCenter(X);
 		searchBg.y = itemsY / 2 - searchBg.height / 2;
 		searchBg.alpha = 0.6;
