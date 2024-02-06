@@ -112,7 +112,7 @@ class SetupMods extends MusicBeatState {
                     i++;
                 }
 
-				MusicBeatState.switchState(new OnlineState());
+				MusicBeatState.switchState(new OptionsState());
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			}

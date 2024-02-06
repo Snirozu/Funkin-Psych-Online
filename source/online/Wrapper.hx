@@ -56,4 +56,22 @@ class Wrapper {
 		#else ClientPrefs.comboOffsetOP2 #end
     )
 	public static var prefComboOffsetOP2(get, set):Array<Int>;
+
+    @:forwardField(
+        #if (PSYCH_VER >= "0.7") ClientPrefs.data.gapiRefreshToken
+		#else ClientPrefs.gapiRefreshToken #end
+    )
+	public static var prefGapiRefreshToken(get, set):String;
+
+    @:forwardField(
+        #if (PSYCH_VER >= "0.7") ClientPrefs.data.gapiAccessToken
+		#else ClientPrefs.gapiAccessToken #end
+    )
+	public static var prefGapiAccessToken(get, set):String;
+
+    @:forwardField(
+        #if (PSYCH_VER >= "0.7") ClientPrefs.data.gapiAccessExpires
+		#else ClientPrefs.gapiAccessExpires #end
+    )
+	public static var prefGapiAccessExpires(get, set):Float;
 }

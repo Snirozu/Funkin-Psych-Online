@@ -14,13 +14,10 @@ class OnlineState extends MusicBeatState {
         "JOIN",
         "HOST",
         "FIND",
-		"NAME",
-		"SERVER",
+		"OPTIONS",
 		"MOD DOWNLOADER",
-		"SKINS",
-		"SETUP MODS",
 		"DISCORD",
-		"WIKI"
+		"WIKI",
     ];
 
 	var itemDesc:FlxText;
@@ -34,10 +31,6 @@ class OnlineState extends MusicBeatState {
 		switch (curSelected) {
 			case 0:
 				return daCoomCode;
-			case 3:
-				return daName;
-			case 4:
-				return daAddress;
 		}
 		return null;
 	}
@@ -45,10 +38,6 @@ class OnlineState extends MusicBeatState {
 		switch (curSelected) {
 			case 0:
 				return daCoomCode = v;
-			case 3:
-				return daName = v;
-			case 4:
-				return daAddress = v;
 		}
 		return null;
 	}
@@ -72,12 +61,6 @@ class OnlineState extends MusicBeatState {
 		if (curSelected == 0 && item == "JOIN" && inputWait)
 		{
 			return "JOIN CODE: " + inputString;
-		}
-		if (curSelected == 3 && item.toLowerCase().startsWith("name") && inputWait) {
-			return "NAME: " + inputString;
-		}
-		if (curSelected == 4 && item.toLowerCase().startsWith("server") && inputWait) {
-			return "SERVER: " + inputString;
 		}
 		return item;
 	}
@@ -145,7 +128,7 @@ class OnlineState extends MusicBeatState {
 		itemDesc.screenCenter(X);
 		add(itemDesc);
 
-		playersOnline = new FlxText(0, 50);
+		playersOnline = new FlxText(0, 100);
 		playersOnline.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		playersOnline.alpha = 0.7;
 		add(playersOnline);
@@ -223,19 +206,14 @@ class OnlineState extends MusicBeatState {
 						MusicBeatState.switchState(new FindRoom());
 					case "host":
 						GameClient.createRoom(onRoomJoin);
+					case "options":
+						MusicBeatState.switchState(new OptionsState());
 					case "mod downloader":
 						MusicBeatState.switchState(new BananaDownload());
-					case "skins":
-						LoadingState.loadAndSwitchState(new SkinsState());
-					case "setup mods":
-						MusicBeatState.switchState(new SetupMods(Mods.getModDirectories()));
 					case "discord":
-						FlxG.openURL("https://discord.gg/juHypjWuNc");
+						RequestState.requestURL("https://discord.gg/juHypjWuNc", true);
 					case "wiki":
-						FlxG.openURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki");
-				}
-				if (curSelected == 3 || curSelected == 4) {
-					inputWait = true;
+						RequestState.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki", true);
 				}
 			}
 
@@ -271,18 +249,12 @@ class OnlineState extends MusicBeatState {
 			case 2:
 				itemDesc.text = "Opens a list of all available public rooms";
 			case 3:
-				itemDesc.text = "Set your nickname here!";
+				itemDesc.text = "Psych Online options, configure stuff here!";
 			case 4:
-				itemDesc.text = "Set the server address here!\nSet to empty if you want to use the default server\nSet to 'ws://localhost:2567' if you're playing in LAN";
-			case 5:
 				itemDesc.text = "Download mods from Gamebanana here!";
-			case 6:
-				itemDesc.text = "Select your skin here!";
-			case 7:
-				itemDesc.text = "Set URLs for your mods here!";
-			case 8:
+			case 5:
 				itemDesc.text = "Also join the Discord server of this mod!";
-			case 9:
+			case 6:
 				itemDesc.text = "Documentation, Tips, FAQ etc.";
 		}
 		itemDesc.screenCenter(X);
@@ -331,13 +303,6 @@ class OnlineState extends MusicBeatState {
 		else if (key == 27) { //esc
 			inputWait = false;
 			tempDisableInput();
-			if (curSelected == 3) {
-				Wrapper.prefNickname = daName;
-				ClientPrefs.saveSettings();
-			}
-			if (curSelected == 4) {
-				GameClient.serverAddress = daAddress;
-			}
             return;
         }
 
@@ -365,13 +330,6 @@ class OnlineState extends MusicBeatState {
 			switch (itms[curSelected].toLowerCase()) {
 				case "join":
 					GameClient.joinRoom(daCoomCode, onRoomJoin);
-			}
-			if (curSelected == 3) {
-				Wrapper.prefNickname = daName;
-				ClientPrefs.saveSettings();
-			}
-			if (curSelected == 4) {
-				GameClient.serverAddress = daAddress;
 			}
 		}
 

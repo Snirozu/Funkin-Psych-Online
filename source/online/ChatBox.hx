@@ -1,6 +1,6 @@
 package online;
 
-import online.states.OpenURL;
+import online.states.RequestState;
 import flixel.math.FlxRect;
 import openfl.events.KeyboardEvent;
 import lime.system.Clipboard;
@@ -122,7 +122,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 					msg.alpha = 1;
 					if (FlxG.mouse.justPressed && msg.link != null) {
 						focused = false;
-						OpenURL.open(msg.link);
+						RequestState.requestURL(msg.link);
 					}
 				}
 				if (msg.alpha > targetAlpha) {
