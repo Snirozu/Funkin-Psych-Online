@@ -81,7 +81,9 @@ class SaveVariables {
 	public var trustedSources:Array<String> = ["https://gamebanana.com/"];
 	public var comboOffsetOP1:Array<Int> = [0, 0, 0, 0];
 	public var comboOffsetOP2:Array<Int> = [0, 0, 0, 0];
-
+	public var gapiRefreshToken:String = null;
+	public var gapiAccessToken:String = null;
+	public var gapiAccessExpires:Float = 0;
 
 	public function new()
 	{

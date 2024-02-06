@@ -198,7 +198,7 @@ class BananaDownload extends MusicBeatState {
 								OnlineMods.downloadMod(items.members[curSelected].mod._sProfileUrl);
 							}
 							else if (FlxG.mouse.overlaps(items.members[curSelected].linkBg)) {
-								OpenURL.open(items.members[curSelected].mod._sProfileUrl, "The following button redirects to:");
+								RequestState.requestURL(items.members[curSelected].mod._sProfileUrl, "The following button redirects to:");
 							}
 						}
 						else {

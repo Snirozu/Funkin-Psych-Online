@@ -1,5 +1,8 @@
 package online;
 
+import online.states.RequestState;
+import openfl.net.URLRequestHeader;
+import haxe.Http;
 import online.GameBanana.GBMod;
 import openfl.display.PNGEncoderOptions;
 import haxe.Json;
@@ -10,7 +13,6 @@ import lime.system.System;
 import haxe.zip.Reader;
 import haxe.zip.Entry;
 import online.states.SetupMods;
-import online.states.OpenURL;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -61,11 +63,21 @@ class OnlineMods {
 			return;
 		}
 
-		OpenURL.open(url, "Do you want to download this mod?", true, onSuccess);
+		if (StringTools.startsWith(url, "https://drive.google.com/file/d/")) {
+			GoogleAPI.downloadFromDrive(url.substr("https://drive.google.com/file/d/".length).split("/")[0], onSuccess);
+			return;
+		}
+
+		if (StringTools.startsWith(url, "https://www.mediafire.com/file/")) {
+			Alert.alert("Mod download failed!", "Mods from MediaFire are not supported!");
+			return;
+		}
+
+		RequestState.requestDownload(url, "Do you want to download this mod?", onSuccess);
 	}
 
 	@:unreflective
-	public static function startDownloadMod(fileName:String, modURL:String, ?gbMod:GBMod, ?onSuccess:String->Void) {
+	public static function startDownloadMod(fileName:String, modURL:String, ?gbMod:GBMod, ?onSuccess:String->Void, ?headers:Map<String, String>) {
 		new Downloader(fileName, modURL, modURL, (fileName, downloader) -> {
 			var _fileNameSplit = fileName.split("/");
 			var swagFileName = _fileNameSplit[_fileNameSplit.length - 1].split(".")[0];
@@ -164,7 +176,7 @@ class OnlineMods {
 				if (onSuccess != null)
 					onSuccess(beginFolder);
 			});
-		}, gbMod);
+		}, gbMod, headers);
 	}
 
 	private static function _unzip(entry:Entry, begins:String, newParent:String) {

@@ -252,7 +252,7 @@ class GameClient {
 		return GameClient.isOwner || GameClient.room.state.anarchyMode;
 	}
 
-	static final _defaultAddress:String = 
+	public static final defaultAddress:String = 
 		#if LOCAL
 		"ws://localhost:2567"
 		#else
@@ -264,13 +264,13 @@ class GameClient {
 		if (Wrapper.prefServerAddress != null) {
 			return Wrapper.prefServerAddress;
 		}
-		return _defaultAddress;
+		return defaultAddress;
 	}
 
 	static function set_serverAddress(v:String):String {
 		if (v != null)
 			v = v.trim();
-		if (v == "" || v == _defaultAddress || v == "null")
+		if (v == "" || v == defaultAddress || v == "null")
 			v = null;
 
 		Wrapper.prefServerAddress = v;
@@ -278,15 +278,20 @@ class GameClient {
 		return serverAddress;
 	}
 
+	public static function addressToUrl(address:String) {
+		var copyAddress = address;
+		if (copyAddress.startsWith("wss://")) {
+			copyAddress = "https://" + copyAddress.substr("wss://".length);
+		}
+		else if (copyAddress.startsWith("ws://")) {
+			copyAddress = "http://" + copyAddress.substr("ws://".length);
+		}
+		return copyAddress;
+	}
+
 	public static function getPlayerCount(callback:(v:Null<Int>)->Void) {
 		Thread.create(() -> {
-			var swagAddress = serverAddress.split("//")[1];
-			if (serverAddress.startsWith("wss"))
-				swagAddress = "https://" + swagAddress;
-			else if (serverAddress.startsWith("ws"))
-				swagAddress = "http://" + swagAddress;
-
-			var http = new Http(swagAddress + "/online");
+			var http = new Http(addressToUrl(serverAddress) + "/api/online");
 
 			http.onData = function(data:String) {
 				Waiter.put(() -> {
