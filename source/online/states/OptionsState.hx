@@ -33,7 +33,7 @@ class OptionsState extends MusicBeatState {
 		nicknameOption.screenCenter(X);
 
         var serverOption:InputOption;
-		items.add(serverOption = new InputOption("Server Address", "Set to empty if you want to use the default server\nor to 'ws://localhost:2567' if you're playing in LAN", GameClient.defaultAddress));
+		items.add(serverOption = new InputOption("Server Address", "Set to empty if you want to use the default server\nLocally: 'ws://localhost:2567'\nMain Server: wss://vmi1669478.contaboserver.net\nAlt Server: wss://gettinfreaky.onrender.com", GameClient.defaultAddress));
 		serverOption.input.text = GameClient.serverAddress;
 		serverOption.y = nicknameOption.y + nicknameOption.height + 50;
 		serverOption.screenCenter(X);
