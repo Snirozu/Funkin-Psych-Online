@@ -256,7 +256,8 @@ class GameClient {
 		#if LOCAL
 		"ws://localhost:2567"
 		#else
-		"wss://gettinfreaky.onrender.com"
+		//"wss://gettinfreaky.onrender.com"
+		"wss://vmi1669478.contaboserver.net"
 		#end
 	;
 

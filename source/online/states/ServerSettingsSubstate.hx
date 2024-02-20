@@ -119,14 +119,14 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 			}
 
 			if (option.ID == curSelectedID) {
-                option.box.visible = true;
+				option.text.alpha = 1;
 
                 if (controls.ACCEPT) {
                     option.onClick();
                 }
             }
             else {
-				option.box.visible = false;
+				option.text.alpha = 0.7;
             }
         });
     }
@@ -201,8 +201,7 @@ class Option extends FlxSpriteGroup {
 		descText.y = text.height + 2;
 		add(descText);
 
-		box.makeGraphic(Std.int(width) + 10, Std.int(height) + 10, 0xA2000000);
-		box.visible = false;
+		box.makeGraphic(Std.int(width) + 10, Std.int(height) + 10, 0x81000000);
     }
 
     override function update(elapsed) {
@@ -225,5 +224,9 @@ class Option extends FlxSpriteGroup {
 
 		if (onUpdate != null)
 			onUpdate(elapsed);
+
+		descText.alpha = text.alpha;
+		if (!noCheckbox)
+			checkbox.alpha = text.alpha;
     }
 }
