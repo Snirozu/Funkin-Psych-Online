@@ -228,6 +228,11 @@ class ModsMenuState extends MusicBeatState
 				FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
 				return;
 			}
+			try { // not trusting this shit lol
+				FileUtils.removeFiles(haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]])); // remove the old mod (paths can change between versions)
+			} catch (exc) {
+				trace(exc);
+			}
 			OnlineMods.downloadMod(OnlineMods.getModURL(modsList[curSelected][0]));
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 		});
