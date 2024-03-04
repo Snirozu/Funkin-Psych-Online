@@ -1,6 +1,5 @@
 package online.states;
 
-import hxcodec.flixel.FlxVideo;
 import flixel.util.FlxAxes;
 import flixel.addons.display.FlxPieDial;
 import sys.FileSystem;
