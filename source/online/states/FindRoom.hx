@@ -139,7 +139,7 @@ class FindRoom extends MusicBeatState {
     }
 
     public function getAddress() {
-        return ClientPrefs.data.serverAddress;
+        return GameClient.serverAddress;
     }
 }
 
