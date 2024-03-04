@@ -1,5 +1,7 @@
 package substates;
 
+import online.Waiter;
+import online.GameClient;
 import objects.AttachedText;
 import objects.CheckboxThingie;
 
@@ -62,17 +64,19 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		option.displayFormat = '%vX';
 		optionsArray.push(option);
 
-		var option:GameplayOption = new GameplayOption('Instakill on Miss', 'instakill', 'bool', false);
-		optionsArray.push(option);
+		if (!GameClient.isConnected()) {
+			var option:GameplayOption = new GameplayOption('Instakill on Miss', 'instakill', 'bool', false);
+			optionsArray.push(option);
 
-		var option:GameplayOption = new GameplayOption('Practice Mode', 'practice', 'bool', false);
-		optionsArray.push(option);
+			var option:GameplayOption = new GameplayOption('Practice Mode', 'practice', 'bool', false);
+			optionsArray.push(option);
 
-		var option:GameplayOption = new GameplayOption('Botplay', 'botplay', 'bool', false);
-		optionsArray.push(option);
+			var option:GameplayOption = new GameplayOption('Botplay', 'botplay', 'bool', false);
+			optionsArray.push(option);
 
-		var option:GameplayOption = new GameplayOption('Play as Opponent', 'opponentplay', 'bool', false);
-		optionsArray.push(option);
+			var option:GameplayOption = new GameplayOption('Play as Opponent', 'opponentplay', 'bool', false);
+			optionsArray.push(option);
+		}
 	}
 
 	public function getOptionByName(name:String)
@@ -138,6 +142,28 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 		changeSelection();
 		reloadCheckboxes();
+
+		if (GameClient.isConnected()) {
+			GameClient.room.state.gameplaySettings.onChange(receiveChange);
+			
+		}
+	}
+
+	function receiveChange(_:Dynamic, __:Dynamic) {
+		Waiter.put(() -> {
+			reloadCheckboxes();
+			for (option in optionsArray) {
+				updateTextFrom(option);
+			}
+		});
+	}
+
+	override function destroy() {
+		super.destroy();
+		
+		@:privateAccess
+		if (GameClient.isConnected())
+			GameClient.room.state.gameplaySettings._callbacks.clear();
 	}
 
 	var nextAccept:Int = 5;
@@ -310,6 +336,12 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		var text:String = option.displayFormat;
 		var val:Dynamic = option.getValue();
 		if(option.type == 'percent') val *= 100;
+		switch (option.type) {
+			case 'int':
+				val = Math.round(val);
+			case 'float' | 'percent':
+				val = FlxMath.roundDecimal(val, option.decimals);
+		}
 		var def:Dynamic = option.defaultValue;
 		option.text = text.replace('%v', val).replace('%d', def);
 	}
@@ -442,10 +474,16 @@ class GameplayOption
 
 	public function getValue():Dynamic
 	{
+		if (GameClient.isConnected() && !GameClient.room.state.permitModifiers) {
+			return GameClient.getGameplaySetting(variable);
+		}
 		return ClientPrefs.data.gameplaySettings.get(variable);
 	}
 	public function setValue(value:Dynamic)
 	{
+		if (GameClient.isConnected() && !GameClient.room.state.permitModifiers) {
+			return GameClient.setGameplaySetting(variable, value);
+		}
 		ClientPrefs.data.gameplaySettings.set(variable, value);
 	}
 

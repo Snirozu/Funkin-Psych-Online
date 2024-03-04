@@ -1,5 +1,6 @@
 package states;
 
+import online.ChatBox;
 import online.Alert;
 import online.Waiter;
 import haxe.crypto.Md5;
@@ -52,8 +53,16 @@ class FreeplayState extends MusicBeatState
 	var missingTextBG:FlxSprite;
 	var missingText:FlxText;
 
+	var prevPauseGame = false;
+
+	var chatBox:ChatBox;
+
 	override function create()
 	{
+		prevPauseGame = FlxG.autoPause;
+
+		FlxG.autoPause = false;
+
 		//Paths.clearStoredMemory();
 		//Paths.clearUnusedMemory();
 		
@@ -182,11 +191,7 @@ class FreeplayState extends MusicBeatState
 		updateTexts();
 
 		if (GameClient.isConnected()) {
-			GameClient.room.onMessage("log", function(message) {
-				Waiter.put(() -> {
-					Alert.alert("New message", message);
-				});
-			});
+			add(chatBox = new ChatBox(camera));
 		}
 
 		super.create();
@@ -252,6 +257,12 @@ class FreeplayState extends MusicBeatState
 
 		scoreText.text = 'PERSONAL BEST: ' + lerpScore + ' (' + ratingSplit.join('.') + '%)';
 		positionHighscore();
+
+		if (chatBox != null && chatBox.focused) {
+			updateTexts(elapsed);
+			super.update(elapsed);
+			return;
+		}
 
 		var shiftMult:Int = 1;
 		if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
@@ -324,6 +335,7 @@ class FreeplayState extends MusicBeatState
 			else {
 				MusicBeatState.switchState(new MainMenuState());
 			}
+			FlxG.autoPause = prevPauseGame;
 		}
 
 		if(FlxG.keys.justPressed.CONTROL)
@@ -390,6 +402,7 @@ class FreeplayState extends MusicBeatState
 							destroyFreeplayVocals();
 							GameClient.clearOnMessage();
 							MusicBeatState.switchState(new Room());
+							FlxG.autoPause = prevPauseGame;
 						}
 						catch (exc) {
 							Sys.println(exc);
@@ -463,6 +476,7 @@ class FreeplayState extends MusicBeatState
 					return;
 				}
 				LoadingState.loadAndSwitchState(new PlayState());
+				FlxG.autoPause = prevPauseGame;
 
 				FlxG.sound.music.volume = 0;
 						

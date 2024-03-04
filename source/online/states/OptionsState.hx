@@ -19,68 +19,88 @@ class OptionsState extends MusicBeatState {
 		DiscordClient.changePresence("In Online Settings.", null, null, false);
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.color = 0xff2e2b1a;
+		bg.color = 0xff2b2b2b;
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.antialiasing = Wrapper.prefAntialiasing;
+		bg.antialiasing = ClientPrefs.data.antialiasing;
 		bg.scrollFactor.set(0, 0);
 		add(bg);
 
+		var i = 0;
+
 		var nicknameOption:InputOption;
-		items.add(nicknameOption = new InputOption("Nickname", "Set your nickname here!", "Boyfriend"));
-		nicknameOption.input.text = Wrapper.prefNickname;
+		items.add(nicknameOption = new InputOption("Nickname", "Set your nickname here!", "Boyfriend", true, text -> {
+			if (curOption.input.text == "")
+				ClientPrefs.data.nickname = "Boyfriend";
+			ClientPrefs.data.nickname = curOption.input.text;
+			ClientPrefs.saveSettings();
+		}));
+		nicknameOption.input.text = ClientPrefs.data.nickname;
 		nicknameOption.y = 50;
 		nicknameOption.screenCenter(X);
+		nicknameOption.ID = i++;
 
         var serverOption:InputOption;
-		items.add(serverOption = new InputOption("Server Address", "Set to empty if you want to use the default server\nLocally: 'ws://localhost:2567'\nMain Server: wss://vmi1669478.contaboserver.net\nAlt Server: wss://gettinfreaky.onrender.com", GameClient.defaultAddress));
+		var appendText = "";
+		if (GameClient.serverAddresses.length > 0) {
+			appendText += "\nOfficial Servers:";
+			for (address in GameClient.serverAddresses) {
+				if (address != "ws://localhost:2567")
+					appendText += "\n" + address;
+			}
+		}
+		items.add(serverOption = new InputOption("Server Address", "Set to empty if you want to use the default server\nLocal Address: 'ws://localhost:2567'" + appendText, GameClient.serverAddresses[0], text -> {
+			GameClient.serverAddress = curOption.input.text;
+			ClientPrefs.saveSettings();
+		}));
 		serverOption.input.text = GameClient.serverAddress;
 		serverOption.y = nicknameOption.y + nicknameOption.height + 50;
 		serverOption.screenCenter(X);
+		serverOption.ID = i++;
 
 		var skinsOption:InputOption;
 		items.add(skinsOption = new InputOption("Skin", "Choose your skin here!", null, false));
 		skinsOption.y = serverOption.y + serverOption.height + 50;
 		skinsOption.screenCenter(X);
+		skinsOption.ID = i++;
 
 		var modsOption:InputOption;
 		items.add(modsOption = new InputOption("Setup Mods", "Set the URL's of your mods here!", null, false));
 		modsOption.y = skinsOption.y + skinsOption.height + 50;
 		modsOption.screenCenter(X);
+		modsOption.ID = i++;
 
 		var trustedOption:InputOption;
 		items.add(trustedOption = new InputOption("Clear Trusted Domains", "Clear the list of all trusted domains!", null, false));
 		trustedOption.y = modsOption.y + modsOption.height + 50;
 		trustedOption.screenCenter(X);
+		trustedOption.ID = i++;
 
-		if (Wrapper.prefGapiRefreshToken != null) {
+		if (ClientPrefs.data.gapiRefreshToken != null) {
 			var googleOption:InputOption;
 			items.add(googleOption = new InputOption("Unlink Google", "Unlink from Google here!\nThis can also help with Google Drive errors\n(if they happen to throw them)", null, false));
 			googleOption.y = trustedOption.y + trustedOption.height + 50;
 			googleOption.screenCenter(X);
+			googleOption.ID = i++;
 		}
 
 		add(items);
 
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-
         changeSelection(0);
     }
 
-	override function destroy() {
-		super.destroy();
-
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-	}
-
     override function update(elapsed) {
-        super.update(elapsed);
-
 		if (curOption != null) {
 			camFollow.setPosition(curOption.getMidpoint().x, curOption.getMidpoint().y);
 		}
 
-		if (!inputWait && !disableInput) {
+		if (!inputWait) {
+			if (controls.BACK) {
+				FlxG.sound.music.volume = 1;
+				MusicBeatState.switchState(new OnlineState());
+				FlxG.sound.play(Paths.sound('cancelMenu'));
+			}
+
 			if (controls.UI_UP_P || FlxG.mouse.wheel == 1)
 				changeSelection(-1);
 			else if (controls.UI_DOWN_P || FlxG.mouse.wheel == -1)
@@ -98,10 +118,14 @@ class OptionsState extends MusicBeatState {
                 }
                 updateOptions();
             }
+        }
 
+		super.update(elapsed);
+
+		if (!inputWait) {
 			if ((controls.ACCEPT || FlxG.mouse.justPressed) && curOption != null) {
 				if (curOption.isInput)
-                	inputWait = true;
+					curOption.input.hasFocus = true;
 				else
 					switch (curOption.id) {
 						case "skin":
@@ -114,18 +138,20 @@ class OptionsState extends MusicBeatState {
 							});
 							MusicBeatState.switchState(new OptionsState());
 						case "clear trusted domains":
-							Wrapper.prefTrustedSources = ["https://gamebanana.com/"];
+							ClientPrefs.data.trustedSources = ["https://gamebanana.com/"];
 							ClientPrefs.saveSettings();
 							Alert.alert("Cleared the trusted domains list!", "");
 					}
 			}
-            
-            if (controls.BACK) {
-				FlxG.sound.music.volume = 1;
-				MusicBeatState.switchState(new OnlineState());
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+		}
+
+		inputWait = false;
+		for (item in items) {
+			if (item?.input?.hasFocus ?? false) {
+				curSelected = item.ID;
+				inputWait = true;
 			}
-        }
+		}
     }
 
     var curOption:InputOption;
@@ -162,90 +188,25 @@ class OptionsState extends MusicBeatState {
 
     var inputWait(default, set):Bool = false;
 	function set_inputWait(value:Bool) {
+		if (inputWait == value) return inputWait;
 		inputWait = value;
-		if (!inputWait) {
-			tempDisableInput();
-		}
-		else {
-			inputWait = curOption?.input != null;
-		}
 		updateOptions();
 		return inputWait;
-	}
-	
-	function onKeyDown(e:KeyboardEvent) {
-		if (!inputWait || disableInput) {
-			return;
-		}
-
-		var key = e.keyCode;
-
-		if (e.charCode == 0) { // non-printable characters crash String.fromCharCode
-			return;
-		}
-
-		if (key == 46) { // delete
-			return;
-		}
-
-		if (key == 8) { // bckspc
-			curOption.input.text = curOption.input.text.substring(0, curOption.input.text.length - 1);
-			return;
-		}
-		else if (key == 13) { // enter
-			inputWait = false;
-			switch (curOption.id) {
-				case "nickname":
-					if (curOption.input.text == "")
-						Wrapper.prefNickname = "Boyfriend";
-					Wrapper.prefNickname = curOption.input.text;
-				case "server address":
-					GameClient.serverAddress = curOption.input.text;
-			}
-			ClientPrefs.saveSettings();
-			return;
-		}
-		else if (key == 27) { // esc
-			inputWait = false;
-			return;
-		}
-
-		var newText:String = String.fromCharCode(e.charCode);
-		if (e.shiftKey) {
-			newText = newText.toUpperCase();
-		}
-		else {
-			newText = newText.toLowerCase();
-		}
-
-		if (key == 86 && e.ctrlKey) {
-			newText = Clipboard.text;
-		}
-
-		if (newText.length > 0) {
-			curOption.input.text += newText;
-		}
-	}
-
-	var disableInput = false;
-	function tempDisableInput() {
-		disableInput = true;
-		new FlxTimer().start(0.1, (t) -> disableInput = false);
 	}
 }
 
 class InputOption extends FlxSpriteGroup {
 	var box:FlxSprite;
-	var text:FlxText;
-	var descText:FlxText;
+	public var text:FlxText;
+	public var descText:FlxText;
 	var inputBg:FlxSprite;
 	var inputPlaceholder:FlxText;
-	public var input:FlxText;
+	public var input:InputText;
 
 	public var id:String;
 	public var isInput:Bool;
 
-    public function new(title:String, description:String, ?placeholder:String = "...", ?isInput:Bool = true) {
+    public function new(title:String, description:String, ?placeholder:String = "...", ?isInput:Bool = true, ?onEnter:(text:String)->Void) {
         super();
 
 		id = title.toLowerCase();
@@ -282,8 +243,7 @@ class InputOption extends FlxSpriteGroup {
 			inputPlaceholder.y = inputBg.y + inputBg.height / 2 - inputPlaceholder.height / 2;
 			add(inputPlaceholder);
 
-			input = new FlxText();
-			input.text = "";
+			input = new InputText(0, 0, inputBg.width - 20, onEnter);
 			input.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			input.setPosition(inputPlaceholder.x, inputPlaceholder.y);
 			add(input);

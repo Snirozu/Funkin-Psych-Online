@@ -43,15 +43,17 @@ class OnlineState extends MusicBeatState {
 	}
 
 	var daCoomCode:String = "";
-	var daName:String;
-	var daAddress:String;
-
 	var disableInput = false;
 
 	var selectLine:FlxSprite;
 	var descBox:FlxSprite;
 
-    function onRoomJoin() {
+    function onRoomJoin(err:Dynamic) {
+		if (err != null) {
+			disableInput = false;
+			return;
+		}
+
 		Waiter.put(() -> {
 			MusicBeatState.switchState(new Room());
 		});
@@ -76,20 +78,17 @@ class OnlineState extends MusicBeatState {
 
 		DiscordClient.changePresence("In online lobby.", null, null, false);
 
-		daName = Wrapper.prefNickname;
-		daAddress = GameClient.serverAddress;
-
         var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-        bg.color = 0xff412664;
+        bg.color = 0xff3f2b5a;
         bg.updateHitbox();
         bg.screenCenter();
-        bg.antialiasing = Wrapper.prefAntialiasing;
+        bg.antialiasing = ClientPrefs.data.antialiasing;
         add(bg);
 
 		var lines:FlxSprite = new FlxSprite().loadGraphic(Paths.image('coolLines'));
 		lines.updateHitbox();
 		lines.screenCenter();
-		lines.antialiasing = Wrapper.prefAntialiasing;
+		lines.antialiasing = ClientPrefs.data.antialiasing;
 		add(lines);
 
 		selectLine = new FlxSprite();
@@ -202,13 +201,17 @@ class OnlineState extends MusicBeatState {
 					case "join":
 						inputWait = true;
 					case "find":
+						disableInput = true;
 						// FlxG.openURL(GameClient.serverAddress + "/rooms");
 						MusicBeatState.switchState(new FindRoom());
 					case "host":
-						GameClient.createRoom(onRoomJoin);
+						disableInput = true;
+						GameClient.createRoom(GameClient.serverAddress, onRoomJoin);
 					case "options":
+						disableInput = true;
 						MusicBeatState.switchState(new OptionsState());
 					case "mod downloader":
+						disableInput = true;
 						MusicBeatState.switchState(new BananaDownload());
 					case "discord":
 						RequestState.requestURL("https://discord.gg/juHypjWuNc", true);
@@ -218,6 +221,8 @@ class OnlineState extends MusicBeatState {
 			}
 
 			if (controls.BACK) {
+				disableInput = true;
+
 				FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 				FlxG.mouse.visible = false;
 
@@ -226,6 +231,7 @@ class OnlineState extends MusicBeatState {
 			}
 			
 			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V) {
+				disableInput = true;
 				GameClient.joinRoom(Clipboard.text, onRoomJoin);
 			}
 		}
@@ -243,7 +249,7 @@ class OnlineState extends MusicBeatState {
 
 		switch (curSelected) {
 			case 0:
-				itemDesc.text = "Join a room using room code";
+				itemDesc.text = "Join a room using a room code";
 			case 1:
 				itemDesc.text = "Creates a room";
 			case 2:
@@ -329,6 +335,7 @@ class OnlineState extends MusicBeatState {
 		if (inputString.length >= 0) {
 			switch (itms[curSelected].toLowerCase()) {
 				case "join":
+					disableInput = true;
 					GameClient.joinRoom(daCoomCode, onRoomJoin);
 			}
 		}

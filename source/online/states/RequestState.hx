@@ -1,5 +1,6 @@
 package online.states;
 
+import openfl.filters.BlurFilter;
 import flixel.FlxObject;
 import online.states.ServerSettingsSubstate.Option;
 
@@ -9,25 +10,30 @@ class RequestState extends MusicBeatSubstate {
 	public var yesCallback:(nowTrusting:Null<Bool>) -> Void;
 	public var noCallback:Void->Void;
 	public var trust:Option;
+	public var onCreate:RequestState->Void;
 	
 	var disableTrusting:Bool = false;
 
-	var promptText:FlxText;
-	var yes:FlxText;
-	var no:FlxText;
-	var yesBg:FlxSprite;
-	var noBg:FlxSprite;
+	public var promptText:FlxText;
+	public var urlText:FlxText;
+	public var yes:FlxText;
+	public var no:FlxText;
+	public var yesBg:FlxSprite;
+	public var noBg:FlxSprite;
 
 	var curSelected:Int = -1;
+
+	var blurFilter:BlurFilter;
+	var coolCam:FlxCamera;
 
 	public static function requestURL(url:String, ?prompt:String = "Do you want to open this link", ?disableTrusting:Bool = false) {
 		request(prompt, url, nowTrusting -> {
 			if (nowTrusting != null) {
 				var splitURL = url.split("//");
 				if (nowTrusting)
-					Wrapper.prefTrustedSources.push(splitURL[0] + "//" + splitURL[1].split("/")[0]);
+					ClientPrefs.data.trustedSources.push(splitURL[0] + "//" + splitURL[1].split("/")[0]);
 				else
-					Wrapper.prefTrustedSources.remove(splitURL[0] + "//" + splitURL[1].split("/")[0]);
+					ClientPrefs.data.trustedSources.remove(splitURL[0] + "//" + splitURL[1].split("/")[0]);
 				ClientPrefs.saveSettings();
 			}
 
@@ -40,9 +46,9 @@ class RequestState extends MusicBeatSubstate {
 			if (nowTrusting != null) {
 				var splitURL = url.split("//");
 				if (nowTrusting)
-					Wrapper.prefTrustedSources.push(splitURL[0] + "//" + splitURL[1].split("/")[0]);
+					ClientPrefs.data.trustedSources.push(splitURL[0] + "//" + splitURL[1].split("/")[0]);
 				else
-					Wrapper.prefTrustedSources.remove(splitURL[0] + "//" + splitURL[1].split("/")[0]);
+					ClientPrefs.data.trustedSources.remove(splitURL[0] + "//" + splitURL[1].split("/")[0]);
 				ClientPrefs.saveSettings();
 				if (yesCallback != null)
 					yesCallback();
@@ -52,12 +58,12 @@ class RequestState extends MusicBeatSubstate {
 		}, null, disableTrusting);
 	}
 
-	public static function request(prompt:String, url:String, yesCallback:(nowTrusting:Null<Bool>)->Void, noCallback:Void->Void, ?disableTrusting:Bool = false) {
+	public static function request(prompt:String, url:String, yesCallback:(nowTrusting:Null<Bool>)->Void, noCallback:Void->Void, ?disableTrusting:Bool = false, ?onCreate:RequestState->Void) {
 		if (FlxG.state.subState != null)
 			FlxG.state.subState.close();
 
 		if (!disableTrusting) {
-			for (source in Wrapper.prefTrustedSources) {
+			for (source in ClientPrefs.data.trustedSources) {
 				if (StringTools.startsWith(url, source)) {
 					yesCallback(null);
 					return;
@@ -65,12 +71,12 @@ class RequestState extends MusicBeatSubstate {
 			}
 		}
 
-		FlxG.state.openSubState(new RequestState(prompt, url, yesCallback, noCallback, disableTrusting));
+		FlxG.state.openSubState(new RequestState(prompt, url, yesCallback, noCallback, disableTrusting, onCreate));
     }
 
 	var _tempShowMouse:Bool = false;
 
-	private function new(prompt:String, url:String, yesCallback:(nowTrusting:Null<Bool>) -> Void, noCallback:Void->Void, disableTrusting:Bool) {
+	private function new(prompt:String, url:String, yesCallback:(nowTrusting:Null<Bool>) -> Void, noCallback:Void->Void, disableTrusting:Bool, onCreate:RequestState->Void) {
         super();
 
 		this.prompt = prompt;
@@ -78,10 +84,24 @@ class RequestState extends MusicBeatSubstate {
 		this.yesCallback = yesCallback;
 		this.noCallback = noCallback;
 		this.disableTrusting = disableTrusting;
+		this.onCreate = onCreate;
     }
 
 	override function create() {
 		super.create();
+		
+		blurFilter = new BlurFilter();
+		for (cam in FlxG.cameras.list) {
+			if (cam.filters == null)
+				cam.filters = [];
+			cam.filters.push(blurFilter);
+		}
+
+		coolCam = new FlxCamera();
+		coolCam.bgColor.alpha = 0;
+		FlxG.cameras.add(coolCam, false);
+
+		cameras = [coolCam];
 
 		if (!FlxG.mouse.visible) {
 			FlxG.mouse.visible = true;
@@ -101,13 +121,13 @@ class RequestState extends MusicBeatSubstate {
 		bg.screenCenter(X);
 		add(bg);
 
-		var promptText = new FlxText(bg.x, 200, bg.width - 50, prompt + ":");
+		promptText = new FlxText(bg.x, 200, bg.width - 50, prompt + ":");
 		promptText.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		promptText.scrollFactor.set(0, 0);
 		promptText.screenCenter(X);
 		add(promptText);
 
-		var urlText = new FlxText(bg.x, promptText.y + promptText.height + 20, bg.width - 50, url);
+		urlText = new FlxText(bg.x, promptText.y + promptText.height + 20, bg.width - 50, url);
 		urlText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		urlText.scrollFactor.set(0, 0);
 		urlText.screenCenter(X);
@@ -117,7 +137,7 @@ class RequestState extends MusicBeatSubstate {
 		yes = new FlxText(0, 0, 0, "Yes");
 		yes.setFormat("VCR OSD Mono", 30, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		yes.x = FlxG.width / 2 - yes.width / 2 - 150;
-		yes.y = 400;
+		yes.y = promptText.y + 200;
 		yes.scrollFactor.set(0, 0);
 		yesBg = new FlxSprite();
 		yesBg.makeGraphic(1, 1, 0x5D000000);
@@ -159,6 +179,19 @@ class RequestState extends MusicBeatSubstate {
 		no.alpha = 0.6;
 
 		items = !disableTrusting ? 2 : 1;
+
+		if (onCreate != null)
+			onCreate(this);
+	}
+
+	override function destroy() {
+		super.destroy();
+
+		for (cam in FlxG.cameras.list) {
+			if (cam?.filters != null)
+				cam.filters.remove(blurFilter);
+		}
+		FlxG.cameras.remove(coolCam);
 	}
 
 	override public function close() {
@@ -241,7 +274,7 @@ class RequestState extends MusicBeatSubstate {
 	}
 
 	function isURLTrusted(url:String) {
-		for (source in Wrapper.prefTrustedSources) {
+		for (source in ClientPrefs.data.trustedSources) {
 			if (StringTools.startsWith(url, source)) {
 				return true;
 			}

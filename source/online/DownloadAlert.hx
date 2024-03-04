@@ -78,7 +78,10 @@ class DownloadAlerts extends Sprite {
 			alert.cancelBg.scaleX = alert.cancelText.textWidth;
 			alert.cancelBg.scaleY = alert.cancelText.textHeight + 5;
 			
-			alert.updateProgress(downloader.gotContent, downloader.contentLength);
+			if (downloader.isInstalling)
+				alert.setStatus("Installing...");
+			else if (downloader.isDownloading)
+				alert.updateProgress(downloader.gotContent, downloader.contentLength);
 
 			prevAlert = alert;
 			i++;
@@ -135,6 +138,8 @@ class DownloadAlert extends Sprite {
 		cancelText.selectable = false;
 		cancelText.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 13, 0xFFFFFFFF);
 		addChild(cancelText);
+
+		setStatus("Initializing the download...");
     }
 
     public function updateProgress(loaded:Float, total:Float) {
@@ -155,6 +160,14 @@ class DownloadAlert extends Sprite {
 		bar.scaleX = (bg.width - 20) * (loaded / total);
 		// bar.x = bg.x + bg.width / 2 - bar.width / 2;
     }
+
+	public function setStatus(string:String) {
+		if (text == null)
+			return;
+
+		bar.visible = false;
+		text.text = string;
+	}
 
 	public static function prettyBytes(bytes:Float):String {
 		if (bytes > 1000000000) {

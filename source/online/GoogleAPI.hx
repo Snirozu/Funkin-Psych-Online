@@ -34,7 +34,9 @@ class GoogleAPI {
 
 			LoadingScreen.toggle(false);
 			Waiter.put(() -> {
-				RequestState.request("Do you want to link your Google account to download files from Google Drive?", authUrl, _ -> {
+				RequestState.request(
+					"Do you want to link your Google account to download files from Google Drive?"
+				, authUrl, _ -> {
 					LoadingScreen.toggle(true);
 
 					FlxG.openURL(authUrl);
@@ -81,7 +83,12 @@ class GoogleAPI {
 							Alert.alert("Authorization failed!", "Authorization Code was not found");
 						}
 					});
-				}, () -> {}, true);
+				}, () -> {}, true, instance -> {
+					instance.urlText.text = 
+						"The game including mods will not have access to your Google account BUT will be able to read your Google Drive files.\n" +
+						"Make sure to not have anything personal stored there!"
+					;
+				});
 			});
         });
     }
@@ -90,7 +97,7 @@ class GoogleAPI {
 		LoadingScreen.toggle(true);
 
 		Thread.create(() -> {
-			var http = new Http(GameClient.addressToUrl(GameClient.defaultAddress) + "/api/google/token/auth");
+			var http = new Http(GameClient.addressToUrl(GameClient.serverAddresses[0]) + "/api/google/token/auth");
 			http.addParameter('code', authCode);
 
 			http.onData = function(data:String) {
@@ -104,9 +111,9 @@ class GoogleAPI {
 						return;
 					}
 
-					Wrapper.prefGapiRefreshToken = json.refresh_token;
-					Wrapper.prefGapiAccessToken = json.access_token;
-					Wrapper.prefGapiAccessExpires = Sys.time() + Std.int(json.expires_in);
+					ClientPrefs.data.gapiRefreshToken = json.refresh_token;
+					ClientPrefs.data.gapiAccessToken = json.access_token;
+					ClientPrefs.data.gapiAccessExpires = Sys.time() + Std.int(json.expires_in);
 					ClientPrefs.saveSettings();
 					onAuthorize();
 				});
@@ -128,8 +135,8 @@ class GoogleAPI {
 		LoadingScreen.toggle(true);
 
 		Thread.create(() -> {
-			var http = new Http(GameClient.addressToUrl(GameClient.defaultAddress) + "/api/google/token/refresh");
-			http.addParameter('refresh_token', Wrapper.prefGapiRefreshToken);
+			var http = new Http(GameClient.addressToUrl(GameClient.serverAddresses[0]) + "/api/google/token/refresh");
+			http.addParameter('refresh_token', ClientPrefs.data.gapiRefreshToken);
 
 			http.onData = function(data:String) {
 				LoadingScreen.toggle(false);
@@ -142,8 +149,8 @@ class GoogleAPI {
 						return;
 					}
 
-					Wrapper.prefGapiAccessToken = json.access_token;
-					Wrapper.prefGapiAccessExpires = Sys.time() + Std.int(json.expires_in);
+					ClientPrefs.data.gapiAccessToken = json.access_token;
+					ClientPrefs.data.gapiAccessExpires = Sys.time() + Std.int(json.expires_in);
 					ClientPrefs.saveSettings();
 					onSuccess();
 				});
@@ -165,16 +172,16 @@ class GoogleAPI {
 		LoadingScreen.toggle(true);
 
 		Thread.create(() -> {
-			var http = new Http('https://oauth2.googleapis.com/revoke?token=${Wrapper.prefGapiRefreshToken}');
+			var http = new Http('https://oauth2.googleapis.com/revoke?token=${ClientPrefs.data.gapiRefreshToken}');
 			http.addHeader('Content-Length', '0');
 
 			http.onData = function(data:String) {
 				LoadingScreen.toggle(false);
 
 				Waiter.put(() -> {
-					Wrapper.prefGapiRefreshToken = null;
-					Wrapper.prefGapiAccessToken = null;
-					Wrapper.prefGapiAccessExpires = 0;
+					ClientPrefs.data.gapiRefreshToken = null;
+					ClientPrefs.data.gapiAccessToken = null;
+					ClientPrefs.data.gapiAccessExpires = 0;
 					ClientPrefs.saveSettings();
 					onSuccess();
 				});
@@ -184,7 +191,15 @@ class GoogleAPI {
 				LoadingScreen.toggle(false);
 
 				Waiter.put(() -> {
-					Alert.alert("Failed during authorization!", error);
+					Alert.alert("Can't revoke automatically!", error);
+
+					FlxG.openURL('https://myaccount.google.com/u/0/connections');
+
+					ClientPrefs.data.gapiRefreshToken = null;
+					ClientPrefs.data.gapiAccessToken = null;
+					ClientPrefs.data.gapiAccessExpires = 0;
+					ClientPrefs.saveSettings();
+					onSuccess();
 				});
 			}
 
@@ -192,14 +207,16 @@ class GoogleAPI {
 		});
 	}
 
-	public static function downloadFromDrive(id:String, onSuccess:String->Void) {
-		if (Wrapper.prefGapiRefreshToken == null) {
+	public static function downloadFromDrive(url:String, onSuccess:String->Void) {
+		var id = url.substr("https://drive.google.com/file/d/".length).split("/")[0];
+
+		if (ClientPrefs.data.gapiRefreshToken == null) {
 			authorize(() -> {
 				downloadFromDrive(id, onSuccess);
 			});
 			return;
 		}
-		if (Sys.time() >= Wrapper.prefGapiAccessExpires) {
+		if (Sys.time() >= ClientPrefs.data.gapiAccessExpires) {
 			refreshAccess(() -> {
 				downloadFromDrive(id, onSuccess);
 			});
@@ -210,7 +227,7 @@ class GoogleAPI {
 
 		Thread.create(() -> {
 			var http = new Http('https://www.googleapis.com/drive/v3/files/$id');
-			http.addHeader("Authorization", 'Bearer ${Wrapper.prefGapiAccessToken}');
+			http.addHeader("Authorization", 'Bearer ${ClientPrefs.data.gapiAccessToken}');
 
 			http.onData = function(data:String) {
 				LoadingScreen.toggle(false);
@@ -226,14 +243,14 @@ class GoogleAPI {
 					if (!FileUtils.isArchiveSupported(json.name)) {
 						Waiter.put(() -> {
 							Alert.alert("Failed to download!", "Unsupported file archive type!\n(Only ZIP, TAR, TGZ archives are supported!)");
-							RequestState.requestURL('https://drive.google.com/file/d/$id', "The following mod needs to be installed from this source", true);
+							RequestState.requestURL(url, "The following mod needs to be installed from this source", true);
 						});
 						return;
 					}
 
 					OnlineMods.startDownloadMod(json.name, 'https://www.googleapis.com/drive/v3/files/$id?alt=media', null, onSuccess, [
-						"Authorization" => 'Bearer ${Wrapper.prefGapiAccessToken}'
-					]);
+						"Authorization" => 'Bearer ${ClientPrefs.data.gapiAccessToken}'
+					], url);
 				});
 			}
 

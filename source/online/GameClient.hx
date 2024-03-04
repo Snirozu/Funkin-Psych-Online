@@ -19,99 +19,92 @@ import io.colyseus.Room;
 class GameClient {
     public static var client:Client;
     public static var room:Room<RoomState>;
-    public static var isOwner:Bool;
+	public static var isOwner:Bool;
+	public static var address:String;
 	public static var reconnectTries:Int = 0;
 
+	/**
+	 * the server address that the player set, if player set nothing then it returns `serverAddresses[0]`
+	 */
 	public static var serverAddress(get, set):String;
+	/**
+	 * server list retrieved from github every launch
+	 */
+	public static var serverAddresses:Array<String> = [];
 
-    public static function createRoom(?onJoin:()->Void) {
+	public static function createRoom(address:String, ?onJoin:(err:Dynamic)->Void) {
 		LoadingScreen.toggle(true);
+
+		ChatBox.clearLogs();
 		
 		Thread.create(() -> {
-			client = new Client(serverAddress);
+			client = new Client(address);
 
-			client.create("room", getOptions(), RoomState, function(err, room) {
-				Waiter.put(() -> {
-					LoadingScreen.toggle(false);
-
-					if (err != null) {
-						Alert.alert("Couldn't connect!", "ERROR: " + err.code + " - " + err.message + (err.code == 0 ? "\nTry again in a few minutes! The server is probably restarting!" : ""));
-						client = null;
-						return;
-					}
-
-					Sys.println("joined!");
-
-					FlxG.autoPause = false;
-
-					GameClient.room = room;
-					clearOnMessage();
-					GameClient.isOwner = true;
-
-					GameClient.room.onError += (id:Int, e:String) -> {
-						Sys.println("Room.onError: " + id + " - " + e);
-					}
-
-					GameClient.room.onLeave += () -> {
-						if (client == null) {
-							leaveRoom("");
-						}
-						else {
-							reconnect();
-						}
-					}
-
-					onJoin();
-				});
-			});
+			client.create("room", getOptions(true), RoomState, (err, room) -> _onJoin(err, room, true, address, onJoin));
 		});
     }
 
-    public static function joinRoom(roomID:String, ?onJoin:()->Void) {
+	public static function joinRoom(roomSecret:String, ?onJoin:(err:Dynamic)->Void) {
 		LoadingScreen.toggle(true);
 
+		var roomID = roomSecret.trim();
+		var roomAddress = GameClient.serverAddress;
+		var coolIndex = roomSecret.indexOf(";");
+		if (coolIndex != -1) {
+			roomID = roomSecret.substring(0, coolIndex).trim();
+			roomAddress = roomSecret.substring(coolIndex + 1).trim();
+		}
+
+		ChatBox.clearLogs();
+
 		Thread.create(() -> {
-			client = new Client(serverAddress);
+			client = new Client(roomAddress);
 
-			client.joinById(roomID, getOptions(), RoomState, function(err, room) {
-				Waiter.put(() -> {
-					LoadingScreen.toggle(false);
-
-					if (err != null) {
-						Alert.alert("Couldn't connect!", "JOIN ERROR: " + err.code + " - " + err.message);
-						client = null;
-						return;
-					}
-
-					Sys.println("joined!");
-
-					FlxG.autoPause = false;
-
-					GameClient.room = room;
-					clearOnMessage();
-					GameClient.isOwner = false;
-
-					GameClient.room.onError += (id:Int, e:String) -> {
-						Sys.println("Room.onError: " + id + " - " + e);
-					}
-
-					GameClient.room.onLeave += () -> {
-						if (client == null) {
-							leaveRoom("");
-						}
-						else {
-							reconnect();
-						}
-					}
-
-					onJoin();
-				});
-			});
+			client.joinById(roomID, getOptions(false), RoomState, (err, room) -> _onJoin(err, room, false, roomAddress, onJoin));
 		});
     }
 
+	private static function _onJoin(err:MatchMakeError, room:Room<RoomState>, isHost:Bool, address:String, ?onJoin:(err:Dynamic)->Void) {
+		if (err != null) {
+			Alert.alert("Couldn't connect!", "JOIN ERROR: " + err.code + " - " + err.message);
+			client = null;
+			onJoin(err);
+			LoadingScreen.toggle(false);
+			return;
+		}
+		LoadingScreen.toggle(false);
+
+		GameClient.room = room;
+		GameClient.isOwner = isHost;
+		GameClient.address = address;
+		clearOnMessage();
+
+		GameClient.room.onError += (id:Int, e:String) -> {
+			Alert.alert("Room error!", "room.onError: " + id + " - " + e + "\n\nPlease report this error on GitHub!");
+			Sys.println("Room.onError: " + id + " - " + e);
+		}
+
+		GameClient.room.onLeave += () -> {
+			if (client == null) {
+				leaveRoom();
+			}
+			else {
+				reconnect();
+			}
+		}
+
+		Waiter.put(() -> {
+			Sys.println("joined!");
+
+			FlxG.autoPause = false;
+
+			if (onJoin != null)
+				onJoin(null);
+		});
+	}
+
 	public static function reconnect(?nextTry:Bool = false) {
-		leaveRoom("");
+		leaveRoom();
 		return;
 		//i give up on reconnection stuff, probably a colyseus bug
 		// reconnection token invalid or expired?
@@ -135,44 +128,25 @@ class GameClient {
 				return;
 			}
 
-			Sys.println("reconnected!");
-
-			GameClient.room = room;
-			clearOnMessage();
-
-			GameClient.room.onError += (id:Int, e:String) -> {
-				Sys.println("Room.onError: " + id + " - " + e);
-			}
-
-			GameClient.room.onLeave += () -> {
-				if (client == null) {
-					leaveRoom("");
-				}
-				else {
-					reconnect();
-				}
-			}
-
+			_onJoin(err, room, GameClient.isOwner, GameClient.address);
 			reconnectTries = 0;
 		});
 	}
 
-	static function getOptions():Map<String, Dynamic> {
-		var options:Map<String, Dynamic> = ["name" => Wrapper.prefNickname, "version" => MainMenuState.psychOnlineVersion];
+	static function getOptions(asHost:Bool):Map<String, Dynamic> {
+		var options:Map<String, Dynamic> = ["name" => ClientPrefs.data.nickname, "version" => MainMenuState.psychOnlineVersion];
 
-		if (Wrapper.prefModSkin != null && Wrapper.prefModSkin.length >= 2) {
-			options.set("skinMod", Wrapper.prefModSkin[0]);
-			options.set("skinName", Wrapper.prefModSkin[1]);
-			options.set("skinURL", OnlineMods.getModURL(Wrapper.prefModSkin[0]));
+		if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
+			options.set("skinMod", ClientPrefs.data.modSkin[0]);
+			options.set("skinName", ClientPrefs.data.modSkin[1]);
+			options.set("skinURL", OnlineMods.getModURL(ClientPrefs.data.modSkin[0]));
+		}
+
+		if (asHost) {
+			options.set("gameplaySettings", ClientPrefs.data.gameplaySettings);
 		}
 
 		return options;
-	}
-
-	public static function getAvailableRooms(result:(MatchMakeError, Array<RoomAvailable>)->Void) {
-		Thread.create(() -> {
-			new Client(serverAddress).getAvailableRooms("room", result);
-		});
 	}
 
 	public static function leaveRoom(?reason:String = null) {
@@ -186,7 +160,7 @@ class GameClient {
 				Alert.alert("Disconnected!", reason.trim() != "" ? reason : null);
 			Sys.println("leaving the room");
 
-			FlxG.autoPause = Wrapper.prefAutoPause;
+			FlxG.autoPause = ClientPrefs.data.autoPause;
 
 			MusicBeatState.switchState(new OnlineState());
 			FlxG.sound.play(Paths.sound('cancelMenu'));
@@ -199,6 +173,7 @@ class GameClient {
 
 			GameClient.room = null;
 			GameClient.isOwner = false;
+			GameClient.address = null;
 
 			//Downloader.cancelAll();
         });
@@ -210,13 +185,15 @@ class GameClient {
 
 	@:access(io.colyseus.Room.onMessageHandlers)
 	public static function clearOnMessage() {
-		if (GameClient.isConnected() && GameClient.room?.onMessageHandlers != null)
-			GameClient.room.onMessageHandlers.clear();
+		if (!GameClient.isConnected() || GameClient.room?.onMessageHandlers == null)
+			return;
+
+		GameClient.room.onMessageHandlers.clear();
+		
+		ChatBox.tryRegisterLogs();
 
 		GameClient.room.onMessage("ping", function(message) {
-			Waiter.put(() -> {
-				GameClient.send("pong");
-			});
+			GameClient.send("pong");
 		});
 
 		GameClient.room.onMessage("gameStarted", function(message) {
@@ -241,7 +218,7 @@ class GameClient {
 	}
 
 	public static function send(type:Dynamic, ?message:Null<Dynamic>) {
-		if (GameClient.isConnected() && GameClient.reconnectTries <= 0)
+		if (GameClient.isConnected() && type != null)
 			room.send(type, message);
 	}
 
@@ -252,29 +229,20 @@ class GameClient {
 		return GameClient.isOwner || GameClient.room.state.anarchyMode;
 	}
 
-	public static final defaultAddress:String = 
-		#if LOCAL
-		"ws://localhost:2567"
-		#else
-		//"wss://gettinfreaky.onrender.com"
-		"wss://vmi1669478.contaboserver.net"
-		#end
-	;
-
 	static function get_serverAddress():String {
-		if (Wrapper.prefServerAddress != null) {
-			return Wrapper.prefServerAddress;
+		if (ClientPrefs.data.serverAddress != null) {
+			return ClientPrefs.data.serverAddress;
 		}
-		return defaultAddress;
+		return serverAddresses[0];
 	}
 
 	static function set_serverAddress(v:String):String {
 		if (v != null)
 			v = v.trim();
-		if (v == "" || v == defaultAddress || v == "null")
+		if (v == "" || v == serverAddresses[0] || v == "null")
 			v = null;
 
-		Wrapper.prefServerAddress = v;
+		ClientPrefs.data.serverAddress = v;
 		ClientPrefs.saveSettings();
 		return serverAddress;
 	}
@@ -288,6 +256,12 @@ class GameClient {
 			copyAddress = "http://" + copyAddress.substr("ws://".length);
 		}
 		return copyAddress;
+	}
+
+	public static function getAvailableRooms(address:String, result:(MatchMakeError, Array<RoomAvailable>) -> Void) {
+		Thread.create(() -> {
+			new Client(address).getAvailableRooms("room", result);
+		});
 	}
 
 	public static function getPlayerCount(callback:(v:Null<Int>)->Void) {
@@ -325,5 +299,29 @@ class GameClient {
 			return 0.0;
 		
 		return CoolUtil.floorDecimal(Math.min(1, Math.max(0, totalNotesHit / totalPlayed)) * 100, 2);
+	}
+
+	public static function getRoomSecret(?forceAddress:Bool = false) {
+		if (forceAddress || GameClient.address != GameClient.serverAddresses[0])
+			return '${GameClient.room.roomId};${GameClient.address}';
+		return GameClient.room.roomId;
+	}
+
+	public static function getGameplaySetting(key:String):Dynamic {
+		var daSetting:String = room.state.gameplaySettings.get(key);
+		if (daSetting == "true" || daSetting == "false") {
+			return daSetting == "true" ? true : false;
+		}
+		var _tryNum:Null<Float> = Std.parseFloat(daSetting);
+		if (_tryNum != null && !Math.isNaN(_tryNum)) {
+			return _tryNum;
+		}
+		return daSetting;
+	}
+
+	public static function setGameplaySetting(key:String, value:Dynamic) {
+		if (GameClient.hasPerms()) {
+			GameClient.send("setGameplaySetting", [key, value]);
+		}
 	}
 }
