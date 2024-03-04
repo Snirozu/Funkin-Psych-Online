@@ -16,12 +16,16 @@ class ReflectionFunctions
 	{
 		var lua:State = funk.lua;
 		Lua_helper.add_callback(lua, "getProperty", function(variable:String, ?allowMaps:Bool = false) {
+			variable = online.Wrapper.wrapperField(variable);
+
 			var split:Array<String> = variable.split('.');
 			if(split.length > 1)
 				return LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split, true, true, allowMaps), split[split.length-1], allowMaps);
 			return LuaUtils.getVarInArray(LuaUtils.getTargetInstance(), variable, allowMaps);
 		});
 		Lua_helper.add_callback(lua, "setProperty", function(variable:String, value:Dynamic, allowMaps:Bool = false) {
+			variable = online.Wrapper.wrapperField(variable);
+
 			var split:Array<String> = variable.split('.');
 			if(split.length > 1) {
 				LuaUtils.setVarInArray(LuaUtils.getPropertyLoop(split, true, true, allowMaps), split[split.length-1], value, allowMaps);
@@ -31,6 +35,9 @@ class ReflectionFunctions
 			return true;
 		});
 		Lua_helper.add_callback(lua, "getPropertyFromClass", function(classVar:String, variable:String, ?allowMaps:Bool = false) {
+			variable = online.Wrapper.wrapperClassField(classVar, variable);
+			classVar = online.Wrapper.wrapperClass(classVar);
+			
 			var myClass:Dynamic = Type.resolveClass(classVar);
 			if(myClass == null)
 			{
@@ -49,6 +56,9 @@ class ReflectionFunctions
 			return LuaUtils.getVarInArray(myClass, variable, allowMaps);
 		});
 		Lua_helper.add_callback(lua, "setPropertyFromClass", function(classVar:String, variable:String, value:Dynamic, ?allowMaps:Bool = false) {
+			variable = online.Wrapper.wrapperClassField(classVar, variable);
+			classVar = online.Wrapper.wrapperClass(classVar);
+
 			var myClass:Dynamic = Type.resolveClass(classVar);
 			if(myClass == null)
 			{

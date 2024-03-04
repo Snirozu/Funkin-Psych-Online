@@ -2,12 +2,6 @@ package online;
 
 import states.MainMenuState;
 import openfl.geom.Rectangle;
-import openfl.display.GraphicsShader;
-import openfl.display.Shader;
-import openfl.filters.ShaderFilter;
-import openfl.utils.Assets;
-import openfl.text.TextFormat;
-import openfl.text.TextField;
 import openfl.Lib;
 import openfl.display.BitmapData;
 import openfl.display.Bitmap;
@@ -26,9 +20,11 @@ class LoadingScreen extends Sprite {
 	public static var loadingTime:Float = 0;
 	public static var loading:Bool = false;
 
-    public static function toggle(bool:Bool) {
-		loading = bool;
-        instance.targetAlpha = bool ? 1 : 0;
+    public static function toggle(v:Bool) {
+		loading = v;
+        instance.targetAlpha = v ? 1 : 0;
+		instance.bg.scaleX = Lib.application.window.width;
+		instance.bg.scaleY = Lib.application.window.height;
     }
     
 	public function new() {
@@ -38,7 +34,9 @@ class LoadingScreen extends Sprite {
 
 		instance = this;
 
-		bg = new Bitmap(new BitmapData(Lib.application.window.width, Lib.application.window.height, true, 0xFF000000));
+		bg = new Bitmap(new BitmapData(1, 1, true, 0xFF000000));
+		bg.scaleX = Lib.application.window.width;
+		bg.scaleY = Lib.application.window.height;
 		bg.alpha = 0.6;
 		addChild(bg);
 
@@ -84,7 +82,7 @@ class LoadingScreen extends Sprite {
 		loadingTime += delta / 1000;
 		if (!loading)
 			loadingTime = 0;
-		if (loadingTime >= 10 && GameClient.isConnected()) {
+		if (loadingTime >= 20 && GameClient.isConnected()) { // changed from 10 to 20 for ppl with low end pcs
 			toggle(false);
 			GameClient.leaveRoom("Timed out!");
 			MusicBeatState.switchState(new MainMenuState());
@@ -144,28 +142,3 @@ class LoadingScreen extends Sprite {
 		roseCirc3.graphics.endFill();
     }
 }
-
-// i give on trails
-// class CoolShader extends GraphicsShader {
-// 	@:glFragmentSource('
-//     #pragma header
-//     vec2 uv = openfl_TextureCoordv.xy;
-//     vec2 fragCoord = openfl_TextureCoordv*openfl_TextureSize;
-//     vec2 iResolution = openfl_TextureSize;
-//     uniform float iTime;
-//     #define iChannel0 bitmap
-//     #define texture texture2D
-//     #define fragColor gl_FragColor
-//     #define mainImage main
-//     ')
-//     // @:glVertexSource('
-//     // ')
-// 	public function new() {
-// 		super();
-// 		iTime.value = [0];
-// 	}
-
-// 	public function update(elapsed:Float) {
-// 		iTime.value[0] += elapsed;
-//     }
-// }

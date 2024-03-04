@@ -12,6 +12,7 @@ class StrumNote extends FlxSprite
 	public var downScroll:Bool = false;//plan on doing scroll directions soon -bb
 	public var sustainReduce:Bool = true;
 	private var player:Int;
+	public var maxAlpha:Float = 1.;
 	
 	public var texture(default, set):String = null;
 	private function set_texture(value:String):String {
@@ -148,6 +149,9 @@ class StrumNote extends FlxSprite
 	}
 
 	override function update(elapsed:Float) {
+		if (alpha > maxAlpha)
+			alpha = maxAlpha;
+		
 		if(resetAnim > 0) {
 			resetAnim -= elapsed;
 			if(resetAnim <= 0) {

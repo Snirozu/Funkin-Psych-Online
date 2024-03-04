@@ -19,6 +19,7 @@ class Downloader {
 	var id:String;
 	var fileName:String;
 	var gbMod:GBMod;
+	public var originURL:String;
 
 	var downloadPath:String;
 	static var downloadDir:String = openfl.filesystem.File.applicationDirectory.nativePath + "/downloads/";
@@ -30,12 +31,14 @@ class Downloader {
 
 	var onFinished:(String, Downloader)->Void;
 	public var cancelRequested(default, null):Bool = false;
-	var isDownloading:Bool = false;
+	public var isConnected:Bool = false;
+	public var isDownloading:Bool = false;
+	public var isInstalling:Bool = false;
 
 	public var contentLength:Float = Math.POSITIVE_INFINITY;
 	public var gotContent:Float = 0;
 	
-	public function new(fileName:String, id:String, url:String, onFinished:(fileName:String, downloader:Downloader) -> Void, ?mod:GBMod, ?headers:Map<String, String>) {
+	public function new(fileName:String, id:String, url:String, onFinished:(fileName:String, downloader:Downloader) -> Void, ?mod:GBMod, ?headers:Map<String, String>, ?ogURL:String) {
 		this.fileName = idFilter(fileName);
 		id = idFilter(id);
 		if (downloading.contains(id)) {
@@ -51,9 +54,10 @@ class Downloader {
 			return;
 		}
 		this.onFinished = onFinished;
+		this.originURL = ogURL ?? url;
 		this.gbMod = mod;
-		if (ChatBox.instance != null && gbMod != null) {
-			ChatBox.instance.addMessage("Starting the download of " + gbMod.name + " from: " + url);
+		if (gbMod != null) {
+			ChatBox.addMessage("Starting the download of " + gbMod.name + " from: " + originURL);
 		}
 		this.id = id;
 		downloaders.push(this);
@@ -97,7 +101,7 @@ class Downloader {
 	}
 
 	private function startDownload(url:String, ?requestHeaders:Map<String, String>) {
-		isDownloading = true;
+		isConnected = true;
 
 		var urlFormat = getURLFormat(url);
 		try {
@@ -199,7 +203,7 @@ class Downloader {
 			if (!cancelRequested) {
 				Waiter.put(() -> {
 					Alert.alert('Downloading failed!', gotHeaders.get("Content-Type") + " may be invalid or unsupported file type!");
-					RequestState.requestURL(url, "The following mod needs to be installed from this source", true);
+					RequestState.requestURL(originURL, "The following mod needs to be installed from this source", true);
 				});
 			}
 			doCancel();
@@ -222,12 +226,14 @@ class Downloader {
 		
 		var buffer:Bytes = Bytes.alloc(1024);
 		var _bytesWritten:Int = 0;
+		isDownloading = true;
 		while (gotContent < contentLength && !cancelRequested) {
 			_bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
 			file.writeBytes(buffer, 0, _bytesWritten);
 			gotContent += _bytesWritten;
 		}
 		isDownloading = false;
+		isConnected = false;
 
 		doCancel(!cancelRequested);
 	}
@@ -290,7 +296,7 @@ class Downloader {
 	}
 
 	public function cancel() {
-		if (isDownloading) {
+		if (isConnected) {
 			cancelRequested = true;
 			return;
 		}
@@ -306,6 +312,7 @@ class Downloader {
 		if (file != null)
 			file.close();
 		if (callOnFinished) {
+			isInstalling = true;
 			onFinished(downloadPath, this);
 		}
 		downloading.remove(id);
@@ -343,7 +350,7 @@ class Downloader {
 			var char = id.charCodeAt(i);
 			if (isNumber(char) || isLetter(char))
 				filtered += id.charAt(i);
-			else
+			else if (filtered.charAt(filtered.length - 1) != "-")
 				filtered += "-";
 		}
 		return filtered;

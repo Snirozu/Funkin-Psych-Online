@@ -1,5 +1,7 @@
 package online.states;
 
+import openfl.filters.BlurFilter;
+import substates.GameplayChangersSubstate;
 import options.OptionsState;
 import flixel.util.FlxSpriteUtil;
 
@@ -8,6 +10,9 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 	var prevMouseVisibility:Bool = false;
 	var items:FlxTypedSpriteGroup<Option>;
 	var curSelectedID:Int = 0;
+
+	var blurFilter:BlurFilter;
+	var coolCam:FlxCamera;
 
     //options
 	var skinSelect:Option;
@@ -18,6 +23,19 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 
 	override function create() {
 		super.create();
+
+		blurFilter = new BlurFilter();
+		for (cam in FlxG.cameras.list) {
+			if (cam.filters == null)
+				cam.filters = [];
+			cam.filters.push(blurFilter);
+		}
+
+		coolCam = new FlxCamera();
+		coolCam.bgColor.alpha = 0;
+		FlxG.cameras.add(coolCam, false);
+
+		cameras = [coolCam];
 
 		prevMouseVisibility = FlxG.mouse.visible;
 
@@ -65,6 +83,25 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 		}, 0, 80 * i, GameClient.room.state.swagSides));
 		swapSides.ID = i++;
 
+		var unlockModifiers:Option;
+		items.add(unlockModifiers = new Option("Unlock Gameplay Modifiers", "This will use player's local gameplay settings instead of room ones.", () -> {
+			if (GameClient.hasPerms()) {
+				GameClient.send("toggleLocalModifiers", GameClient.room.state.permitModifiers ? ClientPrefs.data.gameplaySettings : null);
+			}
+		}, (elapsed) -> {
+			unlockModifiers.alpha = GameClient.hasPerms() ? 1 : 0.8;
+
+			unlockModifiers.checked = GameClient.room.state.permitModifiers;
+		}, 0, 80 * i, GameClient.room.state.permitModifiers));
+		unlockModifiers.ID = i++;
+
+		var modifers:Option;
+		items.add(modifers = new Option("Game Modifiers", "Select room's gameplay modifiers here!", () -> {
+			close();
+			FlxG.state.openSubState(new GameplayChangersSubstate());
+		}, null, 0, 80 * i, false, true));
+		modifers.ID = i++;
+
 		items.add(skinSelect = new Option("Select Skin", "Select your skin here!", () -> {
 			GameClient.clearOnMessage();
 			LoadingState.loadAndSwitchState(new SkinsState());
@@ -80,6 +117,16 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 		gameOptions.ID = i++;
 
 		add(items);
+	}
+
+	override function destroy() {
+		super.destroy();
+
+		for (cam in FlxG.cameras.list) {
+			if (cam?.filters != null)
+				cam.filters.remove(blurFilter);
+		}
+		FlxG.cameras.remove(coolCam);
 	}
 
     override function update(elapsed) {

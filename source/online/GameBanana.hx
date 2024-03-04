@@ -27,15 +27,17 @@ typedef GBMod = {
 	var trashed:Bool;
 	var withheld:Bool;
 	var rootCategory:String;
+	var downloadCount:Float;
 }
 
 typedef GBSub = {
+	var _idRow:Float;
 	var _sName:String;
 	var _sProfileUrl:String;
 	var _aPreviewMedia:GBPrevMedia;
 	var _aRootCategory:GBCategory;
 	var _sVersion:String;
-	var _nLikeCount:Null<Int>; // "null cant be used as int!!!" then why does this return null instead of 0
+	var _nLikeCount:Null<Float>; // "null cant be used as int!!!" then why does this return null instead of 0
 }
 
 typedef GBPrevMedia = {
@@ -58,9 +60,23 @@ typedef GBCategory = {
 
 typedef DownloadProp = {
 	var _sFile:String;
+	var _nFilesize:Float;
+	var _sDescription:String;
 	var _sAnalysisState:String;
 	var _sDownloadUrl:String;
 	var _bContainsExe:Bool;
+}
+
+typedef AltDownload = {
+	var url:String;
+	var description:String;
+}
+
+typedef DownloadPage = {
+	var _bIsTrashed:Bool;
+	var _bIsWithheld:Bool;
+	var _aFiles:Array<DownloadProp>;
+	var _aAlternateFileSources:Array<AltDownload>;
 }
 
 class GameBanana {
@@ -73,7 +89,7 @@ class GameBanana {
 			http.onData = function(data:String) {
 				Waiter.put(() -> {
 					var json:Dynamic = Json.parse(data);
-					response(cast(json._aRecords), json._sErrorCode != null ? json._sErrorCode : null);
+					response(cast(json._aRecords), json._sErrorCode != null ? json._sErrorMessage : null);
 				});
 			}
 
@@ -91,7 +107,7 @@ class GameBanana {
 		Thread.create(() -> {
 			var http = new Http(
 			"https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=" + id + 
-			"&fields=name,description,Files().aFiles(),Url().sDownloadUrl(),Game().name,Trash().bIsTrashed(),Withhold().bIsWithheld(),RootCategory().name"
+			"&fields=name,description,Files().aFiles(),Url().sDownloadUrl(),Game().name,Trash().bIsTrashed(),Withhold().bIsWithheld(),RootCategory().name,downloads"
 			);
 
 			http.onData = function(data:String) {
@@ -106,7 +122,8 @@ class GameBanana {
 					game: arr[4],
 					trashed: arr[5],
 					withheld: arr[6],
-					rootCategory: arr[7]
+					rootCategory: arr[7],
+					downloadCount: arr[8]
 				}, null);
 			}
 
@@ -118,6 +135,27 @@ class GameBanana {
 		});
     }
 
+	public static function getModDownloads(modID:Float, response:(downloads:DownloadPage, err:Dynamic) -> Void) {
+		Thread.create(() -> {
+			var http = new Http('https://gamebanana.com/apiv11/Mod/$modID/DownloadPage');
+
+			http.onData = function(data:String) {
+				Waiter.put(() -> {
+					var json:Dynamic = Json.parse(data);
+					response(cast(json), json._sErrorCode != null ? json._sErrorMessage : null);
+				});
+			}
+
+			http.onError = function(error) {
+				Waiter.put(() -> {
+					response(null, error);
+				});
+			}
+
+			http.request();
+		});
+	}
+
 	public static function downloadMod(mod:GBMod, ?onSuccess:String->Void) {
         if (mod.trashed || mod.withheld) {
 			Alert.alert("Failed to download!", "That mod is deleted!");
@@ -126,12 +164,13 @@ class GameBanana {
 
         var daModUrl:String = null;
 		var dlFileName:String = null;
+		var dlCount:Int = -1;
 		for (_download in Reflect.fields(mod.downloads)) {
 			var download = Reflect.field(mod.downloads, _download);
-			if (FileUtils.isArchiveSupported(download._sFile) && download._bContainsExe == false && download._sClamAvResult == "clean") {
+			if (FileUtils.isArchiveSupported(download._sFile) /*&& download._bContainsExe == false*/ && download._sClamAvResult == "clean" && download._nDownloadCount >= dlCount) {
 				daModUrl = download._sDownloadUrl;
 				dlFileName = download._sFile;
-                break;
+				dlCount = download._nDownloadCount;
             }
         }
 

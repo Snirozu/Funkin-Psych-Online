@@ -1205,7 +1205,7 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "addLuaSprite", function(tag:String, front:Bool = false) {
 			if(game.modchartSprites.exists(tag)) {
-				var shit:ModchartSprite = game.modchartSprites.get(tag);
+				var shit:FlxSprite = game.modchartSprites.get(tag);
 				if(front)
 					LuaUtils.getTargetInstance().add(shit);
 				else
@@ -1286,7 +1286,7 @@ class FunkinLua {
 				return;
 			}
 
-			var pee:ModchartSprite = game.modchartSprites.get(tag);
+			var pee:FlxSprite = game.modchartSprites.get(tag);
 			if(destroy) {
 				pee.kill();
 			}

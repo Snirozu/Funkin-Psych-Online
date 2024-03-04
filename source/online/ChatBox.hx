@@ -5,72 +5,63 @@ import flixel.math.FlxRect;
 import openfl.events.KeyboardEvent;
 import lime.system.Clipboard;
 
-// this class took me 2 days to make because my ass iz addicted to websites HELP
 class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 	public static var instance:ChatBox;
 	var prevMouseVisibility:Bool = false;
-
     public var focused(default, set):Bool = false;
 	function set_focused(v) {
 		if (v) {
 			prevMouseVisibility = FlxG.mouse.visible;
 			FlxG.mouse.visible = true;
 			typeTextHint.text = "(Type something to input the message, ACCEPT to send)";
+			typeBg.colorTransform.alphaOffset = 0;
+			typeBg.scale.x = FlxG.width;
 		}
 		else {
 			FlxG.mouse.visible = prevMouseVisibility;
 			typeTextHint.text = "(Press TAB to open chat!)";
+			typeBg.colorTransform.alphaOffset = -100;
+			typeBg.scale.x = Std.int(bg.width);
 		}
+		typeBg.updateHitbox();
 		targetAlpha = v ? 3 : 0;
 		return focused = v;
 	}
-
 	var bg:FlxSprite;
-	var chatGroup:FlxTypedSpriteGroup<ChatMessage>;
+	var chatGroup:FlxTypedSpriteGroup<ChatMessage> = new FlxTypedSpriteGroup<ChatMessage>();
 	var typeBg:FlxSprite;
-    var typeText:FlxText;
+    var typeText:InputText;
     var typeTextHint:FlxText; // i can call it a hint or tip whatever i want
-
 	var targetAlpha:Float;
-
 	var onCommand:(String, Array<String>) -> Bool;
 
-	public function new(camera:FlxCamera, ?onCommand:(command:String, args:Array<String>) -> Bool) {
-		super();
-		instance = this;
+	static var lastMessages:Array<String> = [];
 
-		this.onCommand = onCommand;
-		cameras = [camera];
-        
-        bg = new FlxSprite();
-        bg.makeGraphic(600, 400, FlxColor.BLACK);
-		bg.alpha = 0.6;
-        add(bg);
+	var initMessage:String = "See /help for the list of commands!";
 
-		typeTextHint = new FlxText(0, 0, bg.width, "(Type something to input the message, ACCEPT to send)");
-		typeTextHint.setFormat("VCR OSD Mono", 16, FlxColor.WHITE);
-		typeTextHint.alpha = 0.6;
+	public static function addMessage(message:String) {
+		if (instance == null) {
+			lastMessages.push(message);
+			return;
+		}
 
-		typeBg = new FlxSprite(0, bg.y + bg.height);
-		typeBg.makeGraphic(/*Std.int(bg.width)*/ FlxG.width, Std.int(typeTextHint.height), FlxColor.BLACK);
-		add(typeBg);
+		instance.targetAlpha = 3;
 
-		chatGroup = new FlxTypedSpriteGroup<ChatMessage>();
-		add(chatGroup);
+		var chat = new ChatMessage(instance.bg.width, message);
+		instance.chatGroup.insert(0, chat);
 
-		typeText = new FlxText(0, 0, typeBg.width);
-		typeText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		if (instance.chatGroup.length >= 22) {
+			instance.chatGroup.remove(instance.chatGroup.members[instance.chatGroup.length - 1], true);
+		}
+	}
 
-		typeTextHint.y = typeBg.y;
-		typeText.y = typeBg.y;
+	public static function clearLogs() {
+		if (instance?.chatGroup != null)
+			instance.chatGroup.clear();
+		lastMessages = [];
+	}
 
-		add(typeTextHint);
-		add(typeText);
-
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-
-		focused = false; // initial update
-
+	public static function tryRegisterLogs() {
 		if (GameClient.isConnected())
 			GameClient.room.onMessage("log", function(message) {
 				Waiter.put(() -> {
@@ -79,26 +70,90 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 					sond.pitch = 1.5;
 				});
 			});
+	}
+
+	public function new(?camera:FlxCamera, ?onCommand:(command:String, args:Array<String>) -> Bool, ?chatHeight:Int = 400) {
+		super();
+
+		instance = this;
+        
+        bg = new FlxSprite();
+		bg.makeGraphic(600, chatHeight, FlxColor.BLACK);
+		bg.alpha = 0.6;
+        add(bg);
+
+		typeTextHint = new FlxText(0, 0, bg.width, "(Type something to input the message, ACCEPT to send)");
+		typeTextHint.setFormat("VCR OSD Mono", 16, FlxColor.WHITE);
+		typeTextHint.alpha = 0.6;
+
+		typeBg = new FlxSprite(0, bg.y + bg.height);
+		typeBg.makeGraphic(1, Std.int(typeTextHint.height), FlxColor.BLACK);
+		typeBg.scale.x = FlxG.width;
+		typeBg.updateHitbox();
+		add(typeBg);
+
+		chatGroup = new FlxTypedSpriteGroup<ChatMessage>();
+		addMessage(initMessage);
+		for (msg in lastMessages) {
+			addMessage(msg);
+		}
+		lastMessages = [];
+		add(chatGroup);
+
+		typeText = new InputText(0, 0, typeBg.width, text -> {
+			if (StringTools.startsWith(text, "/")) {
+				switch (text) {
+					case "/help":
+						ChatBox.addMessage("> Global Commands: /roll, /kick");
+
+						if (onCommand != null)
+							parseCommand(text);
+					case "/roll":
+						GameClient.send("command", ["roll"]);
+					case "/kick":
+						GameClient.send("command", ["kick"]);
+					default:
+						if (onCommand != null)
+							parseCommand(text);
+						else
+							addMessage("Unknown command; try /help to see the command list!");
+				}
+			}
+			else
+				GameClient.send("chat", text);
+			
+			typeText.text = "";
+			if (FlxG.state is PlayState)
+				focused = false;
+		});
+		typeText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+
+		typeTextHint.y = typeBg.y;
+		typeText.y = typeBg.y;
+
+		add(typeTextHint);
+		add(typeText);
+
+		cameras = [camera];
+		this.onCommand = onCommand;
+
+		tryRegisterLogs();
+
+		focused = false; // initial update
+
+		y = FlxG.height - height;
     }
 
 	override function destroy() {
+		for (msg in chatGroup) {
+			if (msg.text != initMessage)
+				lastMessages.push(msg.text);
+		}
+
 		super.destroy();
 
 		instance = null;
-
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 	}
-
-    public function addMessage(message:String) {
-		targetAlpha = 3;
-
-		var chat = new ChatMessage(bg.width, message);
-		chatGroup.insert(0, chat);
-
-		if (chatGroup.length >= 22) {
-			chatGroup.remove(chatGroup.members[chatGroup.length - 1], true);
-		}
-    }
 
     override function update(elapsed) {
 		if (focused || alpha > 0) {
@@ -154,65 +209,19 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 			targetAlpha -= elapsed;
 
 		alpha = targetAlpha;
+
+		bg.visible = focused;
+		typeText.hasFocus = focused;
     }
-
-	// some code from FlxInputText
-	function onKeyDown(e:KeyboardEvent) {
-		if (!focused)
-			return;
-
-		var key = e.keyCode;
-
-		if (e.charCode == 0) { // non-printable characters crash String.fromCharCode
-			return;
-		}
-
-		if (key == 46) { // delete
-			return;
-		}
-
-		if (key == 8) { // bckspc
-			typeText.text = typeText.text.substring(0, typeText.text.length - 1);
-			return;
-		}
-		else if (key == 13) { // enter
-			if (StringTools.startsWith(typeText.text, "/"))
-				if (onCommand != null)
-					parseCommand(typeText.text);
-				else
-					addMessage("No available commands!");
-			else
-				GameClient.send("chat", typeText.text);
-			
-			typeText.text = "";
-			return;
-		}
-		else if (key == 27) { // esc
-			return;
-		}
-
-		var newText:String = String.fromCharCode(e.charCode);
-		if (key == 86 && e.ctrlKey) {
-			newText = Clipboard.text;
-		}
-		if (e.shiftKey) {
-			newText = newText.toUpperCase();
-		}
-
-		if (newText.length > 0) {
-			typeText.text += newText;
-		}
-	}
 
 	function parseCommand(text:String) {
 		var splitText:Array<String> = text.split(" ");
 		var command = splitText.shift().substr(1);
 		if (!onCommand(command, splitText)) {
-			if (command == "/help") {
-				addMessage("No available commands!");
+			if (command != "help") {
+				addMessage("Unknown command; try /help to see the command list!");
 				return;
 			}
-			addMessage("Unknown command; try /help for command list!");
 		}
 	}
 }

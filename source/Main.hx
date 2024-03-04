@@ -1,5 +1,6 @@
 package;
 
+import sys.thread.Thread;
 import flixel.graphics.FlxGraphic;
 
 import flixel.FlxGame;
@@ -137,11 +138,23 @@ class Main extends Sprite
 
 		//ONLINE STUFF, BELOW CODE USE FOR BACKPORTING
 
+		var http = new haxe.Http("https://raw.githubusercontent.com/Snirozu/Funkin-Psych-Online/main/server_addresses.txt");
+		http.onData = function(data:String) {
+			for (address in data.split(',')) {
+				online.GameClient.serverAddresses.push(address.trim());
+			}
+		}
+		http.onError = function(error) {
+			trace('error: $error');
+		}
+		http.request();
+		online.GameClient.serverAddresses.push("ws://localhost:2567");
+
 		online.Downloader.checkDeleteDlDir();
 
+		addChild(new online.LoadingScreen());
 		addChild(new online.Alert());
 		addChild(new online.DownloadAlert.DownloadAlerts());
-		addChild(new online.LoadingScreen());
 
 		FlxG.plugins.add(new online.Waiter());
 		
@@ -149,6 +162,17 @@ class Main extends Sprite
 		Lib.application.window.onClose.add(() -> {
 			online.Downloader.cancelAll();
 			online.Downloader.checkDeleteDlDir();
+		});
+
+		Lib.application.window.onDropFile.add(path -> {
+			if (FileSystem.isDirectory(path))
+				return;
+
+			Thread.create(() -> {
+				online.LoadingScreen.toggle(true);
+				online.OnlineMods.installMod(path);
+				online.LoadingScreen.toggle(false);
+			});
 		});
 	}
 

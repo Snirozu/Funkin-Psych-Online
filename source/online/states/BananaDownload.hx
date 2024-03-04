@@ -14,16 +14,16 @@ import flixel.group.FlxGroup;
 class BananaDownload extends MusicBeatState {
 	var items:FlxTypedSpriteGroup<ModItem> = new FlxTypedSpriteGroup<ModItem>();
 	var itemsY:Int = FlxG.height - (3 * 190) - 50;
-	var curSelected:Int = 0;
+	public static var curSelected:Int = 0;
 	var page:Int = 1;
-	var loading:Bool = false;
 	var searchBg:FlxSprite;
 	var searchPlaceholder:FlxText;
-	var searchInput:FlxText;
+	var searchInput:InputText;
 	var pageInfo:FlxText;
-	var inputWait:Bool = false;
 	
 	override function create() {
+		curSelected = 0;
+		
 		super.create();
 
 		DiscordClient.changePresence("Browsing mods on GameBanana.", null, null, false);
@@ -32,9 +32,16 @@ class BananaDownload extends MusicBeatState {
 		bg.color = 0xff46463b;
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.antialiasing = Wrapper.prefAntialiasing;
+		bg.antialiasing = ClientPrefs.data.antialiasing;
 		bg.scrollFactor.set(0, 0);
 		add(bg);
+
+		var lines:FlxSprite = new FlxSprite().loadGraphic(Paths.image('coolLines'));
+		lines.updateHitbox();
+		lines.screenCenter();
+		lines.antialiasing = ClientPrefs.data.antialiasing;
+		lines.scrollFactor.set(0, 0);
+		add(lines);
 
 		add(items);
 
@@ -53,8 +60,14 @@ class BananaDownload extends MusicBeatState {
 		searchPlaceholder.y = searchBg.y + searchBg.height / 2 - searchPlaceholder.height / 2;
 		add(searchPlaceholder);
 
-		searchInput = new FlxText();
-		searchInput.text = "";
+		searchInput = new InputText(0, 0, Std.int(searchBg.width - 40), text -> {
+			if (StringTools.startsWith(searchInput.text, "https://")) {
+				OnlineMods.downloadMod(searchInput.text);
+				searchInput.text = "";
+			}
+			else
+				loadNextPage(true);
+		});
 		searchInput.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		searchInput.setPosition(searchPlaceholder.x, searchPlaceholder.y);
 		add(searchInput);
@@ -80,15 +93,7 @@ class BananaDownload extends MusicBeatState {
 		FlxG.sound.music.fadeIn(1, 1, 0.5);
 
 		loadNextPage(true);
-
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
     }
-
-	override function destroy() {
-		super.destroy();
-
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-	}
 
 	function loadNextPage(?value:Int = 0, ?newSearch:Bool = false) {
 		if (page + value < 1) {
@@ -96,7 +101,6 @@ class BananaDownload extends MusicBeatState {
 		}
 
 		LoadingScreen.toggle(true);
-		loading = true;
 
 		var search = searchInput.text == "" ? null : searchInput.text;
 
@@ -112,7 +116,6 @@ class BananaDownload extends MusicBeatState {
 				return;
 			
 			if (err != null) {
-				loading = false;
 				pageInfo.text = "Error: " + err;
 				return;
 			}
@@ -136,10 +139,14 @@ class BananaDownload extends MusicBeatState {
 	}
 
     override function update(elapsed:Float) {
-        super.update(elapsed);
+		if (!searchInput.hasFocus) {
+			if (controls.BACK) {
+				FlxG.sound.music.volume = 1;
+				MusicBeatState.switchState(new OnlineState());
+				FlxG.sound.play(Paths.sound('cancelMenu'));
+			}
 
-		if (!inputWait) {
-			if (!loading) {
+			if (!LoadingScreen.loading) {
 				if (FlxG.mouse.wheel == 1 || FlxG.keys.justPressed.Q) {
 					loadNextPage(-1);
 				}
@@ -165,58 +172,70 @@ class BananaDownload extends MusicBeatState {
 					changeSelection(5);
 				}
 
-				if (FlxG.mouse.justMoved) {
+				if (FlxG.mouse.justMoved || FlxG.mouse.justPressed) {
 					curSelected = -2;
-				}
 
-				for (item in items) {
-					if (FlxG.mouse.justMoved && FlxG.mouse.overlaps(item.bg)) {
-						curSelected = item.ID;
-					}
-
-					item.selected = curSelected == item.ID;
-				}
-
-				if (FlxG.mouse.justMoved && FlxG.mouse.overlaps(searchBg)) {
-					curSelected = -1;
-				}
-
-				if (curSelected == -1) {
-					searchBg.alpha = 0.8;
-				}
-				else {
-					searchBg.alpha = 0.6;
-				}
-
-				if (controls.ACCEPT || FlxG.mouse.justPressed) {
-					if (curSelected == -1) {
-						inputWait = true;
-					}
-					else if (curSelected >= 0 && items.length - 1 >= curSelected) {
-						if (FlxG.mouse.justPressed) {
-							if (FlxG.mouse.overlaps(items.members[curSelected].dlBg)) {
-								OnlineMods.downloadMod(items.members[curSelected].mod._sProfileUrl);
-							}
-							else if (FlxG.mouse.overlaps(items.members[curSelected].linkBg)) {
-								RequestState.requestURL(items.members[curSelected].mod._sProfileUrl, "The following button redirects to:");
-							}
-						}
-						else {
-							OnlineMods.downloadMod(items.members[curSelected].mod._sProfileUrl);
-						}
+					if (FlxG.mouse.overlaps(searchBg)) {
+						curSelected = -1;
 					}
 				}
-			}
-		}
-		else {
-			if (FlxG.mouse.justPressed && !FlxG.mouse.overlaps(searchBg)) {
-				inputWait = false;
-				curSelected = -2;
 			}
 		}
 
 		searchPlaceholder.visible = searchInput.text.length <= 0;
+
+		super.update(elapsed);
+
+		if (!searchInput.hasFocus && !LoadingScreen.loading) {
+			if (curSelected == -1)
+				searchBg.alpha = 0.8;
+			else
+				searchBg.alpha = 0.6;
+
+			if (controls.ACCEPT || FlxG.mouse.justPressed) {
+				if (curSelected == -1) {
+					searchInput.hasFocus = true;
+				}
+				else if (curSelected >= 0 && items.length - 1 >= curSelected) {
+					if (FlxG.mouse.justPressed) {
+						if (FlxG.mouse.overlaps(items.members[curSelected].dlBg)) {
+							openModDownloads();
+						}
+						else if (FlxG.mouse.overlaps(items.members[curSelected].linkBg)) {
+							RequestState.requestURL(items.members[curSelected].mod._sProfileUrl, "The following button redirects to:", true);
+						}
+					}
+					else {
+						openModDownloads();
+					}
+				}
+			}
+		}
     }
+
+	function openModDownloads() {
+		if (items.members[curSelected].mod._idRow == 479714) {
+			FlxG.openURL('https://www.youtube.com/watch?v=WC_mHIBCHDo');
+			return;
+		}
+
+		LoadingScreen.toggle(true);
+		GameBanana.getModDownloads(items.members[curSelected].mod._idRow, (downloads, err) -> {
+			LoadingScreen.toggle(false);
+
+			if (err != null) {
+				Alert.alert("Fetching downloads failed!", err);
+				return;
+			}
+
+			if (downloads._bIsTrashed || downloads._bIsWithheld) {
+				Alert.alert("Fetching downloads failed!", "That mod is deleted!");
+				return;
+			}
+
+			openSubState(new SelectDownloadState(downloads));
+		});
+	}
 
 	function loadMods(mods:Array<GBSub>) {
 		items.clear();
@@ -226,9 +245,9 @@ class BananaDownload extends MusicBeatState {
 
 		var i:Int = 0;
 		for (mod in mods) {
-			if (mod._aRootCategory._sName == "Executables") {
-				continue;
-			}
+			// if (mod._aRootCategory._sName == "Executables") {
+			// 	continue;
+			// }
 
 			var item = new ModItem(mod);
 			item.y = Math.floor(i / 5) * 190;
@@ -245,65 +264,6 @@ class BananaDownload extends MusicBeatState {
 
 		items.screenCenter(X);
 		items.y = itemsY;
-
-		loading = false;
-	}
-
-	function onKeyDown(e:KeyboardEvent) {
-		if (!inputWait) {
-			if (controls.BACK) {
-				FlxG.sound.music.volume = 1;
-				MusicBeatState.switchState(new OnlineState());
-				FlxG.sound.play(Paths.sound('cancelMenu'));
-			}
-
-			return;
-		}
-
-		var key = e.keyCode;
-
-		if (e.charCode == 0) { // non-printable characters crash String.fromCharCode
-			return;
-		}
-
-		if (key == 46) { // delete
-			return;
-		}
-
-		if (key == 8) { // bckspc
-			searchInput.text = searchInput.text.substring(0, searchInput.text.length - 1);
-			return;
-		}
-		else if (key == 13) { // enter
-			inputWait = false;
-			if (StringTools.startsWith(searchInput.text, "https://")) {
-				OnlineMods.downloadMod(searchInput.text);
-				searchInput.text = "";
-			}
-			else
-				loadNextPage(true);
-			return;
-		}
-		else if (key == 27) { // esc
-			inputWait = false;
-			return;
-		}
-
-		var newText:String = String.fromCharCode(e.charCode);
-		if ((curSelected == 0 && !e.shiftKey) || (curSelected != 0 && e.shiftKey)) {
-			newText = newText.toUpperCase();
-		}
-		else {
-			newText = newText.toLowerCase();
-		}
-
-		if (key == 86 && e.ctrlKey) {
-			newText = Clipboard.text;
-		}
-
-		if (newText.length > 0) {
-			searchInput.text += newText;
-		}
 	}
 }
 
@@ -420,6 +380,11 @@ class ModItem extends FlxSpriteGroup {
 		linkBg.updateHitbox();
 		linkBg.y = thumb.clipRect.height - linkBg.height - 5;
 
+		dl.visible = false;
+		dlBg.visible = false;
+		link.visible = false;
+		linkBg.visible = false;
+
 		link.x = linkBg.x + 10;
 		link.y = linkBg.y + 10;
 	}
@@ -431,10 +396,26 @@ class ModItem extends FlxSpriteGroup {
 	override function update(elapsed) {
 		super.update(elapsed);
 
+		if ((FlxG.mouse.justPressed || FlxG.mouse.justMoved) && FlxG.mouse.overlaps(bg)) {
+			BananaDownload.curSelected = ID;
+		}
+
+		selected = BananaDownload.curSelected == ID;
+
 		dl.visible = selected;
 		dlBg.visible = dl.visible;
 		link.visible = selected;
 		linkBg.visible = link.visible;
+
+		if (FlxG.mouse.overlaps(dlBg))
+			dl.scale.set(FlxMath.lerp(dl.scale.x, 1.25, elapsed * 10), FlxMath.lerp(dl.scale.y, 1.25, elapsed * 10));
+		else
+			dl.scale.set(FlxMath.lerp(dl.scale.x, 1, elapsed * 10), FlxMath.lerp(dl.scale.y, 1, elapsed * 10));
+
+		if (FlxG.mouse.overlaps(linkBg))
+			link.scale.set(FlxMath.lerp(link.scale.x, 1.25, elapsed * 10), FlxMath.lerp(link.scale.y, 1.25, elapsed * 10));
+		else
+			link.scale.set(FlxMath.lerp(link.scale.x, 1, elapsed * 10), FlxMath.lerp(link.scale.y, 1, elapsed * 10));
 
 		if (!selected || loadingScreenshot)
 			holdTime = 0;

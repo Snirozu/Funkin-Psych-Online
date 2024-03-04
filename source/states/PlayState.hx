@@ -10,6 +10,9 @@ package states;
 // "function eventEarlyTrigger" - Used for making your event start a few MILLISECONDS earlier
 // "function triggerEvent" - Called when the song hits your event's timestamp, this is probably what you were looking for
 
+import flixel.effects.FlxFlicker;
+import online.LeavePie;
+import online.ChatBox;
 import online.LoadingScreen;
 import online.Alert;
 import online.Waiter;
@@ -114,7 +117,7 @@ class PlayState extends MusicBeatState
 
 	#if LUA_ALLOWED
 	public var modchartTweens:Map<String, FlxTween> = new Map<String, FlxTween>();
-	public var modchartSprites:Map<String, ModchartSprite> = new Map<String, ModchartSprite>();
+	public var modchartSprites:Map<String, FlxSprite> = new Map<String, FlxSprite>();
 	public var modchartTimers:Map<String, FlxTimer> = new Map<String, FlxTimer>();
 	public var modchartSounds:Map<String, FlxSound> = new Map<String, FlxSound>();
 	public var modchartTexts:Map<String, FlxText> = new Map<String, FlxText>();
@@ -286,6 +289,33 @@ class PlayState extends MusicBeatState
 	public var startCallback:Void->Void = null;
 	public var endCallback:Void->Void = null;
 
+	var chatBox:ChatBox;
+	@:unreflective
+	var leavePie:LeavePie;
+
+	function canInput() {
+		if (chatBox != null && chatBox.focused) {
+			return false;
+		}
+		return true;
+	}
+
+	var freakyFlicker:FlxFlicker;
+	var readyTween:FlxTween;
+	var waitReady(default, set) = false;
+	var isReady = false;
+	function set_waitReady(v) {
+		if (readyTween != null)
+			readyTween.cancel();
+		if (freakyFlicker?.timer != null)
+			freakyFlicker.stop();
+
+		readyTween = FlxTween.tween(waitReadySpr, {alpha: v ? 1 : 0}, 0.5, {ease: FlxEase.quadIn});
+
+		return waitReady = v;
+	}
+	var waitReadySpr:Alphabet;
+
 	override public function create()
 	{
 		registerMessages();
@@ -299,11 +329,9 @@ class PlayState extends MusicBeatState
 		}
 		else {
 			startCallback = () -> {
-				LoadingScreen.toggle(true);
-				GameClient.send("playerReady");
+				waitReady = true;
 			};
 			endCallback = () -> {
-				LoadingScreen.toggle(true);
 				GameClient.send("playerEnded");
 			};
 		}
@@ -347,6 +375,8 @@ class PlayState extends MusicBeatState
 
 		FlxG.cameras.setDefaultDrawTarget(camGame, true);
 		CustomFadeTransition.nextCamera = camOther;
+
+		camGame.bgColor = FlxColor.BLACK;
 
 		persistentUpdate = true;
 		persistentDraw = true;
@@ -553,6 +583,13 @@ class PlayState extends MusicBeatState
 		}
 		stagesFunc(function(stage:BaseStage) stage.createPost());
 
+		comboGroup = new FlxSpriteGroup();
+		add(comboGroup);
+		noteGroup = new FlxTypedGroup<FlxBasic>();
+		add(noteGroup);
+		uiGroup = new FlxSpriteGroup();
+		add(uiGroup);
+
 		Conductor.songPosition = -5000 / Conductor.songPosition;
 		var showTime:Bool = (ClientPrefs.data.timeBarType != 'Disabled');
 		timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 19, 400, "", 32);
@@ -569,12 +606,12 @@ class PlayState extends MusicBeatState
 		timeBar.screenCenter(X);
 		timeBar.alpha = 0;
 		timeBar.visible = showTime;
-		add(timeBar);
-		add(timeTxt);
+		uiGroup.add(timeBar);
+		uiGroup.add(timeTxt);
 
 		strumLineNotes = new FlxTypedGroup<StrumNote>();
-		add(strumLineNotes);
-		add(grpNoteSplashes);
+		noteGroup.add(strumLineNotes);
+		noteGroup.add(grpNoteSplashes);
 
 		if(ClientPrefs.data.timeBarType == 'Song Name')
 		{
@@ -616,24 +653,24 @@ class PlayState extends MusicBeatState
 		healthBar.visible = !ClientPrefs.data.hideHud;
 		healthBar.alpha = ClientPrefs.data.healthBarAlpha;
 		reloadHealthBarColors();
-		add(healthBar);
+		uiGroup.add(healthBar);
 
 		iconP1.y = healthBar.y - 75;
 		iconP1.visible = !ClientPrefs.data.hideHud;
 		iconP1.alpha = ClientPrefs.data.healthBarAlpha;
-		add(iconP1);
+		uiGroup.add(iconP1);
 
 		iconP2.y = healthBar.y - 75;
 		iconP2.visible = !ClientPrefs.data.hideHud;
 		iconP2.alpha = ClientPrefs.data.healthBarAlpha;
-		add(iconP2);
+		uiGroup.add(iconP2);
 
 		scoreTxt = new FlxText(0, healthBar.y + 40, FlxG.width, "", 20);
 		scoreTxt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scoreTxt.scrollFactor.set();
 		scoreTxt.borderSize = 1.25;
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
-		add(scoreTxt);
+		uiGroup.add(scoreTxt);
 
 		if (GameClient.isConnected()) {
 			scoreTxt.visible = false;
@@ -643,14 +680,14 @@ class PlayState extends MusicBeatState
 			scoreTxtP1.scrollFactor.set();
 			scoreTxtP1.borderSize = 1.25;
 			scoreTxtP1.visible = !ClientPrefs.data.hideHud;
-			add(scoreTxtP1);
+			uiGroup.add(scoreTxtP1);
 
 			scoreTxtP2 = new FlxText(0, healthBar.y + 40, FlxG.width, "?", 20);
 			scoreTxtP2.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			scoreTxtP2.scrollFactor.set();
 			scoreTxtP2.borderSize = 1.25;
 			scoreTxtP2.visible = !ClientPrefs.data.hideHud;
-			add(scoreTxtP2);
+			uiGroup.add(scoreTxtP2);
 
 			scoreTxtP1.y -= scoreTxtP1.height * 3;
 			scoreTxtP2.y -= scoreTxtP2.height * 3;
@@ -664,26 +701,14 @@ class PlayState extends MusicBeatState
 		botplayTxt.scrollFactor.set();
 		botplayTxt.borderSize = 1.25;
 		botplayTxt.visible = cpuControlled;
-		add(botplayTxt);
+		uiGroup.add(botplayTxt);
 		if(ClientPrefs.data.downScroll) {
 			botplayTxt.y = timeBar.y - 78;
 		}
-		strumLineNotes.cameras = [camHUD];
-		grpNoteSplashes.cameras = [camHUD];
-		notes.cameras = [camHUD];
-
-		healthBar.cameras = [camHUD];
-		iconP1.cameras = [camHUD];
-		iconP2.cameras = [camHUD];
-		scoreTxt.cameras = [camHUD];
-		if (GameClient.isConnected()) {
-			scoreTxtP1.cameras = [camHUD];
-			scoreTxtP2.cameras = [camHUD];
-		}
-
-		botplayTxt.cameras = [camHUD];
-		timeBar.cameras = [camHUD];
-		timeTxt.cameras = [camHUD];
+		
+		uiGroup.cameras = [camHUD];
+		noteGroup.cameras = [camHUD];
+		comboGroup.cameras = [camHUD];
 
 		startingSong = true;
 		
@@ -724,8 +749,16 @@ class PlayState extends MusicBeatState
 			}
 		#end
 
-		if (GameClient.isConnected())
+		if (GameClient.isConnected()) {
 			generateStrums();
+
+			waitReadySpr = new Alphabet(0, 0, "PRESS ACCEPT TO START", true);
+			waitReadySpr.cameras = [camOther];
+			waitReadySpr.alpha = 0;
+			waitReadySpr.alignment = CENTERED;
+			waitReadySpr.x = FlxG.width / 2;
+			waitReadySpr.screenCenter(Y);
+		}
 		startCallback();
 		RecalculateRating();
 		if (GameClient.isConnected())
@@ -765,6 +798,13 @@ class PlayState extends MusicBeatState
 				case 'music':
 					Paths.music(key);
 			}
+		}
+
+		if (GameClient.isConnected()) {
+			add(chatBox = new ChatBox(camOther, 100));
+			add(leavePie = new LeavePie());
+			leavePie.cameras = [camOther];
+			add(waitReadySpr);
 		}
 
 		super.create();
@@ -1187,7 +1227,7 @@ class PlayState extends MusicBeatState
 
 		spr.screenCenter();
 		spr.antialiasing = antialias;
-		insert(members.indexOf(notes), spr);
+		insert(members.indexOf(noteGroup), spr);
 		FlxTween.tween(spr, {/*y: spr.y + 100,*/ alpha: 0}, Conductor.crochet / 1000, {
 			ease: FlxEase.cubeInOut,
 			onComplete: function(twn:FlxTween)
@@ -1387,7 +1427,7 @@ class PlayState extends MusicBeatState
 		FlxG.sound.list.add(inst);
 
 		notes = new FlxTypedGroup<Note>();
-		add(notes);
+		noteGroup.add(notes);
 
 		var noteData:Array<SwagSection>;
 
@@ -1412,6 +1452,8 @@ class PlayState extends MusicBeatState
 			{
 				var daStrumTime:Float = songNotes[0];
 				var daNoteData:Int = Std.int(songNotes[1] % 4);
+				if (songNotes[1] < 0 || songNotes[1] > 7) // this should prevent most exe mods from crashing
+					continue;
 				var gottaHitNote:Bool = section.mustHitSection;
 
 				if (songNotes[1] > 3)
@@ -1587,13 +1629,6 @@ class PlayState extends MusicBeatState
 			// FlxG.log.add(i);
 			var targetAlpha:Float = 1;
 
-			if (GameClient.isConnected()) {
-				if (!playsAsBF())
-					targetAlpha = (player == 0 ? 1 : 0.7);
-				else
-					targetAlpha = (player == 0 ? 0.7 : 1);
-			}
-
 			if (!isPlayerStrumNote(player))
 			{
 				if(!ClientPrefs.data.opponentStrums) targetAlpha = 0;
@@ -1623,6 +1658,13 @@ class PlayState extends MusicBeatState
 			else
 			{
 				opponentStrums.add(babyArrow);
+			}
+
+			if (GameClient.isConnected()) {
+				if (!playsAsBF())
+					babyArrow.maxAlpha = (player == 0 ? 1 : 0.7);
+				else
+					babyArrow.maxAlpha = (player == 0 ? 0.7 : 1);
 			}
 
 			strumLineNotes.add(babyArrow);
@@ -1756,13 +1798,17 @@ class PlayState extends MusicBeatState
 		#end
 
 		if (GameClient.isConnected()) {
-			if (controls.BACK) {
-				GameClient.send("requestEndSong");
-			}
-
 			//if player 2 left then go back to lobby
 			if (GameClient.room.state.player2.name == "") {
 				endSong();
+			}
+
+			if (!isReady && controls.ACCEPT) {
+				isReady = true;
+				FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
+				if (ClientPrefs.data.flashing)
+					freakyFlicker = FlxFlicker.flicker(waitReadySpr, 0.5, 0.05, true, false, _ -> waitReadySpr.text = "waiting for other player...");
+				GameClient.send("playerReady");
 			}
 		}
 
@@ -1771,9 +1817,6 @@ class PlayState extends MusicBeatState
 			iconP1.swapOldIcon();
 		}*/
 		callOnScripts('onUpdate', [elapsed]);
-
-		if (playbackRate != 1. && GameClient.isConnected())
-			playbackRate = 1;
 
 		if (cpuControlled && GameClient.isConnected()) {
 			cpuControlled = false;
@@ -1803,7 +1846,7 @@ class PlayState extends MusicBeatState
 			botplayTxt.alpha = 1 - Math.sin((Math.PI * botplaySine) / 180);
 		}
 
-		if (controls.PAUSE && startedCountdown && canPause)
+		if (controls.PAUSE && startedCountdown && canPause && canInput())
 		{
 			var ret:Dynamic = callOnScripts('onPause', null, true);
 			if(ret != FunkinLua.Function_Stop) {
@@ -1811,7 +1854,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		if (controls.justPressed('debug_1') && !endingSong && !inCutscene)
+		if (controls.justPressed('debug_1') && !endingSong && !inCutscene && canInput())
 			openChartEditor();
 
 		var mult:Float = FlxMath.lerp(1, iconP1.scale.x, FlxMath.bound(1 - (elapsed * 9 * playbackRate), 0, 1));
@@ -1830,7 +1873,7 @@ class PlayState extends MusicBeatState
 		iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0;
 		iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0;
 
-		if (controls.justPressed('debug_2') && !endingSong && !inCutscene)
+		if (controls.justPressed('debug_2') && !endingSong && !inCutscene && canInput())
 			openCharacterEditor();
 		
 		if (startedCountdown && !paused)
@@ -1869,7 +1912,7 @@ class PlayState extends MusicBeatState
 		FlxG.watch.addQuick("stepShit", curStep);
 
 		// RESET = Quick Game Over Screen
-		if (!GameClient.isConnected() && !ClientPrefs.data.noReset && controls.RESET && canReset && !inCutscene && startedCountdown && !endingSong)
+		if (!GameClient.isConnected() && !ClientPrefs.data.noReset && controls.RESET && canReset && !inCutscene && startedCountdown && !endingSong && canInput())
 		{
 			health = 0;
 			trace("RESET = True");
@@ -2503,7 +2546,7 @@ class PlayState extends MusicBeatState
 			if (GameClient.isConnected()) {
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				GameClient.clearOnMessage();
-				MusicBeatState.switchState(new online.states.PostGame());
+				MusicBeatState.switchState(new online.states.ResultsScreen());
 			}
 			else if (isStoryMode)
 			{
@@ -2609,6 +2652,13 @@ class PlayState extends MusicBeatState
 	public var showComboNum:Bool = true;
 	public var showRating:Bool = true;
 
+	// Stores Ratings and Combo Sprites in a group
+	public var comboGroup:FlxSpriteGroup;
+	// Stores HUD Objects in a Group
+	public var uiGroup:FlxSpriteGroup;
+	// Stores Note Objects in a Group
+	public var noteGroup:FlxTypedGroup<FlxBasic>;
+
 	// stores the last judgement object
 	var lastRating:FlxSprite;
 	var lastRatingOP:FlxSprite;
@@ -2635,7 +2685,7 @@ class PlayState extends MusicBeatState
 
 	function getComboOffset(isOP:Bool = false) {
 		if (!GameClient.isConnected()) {
-			return online.Wrapper.prefComboOffset;
+			return ClientPrefs.data.comboOffset;
 		}
 
 		var asBF = playsAsBF();
@@ -2644,9 +2694,9 @@ class PlayState extends MusicBeatState
 		}
 
 		if (!asBF)
-			return online.Wrapper.prefComboOffsetOP1;
+			return ClientPrefs.data.comboOffsetOP1;
 		else
-			return online.Wrapper.prefComboOffsetOP2;
+			return ClientPrefs.data.comboOffsetOP2;
 	}
 
 	private function popUpScoreOP(ratingImage:String) {
@@ -2685,8 +2735,7 @@ class PlayState extends MusicBeatState
 				lastRatingOP.kill();
 			lastRatingOP = rating;
 		}
-
-		insert(members.indexOf(strumLineNotes), rating);
+		comboGroup.add(rating);
 
 		if (!PlayState.isPixelStage) {
 			rating.setGraphicSize(Std.int(rating.width * 0.7));
@@ -2731,7 +2780,7 @@ class PlayState extends MusicBeatState
 			numScore.antialiasing = antialias;
 
 			if (showComboNum)
-				insert(members.indexOf(strumLineNotes), numScore);
+				comboGroup.add(numScore);
 
 			FlxTween.tween(numScore, {alpha: 0}, 0.2 / playbackRate, {
 				onComplete: function(tween:FlxTween) {
@@ -2826,7 +2875,7 @@ class PlayState extends MusicBeatState
 		comboSpr.y += 60;
 		comboSpr.velocity.x += FlxG.random.int(1, 10) * playbackRate;
 
-		insert(members.indexOf(strumLineNotes), rating);
+		comboGroup.add(rating);
 		
 		if (!ClientPrefs.data.comboStacking)
 		{
@@ -2861,7 +2910,7 @@ class PlayState extends MusicBeatState
 		var xThing:Float = 0;
 		if (showCombo)
 		{
-			insert(members.indexOf(strumLineNotes), comboSpr);
+			comboGroup.add(comboSpr);
 		}
 		if (!ClientPrefs.data.comboStacking)
 		{
@@ -2899,7 +2948,7 @@ class PlayState extends MusicBeatState
 
 			//if (combo >= 10 || combo == 0)
 			if(showComboNum)
-				insert(members.indexOf(strumLineNotes), numScore);
+				comboGroup.add(numScore);
 
 			FlxTween.tween(numScore, {alpha: 0}, 0.2 / playbackRate, {
 				onComplete: function(tween:FlxTween)
@@ -2941,6 +2990,9 @@ class PlayState extends MusicBeatState
 	@:unreflective
 	private function keyPressed(key:Int)
 	{
+		if (!canInput())
+			return;
+
 		if (!cpuControlled && startedCountdown && !paused && key > -1)
 		{
 			if (notes.length > 0 && !getPlayer().stunned && generatedMusic && !endingSong)
@@ -3035,6 +3087,9 @@ class PlayState extends MusicBeatState
 	@:unreflective
 	private function keyReleased(key:Int)
 	{
+		if (!canInput())
+			return;
+
 		if(!cpuControlled && startedCountdown && !paused)
 		{
 			var spr:StrumNote = getPlayerStrums().members[key];
@@ -3067,6 +3122,9 @@ class PlayState extends MusicBeatState
 	@:unreflective
 	private function keysCheck():Void
 	{
+		if (!canInput())
+			return;
+
 		// HOLDING
 		var holdArray:Array<Bool> = [];
 		var pressArray:Array<Bool> = [];
@@ -3610,6 +3668,12 @@ class PlayState extends MusicBeatState
 		while(i < len)
 		{
 			var script:FunkinLua = luaArray[i];
+			if (script == null) {
+				luaArray.remove(script);
+				i++;
+				continue;
+			}
+
 			if(exclusions.contains(script.scriptName))
 			{
 				i++;
@@ -4092,14 +4156,14 @@ class PlayState extends MusicBeatState
 
 		GameClient.room.onMessage("startSong", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
-				LoadingScreen.toggle(false);
+				isReady = true;
+				waitReady = false;
 				startCountdown();
 			});
 		});
 
 		GameClient.room.onMessage("endSong", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
-				LoadingScreen.toggle(false);
 				endSong();
 			});
 		});
@@ -4162,5 +4226,21 @@ class PlayState extends MusicBeatState
 			//op.sicks + " " + op.goods + " " + op.bads + " " + op.shits + " " + op.misses
 			op.name + '\nScore: ' + op.score + '\nMisses: ' + op.misses + '\nRating: ' + str + "\nPing: " + op.ping
 		;
+	}
+
+	public var scrollXCenter(get, set):Float;
+	function get_scrollXCenter() {
+		return camGame.scroll.x - FlxG.width / 2;
+	}
+	function set_scrollXCenter(value) {
+		return camGame.scroll.x = value - FlxG.width / 2;
+	}
+
+	public var scrollYCenter(get, set):Float;
+	function get_scrollYCenter() {
+		return camGame.scroll.y - FlxG.height / 2;
+	}
+	function set_scrollYCenter(value) {
+		return camGame.scroll.y = value - FlxG.height / 2;
 	}
 }

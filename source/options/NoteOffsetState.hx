@@ -45,13 +45,13 @@ class NoteOffsetState extends MusicBeatState
 
 	function getComboOffset() {
 		if (!isOnline) {
-			return online.Wrapper.prefComboOffset;
+			return ClientPrefs.data.comboOffset;
 		}
 
 		if (isP1)
-			return online.Wrapper.prefComboOffsetOP1;
+			return ClientPrefs.data.comboOffsetOP1;
 		else
-			return online.Wrapper.prefComboOffsetOP2;
+			return ClientPrefs.data.comboOffsetOP2;
 	}
 
 	function getComboPos() {

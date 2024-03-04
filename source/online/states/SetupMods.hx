@@ -29,14 +29,14 @@ class SetupMods extends MusicBeatState {
 		bg.color = 0xff5a1f46;
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.antialiasing = Wrapper.prefAntialiasing;
+		bg.antialiasing = ClientPrefs.data.antialiasing;
 		bg.scrollFactor.set(0, 0);
 		add(bg);
 
 		var lines:FlxSprite = new FlxSprite().loadGraphic(Paths.image('coolLines'));
 		lines.updateHitbox();
 		lines.screenCenter();
-		lines.antialiasing = Wrapper.prefAntialiasing;
+		lines.antialiasing = ClientPrefs.data.antialiasing;
 		lines.scrollFactor.set(0, 0);
 		add(lines);
 
