@@ -26,6 +26,9 @@ class Alert extends Sprite {
 		text = new TextField();
 		text.selectable = false;
 		text.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 20, 0xFFFFFFFF);
+		text.multiline = true;
+		text.wordWrap = true;
+		text.width = FlxG.width - 100;
 		addChild(text);
 
 		_targetAlpha = 0;
@@ -33,15 +36,15 @@ class Alert extends Sprite {
 
     public static function alert(title:String, ?message:String) {
 		text.text = title + (message != null ? "\n\n" + message : "") + "\n\n"; // openfl bugs lol
-		text.width = text.textWidth;
+		//text.width = FlxMath.bound(text.textWidth, 1, FlxG.width - 50);
 		text.height = text.textHeight;
 
-		bg.scaleX = text.width + 50;
-		bg.scaleY = text.height + 50;
+		bg.scaleX = text.textWidth + 50;
+		bg.scaleY = text.textHeight + 50;
 
 		bg.x = Lib.application.window.width / 2 - bg.scaleX / 2;
-		text.x = Lib.application.window.width / 2 - text.width / 2;
-        text.y = bg.scaleY / 2 - text.height / 2;
+		text.x = Lib.application.window.width / 2 - text.textWidth / 2;
+        text.y = bg.scaleY / 2 - text.textHeight / 2;
 
 		_targetAlpha = 5;
     }
