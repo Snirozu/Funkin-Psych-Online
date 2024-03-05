@@ -115,6 +115,7 @@
 	<haxelib name="discord_rpc" if="desktop"/>
 	<haxelib name="tjson" />
 	<haxelib name="colyseus" />
+	<haxelib name="HtmlParser" />
 
 	<haxedef name="openflPos" />
 	<haxedef name="hscriptPos" />

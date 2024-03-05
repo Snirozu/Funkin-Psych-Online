@@ -76,14 +76,6 @@ class OptionsState extends MusicBeatState {
 		trustedOption.screenCenter(X);
 		trustedOption.ID = i++;
 
-		if (ClientPrefs.data.gapiRefreshToken != null) {
-			var googleOption:InputOption;
-			items.add(googleOption = new InputOption("Unlink Google", "Unlink from Google here!\nThis can also help with Google Drive errors\n(if they happen to throw them)", null, false));
-			googleOption.y = trustedOption.y + trustedOption.height + 50;
-			googleOption.screenCenter(X);
-			googleOption.ID = i++;
-		}
-
 		add(items);
 
         changeSelection(0);
@@ -132,11 +124,6 @@ class OptionsState extends MusicBeatState {
 							LoadingState.loadAndSwitchState(new SkinsState());
 						case "setup mods":
 							MusicBeatState.switchState(new SetupMods(Mods.getModDirectories()));
-						case "unlink google":
-							GoogleAPI.revokeAccess(() -> {
-								Alert.alert("Unlinked from Google!", "");
-							});
-							MusicBeatState.switchState(new OptionsState());
 						case "clear trusted domains":
 							ClientPrefs.data.trustedSources = ["https://gamebanana.com/"];
 							ClientPrefs.saveSettings();

@@ -1,5 +1,6 @@
 package online;
 
+import haxe.io.Path;
 import online.states.RequestState;
 import sys.io.File;
 import sys.thread.Thread;
@@ -62,9 +63,9 @@ class Downloader {
 		this.id = id;
 		downloaders.push(this);
 		downloading.push(id);
-		alert = new DownloadAlert(id);
+		alert = new DownloadAlert(this.originURL);
 		checkCreateDlDir();
-		downloadPath = downloadDir + id + ".dwl";
+		downloadPath = Path.normalize(downloadDir + id + ".dwl");
 
 		Thread.create(() -> {
 			try {
@@ -89,6 +90,7 @@ class Downloader {
 		"application/x-tar",
 		"application/gzip",
 		"application/x-gtar",
+		"application/octet-stream" // unknown files
 	];
 
 	public static function isMediaTypeAllowed(file:String) {
@@ -171,11 +173,7 @@ class Downloader {
 				break;
 			}
 			var splitHeader = readLine.split(": ");
-			if (splitHeader[0] == "Content-Length") {
-				contentLength = Std.parseFloat(splitHeader[1]);
-				// contentLength = Int64.parseString(splitHeader[1]);
-			}
-			gotHeaders.set(splitHeader[0], splitHeader[1]);
+			gotHeaders.set(splitHeader[0].toLowerCase(), splitHeader[1]);
 		}
 
 		if (cancelRequested) {
@@ -183,13 +181,16 @@ class Downloader {
 			return;
 		}
 
-		if (gotHeaders.exists("Location")) {
-			Sys.println('Redirecting from $url to ${gotHeaders.get("Location")}');
-			startDownload(gotHeaders.get("Location"), requestHeaders);
+		if (gotHeaders.exists("location")) {
+			Sys.println('Redirecting from $url to ${gotHeaders.get("location")}');
+			startDownload(gotHeaders.get("location"), requestHeaders);
 			return;
 		}
 
-		if (!gotHeaders.exists("Content-Length")) {
+		if (gotHeaders.exists("content-length")) {
+			contentLength = Std.parseFloat(gotHeaders.get("content-length"));
+		}
+		else {
 			if (!cancelRequested) {
 				Waiter.put(() -> {
 					Alert.alert('Downloading failed!', "Host didn't specified the byte length");
@@ -199,10 +200,10 @@ class Downloader {
 			return;
 		}
 
-		if (!isMediaTypeAllowed(gotHeaders.get("Content-Type"))) {
+		if (!isMediaTypeAllowed(gotHeaders.get("content-type"))) {
 			if (!cancelRequested) {
 				Waiter.put(() -> {
-					Alert.alert('Downloading failed!', gotHeaders.get("Content-Type") + " may be invalid or unsupported file type!");
+					Alert.alert('Downloading failed!', gotHeaders.get("content-type") + " may be invalid or unsupported file type!");
 					RequestState.requestURL(originURL, "The following mod needs to be installed from this source", true);
 				});
 			}
@@ -353,6 +354,8 @@ class Downloader {
 			else if (filtered.charAt(filtered.length - 1) != "-")
 				filtered += "-";
 		}
+		if (filtered.length >= 250)
+			filtered = filtered.substr(0, 250);
 		return filtered;
 	}
 }

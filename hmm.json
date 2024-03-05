@@ -73,6 +73,11 @@
       "name": "colyseus",
       "type": "haxelib",
       "version": "0.15.2"
+    },
+    {
+      "name": "HtmlParser",
+      "type": "haxelib",
+      "version": "3.4.0"
     }
   ]
 }

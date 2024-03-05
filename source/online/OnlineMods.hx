@@ -68,7 +68,7 @@ class OnlineMods {
 		}
 
 		if (StringTools.startsWith(url, "https://drive.google.com/file/d/")) {
-			GoogleAPI.downloadFromDrive(url, onSuccess);
+			URLScraper.downloadFromGDrive(url, onSuccess);
 			return;
 		}
 
@@ -78,7 +78,7 @@ class OnlineMods {
 		}
 
 		if (StringTools.startsWith(url, "https://www.mediafire.com/file/")) {
-			Alert.alert("Mod download failed!", "Mods from MediaFire are not supported!");
+			URLScraper.downloadFromMediaFire(url, onSuccess);
 			return;
 		}
 
@@ -98,7 +98,7 @@ class OnlineMods {
 
 	@:unreflective
 	public static function startDownloadMod(fileName:String, modURL:String, ?gbMod:GBMod, ?onSuccess:String->Void, ?headers:Map<String, String>, ?ogURL:String) {
-		new Downloader(fileName, modURL, modURL, (fileName, downloader) -> {
+		new Downloader(fileName, ogURL ?? modURL, modURL, (fileName, downloader) -> {
 			installMod(fileName, downloader, downloader.originURL, gbMod, onSuccess);
 		}, gbMod, headers, ogURL);
 	}
