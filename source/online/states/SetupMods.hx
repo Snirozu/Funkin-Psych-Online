@@ -23,7 +23,7 @@ class SetupMods extends MusicBeatState {
     override function create() {
         super.create();
 
-		#if windows
+		#if desktop
 		DiscordClient.changePresence("In Setup Mods state.", null, null, false);
 		#end
 

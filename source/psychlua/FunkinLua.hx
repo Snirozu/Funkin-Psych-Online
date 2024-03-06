@@ -1603,7 +1603,7 @@ class FunkinLua {
 			var resultStr:String = Lua.tostring(lua, result);
 			if(resultStr != null && result != 0) {
 				trace(resultStr);
-				#if windows
+				#if desktop
 				lime.app.Application.current.window.alert(resultStr, 'Error on lua script!');
 				#else
 				luaTrace('$scriptName\n$resultStr', true, false, FlxColor.RED);
@@ -1706,7 +1706,7 @@ class FunkinLua {
 	//clone functions
 	public static function getBuildTarget():String
 	{
-		#if windows
+		#if desktop
 		return 'windows';
 		#elseif linux
 		return 'linux';
@@ -1716,6 +1716,8 @@ class FunkinLua {
 		return 'browser';
 		#elseif android
 		return 'android';
+		#elseif ios
+		return 'ios';
 		#elseif switch
 		return 'switch';
 		#else

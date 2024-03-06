@@ -32,7 +32,7 @@ class FindRoom extends MusicBeatState {
 
 		super.create();
 
-		#if windows
+		#if desktop
 		DiscordClient.changePresence("Finding a room.", null, null, false);
 		#end
 

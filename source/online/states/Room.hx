@@ -70,7 +70,7 @@ class Room extends MusicBeatState {
 		});
 
 		GameClient.room.state.listen("isPrivate", (value, prev) -> {
-			#if windows
+			#if desktop
 			if (value) {
 				DiscordClient.changePresence("In a online room.", "Private room.", null, false);
 			}
@@ -485,7 +485,7 @@ class Room extends MusicBeatState {
 		// 	cum.scroll.x += elapsed * 20;
 		// }
 
-		#if windows
+		#if desktop
 		elapsedShit += elapsed;
 
 		if (elapsedShit >= 3) {
