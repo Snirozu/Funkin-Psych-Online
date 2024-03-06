@@ -32,7 +32,9 @@ class FindRoom extends MusicBeatState {
 
 		super.create();
 
+		#if windows
 		DiscordClient.changePresence("Finding a room.", null, null, false);
+		#end
 
 		camera.follow(camFollow = new FlxObject(), 0.1);
 

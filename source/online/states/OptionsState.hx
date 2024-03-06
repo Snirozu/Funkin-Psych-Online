@@ -16,7 +16,9 @@ class OptionsState extends MusicBeatState {
 
 		camera.follow(camFollow = new FlxObject(), 0.1);
 
+		#if windows
 		DiscordClient.changePresence("In Online Settings.", null, null, false);
+		#end
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff2b2b2b;
