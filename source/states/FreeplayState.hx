@@ -481,7 +481,7 @@ class FreeplayState extends MusicBeatState
 				FlxG.sound.music.volume = 0;
 						
 				destroyFreeplayVocals();
-				#if (MODS_ALLOWED && windows)
+				#if (MODS_ALLOWED && desktop)
 				DiscordClient.loadModRPC();
 				#end
 			}
