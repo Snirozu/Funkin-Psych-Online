@@ -125,7 +125,6 @@ jobs:
         id: setup-ndk
         with:
           ndk-version: r21e
-          link-to-sdk: true
       
       # Runs a set of commands using the runners shell
       - name: Install Haxelib
@@ -137,7 +136,7 @@ jobs:
           haxelib install hmm --quiet
           haxelib run hmm install
           haxelib run lime config ANDROID_SDK $ANDROID_SDK_ROOT
-          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_ROOT
+          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_HOME
           haxelib run lime config JAVA_HOME $JAVA_HOME
           haxelib run lime config ANDROID_SETUP true
 
