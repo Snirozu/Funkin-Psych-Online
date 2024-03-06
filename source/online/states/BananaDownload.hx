@@ -26,7 +26,9 @@ class BananaDownload extends MusicBeatState {
 		
 		super.create();
 
+		#if windows
 		DiscordClient.changePresence("Browsing mods on GameBanana.", null, null, false);
+		#end
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff46463b;

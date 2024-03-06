@@ -23,7 +23,9 @@ class SetupMods extends MusicBeatState {
     override function create() {
         super.create();
 
+		#if windows
 		DiscordClient.changePresence("In Setup Mods state.", null, null, false);
+		#end
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff5a1f46;

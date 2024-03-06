@@ -70,12 +70,14 @@ class Room extends MusicBeatState {
 		});
 
 		GameClient.room.state.listen("isPrivate", (value, prev) -> {
+			#if windows
 			if (value) {
 				DiscordClient.changePresence("In a online room.", "Private room.", null, false);
 			}
 			else {
 				DiscordClient.changePresence("In a online room.", "Public room: " + GameClient.getRoomSecret(), null, false);
 			}
+			#end
 		});
 
 		playMusic((GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).hasSong);
@@ -460,8 +462,6 @@ class Room extends MusicBeatState {
 		if (!GameClient.isConnected()) {
 			return;
 		}
-
-		elapsedShit += elapsed;
 		
 		// if (FlxG.keys.justPressed.SPACE) {
 		// 	Alert.alert("Camera Location:", '${cum.scroll.x},${cum.scroll.y} x ${cum.zoom}');
@@ -485,6 +485,9 @@ class Room extends MusicBeatState {
 		// 	cum.scroll.x += elapsed * 20;
 		// }
 
+		#if windows
+		elapsedShit += elapsed;
+
 		if (elapsedShit >= 3) {
 			elapsedShit = 0;
 			if (GameClient.room.state.isPrivate) {
@@ -494,6 +497,7 @@ class Room extends MusicBeatState {
 				DiscordClient.changePresence("In a online room.", "Public room: " + GameClient.getRoomSecret(), null, false);
 			}
 		}
+		#end
 
 		for (item in items) {
 			if (curSelected == item.ID) {

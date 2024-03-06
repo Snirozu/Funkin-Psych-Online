@@ -25,7 +25,9 @@ class SkinsState extends MusicBeatState {
 	static var flipped:Bool = false;
 
     override function create() {
+		#if windows
 		DiscordClient.changePresence("In a Skin Selector.", null, null, false);
+		#end
 
 		Mods.loadTopMod();
 		WeekData.setDirectoryFromWeek();

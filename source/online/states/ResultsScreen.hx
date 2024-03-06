@@ -32,7 +32,9 @@ class ResultsScreen extends MusicBeatState {
     override function create() {
         super.create();
 
+		#if windows
 		DiscordClient.changePresence("Viewing song results.", null, null, false);
+		#end
         
         FlxG.sound.music.stop();
 

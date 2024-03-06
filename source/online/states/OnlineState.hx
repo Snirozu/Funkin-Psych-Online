@@ -76,7 +76,9 @@ class OnlineState extends MusicBeatState {
 
 		OnlineMods.checkMods();
 
+		#if windows
 		DiscordClient.changePresence("In online lobby.", null, null, false);
+		#end
 
         var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
         bg.color = 0xff3f2b5a;

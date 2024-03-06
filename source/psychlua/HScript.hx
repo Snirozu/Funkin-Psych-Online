@@ -5,7 +5,7 @@ import objects.Character;
 import psychlua.FunkinLua;
 import psychlua.CustomSubstate;
 
-#if (HSCRIPT_ALLOWED && SScript >= "3.0.0")
+#if HSCRIPT_ALLOWED
 import tea.SScript;
 class HScript extends SScript
 {
@@ -57,7 +57,7 @@ class HScript extends SScript
 
 	override function preset()
 	{
-		#if (SScript >= "3.0.0")
+		#if HSCRIPT_ALLOWED
 		super.preset();
 
 		// Some very commonly used classes
@@ -171,7 +171,7 @@ class HScript extends SScript
 		#end
 	}
 
-	public function executeCode(?funcToRun:String = null, ?funcArgs:Array<Dynamic> = null):TeaCall
+	public function executeCode(?funcToRun:String = null, ?funcArgs:Array<Dynamic> = null):Tea
 	{
 		if (funcToRun == null) return null;
 
@@ -204,7 +204,7 @@ class HScript extends SScript
 		return callValue;
 	}
 
-	public function executeFunction(funcToRun:String = null, funcArgs:Array<Dynamic>):TeaCall
+	public function executeFunction(funcToRun:String = null, funcArgs:Array<Dynamic>):Tea
 	{
 		if (funcToRun == null)
 			return null;
@@ -218,7 +218,7 @@ class HScript extends SScript
 		funk.addLocalCallback("runHaxeCode", function(codeToRun:String, ?varsToBring:Any = null, ?funcToRun:String = null, ?funcArgs:Array<Dynamic> = null):Dynamic {
 			#if SScript
 			initHaxeModuleCode(funk, codeToRun);
-			final retVal:TeaCall = funk.hscript.executeCode(funcToRun, funcArgs);
+			final retVal:Tea = funk.hscript.executeCode(funcToRun, funcArgs);
 			if (retVal != null) {
 				if(retVal.succeeded)
 					return (retVal.returnValue == null || LuaUtils.isOfTypes(retVal.returnValue, [Bool, Int, Float, String, Array])) ? retVal.returnValue : null;
@@ -240,7 +240,7 @@ class HScript extends SScript
 		});
 		
 		funk.addLocalCallback("runHaxeFunction", function(funcToRun:String, ?funcArgs:Array<Dynamic> = null) {
-			#if (SScript >= "3.0.0")
+			#if HSCRIPT_ALLOWED
 			var callValue = funk.hscript.executeFunction(funcToRun, funcArgs);
 			if (!callValue.succeeded)
 			{
@@ -265,12 +265,12 @@ class HScript extends SScript
 
 			var c = Type.resolveClass(str + libName);
 
-			#if (SScript >= "3.0.3")
+			#if HSCRIPT_ALLOWED
 			if (c != null)
 				SScript.globalVariables[libName] = c;
 			#end
 
-			#if (SScript >= "3.0.0")
+			#if HSCRIPT_ALLOWED
 			if (funk.hscript != null)
 			{
 				try {
@@ -288,7 +288,6 @@ class HScript extends SScript
 		#end
 	}
 
-	#if (SScript >= "3.0.3")
 	override public function destroy()
 	{
 		origin = null;
@@ -296,12 +295,6 @@ class HScript extends SScript
 
 		super.destroy();
 	}
-	#else
-	public function destroy()
-	{
-		active = false;
-	}
-	#end
 }
 
 class CustomFlxColor

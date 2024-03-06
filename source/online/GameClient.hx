@@ -210,7 +210,7 @@ class GameClient {
 
 				FlxG.sound.music.volume = 0;
 
-				#if MODS_ALLOWED
+				#if (MODS_ALLOWED && windows)
 				DiscordClient.loadModRPC();
 				#end
 			});

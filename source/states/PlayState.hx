@@ -81,7 +81,7 @@ import psychlua.LuaUtils;
 import psychlua.HScript;
 #end
 
-#if (SScript >= "3.0.0")
+#if HSCRIPT_ALLOWED
 import tea.SScript;
 #end
 
