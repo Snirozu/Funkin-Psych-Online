@@ -116,7 +116,7 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '11'
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
