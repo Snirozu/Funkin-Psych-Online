@@ -117,7 +117,7 @@ jobs:
         uses: actions/setup-java@v2.3.1
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '11'
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2.0.2
       - name: Setup Android NDK
