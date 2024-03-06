@@ -1,6 +1,6 @@
 #if !macro
 //Discord API
-#if windows
+#if desktop
 import backend.Discord;
 #end
 

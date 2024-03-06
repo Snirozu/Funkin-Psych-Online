@@ -26,7 +26,7 @@ class BananaDownload extends MusicBeatState {
 		
 		super.create();
 
-		#if windows
+		#if desktop
 		DiscordClient.changePresence("Browsing mods on GameBanana.", null, null, false);
 		#end
 
