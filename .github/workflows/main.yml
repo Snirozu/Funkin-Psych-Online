@@ -114,12 +114,12 @@ jobs:
           haxe-version: 4.3.2
       
       - name: Setup Java JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v2
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '11'
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v2
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
         id: setup-ndk
