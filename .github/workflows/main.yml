@@ -122,8 +122,10 @@ jobs:
         uses: android-actions/setup-android@v2
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
+        id: setup-ndk
         with:
           ndk-version: r15c
+          add-to-path: false
       
       # Runs a set of commands using the runners shell
       - name: Install Haxelib
@@ -135,7 +137,7 @@ jobs:
           haxelib install hmm --quiet
           haxelib run hmm install
           haxelib run lime config ANDROID_SDK $ANDROID_SDK_ROOT
-          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_ROOT
+          haxelib run lime config ANDROID_NDK_ROOT ${{steps.setup-ndk.outputs.ndk-path}}
           haxelib run lime config JAVA_HOME $JAVA_HOME
           haxelib run lime config ANDROID_SETUP true
 
