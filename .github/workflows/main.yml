@@ -185,7 +185,7 @@ jobs:
           name: androidBuild (experimental)
           path: 'export/release/android/bin/app/build/outputs/apk'
   buildiOS:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
