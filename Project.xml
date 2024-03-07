@@ -181,4 +181,6 @@
 	<icon path="art/iconOG.png" />
 
 	<define name="PSYCH_VER" value="0.7.1" />
+
+	<dependency name="Metal.framework" if="ios" />
 </project>
