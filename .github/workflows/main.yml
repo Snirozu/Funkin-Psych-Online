@@ -184,39 +184,39 @@ jobs:
         with:
           name: androidBuild (experimental)
           path: 'export/release/android/bin/app/build/outputs/apk'
-  buildiOS:
-    runs-on: macos-13
+  # TODO: code signing shit
+  # buildiOS:
+  #   runs-on: macos-latest
 
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+  #   steps:
+  #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+  #     - uses: actions/checkout@v2
 
-      - name: Retrieve Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/haxelib
-            export/release/ios/haxe
-            export/release/ios/obj
-          key: ${{ runner.os }}-cache
+  #     - name: Retrieve Cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           ~/haxelib
+  #           export/release/ios/haxe
+  #           export/release/ios/obj
+  #         key: ${{ runner.os }}-cache
 
-      - uses: krdlab/setup-haxe@master
-        with:
-          haxe-version: 4.3.2
-      # Runs a set of commands using the runners shell
-      - name: Install Haxelib
-        run: |
-          haxelib setup ~/haxelib
-          haxelib install hxcpp > /dev/null --quiet
-          haxelib install hmm --quiet
-          haxelib run hmm install
-          haxelib run openfl update ios -xcode
-      - name: Create Version Tag
-        run: echo "${{github.run_id}}" > VERSION
-      - name: Compile
-        run: haxelib run lime build ios --app-version="4.0.0-${{ github.run_id}}"
-      - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
-        with:
-          name: iOSBuild (experimental)
-          path: export/release/ios/build/
+  #     - uses: krdlab/setup-haxe@master
+  #       with:
+  #         haxe-version: 4.3.2
+  #     # Runs a set of commands using the runners shell
+  #     - name: Install Haxelib
+  #       run: |
+  #         haxelib setup ~/haxelib
+  #         haxelib install hxcpp > /dev/null --quiet
+  #         haxelib install hmm --quiet
+  #         haxelib run hmm install
+  #     - name: Create Version Tag
+  #       run: echo "${{github.run_id}}" > VERSION
+  #     - name: Compile
+  #       run: haxelib run lime build ios --app-version="4.0.0-${{ github.run_id}}"
+  #     - name: Publish Artifact
+  #       uses: actions/upload-artifact@v2.2.4
+  #       with:
+  #         name: iOSBuild (experimental)
+  #         path: export/release/ios/build/
