@@ -192,6 +192,7 @@ class FreeplayState extends MusicBeatState
 
 		if (GameClient.isConnected()) {
 			add(chatBox = new ChatBox(camera));
+			GameClient.send("status", "Choosing a Song");
 		}
 
 		super.create();

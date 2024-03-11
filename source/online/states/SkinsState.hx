@@ -146,6 +146,8 @@ class SkinsState extends MusicBeatState {
 		super.create();
 		
 		CustomFadeTransition.nextCamera = hud; // wat
+
+		GameClient.send("status", "Selects their skin");
     }
 
     var acceptSound:FlxSound;

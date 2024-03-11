@@ -7,6 +7,8 @@ import objects.Character;
 import online.schema.Player;
 
 class ResultsScreen extends MusicBeatState {
+	public static var gainedPoints:Float = 0;
+
     var disableInput = true;
 
 	var win:FlxSprite;
@@ -15,6 +17,8 @@ class ResultsScreen extends MusicBeatState {
 
 	var p1Text:Alphabet;
 	var p2Text:Alphabet;
+
+	var gainedText:FlxText;
 
 	var p1Accuracy:Float;
 	var p2Accuracy:Float;
@@ -125,6 +129,13 @@ class ResultsScreen extends MusicBeatState {
 		back.alpha = 0;
 		add(back);
 
+		gainedText = new FlxText(0, 0, 0, '+ ${gainedPoints}FP');
+		gainedText.setFormat(null, 40, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		//gainedText.setPosition(FlxG.width - gainedText.width - 20, FlxG.height - gainedText.height - 20);
+		gainedText.setPosition(30, FlxG.height - gainedText.height - 25);
+		gainedText.visible = false;
+		add(gainedText);
+
 		if (!GameClient.isConnected()) {
 			MusicBeatState.switchState(new OnlineState());
 			return;
@@ -220,6 +231,20 @@ class ResultsScreen extends MusicBeatState {
 			FlxTween.tween(lose, {alpha: 1, angle: 3}, 0.5, {ease: FlxEase.quadInOut});
 			FlxTween.tween(lose, {angle: 0}, 0.2, {ease: FlxEase.quadInOut});
 
+			if (gainedPoints > 0) {
+				gainedText.visible = true;
+				FlxG.sound.play(Paths.sound('fap'));
+				if (ClientPrefs.data.flashing)
+					FlxFlicker.flicker(gainedText, 0.4, 0.05, true);
+				FlxTween.tween(gainedText, {alpha: 0.2}, 2, {ease: FlxEase.quadInOut});
+
+				new FlxTimer().start(2, (t) -> {
+					FlxTween.tween(gainedText, {x: back.x, y: back.y - 50, size: 25}, 1, {ease: FlxEase.quartOut});
+				});
+			}
+
+			gainedPoints = 0;
+
 			if (ClientPrefs.data.flashing) {
 				flickerLoop();
 				return;
@@ -227,6 +252,8 @@ class ResultsScreen extends MusicBeatState {
 			spotlight.visible = true;
 
 		});
+
+		GameClient.send("status", "Viewing results");
     }
 
 	function flickerLoop() {
@@ -252,6 +279,8 @@ class ResultsScreen extends MusicBeatState {
 				disableInput = true;
 				back.animation.play('press');
 				back.offset.set(80, 50);
+				if (gainedText.visible)
+					FlxTween.tween(gainedText, {alpha: 0}, 0.2, {ease: FlxEase.quadInOut});
                 new FlxTimer().start(0.5, (t) -> {
 					GameClient.clearOnMessage();
 					MusicBeatState.switchState(new Room());

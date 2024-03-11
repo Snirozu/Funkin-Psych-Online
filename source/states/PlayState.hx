@@ -310,11 +310,16 @@ class PlayState extends MusicBeatState
 		if (freakyFlicker?.timer != null)
 			freakyFlicker.stop();
 
-		readyTween = FlxTween.tween(waitReadySpr, {alpha: v ? 1 : 0}, 0.5, {ease: FlxEase.quadIn});
+		if (waitReadySpr != null)
+			readyTween = FlxTween.tween(waitReadySpr, {alpha: v ? 1 : 0}, 0.5, {ease: FlxEase.quadIn});
+
+		paused = v;
 
 		return waitReady = v;
 	}
 	var waitReadySpr:Alphabet;
+
+	var noteDensity:Float;
 
 	override public function create()
 	{
@@ -328,6 +333,8 @@ class PlayState extends MusicBeatState
 			endCallback = endSong;
 		}
 		else {
+			paused = true;
+			GameClient.send("status", "In-Game");
 			startCallback = () -> {
 				waitReady = true;
 			};
@@ -852,6 +859,11 @@ class PlayState extends MusicBeatState
 	}
 
 	public function addTextToDebug(text:String, color:FlxColor) {
+		if (!chartingMode) {
+			Sys.println("SILENT DEBUG PRINT: " + text);
+			return;
+		}
+
 		#if LUA_ALLOWED
 		var newText:DebugLuaText = luaDebugGroup.recycle(DebugLuaText);
 		newText.text = text;
@@ -1287,6 +1299,8 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	static var showFP:Bool = false;
+
 	public function updateScore(miss:Bool = false, ?skipRest:Bool = false)
 	{
 		var scoreTextObject = scoreTxt;
@@ -1333,6 +1347,8 @@ class PlayState extends MusicBeatState
 			});
 		}
 		callOnScripts('onUpdateScore', [miss]);
+		if (showFP)
+			scoreTextObject.text += ' | FP: ' + online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate);
 	}
 
 	public function setSongTime(time:Float)
@@ -1446,6 +1462,9 @@ class PlayState extends MusicBeatState
 					makeEvent(event, i);
 		}
 
+		var densSum:Float = 0;
+		var densTotal:Float = 0;
+		var densLast:Float = -1;
 		for (section in noteData)
 		{
 			for (songNotes in section.sectionNotes)
@@ -1459,6 +1478,14 @@ class PlayState extends MusicBeatState
 				if (songNotes[1] > 3)
 				{
 					gottaHitNote = !section.mustHitSection;
+				}
+
+				if (songNotes[2] <= 0 && playsAsBF() ? gottaHitNote : !gottaHitNote) {
+					if (densLast != -1 && songNotes[0] - densLast > 1 && songNotes[0] - densLast <= 500) {
+						densSum += songNotes[0] - densLast;
+						densTotal++;
+					}
+					densLast = songNotes[0];
 				}
 
 				var oldNote:Note;
@@ -1550,6 +1577,10 @@ class PlayState extends MusicBeatState
 				makeEvent(event, i);
 
 		unspawnNotes.sort(sortByTime);
+		if (densTotal == 0)
+			noteDensity = 500;
+		else
+			noteDensity = densSum / densTotal;
 		generatedMusic = true;
 	}
 
@@ -1783,6 +1814,10 @@ class PlayState extends MusicBeatState
 
 	override public function update(elapsed:Float)
 	{
+		if (FlxG.keys.justPressed.F7) {
+			showFP = !showFP;
+		}
+
 		if (!GameClient.isConnected() && FlxG.keys.justPressed.F8) {
 			opponentMode = !opponentMode;
 			songScore = 0;
@@ -1809,6 +1844,12 @@ class PlayState extends MusicBeatState
 				if (ClientPrefs.data.flashing)
 					freakyFlicker = FlxFlicker.flicker(waitReadySpr, 0.5, 0.05, true, false, _ -> waitReadySpr.text = "waiting for other player...");
 				GameClient.send("playerReady");
+			}
+
+			if (waitReady) {
+				paused = true;
+				FlxG.sound.music.pause();
+				vocals.pause();
 			}
 		}
 
@@ -1879,7 +1920,7 @@ class PlayState extends MusicBeatState
 		if (startedCountdown && !paused)
 			Conductor.songPosition += FlxG.elapsed * 1000 * playbackRate;
 
-		if (startingSong)
+		if (!paused && startingSong)
 		{
 			if (startedCountdown && Conductor.songPosition >= 0)
 				startSong();
@@ -2545,6 +2586,7 @@ class PlayState extends MusicBeatState
 
 			if (GameClient.isConnected()) {
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				online.FunkinPoints.save(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate);
 				GameClient.clearOnMessage();
 				MusicBeatState.switchState(new online.states.ResultsScreen());
 			}
