@@ -55,4 +55,10 @@ class Player extends Schema {
 
 	@:type("string")
 	public var skinURL:String = null;
+
+	@:type("number")
+	public var points:Dynamic = 0;
+
+	@:type("string")
+	public var status:String = null;
 }

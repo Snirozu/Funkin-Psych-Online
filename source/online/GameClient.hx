@@ -8,6 +8,7 @@ import haxe.Http;
 import sys.io.File;
 import sys.FileSystem;
 import online.states.OnlineState;
+//import io.colyseus.error.HttpException; 0.15.3 doesn't work
 import io.colyseus.error.MatchMakeError;
 import lime.app.Application;
 import io.colyseus.events.EventHandler;
@@ -134,7 +135,11 @@ class GameClient {
 	}
 
 	static function getOptions(asHost:Bool):Map<String, Dynamic> {
-		var options:Map<String, Dynamic> = ["name" => ClientPrefs.data.nickname, "version" => MainMenuState.psychOnlineVersion];
+		var options:Map<String, Dynamic> = [
+			"name" => ClientPrefs.data.nickname, 
+			"version" => MainMenuState.psychOnlineVersion,
+			"points" => FunkinPoints.funkinPoints
+		];
 
 		if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
 			options.set("skinMod", ClientPrefs.data.modSkin[0]);

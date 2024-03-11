@@ -25,7 +25,7 @@ class Macros {
                             access: fieldAccess,
                             kind: FieldType.FFun({
                                 args: [],
-								expr: macro return ${meta.params[0]}
+								expr: macro return ${meta.params[0]} ?? ${meta.params[1]}
                             }),
                             pos: pos,
                         });

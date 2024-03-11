@@ -106,20 +106,28 @@ class Downloader {
 		isConnected = true;
 
 		var urlFormat = getURLFormat(url);
-		try {
-			socket = !urlFormat.isSSL ? new Socket() : new sys.ssl.Socket();
-			socket.connect(new Host(urlFormat.domain), urlFormat.port);
-		}
-		catch (exc) {
-			if (!cancelRequested) {
-				Waiter.put(() -> {
-					Alert.alert('Downloading failed!', id + ': ' + exc);
-				});
+
+		socket = !urlFormat.isSSL ? new Socket() : new sys.ssl.Socket();
+		socket.setTimeout(5);
+
+		var tries = 0;
+		while (!cancelRequested) {
+			tries++;
+
+			try {
+				socket.connect(new Host(urlFormat.domain), urlFormat.port);
+				break;
 			}
-			doCancel();
-			return;
+			catch (exc) {
+				if (tries >= 5) {
+					Waiter.put(() -> {
+						Alert.alert('Couldn\'t connect to the server after multiple tries!', id + ': ' + exc);
+					});
+					cancelRequested = true;
+					break;
+				}
+			}
 		}
-		socket.setTimeout(10);
 
 		if (cancelRequested) {
 			doCancel();

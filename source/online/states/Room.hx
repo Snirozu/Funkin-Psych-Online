@@ -205,23 +205,23 @@ class Room extends MusicBeatState {
 
 		// POST STAGE
 
-		player1Text = new FlxText(0, 40, 0, "PLAYER 1");
+		player1Text = new FlxText(0, 100, 0, "PLAYER 1");
 		player1Text.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 
 		player1Bg = new FlxSprite(-1000);
 		player1Bg.makeGraphic(1, 1, 0xA4000000);
 		player1Bg.updateHitbox();
-		player1Bg.y = player1Text.y;
+		player1Bg.y = player1Text.y - 30;
 		groupHUD.add(player1Bg);
 		groupHUD.add(player1Text);
 
-		player2Text = new FlxText(0, 40, 0, "PLAYER 2");
+		player2Text = new FlxText(0, 100, 0, "PLAYER 2");
 		player2Text.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 
 		player2Bg = new FlxSprite(-1000);
 		player2Bg.makeGraphic(1, 1, 0xA4000000);
 		player2Bg.updateHitbox();
-		player2Bg.y = player2Text.y;
+		player2Bg.y = player2Text.y - 30;
 		groupHUD.add(player2Bg);
 		groupHUD.add(player2Text);
 
@@ -374,6 +374,8 @@ class Room extends MusicBeatState {
 		FlxG.autoPause = false;
 
 		verifyDownloadMod(true);
+
+		GameClient.send("status", "In the Lobby");
 	}
 
 	function loadCharacter(isP1:Bool, ?enableDownload:Bool = true) {
@@ -453,6 +455,12 @@ class Room extends MusicBeatState {
 	override function openSubState(obj:FlxSubState) {
 		obj.cameras = [camHUD];
 		super.openSubState(obj);
+	}
+
+	override function closeSubState() {
+		super.closeSubState();
+
+		GameClient.send("status", "In the Lobby");
 	}
 
 	var optionShake:FlxTween;
@@ -758,21 +766,7 @@ class Room extends MusicBeatState {
 		songNameBg.updateHitbox();
 		songNameBg.x = songName.x;
 
-        player1Text.text =
-            GameClient.room.state.player1.name + "\n" +
-			"Ping: " + GameClient.room.state.player1.ping + "ms" + "\n\n" +
-            "Last Song Summary\n" +
-            "Score: " + GameClient.room.state.player1.score + "\n" +
-			"Accuracy: " + GameClient.getPlayerAccuracyPercent(GameClient.room.state.player1) + "%\n" +
-            "Sicks: " + GameClient.room.state.player1.sicks + "\n" + 
-            "Goods: " + GameClient.room.state.player1.goods + "\n" +
-            "Bads: " + GameClient.room.state.player1.bads + "\n" + 
-            "Shits: " + GameClient.room.state.player1.shits + "\n" +
-			"Misses: " + GameClient.room.state.player1.misses + "\n";
-		if (GameClient.room.state.player1.isReady)
-			player1Text.text += "\nREADY";
-		else
-			player1Text.text += "\nNOT READY";
+		player1Text.text = returnPlayerText(GameClient.room.state.player1);
 
 		if (GameClient.room.state.player2 != null && GameClient.room.state.player2.name != "") {
 			player2Text.alpha = 1;
@@ -780,24 +774,10 @@ class Room extends MusicBeatState {
 			p2.colorTransform.greenOffset = 0;
 			p2.colorTransform.blueOffset = 0;
 			p2.alpha = 1;
-            player2Text.text =
-                GameClient.room.state.player2.name + "\n" +
-				"Ping: " + GameClient.room.state.player2.ping + "ms" + "\n\n" +
-                "Last Song Summary\n" +
-                "Score: " + GameClient.room.state.player2.score + "\n" +
-				"Accuracy: " + GameClient.getPlayerAccuracyPercent(GameClient.room.state.player2) + "%\n" +
-                "Sicks: " + GameClient.room.state.player2.sicks + "\n" + 
-                "Goods: " + GameClient.room.state.player2.goods + "\n" +
-                "Bads: " + GameClient.room.state.player2.bads + "\n" + 
-                "Shits: " + GameClient.room.state.player2.shits + "\n" + 
-				"Misses: " + GameClient.room.state.player2.misses + "\n";
-			if (GameClient.room.state.player2.isReady)
-				player2Text.text += "\nREADY";
-			else
-				player2Text.text += "\nNOT READY";
+			player2Text.text = returnPlayerText(GameClient.room.state.player2);
         }
         else {
-			player2Text.text = "WAITING FOR OPPONENT...";
+			player2Text.text = "WAITING FOR OPPONENT";
 			player2Text.alpha = 0.8;
 			p2.colorTransform.redOffset = -255;
 			p2.colorTransform.greenOffset = -255;
@@ -827,13 +807,14 @@ class Room extends MusicBeatState {
 			p2.alpha = 0.5;
 		}
 
-		player1Bg.x = player1Text.x;
-		player1Bg.scale.set(player1Text.width, player1Text.height);
+		player1Bg.scale.set(FlxMath.bound(player1Text.width, 300), player1Text.height + 60);
 		player1Bg.updateHitbox();
 
-		player2Bg.x = player2Text.x;
-		player2Bg.scale.set(player2Text.width, player2Text.height);
+		player2Bg.scale.set(FlxMath.bound(player2Text.width, 300), player2Text.height + 60);
 		player2Bg.updateHitbox();
+
+		player1Bg.x = 250 - player1Bg.width / 2;
+		player2Bg.x = 700 - player2Bg.width / 2;
 
 		switch (curSelected) {
 			case 0:
@@ -859,6 +840,18 @@ class Room extends MusicBeatState {
 		itemTipBg.scale.set(itemTip.width, itemTip.height);
 		itemTipBg.updateHitbox();
     }
+
+	function returnPlayerText(player:Player) {
+		return 
+			player.name + "\n\n" +
+			//player.title + "\n\n" + //completely unsure about that
+            "Statistics\n" +
+            "Points: " + player.points + "\n" +
+            "Ping: " + player.ping + "ms" + "\n\n" +
+			player.status + "\n" +
+			(!player.isReady ? "NOT " : "") + "READY"
+		;
+	}
 
 	function changeSelection(diffe:Int) {
 		curSelected += diffe;

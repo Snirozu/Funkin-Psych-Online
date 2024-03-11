@@ -77,6 +77,8 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 			var option:GameplayOption = new GameplayOption('Play as Opponent', 'opponentplay', 'bool', false);
 			optionsArray.push(option);
 		}
+
+		GameClient.send("status", "In the Game Changers Menu");
 	}
 
 	public function getOptionByName(name:String)

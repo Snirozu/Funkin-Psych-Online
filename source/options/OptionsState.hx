@@ -66,6 +66,8 @@ class OptionsState extends MusicBeatState
 		ClientPrefs.saveSettings();
 
 		super.create();
+
+		online.GameClient.send("status", "In the Game Options");
 	}
 
 	override function closeSubState() {

@@ -117,6 +117,14 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 		gameOptions.ID = i++;
 
 		add(items);
+
+		GameClient.send("status", "In the Room Settings");
+	}
+
+	override function closeSubState() {
+		super.closeSubState();
+
+		GameClient.send("status", "In the Room Settings");
 	}
 
 	override function destroy() {

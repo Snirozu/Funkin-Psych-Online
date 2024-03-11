@@ -32,9 +32,11 @@ class OptionsState extends MusicBeatState {
 
 		var nicknameOption:InputOption;
 		items.add(nicknameOption = new InputOption("Nickname", "Set your nickname here!", "Boyfriend", true, text -> {
+			curOption.input.text = curOption.input.text.trim().substr(0, 20);
 			if (curOption.input.text == "")
 				ClientPrefs.data.nickname = "Boyfriend";
-			ClientPrefs.data.nickname = curOption.input.text;
+			else
+				ClientPrefs.data.nickname = curOption.input.text;
 			ClientPrefs.saveSettings();
 		}));
 		nicknameOption.input.text = ClientPrefs.data.nickname;
@@ -59,6 +61,17 @@ class OptionsState extends MusicBeatState {
 		serverOption.y = nicknameOption.y + nicknameOption.height + 50;
 		serverOption.screenCenter(X);
 		serverOption.ID = i++;
+
+		// var titleOption:InputOption;
+		// items.add(titleOption = new InputOption("Title", "This will be shown below your name! (Max 20 characters)", ClientPrefs.data.playerTitle, text -> {
+		// 	curOption.input.text = curOption.input.text.trim().substr(0, 20);
+		// 	ClientPrefs.data.playerTitle = curOption.input.text;
+		// 	ClientPrefs.saveSettings();
+		// }));
+		// titleOption.input.text = ClientPrefs.data.playerTitle;
+		// titleOption.y = serverOption.y + serverOption.height + 50;
+		// titleOption.screenCenter(X);
+		// titleOption.ID = i++;
 
 		var skinsOption:InputOption;
 		items.add(skinsOption = new InputOption("Skin", "Choose your skin here!", null, false));
