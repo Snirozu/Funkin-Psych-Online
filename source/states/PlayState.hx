@@ -3279,7 +3279,7 @@ class PlayState extends MusicBeatState
 		var char:Character = getPlayer();
 		if((note != null && note.gfNote) || (SONG.notes[curSection] != null && SONG.notes[curSection].gfSection)) char = gf;
 		
-		if(char != null && char.hasMissAnimations)
+		if(char != null /*&& char.hasMissAnimations*/)
 		{
 			var suffix:String = '';
 			if(note != null) suffix = note.animSuffix;
