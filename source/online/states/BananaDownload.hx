@@ -3,7 +3,6 @@ package online.states;
 import lime.system.Clipboard;
 import openfl.events.KeyboardEvent;
 import flixel.math.FlxRect;
-import sys.thread.Thread;
 import haxe.io.Bytes;
 import haxe.Http;
 import openfl.display.BitmapData;
@@ -493,7 +492,7 @@ class ModItem extends FlxSpriteGroup {
 	}
 
 	public static function getImage(url:String, response:(bytes:Bytes, err:Dynamic) -> Void) {
-		Thread.create(() -> {
+		Thread.run(() -> {
 			var http = new Http(url);
 
 			http.onBytes = function(data) {

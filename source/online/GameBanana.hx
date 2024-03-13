@@ -7,7 +7,6 @@ import openfl.geom.Rectangle;
 import openfl.display.BitmapData;
 import lime.system.System;
 import states.ModsMenuState.ModMetadata;
-import sys.thread.Thread;
 import backend.Song;
 import haxe.crypto.Md5;
 import haxe.zip.Entry;
@@ -81,7 +80,7 @@ typedef DownloadPage = {
 
 class GameBanana {
 	public static function searchMods(?search:String, page:Int, response:(mods:Array<GBSub>, err:Dynamic) -> Void) {
-		Thread.create(() -> {
+		Thread.run(() -> {
 			var http = new Http(
 			'https://gamebanana.com/apiv11/Game/8694/Subfeed?_nPage=${page}&_sSort=default&_csvModelInclusions=Mod' + (search != null ? '&_sName=$search' : '')
 			);
@@ -104,7 +103,7 @@ class GameBanana {
 	}
 
 	public static function getMod(id:String, response:(mod:GBMod, err:Dynamic)->Void) {
-		Thread.create(() -> {
+		Thread.run(() -> {
 			var http = new Http(
 			"https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=" + id + 
 			"&fields=name,description,Files().aFiles(),Url().sDownloadUrl(),Game().name,Trash().bIsTrashed(),Withhold().bIsWithheld(),RootCategory().name,downloads"
@@ -136,7 +135,7 @@ class GameBanana {
     }
 
 	public static function getModDownloads(modID:Float, response:(downloads:DownloadPage, err:Dynamic) -> Void) {
-		Thread.create(() -> {
+		Thread.run(() -> {
 			var http = new Http('https://gamebanana.com/apiv11/Mod/$modID/DownloadPage');
 
 			http.onData = function(data:String) {

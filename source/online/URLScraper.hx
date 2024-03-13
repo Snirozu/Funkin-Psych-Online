@@ -2,7 +2,6 @@ package online;
 
 import htmlparser.HtmlDocument;
 import haxe.Http;
-import sys.thread.Thread;
 
 class URLScraper {
     public static function downloadFromGDrive(url:String, ?onSuccess:String->Void) {
@@ -11,7 +10,7 @@ class URLScraper {
     }
 
 	public static function downloadFromMediaFire(url:String, ?onSuccess:String->Void) {
-		Thread.create(() -> {
+		Thread.run(() -> {
 			var http = new Http(url);
 
 			http.onData = function(data:String) {

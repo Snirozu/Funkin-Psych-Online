@@ -13,7 +13,7 @@ class FunkinPoints {
 		if (notesHit <= 0)
             return 0;
 
-		var fp:Float = notesHit / noteDensity;
+		var fp:Float = notesHit / (noteDensity / 2);
 		fp *= 1 + combo / 1000;
 		fp *= accuracy / (misses * 0.5 + 1) * (1 - noteDensity / 500);
 		fp *= songSpeed;
