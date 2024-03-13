@@ -65,7 +65,7 @@ class Character extends FlxSprite
 	public var positionArray:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
 
-	public var hasMissAnimations:Bool = false;
+	//public var hasMissAnimations:Bool = true;
 
 	//Used on Character Editor
 	public var imageFile:String = '';
@@ -177,7 +177,7 @@ class Character extends FlxSprite
 		}
 		originalFlipX = flipX;
 
-		if(animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss')) hasMissAnimations = true;
+		//if(animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss')) hasMissAnimations = true;
 		recalculateDanceIdle();
 		dance();
 
@@ -301,17 +301,29 @@ class Character extends FlxSprite
 
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
 	{
-		specialAnim = false;
-		animation.play(AnimName, Force, Reversed, Frame);
+		if (AnimName == null)
+			return;
+
+		colorTransform.redMultiplier = 1;
+		colorTransform.greenMultiplier = 1;
+		colorTransform.blueMultiplier = 1;
 
 		@:privateAccess
-		if (AnimName == null || animation._animations.get(AnimName) == null) {
-			Sys.println("No animation called \"" + AnimName + "\"");
-			if (AnimName != null && AnimName.endsWith("-alt")) {
-				playAnim(AnimName.substring(0, AnimName.length - "-alt".length), Force, Reversed);
+		if (animation._animations.get(AnimName) == null) {
+			if (AnimName.endsWith("-alt")) {
+				AnimName = AnimName.substring(0, AnimName.length - "-alt".length);
 			}
-			return;
+
+			if (AnimName.endsWith("miss")) {
+				AnimName = AnimName.substring(0, AnimName.length - "miss".length);
+				colorTransform.redMultiplier = 0.5;
+				colorTransform.greenMultiplier = 0.3;
+				colorTransform.blueMultiplier = 0.5;
+			}
 		}
+
+		specialAnim = false;
+		animation.play(AnimName, Force, Reversed, Frame);
 
 		var daOffset = animOffsets.get(AnimName);
 		if (animOffsets.exists(AnimName))
