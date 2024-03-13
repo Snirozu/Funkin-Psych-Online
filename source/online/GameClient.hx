@@ -1,7 +1,6 @@
 package online;
 
 import backend.Song;
-import sys.thread.Thread;
 import backend.Rating;
 import online.schema.Player;
 import haxe.Http;
@@ -38,7 +37,7 @@ class GameClient {
 
 		ChatBox.clearLogs();
 		
-		Thread.create(() -> {
+		Thread.run(() -> {
 			client = new Client(address);
 
 			client.create("room", getOptions(true), RoomState, (err, room) -> _onJoin(err, room, true, address, onJoin));
@@ -58,7 +57,7 @@ class GameClient {
 
 		ChatBox.clearLogs();
 
-		Thread.create(() -> {
+		Thread.run(() -> {
 			client = new Client(roomAddress);
 
 			client.joinById(roomID, getOptions(false), RoomState, (err, room) -> _onJoin(err, room, false, roomAddress, onJoin));
@@ -264,13 +263,13 @@ class GameClient {
 	}
 
 	public static function getAvailableRooms(address:String, result:(MatchMakeError, Array<RoomAvailable>) -> Void) {
-		Thread.create(() -> {
+		Thread.run(() -> {
 			new Client(address).getAvailableRooms("room", result);
 		});
 	}
 
 	public static function getPlayerCount(callback:(v:Null<Int>)->Void) {
-		Thread.create(() -> {
+		Thread.run(() -> {
 			var http = new Http(addressToUrl(serverAddress) + "/api/online");
 
 			http.onData = function(data:String) {

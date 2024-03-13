@@ -100,8 +100,7 @@ class DiscordClient
 	public static function initialize()
 	{
 		
-		var DiscordDaemon = sys.thread.Thread.create(() ->
-		{
+		online.Thread.run(() -> {
 			new DiscordClient();
 		});
 		trace("Discord Client initialized");

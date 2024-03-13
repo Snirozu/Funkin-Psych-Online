@@ -1,6 +1,5 @@
 package;
 
-import sys.thread.Thread;
 import flixel.graphics.FlxGraphic;
 
 import flixel.FlxGame;
@@ -169,7 +168,7 @@ class Main extends Sprite
 			if (FileSystem.isDirectory(path))
 				return;
 
-			Thread.create(() -> {
+			online.Thread.run(() -> {
 				online.LoadingScreen.toggle(true);
 				online.OnlineMods.installMod(path);
 				online.LoadingScreen.toggle(false);

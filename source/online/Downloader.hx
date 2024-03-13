@@ -3,7 +3,6 @@ package online;
 import haxe.io.Path;
 import online.states.RequestState;
 import sys.io.File;
-import sys.thread.Thread;
 import sys.io.FileOutput;
 import haxe.io.Bytes;
 import sys.net.Host;
@@ -67,7 +66,7 @@ class Downloader {
 		checkCreateDlDir();
 		downloadPath = Path.normalize(downloadDir + id + ".dwl");
 
-		Thread.create(() -> {
+		Thread.run(() -> {
 			try {
 				startDownload(url, headers);
 			}

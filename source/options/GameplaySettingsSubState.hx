@@ -107,6 +107,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		addOption(option);
 
+		var option:Option = new Option('Disable Note Movement',
+			'If checked, strum notes will no longer move.',
+			'disableStrumMovement',
+			'bool');
+		addOption(option);
+
 		super();
 	}
 

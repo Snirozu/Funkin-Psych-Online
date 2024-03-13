@@ -136,6 +136,8 @@ class StrumNote extends FlxSprite
 		}
 	}
 
+	var initialized:Bool = false;
+
 	public function postAddedToGroup() {
 		playAnim('static');
 		x += Note.swagWidth * noteData;
@@ -146,6 +148,7 @@ class StrumNote extends FlxSprite
 		}
 		x += ((FlxG.width / 2) * player);
 		ID = noteData;
+		initialized = true;
 	}
 
 	override function update(elapsed:Float) {
@@ -170,5 +173,19 @@ class StrumNote extends FlxSprite
 			centerOrigin();
 		}
 		if(useRGBShader) rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
+	}
+
+	override function set_x(value:Float):Float {
+		if (initialized && ClientPrefs.data.disableStrumMovement) {
+			return x;
+		}
+		return super.set_x(value);
+	}
+
+	override function set_y(value:Float):Float {
+		if (initialized && ClientPrefs.data.disableStrumMovement) {
+			return y;
+		}
+		return super.set_y(value);
 	}
 }
