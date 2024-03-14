@@ -1,5 +1,9 @@
 package backend;
 
+import online.states.Room;
+import online.Waiter;
+import haxe.crypto.Md5;
+import online.GameClient;
 import Sys.sleep;
 import discord_rpc.DiscordRpc;
 import lime.app.Application;
@@ -10,7 +14,7 @@ class DiscordClient
 	private static var _defaultID:String = "1185697129717583982";
 	public static var clientID(default, set):String = _defaultID;
 
-	private static var _options:Dynamic = {
+	private static var _options:DiscordPresenceOptions = {
 		details: "In the Menus",
 		state: null,
 		largeImageKey: 'icon',
@@ -27,7 +31,9 @@ class DiscordClient
 			clientID: clientID,
 			onReady: onReady,
 			onError: onError,
-			onDisconnected: onDisconnected
+			onDisconnected: onDisconnected,
+			onRequest: onRequest,
+			onJoin: onJoin
 		});
 		trace("Discord Client started.");
 
@@ -40,6 +46,24 @@ class DiscordClient
 		}
 
 		//DiscordRpc.shutdown();
+	}
+
+	static function onRequest(req:Dynamic) {
+		DiscordRpc.respond(req.userId, !GameClient.room.state.isPrivate ? Reply.Yes : Reply.No);
+	}
+
+	static function onJoin(secret:String) {
+		Waiter.put(() -> {
+			GameClient.joinRoom(secret, (err) -> {
+				if (err != null) {
+					return;
+				}
+
+				Waiter.put(() -> {
+					MusicBeatState.switchState(new Room());
+				});
+			});
+		});
 	}
 
 	public static function check()
@@ -121,9 +145,35 @@ class DiscordClient
 		// Obtained times are in milliseconds so they are divided so Discord can use it
 		_options.startTimestamp = Std.int(startTimestamp / 1000);
 		_options.endTimestamp = Std.int(endTimestamp / 1000);
-		DiscordRpc.presence(_options);
+		updateOnlinePresence();
+		//DiscordRpc.presence(_options);
 
 		//trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp');
+	}
+
+	public static function updateOnlinePresence() {
+		if (GameClient.isConnected()) {
+			if (!GameClient.room.state.isPrivate) {
+				_options.partyID = GameClient.rpcClientRoomID;
+				_options.joinSecret = GameClient.getRoomSecret(true);
+				_options.state = "In a Public Room";
+			}
+			else {
+				_options.partyID = null;
+				_options.joinSecret = null;
+				_options.state = "In a Private Room";
+			}
+			_options.partySize = GameClient.getPlayerCount();
+			_options.partyMax = 2;
+		}
+		else {
+			_options.partyID = null;
+			_options.joinSecret = null;
+			_options.partySize = 0;
+			_options.partyMax = 0;
+			_options.state = null;
+		}
+		DiscordRpc.presence(_options);
 	}
 	
 	public static function resetClientID()

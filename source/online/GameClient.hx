@@ -1,5 +1,6 @@
 package online;
 
+import haxe.crypto.Md5;
 import backend.Song;
 import backend.Rating;
 import online.schema.Player;
@@ -22,6 +23,7 @@ class GameClient {
 	public static var isOwner:Bool;
 	public static var address:String;
 	public static var reconnectTries:Int = 0;
+	public static var rpcClientRoomID:String;
 
 	/**
 	 * the server address that the player set, if player set nothing then it returns `serverAddresses[0]`
@@ -41,6 +43,9 @@ class GameClient {
 			client = new Client(address);
 
 			client.create("room", getOptions(true), RoomState, (err, room) -> _onJoin(err, room, true, address, onJoin));
+		}, (exc) -> {
+			LoadingScreen.toggle(false);
+			Alert.alert("Failed to connect!", exc.toString());
 		});
     }
 
@@ -61,6 +66,9 @@ class GameClient {
 			client = new Client(roomAddress);
 
 			client.joinById(roomID, getOptions(false), RoomState, (err, room) -> _onJoin(err, room, false, roomAddress, onJoin));
+		}, (exc) -> {
+			LoadingScreen.toggle(false);
+			Alert.alert("Failed to connect!", exc.toString());
 		});
     }
 
@@ -77,6 +85,7 @@ class GameClient {
 		GameClient.room = room;
 		GameClient.isOwner = isHost;
 		GameClient.address = address;
+		GameClient.rpcClientRoomID = Md5.encode(FlxG.random.int(0, 1000000).hex());
 		clearOnMessage();
 
 		GameClient.room.onError += (id:Int, e:String) -> {
@@ -178,6 +187,7 @@ class GameClient {
 			GameClient.room = null;
 			GameClient.isOwner = false;
 			GameClient.address = null;
+			GameClient.rpcClientRoomID = null;
 
 			//Downloader.cancelAll();
         });
@@ -219,6 +229,12 @@ class GameClient {
 				#end
 			});
 		});
+
+		#if desktop
+		GameClient.room.state.listen("isPrivate", (value, prev) -> {
+			DiscordClient.updateOnlinePresence();
+		});
+		#end
 	}
 
 	public static function send(type:Dynamic, ?message:Null<Dynamic>) {
@@ -268,7 +284,7 @@ class GameClient {
 		});
 	}
 
-	public static function getPlayerCount(callback:(v:Null<Int>)->Void) {
+	public static function getServerPlayerCount(callback:(v:Null<Int>)->Void) {
 		Thread.run(() -> {
 			var http = new Http(addressToUrl(serverAddress) + "/api/online");
 
@@ -327,5 +343,14 @@ class GameClient {
 		if (GameClient.hasPerms()) {
 			GameClient.send("setGameplaySetting", [key, value]);
 		}
+	}
+
+	public static function getPlayerCount():Int {
+		if (!GameClient.isConnected())
+			return 0;
+
+		if (GameClient.room.state.player2 != null && GameClient.room.state.player2.name != "")
+			return 2;
+		return 1;
 	}
 }

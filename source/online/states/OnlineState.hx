@@ -77,7 +77,7 @@ class OnlineState extends MusicBeatState {
 		OnlineMods.checkMods();
 
 		#if desktop
-		DiscordClient.changePresence("In online lobby.", null, null, false);
+		DiscordClient.changePresence("In the Online Menu.", null, null, false);
 		#end
 
         var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
@@ -136,7 +136,7 @@ class OnlineState extends MusicBeatState {
 		
 		changeSelection(0);
 
-		GameClient.getPlayerCount((v) -> {
+		GameClient.getServerPlayerCount((v) -> {
 			if (v == null) {
 				playersOnline.text = "OFFLINE";
 				//thought this would look cool

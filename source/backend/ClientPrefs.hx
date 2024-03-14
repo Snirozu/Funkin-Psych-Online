@@ -73,6 +73,7 @@ class SaveVariables {
 	public var comboOffsetOP1:Array<Int> = [0, 0, 0, 0];
 	public var comboOffsetOP2:Array<Int> = [0, 0, 0, 0];
 	public var disableStrumMovement:Bool = false;
+	public var unlockFramerate:Bool = false;
 
 	public function new()
 	{
@@ -197,7 +198,10 @@ class ClientPrefs {
 		FlxG.autoPause = ClientPrefs.data.autoPause;
 		#end
 
-		if(data.framerate > FlxG.drawFramerate) {
+		if (ClientPrefs.data.unlockFramerate) {
+			FlxG.updateFramerate = 999;
+			FlxG.drawFramerate = 999;
+		} else if(data.framerate > FlxG.drawFramerate) {
 			FlxG.updateFramerate = data.framerate;
 			FlxG.drawFramerate = data.framerate;
 		} else {

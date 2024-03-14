@@ -29,6 +29,8 @@ class BananaDownload extends MusicBeatState {
 		DiscordClient.changePresence("Browsing mods on GameBanana.", null, null, false);
 		#end
 
+		GameClient.send("status", "Browsing mods on GameBanana");
+
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff46463b;
 		bg.updateHitbox();
@@ -143,7 +145,7 @@ class BananaDownload extends MusicBeatState {
 		if (!searchInput.hasFocus) {
 			if (controls.BACK) {
 				FlxG.sound.music.volume = 1;
-				MusicBeatState.switchState(new OnlineState());
+				MusicBeatState.switchState(GameClient.isConnected() ? new Room() : new OnlineState());
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 			}
 
