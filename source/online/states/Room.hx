@@ -69,17 +69,6 @@ class Room extends MusicBeatState {
 			});
 		});
 
-		GameClient.room.state.listen("isPrivate", (value, prev) -> {
-			#if desktop
-			if (value) {
-				DiscordClient.changePresence("In a online room.", "Private room.", null, false);
-			}
-			else {
-				DiscordClient.changePresence("In a online room.", "Public room: " + GameClient.getRoomSecret(), null, false);
-			}
-			#end
-		});
-
 		playMusic((GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).hasSong);
 		(GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).listen("hasSong", (value:Bool, prev) -> {
 			Waiter.put(() -> {
@@ -151,6 +140,10 @@ class Room extends MusicBeatState {
 
 	override function create() {
 		super.create();
+
+		#if desktop
+		DiscordClient.changePresence("In the Lobby", null, null, false);
+		#end
 
 		WeekData.reloadWeekFiles(false);
 		for (i in 0...WeekData.weeksList.length) {
@@ -498,12 +491,7 @@ class Room extends MusicBeatState {
 
 		if (elapsedShit >= 3) {
 			elapsedShit = 0;
-			if (GameClient.room.state.isPrivate) {
-				DiscordClient.changePresence("In a online room.", "Private room.", null, false);
-			}
-			else {
-				DiscordClient.changePresence("In a online room.", "Public room: " + GameClient.getRoomSecret(), null, false);
-			}
+			DiscordClient.updateOnlinePresence();
 		}
 		#end
 
@@ -639,7 +627,10 @@ class Room extends MusicBeatState {
 							optionShake = FlxTween.shake(songName, 0.05, 0.3, FlxAxes.X);
 						}
 					case 5:
-						verifyDownloadMod();
+						if (verifyDownloadMod()) {
+							GameClient.clearOnMessage();
+							MusicBeatState.switchState(new BananaDownload());
+						}
 				}
 			}
 
@@ -665,25 +656,33 @@ class Room extends MusicBeatState {
 		try {
 			if (GameClient.room.state.song == "") {
 				if (ignoreAlert)
-					return;
+					return false;
+
+				if (GameClient.hasPerms())
+					return true;
+
 				Alert.alert("Song isn't selected!");
 				var sond = FlxG.sound.play(Paths.sound('badnoise' + FlxG.random.int(1, 3)));
 				sond.pitch = 1.1;
 				if (optionShake != null)
 					optionShake.cancel();
 				optionShake = FlxTween.shake(verifyMod, 0.05, 0.3, FlxAxes.X);
-				return;
+				return false;
 			}
 			if (getSelfPlayer().hasSong) {
 				if (ignoreAlert)
-					return;
+					return false;
+
+				if (GameClient.hasPerms())
+					return true;
+
 				Alert.alert("You already have this song installed!");
 				var sond = FlxG.sound.play(Paths.sound('badnoise' + FlxG.random.int(1, 3)));
 				sond.pitch = 1.1;
 				if (optionShake != null)
 					optionShake.cancel();
 				optionShake = FlxTween.shake(verifyMod, 0.05, 0.3, FlxAxes.X);
-				return;
+				return false;
 			}
 
 			if (Mods.getModDirectories().contains(GameClient.room.state.modDir) || GameClient.room.state.modDir == "") {
@@ -693,7 +692,7 @@ class Room extends MusicBeatState {
 				}
 				catch (exc) {
 				}
-				return;
+				return false;
 			}
 
 			if (GameClient.room.state.modDir != null && GameClient.room.state.modURL != null && GameClient.room.state.modURL != "") {
@@ -721,12 +720,13 @@ class Room extends MusicBeatState {
 				if (optionShake != null)
 					optionShake.cancel();
 				optionShake = FlxTween.shake(verifyMod, 0.05, 0.3, FlxAxes.X);
-				return;
 			}
 		}
 		catch (exc) {
 			Sys.println(exc);
 		}
+
+		return false;
 	}
 
     function updateTexts() {

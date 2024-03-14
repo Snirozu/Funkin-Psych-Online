@@ -5,7 +5,7 @@ import online.states.ResultsScreen;
 @:build(online.Macros.getSetForwarder())
 class FunkinPoints {
 	@:forwardField(FlxG.save.data.funkinPointsv1, 0)
-	public static var funkinPoints(get, null):Float;
+	public static var funkinPoints(get, set):Float;
 
     public static function calcFP(accuracy:Float, misses:Float, noteDensity:Float, notesHit:Float, combo:Float, songSpeed:Float):Float {
         if (accuracy <= 0)
