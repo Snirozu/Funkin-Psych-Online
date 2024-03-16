@@ -859,8 +859,7 @@ class PlayState extends MusicBeatState
 	}
 
 	public function addTextToDebug(text:String, color:FlxColor) {
-		if (!chartingMode) {
-			Sys.println("SILENT DEBUG PRINT: " + text);
+		if (!ClientPrefs.isDebug()) {
 			return;
 		}
 
@@ -3668,9 +3667,10 @@ class PlayState extends MusicBeatState
 
 					newScript.destroy();
 					hscriptArray.remove(newScript);
-					trace('failed to initialize sscript interp!!! ($file)');
+					if (ClientPrefs.isDebug())
+						trace('failed to initialize sscript interp!!! ($file)');
 				}
-				else trace('initialized sscript interp successfully: $file');
+				else if (ClientPrefs.isDebug()) trace('initialized sscript interp successfully: $file');
 			}
 			
 		}

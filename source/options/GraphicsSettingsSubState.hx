@@ -47,12 +47,14 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 		#if !html5 //Apparently other framerates isn't correctly supported on Browser? Probably it has some V-Sync shit enabled by default, idk
 
-		var option:Option = new Option('Unlock FPS', //Name
-			"If checked, the FPS timer will be set to 999 (this can't be infinite for obvious reasons)", //Description
-			'unlockFramerate',
-			'bool');
-		option.onChange = onChangeFramerate;
-		addOption(option);
+		if (ClientPrefs.data.debugMode) {
+			var option:Option = new Option('Unlock FPS', //Name
+				"If checked, the FPS timer will be set to 999 (this can't be infinite for obvious reasons)", //Description
+				'unlockFramerate',
+				'bool');
+			option.onChange = onChangeFramerate;
+			addOption(option);
+		}
 
 		var option:Option = new Option('Framerate',
 			"Pretty self explanatory, isn't it?",

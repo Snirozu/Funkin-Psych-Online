@@ -221,7 +221,7 @@ class Main extends Sprite
 			FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${e.error}')}&body=${StringTools.urlEncode(daError)}');
 		});
 		#else
-		Application.current.window.alert(errMsg, "Uncaught Exception!");
+		Application.current.window.alert(alertMsg, "Uncaught Exception!");
 		#end
 		Sys.exit(1);
 	}

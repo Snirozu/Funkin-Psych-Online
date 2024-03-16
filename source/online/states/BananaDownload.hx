@@ -105,18 +105,29 @@ class BananaDownload extends MusicBeatState {
 
 		LoadingScreen.toggle(true);
 
-		var search = searchInput.text == "" ? null : searchInput.text;
-
+		var query = "";
+		var order:String = null;
+		for (word in searchInput.text.split(" ")) {
+			if (word.startsWith("sort:"))
+				order = word.substr("sort:".length);
+			else
+				query += word + " ";
+		}
+		query = query.trim() == "" ? null : query.trim();
+		
 		var newPage = page + value;
-		if (search != null && newSearch) {
+		if (query != null && newSearch) {
 			newPage = 1;
 		}
 
-		GameBanana.searchMods(search, newPage, (mods, err) -> {
+		GameBanana.searchMods(query, newPage, order, (mods, err) -> {
 			LoadingScreen.toggle(false);
 			
 			if (destroyed)
 				return;
+
+			if (mods == null)
+				err = "Mods not found!";
 			
 			if (err != null) {
 				pageInfo.text = "Error: " + err;
@@ -147,6 +158,7 @@ class BananaDownload extends MusicBeatState {
 				FlxG.sound.music.volume = 1;
 				MusicBeatState.switchState(GameClient.isConnected() ? new Room() : new OnlineState());
 				FlxG.sound.play(Paths.sound('cancelMenu'));
+				LoadingScreen.loading = false;
 			}
 
 			if (!LoadingScreen.loading) {
@@ -293,23 +305,21 @@ class ModItem extends FlxSpriteGroup {
 
 		thumb = new FlxSprite();
 		thumb.clipRect = new FlxRect(0, 0, 220, 125);
-		thumb.makeGraphic(mod._aPreviewMedia._aImages[0]._wFile220, mod._aPreviewMedia._aImages[0]._hFile220, FlxColor.BLACK);
+		thumb.makeGraphic(220, 125, FlxColor.BLACK);
 		add(thumb);
 
-		loadScreenshot();
+		loadScreenshot(0);
 
 		var categoryNameBg = new FlxSprite();
 		categoryNameBg.makeGraphic(1, 1, FlxColor.BLACK);
 		categoryNameBg.alpha = 0.7;
+		categoryNameBg.visible = false;
 		add(categoryNameBg);
 
-		var categoryName = new FlxText(5, 5, bg.width, mod._aRootCategory._sName);
+		var categoryName = new FlxText(5, 5, 0, mod._aRootCategory._sName);
 		categoryName.setFormat("VCR OSD Mono", 15, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		categoryName.visible = false;
 		add(categoryName);
-
-		categoryNameBg.scale.set(categoryName.textField.textWidth, categoryName.textField.textHeight);
-		categoryNameBg.updateHitbox();
-		categoryNameBg.setPosition(categoryName.x, categoryName.y);
 
 		var category = new FlxSprite();
 		category.visible = false;
@@ -319,13 +329,23 @@ class ModItem extends FlxSpriteGroup {
 			if (!exists)
 				return;
 
-			if (err != null)
-				return;
+			categoryName.visible = true;
+			categoryNameBg.visible = true;
 
-			category.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes)));
-			category.x = bg.x + bg.width - category.width; // bg.x is needed for some reason
-			categoryName.fieldWidth = bg.width - category.width;
-			category.visible = true;
+			if (err == null) {
+				category.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes)));
+				category.antialiasing = ClientPrefs.data.antialiasing;
+				category.x = bg.x + bg.width - category.width; // bg.x is needed for some reason
+				category.visible = true;
+				if (categoryName.width > bg.width - 10)
+					categoryName.fieldWidth = bg.width - category.frameWidth - 20;
+			}
+			else if (categoryName.width > bg.width - 10) {
+				categoryName.fieldWidth = bg.width - 10;
+			}
+			categoryNameBg.scale.set(categoryName.width + 5, categoryName.height + 5);
+			categoryNameBg.updateHitbox();
+			categoryNameBg.setPosition(categoryName.x, categoryName.y);
 		});
 
 		var name = new FlxText(0, thumb.clipRect.height, bg.width, mod._sName);
@@ -392,7 +412,7 @@ class ModItem extends FlxSpriteGroup {
 		link.y = linkBg.y + 10;
 	}
 	
-	public var curScreenshot = 0;
+	public var curScreenshot = -1;
 	var holdTime = 0.;
 	var loadingScreenshot = true;
 	var prevSelected = false;
@@ -405,92 +425,97 @@ class ModItem extends FlxSpriteGroup {
 
 		selected = BananaDownload.curSelected == ID;
 
-		dl.visible = selected;
-		dlBg.visible = dl.visible;
-		link.visible = selected;
-		linkBg.visible = link.visible;
+		if (!ClientPrefs.data.lowQuality) {
+			if (FlxG.mouse.overlaps(dlBg))
+				dl.scale.set(FlxMath.lerp(dl.scale.x, 1.25, elapsed * 10), FlxMath.lerp(dl.scale.y, 1.25, elapsed * 10));
+			else
+				dl.scale.set(FlxMath.lerp(dl.scale.x, 1, elapsed * 10), FlxMath.lerp(dl.scale.y, 1, elapsed * 10));
 
-		if (FlxG.mouse.overlaps(dlBg))
-			dl.scale.set(FlxMath.lerp(dl.scale.x, 1.25, elapsed * 10), FlxMath.lerp(dl.scale.y, 1.25, elapsed * 10));
-		else
-			dl.scale.set(FlxMath.lerp(dl.scale.x, 1, elapsed * 10), FlxMath.lerp(dl.scale.y, 1, elapsed * 10));
+			if (FlxG.mouse.overlaps(linkBg))
+				link.scale.set(FlxMath.lerp(link.scale.x, 1.25, elapsed * 10), FlxMath.lerp(link.scale.y, 1.25, elapsed * 10));
+			else
+				link.scale.set(FlxMath.lerp(link.scale.x, 1, elapsed * 10), FlxMath.lerp(link.scale.y, 1, elapsed * 10));
 
-		if (FlxG.mouse.overlaps(linkBg))
-			link.scale.set(FlxMath.lerp(link.scale.x, 1.25, elapsed * 10), FlxMath.lerp(link.scale.y, 1.25, elapsed * 10));
-		else
-			link.scale.set(FlxMath.lerp(link.scale.x, 1, elapsed * 10), FlxMath.lerp(link.scale.y, 1, elapsed * 10));
+			if (!selected || loadingScreenshot)
+				holdTime = 0;
+			else
+				holdTime += elapsed;
 
-		if (!selected || loadingScreenshot)
-			holdTime = 0;
-		else
-			holdTime += elapsed;
-
-		if (!loadingScreenshot) {
-			if (holdTime >= 1) {
-				curScreenshot++;
-				if (curScreenshot >= mod._aPreviewMedia._aImages.length) {
-					curScreenshot = 0;
+			if (!loadingScreenshot) {
+				if (holdTime >= 1) {
+					loadScreenshot(curScreenshot + 1);
 				}
-
-				loadScreenshot();
 			}
 		}
 
 		if (prevSelected != selected) {
-			if (!selected) {
-				curScreenshot = 0;
-				loadScreenshot();
+			dl.visible = selected;
+			dlBg.visible = dl.visible;
+			link.visible = selected;
+			linkBg.visible = link.visible;
+
+			if (!ClientPrefs.data.lowQuality && !selected) {
+				loadScreenshot(0);
 			}
 		}
 		
 		prevSelected = selected;
 	}
 
-	function loadScreenshot() {
+	function loadScreenshot(index:Int) {
+		if (index >= mod._aPreviewMedia._aImages.length) {
+			index = 0;
+		}
+
 		holdTime = 0;
-		loadingScreenshot = true;
-		if (curScreenshot == 0) {
-			getImage(mod._aPreviewMedia._aImages[0]._sBaseUrl + "/" + mod._aPreviewMedia._aImages[0]._sFile220, (bytes, err) -> {
-				if (!exists)
-					return;
+		if (index != curScreenshot) {
+			loadingScreenshot = true;
+			if (index == 0) {
+				getImage(mod._aPreviewMedia._aImages[0]._sBaseUrl + "/" + mod._aPreviewMedia._aImages[0]._sFile220, (bytes, err) -> {
+					if (!exists)
+						return;
 
-				if (err != null) {
+					if (err != null) {
+						loadingScreenshot = false;
+						return;
+					}
+
+					thumb.clipRect = new FlxRect(0, 0, 220, 125);
+
+					thumb.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes), false, null, false));
+					thumb.antialiasing = ClientPrefs.data.antialiasing;
+					if (mod._aPreviewMedia._aImages[0]._hFile220 < thumb.clipRect.height) {
+						thumb.setGraphicSize(mod._aPreviewMedia._aImages[0]._wFile220, thumb.clipRect.height);
+					}
+					else {
+						thumb.setGraphicSize(mod._aPreviewMedia._aImages[0]._wFile220, mod._aPreviewMedia._aImages[0]._hFile220);
+					}
+					thumb.updateHitbox();
+
 					loadingScreenshot = false;
-					return;
-				}
+				});
+			}
+			else {
+				getImage(mod._aPreviewMedia._aImages[index]._sBaseUrl + "/" + mod._aPreviewMedia._aImages[index]._sFile, (bytes, err) -> {
+					if (!exists)
+						return;
+					if (err != null || !selected) {
+						loadingScreenshot = false;
+						return;
+					}
 
-				thumb.clipRect = new FlxRect(0, 0, 220, 125);
+					thumb.clipRect = null;
 
-				thumb.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes), false, null, false));
-				if (mod._aPreviewMedia._aImages[0]._hFile220 < thumb.clipRect.height) {
-					thumb.setGraphicSize(mod._aPreviewMedia._aImages[0]._wFile220, thumb.clipRect.height);
-				}
-				else {
-					thumb.setGraphicSize(mod._aPreviewMedia._aImages[0]._wFile220, mod._aPreviewMedia._aImages[0]._hFile220);
-				}
-				thumb.updateHitbox();
+					thumb.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes), false, null, false));
+					thumb.antialiasing = ClientPrefs.data.antialiasing;
+					thumb.setGraphicSize(220, 125);
+					thumb.updateHitbox();
 
-				loadingScreenshot = false;
-			});
-		}
-		else {
-			getImage(mod._aPreviewMedia._aImages[curScreenshot]._sBaseUrl + "/" + mod._aPreviewMedia._aImages[curScreenshot]._sFile, (bytes, err) -> {
-				if (!exists)
-					return;
-				if (err != null || !selected) {
 					loadingScreenshot = false;
-					return;
-				}
-
-				thumb.clipRect = null;
-
-				thumb.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes), false, null, false));
-				thumb.setGraphicSize(220, 125);
-				thumb.updateHitbox();
-
-				loadingScreenshot = false;
-			});
+				});
+			}
 		}
+		curScreenshot = index;
 	}
 
 	public static function getImage(url:String, response:(bytes:Bytes, err:Dynamic) -> Void) {

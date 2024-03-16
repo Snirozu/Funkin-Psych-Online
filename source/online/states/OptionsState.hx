@@ -138,7 +138,7 @@ class OptionsState extends MusicBeatState {
 						case "skin":
 							LoadingState.loadAndSwitchState(new SkinsState());
 						case "setup mods":
-							MusicBeatState.switchState(new SetupMods(Mods.getModDirectories()));
+							MusicBeatState.switchState(new SetupMods(Mods.getModDirectories(), true));
 						case "clear trusted domains":
 							ClientPrefs.data.trustedSources = ["https://gamebanana.com/"];
 							ClientPrefs.saveSettings();

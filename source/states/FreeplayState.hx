@@ -57,6 +57,8 @@ class FreeplayState extends MusicBeatState
 
 	var chatBox:ChatBox;
 
+	var listening:Bool = false;
+
 	override function create()
 	{
 		prevPauseGame = FlxG.autoPause;
@@ -235,6 +237,17 @@ class FreeplayState extends MusicBeatState
 	var holdTime:Float = 0;
 	override function update(elapsed:Float)
 	{
+		Conductor.songPosition = FlxG.sound.music.time;
+
+		if (vocals != null && vocals.playing && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > 20) {
+			vocals.time = FlxG.sound.music.time;
+		}
+
+		if (instPlaying != -1) {
+			var mult:Float = FlxMath.lerp(1, iconArray[instPlaying].scale.x, FlxMath.bound(1 - (elapsed * 9), 0, 1));
+			iconArray[instPlaying].scale.set(mult, mult);
+		}
+
 		if (FlxG.sound.music.volume < 0.7)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
@@ -354,7 +367,25 @@ class FreeplayState extends MusicBeatState
 					FlxG.sound.music.volume = 0;
 					Mods.currentModDirectory = songs[curSelected].folder;
 					var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
-					PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+					try { // why does haxe sometimes don't catch exceptions????
+						PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+					}
+					catch (exc) {
+						trace('ERROR! $exc');
+
+						var errorStr:String = exc.toString();
+						if (errorStr.startsWith('[file_contents,assets/data/'))
+							errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length - 1); // Missing chart
+						missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
+						missingText.screenCenter(Y);
+						missingText.visible = true;
+						missingTextBG.visible = true;
+						FlxG.sound.play(Paths.sound('cancelMenu'));
+
+						updateTexts(elapsed);
+					}
+					Conductor.bpm = PlayState.SONG.bpm;
+					Conductor.mapBPMChanges(PlayState.SONG);
 					if (PlayState.SONG.needsVoices)
 						vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
 					else
@@ -367,6 +398,7 @@ class FreeplayState extends MusicBeatState
 					vocals.looped = true;
 					vocals.volume = 0.7;
 					instPlaying = curSelected;
+					listening = true;
 					#end
 				}
 				catch (e) {
@@ -564,6 +596,8 @@ class FreeplayState extends MusicBeatState
 		for (i in 0...iconArray.length)
 		{
 			iconArray[i].alpha = 0.6;
+			if (i != instPlaying)
+				iconArray[i].scale.set(1, 1);
 		}
 
 		iconArray[curSelected].alpha = 1;
@@ -633,6 +667,11 @@ class FreeplayState extends MusicBeatState
 			icon.visible = icon.active = true;
 			_lastVisibles.push(i);
 		}
+	}
+
+	override function beatHit() {
+		if (instPlaying != -1 && listening)
+			iconArray[instPlaying].scale.set(1.2, 1.2);
 	}
 }
 

@@ -15,7 +15,8 @@ class HScript extends SScript
 	{
 		if(parent.hscript == null)
 		{
-			trace('initializing haxe interp for: ${parent.scriptName}');
+			if (ClientPrefs.isDebug())
+				Sys.println('Initializing hscript interp for: ${parent.scriptName}');
 			parent.hscript = new HScript(parent);
 		}
 	}
@@ -25,7 +26,8 @@ class HScript extends SScript
 		var hs:HScript = try parent.hscript catch (e) null;
 		if(hs == null)
 		{
-			trace('initializing haxe interp for: ${parent.scriptName}');
+			if (ClientPrefs.isDebug())
+				Sys.println('Initializing hscript interp for: ${parent.scriptName}');
 			parent.hscript = new HScript(parent, code);
 		}
 		else
