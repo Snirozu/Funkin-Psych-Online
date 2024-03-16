@@ -74,6 +74,7 @@ class SaveVariables {
 	public var comboOffsetOP2:Array<Int> = [0, 0, 0, 0];
 	public var disableStrumMovement:Bool = false;
 	public var unlockFramerate:Bool = false;
+	public var debugMode:Bool = false;
 
 	public function new()
 	{
@@ -271,5 +272,15 @@ class ClientPrefs {
 			FlxG.sound.volumeDownKeys = [];
 			FlxG.sound.volumeUpKeys = [];
 		}
+	}
+	public static function isDebug() {
+		#if debug
+		return true;
+		#end
+
+		if (PlayState.chartingMode)
+			return true;
+		
+		return data.debugMode;
 	}
 }

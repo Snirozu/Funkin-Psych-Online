@@ -152,6 +152,12 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Debug Mode',
+			"If checked, enables debug warnings etc.",
+			'debugMode',
+			'bool');
+		addOption(option);
+
 		super();
 		add(notes);
 	}

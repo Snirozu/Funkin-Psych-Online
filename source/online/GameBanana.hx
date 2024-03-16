@@ -79,10 +79,10 @@ typedef DownloadPage = {
 }
 
 class GameBanana {
-	public static function searchMods(?search:String, page:Int, response:(mods:Array<GBSub>, err:Dynamic) -> Void) {
+	public static function searchMods(?search:String, page:Int, ?sortOrder:String = "default", response:(mods:Array<GBSub>, err:Dynamic) -> Void) {
 		Thread.run(() -> {
 			var http = new Http(
-			'https://gamebanana.com/apiv11/Game/8694/Subfeed?_nPage=${page}&_sSort=default&_csvModelInclusions=Mod' + (search != null ? '&_sName=$search' : '')
+			'https://gamebanana.com/apiv11/Game/8694/Subfeed?_nPage=${page}&_sSort=${sortOrder}&_csvModelInclusions=Mod' + (search != null ? '&_sName=$search' : '')
 			);
 
 			http.onData = function(data:String) {

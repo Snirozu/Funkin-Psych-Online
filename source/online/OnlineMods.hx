@@ -29,7 +29,7 @@ class OnlineMods {
 		}
 
 		if (needMods.length > 0) {
-			MusicBeatState.switchState(new SetupMods(needMods));
+			MusicBeatState.switchState(new SetupMods(needMods, false));
 			return true;
 		}
 		return false;
@@ -271,19 +271,22 @@ class OnlineMods {
 			// 	}
 			// }
 			FileUtils.forEachFile(Paths.mods(modName + "/data/"), (path) -> {
-				if (path.endsWith(".json")) {
-					var spath = path.split("/");
-					if (vanillaSongs.contains(spath[spath.length - 2].toLowerCase()))
-						return;
+				try {
+					if (path.endsWith(".json")) {
+						var spath = path.split("/");
+						if (vanillaSongs.contains(spath[spath.length - 2].toLowerCase()))
+							return;
 
-					var preDiff = spath[spath.length - 1].substr(spath[spath.length - 2].length);
-					preDiff = preDiff.substring(0, preDiff.length - ".json".length);
+						var preDiff = spath[spath.length - 1].substr(spath[spath.length - 2].length);
+						preDiff = preDiff.substring(0, preDiff.length - ".json".length);
 
-					if (!songsToAdd.contains(spath[spath.length - 2]))
-						songsToAdd.push(spath[spath.length - 2]);
-					if (!diffsToAdd.contains(preDiff))
-						diffsToAdd.push(preDiff);
+						if (!songsToAdd.contains(spath[spath.length - 2]))
+							songsToAdd.push(spath[spath.length - 2]);
+						if (!diffsToAdd.contains(preDiff))
+							diffsToAdd.push(preDiff);
+					}
 				}
+				catch (exc) {}
 			});
 			var _normalIndex = -1;
 			if ((_normalIndex = diffsToAdd.indexOf("normal")) != -1) {
@@ -295,13 +298,16 @@ class OnlineMods {
 			}
 			
 			FileUtils.forEachFile(Paths.mods(modName + "/weeks/"), (path) -> {
-				if (path.endsWith(".json")) {
-					var json = Json.parse(File.getContent(path));
-					var songs:Array<Array<Dynamic>> = json.songs;
-					for (song in songs) {
-						songsToAdd.remove(song[0]);
+				try {
+					if (path.endsWith(".json")) {
+						var json = Json.parse(File.getContent(path));
+						var songs:Array<Array<Dynamic>> = json.songs;
+						for (song in songs) {
+							songsToAdd.remove(song[0]);
+						}
 					}
 				}
+				catch (exc) {}
 			});
 
 			FileUtils.readAndSave(Paths.mods(modName + "/weeks/auto_gen_week_" + modName.replace("/", "") + ".json"), text -> {

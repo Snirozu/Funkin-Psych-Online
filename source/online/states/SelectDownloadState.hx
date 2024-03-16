@@ -35,6 +35,8 @@ class SelectDownloadState extends MusicBeatSubstate {
 		this.downloads = downloads;
     }
 
+	var bg:FlxSprite;
+
 	override function create() {
 		super.create();
 
@@ -57,7 +59,7 @@ class SelectDownloadState extends MusicBeatSubstate {
 		preBg.scrollFactor.set(0, 0);
 		add(preBg);
 
-		var bg = new FlxSprite();
+		bg = new FlxSprite();
 		bg.makeGraphic(700, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0.4;
 		bg.scrollFactor.set(0, 0);
@@ -124,7 +126,7 @@ class SelectDownloadState extends MusicBeatSubstate {
 		else if (controls.UI_DOWN_P)
 			selected++;
 
-		if (controls.BACK) {
+		if (controls.BACK || (FlxG.mouse.justPressed && !FlxG.mouse.overlaps(bg, camera))) {
 			close();
 		}
 

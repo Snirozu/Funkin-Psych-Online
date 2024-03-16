@@ -1,5 +1,6 @@
 package online;
 
+import haxe.CallStack;
 import haxe.io.Path;
 import online.states.RequestState;
 import sys.io.File;
@@ -73,7 +74,7 @@ class Downloader {
 			catch (exc) {
 				if (!cancelRequested) {
 					Waiter.put(() -> {
-						Alert.alert('Downloading failed!', id + ': ' + exc);
+						Alert.alert('Uncaught Download Error!', id + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
 					});
 				}
 				doCancel();
@@ -105,6 +106,14 @@ class Downloader {
 		isConnected = true;
 
 		var urlFormat = getURLFormat(url);
+		var headers:String = "";
+		headers += '\nHost: ${urlFormat.domain}:${urlFormat.port}';
+		headers += '\nUser-Agent: haxe';
+		if (requestHeaders != null) {
+			for (key => value in requestHeaders) {
+				headers += '\n$key: $value';
+			}
+		}
 
 		socket = !urlFormat.isSSL ? new Socket() : new sys.ssl.Socket();
 		socket.setTimeout(5);
@@ -115,59 +124,34 @@ class Downloader {
 
 			try {
 				socket.connect(new Host(urlFormat.domain), urlFormat.port);
+
+				socket.write('GET ${urlFormat.path} HTTP/1.1${headers}\n\n');
+
+				var httpStatus:String = null;
+				httpStatus = socket.input.readLine();
+				httpStatus = httpStatus.substr(httpStatus.indexOf(" ")).ltrim();
+
+				if (httpStatus == null || httpStatus.startsWith("4") || httpStatus.startsWith("5")) {
+					Waiter.put(() -> {
+						Alert.alert('Server doesn\'t have this mod!', httpStatus);
+					});
+					cancelRequested = true;
+				}
 				break;
 			}
 			catch (exc) {
 				if (tries >= 5) {
 					Waiter.put(() -> {
-						Alert.alert('Couldn\'t connect to the server after multiple tries!', id + ': ' + exc);
+						Alert.alert('Couldn\'t connect to the server after multiple tries!', '${urlFormat.domain + urlFormat.path}' + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
 					});
 					cancelRequested = true;
 					break;
 				}
+				Sys.sleep(1);
 			}
 		}
 
 		if (cancelRequested) {
-			doCancel();
-			return;
-		}
-
-		var headers:String = "";
-		headers += '\nHost: ${urlFormat.domain}:${urlFormat.port}';
-		headers += '\nUser-Agent: haxe';
-		if (requestHeaders != null) {
-			for (key => value in requestHeaders) {
-				headers += '\n$key: $value';
-			}
-		}
-
-		socket.write('GET ${urlFormat.path} HTTP/1.1${headers}\n\n');
-
-		var httpStatus:String = null;
-		try {
-			httpStatus = socket.input.readLine();
-			httpStatus = httpStatus.substr(httpStatus.indexOf(" ")).ltrim();
-		}
-		catch (exc) {
-			if (!cancelRequested) {
-				Waiter.put(() -> {
-					Alert.alert('Downloading failed, try again!', exc.toString());
-				});
-			}
-			doCancel();
-			return;
-		}
-		if (cancelRequested) {
-			doCancel();
-			return;
-		}
-		if (httpStatus.startsWith("4") || httpStatus.startsWith("5")) {
-			if (!cancelRequested) {
-				Waiter.put(() -> {
-					Alert.alert('Downloading failed!', httpStatus);
-				});
-			}
 			doCancel();
 			return;
 		}
@@ -200,7 +184,7 @@ class Downloader {
 		else {
 			if (!cancelRequested) {
 				Waiter.put(() -> {
-					Alert.alert('Downloading failed!', "Host didn't specified the byte length");
+					Alert.alert('Downloading failed!', "Host didn't specify the byte length");
 				});
 			}
 			doCancel();
@@ -314,11 +298,14 @@ class Downloader {
 
 	function doCancel(?callOnFinished:Bool = false) {
 		Sys.println('Download $id cancelled!');
-		if (socket != null)
-			socket.close();
-		socket = null;
-		if (file != null)
-			file.close();
+		try {
+			if (socket != null)
+				socket.close();
+			socket = null;
+			if (file != null)
+				file.close();
+		}
+		catch (exc) {}
 		if (callOnFinished) {
 			isInstalling = true;
 			onFinished(downloadPath, this);

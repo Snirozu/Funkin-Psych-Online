@@ -6,10 +6,11 @@ import openfl.events.KeyboardEvent;
 class SetupMods extends MusicBeatState {
 	var items:FlxTypedSpriteGroup<FlxText>;
 
-    public function new(mods:Array<String>) {
+    public function new(mods:Array<String>, fromOptions:Bool) {
         super();
 
         swagMods = mods;
+		this.fromOptions = fromOptions;
     }
 
 	var swagMods:Array<String> = [];
@@ -19,6 +20,8 @@ class SetupMods extends MusicBeatState {
     var modsInput:Array<String> = [];
 
 	var selectLine:FlxSprite;
+	
+	var fromOptions:Bool = false;
 
     override function create() {
         super.create();
@@ -114,7 +117,7 @@ class SetupMods extends MusicBeatState {
                     i++;
                 }
 
-				MusicBeatState.switchState(new OptionsState());
+				MusicBeatState.switchState(fromOptions ? new OptionsState() : new OnlineState());
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			}

@@ -559,7 +559,8 @@ class FunkinLua {
 						if(luaInstance.scriptName == foundScript)
 						{
 							luaInstance.stop();
-							trace('Closing script ' + luaInstance.scriptName);
+							if (ClientPrefs.isDebug())
+								Sys.println('Lua: Closing script ' + luaInstance.scriptName);
 							return true;
 						}
 			}
@@ -1585,7 +1586,8 @@ class FunkinLua {
 		
 		addLocalCallback("close", function() {
 			closed = true;
-			trace('Closing script $scriptName');
+			if (ClientPrefs.isDebug())
+				Sys.println('Lua: Closing script $scriptName');
 			return closed;
 		});
 
@@ -1602,20 +1604,23 @@ class FunkinLua {
 			var result:Dynamic = LuaL.dofile(lua, scriptName);
 			var resultStr:String = Lua.tostring(lua, result);
 			if(resultStr != null && result != 0) {
-				trace(resultStr);
-				#if desktop
-				lime.app.Application.current.window.alert(resultStr, 'Error on lua script!');
-				#else
-				luaTrace('$scriptName\n$resultStr', true, false, FlxColor.RED);
-				#end
+				if (ClientPrefs.isDebug()) {
+					Sys.println("Lua: " + resultStr);
+					#if desktop
+					lime.app.Application.current.window.alert(resultStr, 'Error on lua script!');
+					#else
+					luaTrace('$scriptName\n$resultStr', true, false, FlxColor.RED);
+					#end
+				}
 				lua = null;
 				return;
 			}
 		} catch(e:Dynamic) {
-			trace(e);
+			Sys.println("Lua: " + e);
 			return;
 		}
-		trace('lua file loaded succesfully:' + scriptName);
+		if (ClientPrefs.isDebug())
+			Sys.println('Lua file loaded succesfully:' + scriptName);
 
 		call('onCreate', []);
 		#end
@@ -1663,7 +1668,7 @@ class FunkinLua {
 			return result;
 		}
 		catch (e:Dynamic) {
-			trace(e);
+			Sys.println("Lua: " + e);
 		}
 		#end
 		return Function_Continue;
@@ -1743,13 +1748,16 @@ class FunkinLua {
 	}
 	
 	public static function luaTrace(text:String, ignoreCheck:Bool = false, deprecated:Bool = false, color:FlxColor = FlxColor.WHITE) {
+		if (!ClientPrefs.isDebug())
+			return;
+
 		#if LUA_ALLOWED
 		if(ignoreCheck || getBool('luaDebugMode')) {
 			if(deprecated && !getBool('luaDeprecatedWarnings')) {
 				return;
 			}
 			PlayState.instance.addTextToDebug(text, color);
-			trace(text);
+			Sys.println("Lua: " + text);
 		}
 		#end
 	}

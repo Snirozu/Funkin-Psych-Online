@@ -25,7 +25,7 @@ class Alert extends Sprite {
 
 		text = new TextField();
 		text.selectable = false;
-		text.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 20, 0xFFFFFFFF);
+		text.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 18, 0xFFFFFFFF);
 		text.multiline = true;
 		text.wordWrap = true;
 		text.width = FlxG.width - 100;
