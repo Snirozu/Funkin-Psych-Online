@@ -1,5 +1,8 @@
 package;
 
+import states.MainMenuState;
+import externs.WinAPI;
+import haxe.Exception;
 import flixel.graphics.FlxGraphic;
 
 import flixel.FlxGame;
@@ -160,6 +163,7 @@ class Main extends Sprite
 		
 		//for some reason only cancels 2 downloads
 		Lib.application.window.onClose.add(() -> {
+			DiscordClient.shutdown();
 			online.Downloader.cancelAll();
 			online.Downloader.checkDeleteDlDir();
 		});
@@ -183,12 +187,11 @@ class Main extends Sprite
 		}
 	}
 
-	// Code was entirely made by sqirra-rng for their fnf engine named "Izzy Engine", big props to them!!!
-	// very cool person for real they don't get enough credit for their work
 	#if CRASH_HANDLER
 	function onCrash(e:UncaughtErrorEvent):Void
 	{
-		var errMsg:String = "";
+		var alertMsg:String = "";
+		var daError:String = "";
 		var path:String;
 		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
 		var dateNow:String = Date.now().toString();
@@ -198,29 +201,28 @@ class Main extends Sprite
 
 		path = "./crash/" + "PsychEngine_" + dateNow + ".txt";
 
-		for (stackItem in callStack)
-		{
-			switch (stackItem)
-			{
-				case FilePos(s, file, line, column):
-					errMsg += file + " (line " + line + ")\n";
-				default:
-					Sys.println(stackItem);
-			}
-		}
+		alertMsg += e.error + "\n";
+		daError += CallStack.toString(callStack) + "\n";
+		if (e.error is Exception)
+			daError += cast(e.error, Exception).stack.toString() + "\n";
+		alertMsg += daError;
 
-		errMsg += "\nUncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/Snirozu/Funkin-Psych-Online\n\n> Crash Handler written by: sqirra-rng";
+		Sys.println(alertMsg);
 
 		if (!FileSystem.exists("./crash/"))
 			FileSystem.createDirectory("./crash/");
-
-		File.saveContent(path, errMsg + "\n");
-
-		Sys.println(errMsg);
+		File.saveContent(path, alertMsg + "\n");
 		Sys.println("Crash dump saved in " + Path.normalize(path));
-
-		Application.current.window.alert(errMsg, "Error!");
-		DiscordClient.shutdown();
+		
+		#if windows
+		alertMsg += "\nDo you wish to report this error on GitHub?";
+		WinAPI.alert("Uncaught Exception!", alertMsg, () -> {
+			daError += "\nVersion: " + MainMenuState.psychOnlineVersion;
+			FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${e.error}')}&body=${StringTools.urlEncode(daError)}');
+		});
+		#else
+		Application.current.window.alert(errMsg, "Uncaught Exception!");
+		#end
 		Sys.exit(1);
 	}
 	#end
