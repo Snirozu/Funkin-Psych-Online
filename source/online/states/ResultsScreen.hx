@@ -67,6 +67,11 @@ class ResultsScreen extends MusicBeatState {
 		p2.y = p2.positionArray[1] - 50;
 		add(p2);
 
+		p1.dance();
+		p1.animation.finish();
+		p2.dance();
+		p2.animation.finish();
+
 		var p1Bg = new FlxSprite();
 		p1Bg.makeGraphic(1, 1, FlxColor.BLACK);
 		p1Bg.alpha = 0.0;
@@ -137,6 +142,7 @@ class ResultsScreen extends MusicBeatState {
 		add(gainedText);
 
 		if (!GameClient.isConnected()) {
+			GameClient.clearOnMessage();
 			MusicBeatState.switchState(new OnlineState());
 			return;
 		}
@@ -254,6 +260,15 @@ class ResultsScreen extends MusicBeatState {
 		});
 
 		GameClient.send("status", "Viewing results");
+
+		GameClient.room.onMessage("charPlay", function(message:Array<Dynamic>) {
+			Waiter.put(() -> {
+				if (message == null || message[0] == null)
+					return;
+
+				(GameClient.isOwner ? p2 : p1).playAnim(message[0], true);
+			});
+		});
     }
 
 	function flickerLoop() {
@@ -272,7 +287,7 @@ class ResultsScreen extends MusicBeatState {
 			if (back.animation.curAnim.name != "press")
 				back.animation.play('idle');
 
-			if (!chatBox.focused && (!FlxG.keys.justPressed.TAB && controls.ACCEPT || controls.BACK || FlxG.keys.justPressed.BACKSPACE)) {
+			if (!chatBox.focused && (!FlxG.keys.justPressed.TAB && controls.BACK || FlxG.keys.justPressed.BACKSPACE || FlxG.keys.justPressed.ENTER)) {
 				FlxG.sound.music.stop();
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 
@@ -286,6 +301,12 @@ class ResultsScreen extends MusicBeatState {
 					MusicBeatState.switchState(new Room());
                 });
             }
+
+			if (!chatBox.focused && controls.TAUNT) {
+				(GameClient.isOwner ? p1 : p2).playAnim('taunt', true);
+				if (GameClient.isConnected())
+					GameClient.send("charPlay", ["taunt"]);
+			}
         }
         else {
 			if (back.animation.curAnim.name != "press")

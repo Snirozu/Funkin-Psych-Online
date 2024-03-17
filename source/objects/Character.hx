@@ -221,7 +221,7 @@ class Character extends FlxSprite
 		{
 			if(heyTimer > 0)
 			{
-				heyTimer -= elapsed * PlayState.instance.playbackRate;
+				heyTimer -= elapsed * (PlayState.instance?.playbackRate ?? 1);
 				if(heyTimer <= 0)
 				{
 					if(specialAnim && animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer')
@@ -308,6 +308,13 @@ class Character extends FlxSprite
 		colorTransform.greenMultiplier = 1;
 		colorTransform.blueMultiplier = 1;
 
+		specialAnim = false;
+
+		if (AnimName == "taunt") {
+			specialAnim = true;
+			heyTimer = 1;
+		}
+
 		@:privateAccess
 		if (animation._animations.get(AnimName) == null) {
 			if (AnimName.endsWith("-alt")) {
@@ -320,9 +327,20 @@ class Character extends FlxSprite
 				colorTransform.greenMultiplier = 0.3;
 				colorTransform.blueMultiplier = 0.5;
 			}
+
+			if (AnimName == "taunt") {
+				AnimName = "hey";
+			}
+
+			if (animation._animations.get(AnimName) == null) {
+				if (AnimName == "hey") {
+					specialAnim = false;
+					heyTimer = 0;
+				}
+				return;
+			}
 		}
 
-		specialAnim = false;
 		animation.play(AnimName, Force, Reversed, Frame);
 
 		var daOffset = animOffsets.get(AnimName);

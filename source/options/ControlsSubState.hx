@@ -29,6 +29,7 @@ class ControlsSubState extends MusicBeatSubstate
 		[true, 'Up', 'ui_up', 'UI Up'],
 		[true, 'Right', 'ui_right', 'UI Right'],
 		[true],
+		[true, 'Taunt', 'taunt', 'Taunt'],
 		[true, 'Reset', 'reset', 'Reset'],
 		[true, 'Accept', 'accept', 'Accept'],
 		[true, 'Back', 'back', 'Back'],

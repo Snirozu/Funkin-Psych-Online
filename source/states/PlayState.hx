@@ -1981,13 +1981,19 @@ class PlayState extends MusicBeatState
 		}
 		#end
 
+		if (controls.TAUNT && canInput()) {
+			getPlayer().playAnim('taunt', true);
+			if (GameClient.isConnected())
+				GameClient.send("charPlay", ["taunt"]);
+		}
+
 		if (GameClient.isConnected()) {
 			//if player 2 left then go back to lobby
 			if (GameClient.room.state.player2.name == "") {
 				endSong();
 			}
 
-			if (!isReady && controls.ACCEPT) {
+			if (!isReady && controls.ACCEPT && canInput()) {
 				isReady = true;
 				FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
 				if (ClientPrefs.data.flashing)
@@ -4296,12 +4302,12 @@ class PlayState extends MusicBeatState
 
 		GameClient.room.onMessage("charPlay", function(message:Array<Dynamic>) {
 			Waiter.put(() -> {
-				if (message == null || message[0] == null || message[1] == null)
+				if (message == null || message[0] == null)
 					return;
 
-				if (message[1] && gf != null)
+				if (message[1] ?? false && gf != null)
 					gf.playAnim(message[0], true);
-				else if (!message[1] && getOpponent() != null)
+				else if (!(message[1] ?? false) && getOpponent() != null)
 					getOpponent().playAnim(message[0], true);
 			});
 		});
