@@ -110,6 +110,12 @@ class GameClient {
 			if (onJoin != null)
 				onJoin(null);
 		});
+
+		//maybe just make it global
+		//if (address.contains(".onrender.com")) {
+		//	trace("onrender server detected");
+		Waiter.pingServer = address;
+		//}
 	}
 
 	public static function reconnect(?nextTry:Bool = false) {
@@ -163,6 +169,8 @@ class GameClient {
 	}
 
 	public static function leaveRoom(?reason:String = null) {
+		Waiter.pingServer = null;
+
 		if (!isConnected())
 			return;
 		
@@ -284,24 +292,29 @@ class GameClient {
 		});
 	}
 
-	public static function getServerPlayerCount(callback:(v:Null<Int>)->Void) {
+	public static function getServerPlayerCount(?address:String, ?callback:(v:Null<Int>)->Void) {
+		if (address == null)
+			address = serverAddress;
+
 		Thread.run(() -> {
-			var http = new Http(addressToUrl(serverAddress) + "/api/online");
+			var http = new Http(addressToUrl(address) + "/api/online");
 
 			http.onData = function(data:String) {
-				Waiter.put(() -> {
-					callback(Std.parseInt(data));
-				});
+				if (callback != null)
+					Waiter.put(() -> {
+						callback(Std.parseInt(data));
+					});
 			}
 
 			http.onError = function(error) {
-				Waiter.put(() -> {
-					callback(null);
-				});
+				if (callback != null)
+					Waiter.put(() -> {
+						callback(null);
+					});
 			}
 
 			http.request();
-		});
+		}, _ -> {});
 	}
 
 	private static var ratingsData:Array<Rating> = Rating.loadDefault(); // from PlayState
