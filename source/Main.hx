@@ -163,7 +163,9 @@ class Main extends Sprite
 		
 		//for some reason only cancels 2 downloads
 		Lib.application.window.onClose.add(() -> {
+			#if windows
 			DiscordClient.shutdown();
+			#end
 			online.Downloader.cancelAll();
 			online.Downloader.checkDeleteDlDir();
 		});

@@ -37,7 +37,7 @@ class SkinsState extends MusicBeatState {
 		CustomFadeTransition.nextCamera = hud;
 		characterCamera.bgColor.alpha = 0;
 		hud.bgColor.alpha = 0;
-		characterCamera.zoom = 0.85;
+		characterCamera.zoom = 0.8;
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff303030;
@@ -54,6 +54,8 @@ class SkinsState extends MusicBeatState {
 		// charactersMod.set(defaultName, null);
 		// charactersName.set(i, defaultName);
         // i++;
+
+		var hardList = [];
 
 		for (name in [null].concat(Mods.parseList().enabled)) {
 			var characters:String;
@@ -74,7 +76,10 @@ class SkinsState extends MusicBeatState {
                             continue;
                         }
 
-						if (FileSystem.exists(Path.join([characters, (!flipped ? character + "-player" : character.substring(0, character.length - "-player".length)) + ".json"]))) {
+						if (!hardList.contains(character) && FileSystem.exists(Path.join([characters, (!flipped ? character + "-player" : character.substring(0, character.length - "-player".length)) + ".json"]))) {
+							if (name == null)
+								hardList.push(character);
+
 							characterList.set(character, new Character(0, 0, character, flipped));
 							charactersMod.set(character, name);
 							charactersName.set(i, character);
@@ -241,8 +246,10 @@ class SkinsState extends MusicBeatState {
 			character.add(characterList.get(curCharName));
 			character.members[0].dance();
 			character.members[0].animation.finishCallback = function(name) character.members[0].dance();
-			character.members[0].screenCenter(X);
-			character.members[0].y = 670 - character.members[0].height;
+
+			character.members[0].x = 420 + character.members[0].positionArray[0];
+			character.members[0].y = -100 + character.members[0].positionArray[1];
+
 			charText.text = '< Character: $curCharName - ${charactersMod.get(charactersName.get(curCharacter)) ?? "Vanilla"} >';
 
 			curCharName = !flipped ? curCharName : curCharName.substring(0, curCharName.length - "-player".length);

@@ -6,6 +6,8 @@ import flixel.FlxState;
 
 class MusicBeatState extends FlxUIState
 {
+	private var theWorld:Bool = false;
+
 	private var curSection:Int = 0;
 	private var stepsToDo:Int = 0;
 
@@ -39,6 +41,9 @@ class MusicBeatState extends FlxUIState
 	public static var timePassedOnState:Float = 0;
 	override function update(elapsed:Float)
 	{
+		if (theWorld)
+			return super.update(elapsed);
+
 		//everyStep();
 		var oldStep:Int = curStep;
 		timePassedOnState += elapsed;

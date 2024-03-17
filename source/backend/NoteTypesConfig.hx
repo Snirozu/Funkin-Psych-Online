@@ -78,7 +78,7 @@ class NoteTypesConfig
 						obj = _propCheckArray(obj, split[i]);
 				}
 				_propCheckArray(obj, split[split.length-1], true, line.value);
-			} catch(e) trace(e);
+			} catch(e) if (ClientPrefs.isDebug()) Sys.println("Note Config: " + e);
 		}
 	}
 

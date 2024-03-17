@@ -281,7 +281,7 @@ class Paths
 		}
 
 		//STOP FUCKING USING TRACE ITS CPU HEAVY
-		if (lastImageErrorFile != file) {
+		if (lastImageErrorFile != file && ClientPrefs.isDebug()) {
 			Sys.println('Paths.image(): oh no its returning null NOOOO ($file)');
 			lastImageErrorFile = file;
 		}
