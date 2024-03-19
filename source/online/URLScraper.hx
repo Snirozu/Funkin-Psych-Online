@@ -30,4 +30,42 @@ class URLScraper {
 			http.request();
 		});
 	}
+
+	public static function getURLFormat(url:String):URLFormat {
+		var urlFormat:URLFormat = {
+			isSSL: false,
+			domain: "",
+			port: 80,
+			path: ""
+		};
+
+		if (url.startsWith("https://") || url.startsWith("wss://")) {
+			urlFormat.isSSL = true;
+			urlFormat.port = 443;
+		}
+		else if (url.startsWith("http://") || url.startsWith("ws://")) {
+			urlFormat.isSSL = false;
+			urlFormat.port = 80;
+		}
+		if (url.contains("://")) {
+			url = url.substr(url.indexOf("://") + 3);
+		}
+
+		urlFormat.domain = url.substring(0, url.indexOf("/"));
+		if (urlFormat.domain.indexOf(":") != -1) {
+			var split = urlFormat.domain.split(":");
+			urlFormat.domain = split[0];
+			urlFormat.port = Std.parseInt(split[1]) ?? urlFormat.port;
+		}
+		urlFormat.path = url.substr(url.indexOf("/"));
+
+		return urlFormat;
+	}
+}
+
+typedef URLFormat = {
+	var isSSL:Bool;
+	var domain:String;
+	var port:Int;
+	var path:String;
 }

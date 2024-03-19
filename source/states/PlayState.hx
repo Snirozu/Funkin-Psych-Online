@@ -10,6 +10,9 @@ package states;
 // "function eventEarlyTrigger" - Used for making your event start a few MILLISECONDS earlier
 // "function triggerEvent" - Called when the song hits your event's timestamp, this is probably what you were looking for
 
+import openfl.geom.Point;
+import openfl.geom.Rectangle;
+import openfl.Lib;
 import flixel.util.FlxSpriteUtil;
 import flixel.group.FlxGroup;
 import flixel.addons.util.FlxAsyncLoop;
@@ -232,6 +235,7 @@ class PlayState extends MusicBeatState
 	public var camHUD:FlxCamera;
 	public var camGame:FlxCamera;
 	public var camOther:FlxCamera;
+	public var camLoading:FlxCamera;
 	public var cameraSpeed:Float = 1;
 
 	public var songScore:Int = 0;
@@ -330,10 +334,14 @@ class PlayState extends MusicBeatState
 	var camPos:FlxPoint;
 	var asyncLoop:FlxAsyncLoop;
 	var isCreated:Bool = false;
+	var stageExists:Bool = false;
 
 	override public function create()
 	{
 		theWorld = true;
+
+		if (GameClient.isConnected())
+			Lib.application.window.resizable = false;
 
 		Paths.clearStoredMemory();
 
@@ -341,42 +349,41 @@ class PlayState extends MusicBeatState
 		camGame = new FlxCamera();
 		camHUD = new FlxCamera();
 		camOther = new FlxCamera();
+		camLoading = new FlxCamera();
 		camHUD.bgColor.alpha = 0;
 		camOther.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(camGame);
 		FlxG.cameras.add(camHUD, false);
 		FlxG.cameras.add(camOther, false);
+		FlxG.cameras.add(camLoading, false);
 		FlxG.cameras.setDefaultDrawTarget(camGame, true);
 
-		CustomFadeTransition.nextCamera = camOther;
+		CustomFadeTransition.nextCamera = camLoading;
 		camGame.bgColor = FlxColor.BLACK;
 
 		var loaderGroup = new FlxSpriteGroup();
 
-		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.TRANSPARENT);
-
 		var funkay = new FlxSprite();
-		funkay.loadGraphic(Paths.image('funkay', null, false));
-		var coolColor = funkay.pixels.getPixel32(0, 0); // HOLY FUCKING SHIT THIS TOOK ME SO LONG, FUCK GPU CACHING
-		funkay.setGraphicSize(0, FlxG.height);
-		funkay.updateHitbox();
+		var funkayGraphic = Paths.image('funkay', null, false).bitmap;
+		funkay.makeGraphic(FlxG.width, FlxG.height, funkayGraphic.getPixel32(0, 0));
+		funkayGraphic.image.resize(Std.int(funkayGraphic.image.width * (FlxG.height / funkayGraphic.image.height)), FlxG.height);
+		funkay.graphic.bitmap.copyPixels(
+			funkayGraphic, 
+			new Rectangle(0, 0, funkay.graphic.bitmap.width, funkay.graphic.bitmap.height), 
+			new Point(FlxG.width / 2 - funkayGraphic.image.width / 2, 0)
+		);
 		funkay.antialiasing = ClientPrefs.data.antialiasing;
-		funkay.screenCenter();
-
-		FlxSpriteUtil.drawRect(bg, 0, 0, funkay.x, bg.height, coolColor);
-		FlxSpriteUtil.drawRect(bg, funkay.x + funkay.width, 0, bg.width - (funkay.x + funkay.width), bg.height, coolColor);
 
 		var loadBar = new FlxSprite(0, FlxG.height - 20).makeGraphic(FlxG.width, 10, 0xFFff16d2);
 		loadBar.scale.x = 0;
 		loadBar.visible = false;
 		loadBar.screenCenter(X);
 
-		loaderGroup.add(bg);
 		loaderGroup.add(funkay);
 		loaderGroup.add(loadBar);
 
-		loaderGroup.cameras = [camOther];
+		loaderGroup.cameras = [camLoading];
 		add(loaderGroup);
 
 		var preloadTasks:Array<Void->Void> = [];
@@ -522,6 +529,9 @@ class PlayState extends MusicBeatState
 				case 'tank': new states.stages.Tank(); // Week 7 - Ugh, Guns, Stress
 			}
 
+			if (stages.length > 0)
+				stageExists = true;
+
 			if (isPixelStage) {
 				introSoundsSuffix = '-pixel';
 			}
@@ -555,17 +565,21 @@ class PlayState extends MusicBeatState
 		// STAGE SCRIPTS
 		#if LUA_ALLOWED
 		preloadTasks.push(() -> {
-			startLuasNamed('stages/' + curStage + '.lua');
+			if (startLuasNamed('stages/' + curStage + '.lua'))
+				stageExists = true;
 		});
 		#end
 
 		#if HSCRIPT_ALLOWED
 		preloadTasks.push(() -> {
-			startHScriptsNamed('stages/' + curStage + '.hx');
+			if (startHScriptsNamed('stages/' + curStage + '.hx'))
+				stageExists = true;
 		});
 		#end
 
 		preloadTasks.push(() -> {
+			oldModDir = Mods.currentModDirectory;
+
 			if (!stageData.hide_girlfriend)
 			{
 				if(SONG.gfVersion == null || SONG.gfVersion.length < 1) SONG.gfVersion = 'gf'; //Fix for the Chart Editor
@@ -578,8 +592,6 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
-			oldModDir = Mods.currentModDirectory;
-
 			Mods.currentModDirectory = "";
 
 			if (GameClient.isConnected()) {
@@ -597,8 +609,10 @@ class PlayState extends MusicBeatState
 				dad = new Character(0, 0, ClientPrefs.data.modSkin[1], !playsAsBF());
 			}
 
-			if (dad == null)
+			if (dad == null) {
+				Mods.currentModDirectory = oldModDir;
 				dad = new Character(0, 0, SONG.player2, !playsAsBF());
+			}
 			iconP2 = new HealthIcon(dad.healthIcon, false);
 			if (!playsAsBF()) {
 				dad.flipX = !dad.flipX;
@@ -628,8 +642,10 @@ class PlayState extends MusicBeatState
 				boyfriend = new Character(0, 0, ClientPrefs.data.modSkin[1] + "-player", playsAsBF());
 			}
 
-			if (boyfriend == null)
+			if (boyfriend == null) {
+				Mods.currentModDirectory = oldModDir;
 				boyfriend = new Character(0, 0, SONG.player1, playsAsBF());
+			}
 			iconP1 = new HealthIcon(boyfriend.healthIcon, true);
 			if (!playsAsBF()) {
 				boyfriend.flipX = !boyfriend.flipX;
@@ -887,6 +903,21 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
+			for (_ in modchartSprites) {
+				stageExists = true;
+				break;
+			}
+
+			if (!stageExists) {
+				Sys.println("STAGE IS EMPTY");
+				var prevLevel = Paths.currentLevel;
+				Paths.setCurrentLevel("week1");
+				new states.stages.StageWeek1();
+				Paths.setCurrentLevel(prevLevel);
+			}
+		});
+
+		preloadTasks.push(() -> {
 			cacheCountdown();
 			cachePopUpScore();
 			
@@ -940,9 +971,10 @@ class PlayState extends MusicBeatState
 			if (preloadTasks.length <= 0) {
 				isCreated = true;
 
-				FlxTween.tween(loaderGroup, {alpha: 0}, 0.5, {ease: FlxEase.circOut, onComplete: t -> {
+				FlxTween.tween(camLoading, {alpha: 0}, 0.5, {ease: FlxEase.circOut, onComplete: t -> {
 					remove(loaderGroup, true);
 					loaderGroup.destroy();
+					FlxG.cameras.remove(camLoading, true);
 				}});
 
 				startCallback();
@@ -2740,6 +2772,7 @@ class PlayState extends MusicBeatState
 			}
 
 			if (GameClient.isConnected()) {
+				Lib.application.window.resizable = true;
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				online.FunkinPoints.save(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate);
 				GameClient.clearOnMessage();
@@ -3813,12 +3846,9 @@ class PlayState extends MusicBeatState
 		{
 			var newScript:HScript = new HScript(null, file);
 			@:privateAccess
-			if(newScript.parsingExceptions != null && newScript.parsingExceptions.length > 0)
+			if(newScript.parsingException != null)
 			{
-				@:privateAccess
-				for (e in newScript.parsingExceptions)
-					if(e != null)
-						addTextToDebug('ERROR ON LOADING ($file): ${e.message.substr(0, e.message.indexOf('\n'))}', FlxColor.RED);
+				addTextToDebug('ERROR ON LOADING: ${newScript.parsingException.message}', FlxColor.RED);
 				newScript.destroy();
 				return;
 			}

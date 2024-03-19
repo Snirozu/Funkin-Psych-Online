@@ -177,7 +177,7 @@ class OnlineMods {
 			return;
 		}
 
-		var modName = parentFolder.substring(Paths.mods().length);
+		var modName = parentFolder.substring(Paths.mods().length, parentFolder.length - 1);
 
 		if (FileSystem.exists(Paths.mods(modName))) {
 			try {
@@ -225,13 +225,6 @@ class OnlineMods {
 		}
 		else if (/*(gbMod != null ? gbMod.rootCategory == "Executables" : */isExecutable) { // sometimes dum dum people put their non-exe mods to that section
 			trace("Executable mod found! Converting...");
-			if (FileSystem.exists(Paths.mods(modName + '/pack.json')))
-				File.saveContent(Paths.mods(modName + '/pack.json'), Json.stringify({
-					name: (gbMod != null ? gbMod.name : swagFileName),
-					description: (gbMod != null ? gbMod.pageDownload : ""),
-					runsGlobally: false
-				}));
-
 			for (file in FileSystem.readDirectory(Paths.mods(modName))) {
 				if (file != "assets" && file != "mods")
 					FileUtils.removeFiles(Paths.mods(modName + "/" + file));
@@ -310,7 +303,7 @@ class OnlineMods {
 				catch (exc) {}
 			});
 
-			FileUtils.readAndSave(Paths.mods(modName + "/weeks/auto_gen_week_" + modName.replace("/", "") + ".json"), text -> {
+			FileUtils.readAndSave(Paths.mods(modName + "/weeks/auto_gen_week_" + modName + ".json"), text -> {
 				var data:WeekFile = WeekData.createWeekFile();
 				data.hideStoryMode = true;
 				data.difficulties = "Easy, Normal, Hard";
@@ -328,6 +321,13 @@ class OnlineMods {
 			});
 		}
 
+		if (!FileSystem.exists(Paths.mods(modName + '/pack.json')))
+			File.saveContent(Paths.mods(modName + '/pack.json'), Json.stringify({
+				name: (gbMod != null ? gbMod.name : swagFileName),
+				description: (gbMod != null ? gbMod.pageDownload : ""),
+				runsGlobally: false
+			}));
+
 		//var modLink = (gbMod != null ? "https://gamebanana.com/mods/" + gbMod._id : modURL);
 		var modLink = modURL;
 		OnlineMods.saveModURL(modName, modLink);
@@ -335,7 +335,7 @@ class OnlineMods {
 		Waiter.put(() -> {
 			Alert.alert("Mod Installation Successful!", "Downloaded mod: " + parentFolder + "\nFrom: " + (modLink == null ? "Local Storage" : modLink));
 			if (onSuccess != null)
-				onSuccess(beginFolder);
+				onSuccess(modName);
 
 			if (modLink == null && !(FlxG.state is PlayState) && checkMods()) {
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
