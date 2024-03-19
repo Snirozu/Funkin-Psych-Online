@@ -362,7 +362,7 @@ class PlayState extends MusicBeatState
 		CustomFadeTransition.nextCamera = camLoading;
 		camGame.bgColor = FlxColor.BLACK;
 
-		var loaderGroup = new FlxSpriteGroup();
+		var loaderGroup = new FlxTypedGroup<FlxBasic>();
 
 		var funkay = new FlxSprite();
 		var funkayGraphic = Paths.image('funkay', null, false).bitmap;
@@ -980,7 +980,7 @@ class PlayState extends MusicBeatState
 				startCallback();
 			}
 		}, 1);
-		add(asyncLoop);
+		loaderGroup.add(asyncLoop);
 
 		super.create();
 	}

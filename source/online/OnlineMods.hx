@@ -177,7 +177,7 @@ class OnlineMods {
 			return;
 		}
 
-		var modName = parentFolder.substring(Paths.mods().length, parentFolder.length - 1);
+		var modName = FileUtils.formatFile(parentFolder.substring(Paths.mods().length, parentFolder.length - 1));
 
 		if (FileSystem.exists(Paths.mods(modName))) {
 			try {
@@ -333,7 +333,7 @@ class OnlineMods {
 		OnlineMods.saveModURL(modName, modLink);
 
 		Waiter.put(() -> {
-			Alert.alert("Mod Installation Successful!", "Downloaded mod: " + parentFolder + "\nFrom: " + (modLink == null ? "Local Storage" : modLink));
+			Alert.alert("Mod Installation Successful!", "Downloaded mod: " + modName + "\nFrom: " + (modLink == null ? "Local Storage" : modLink));
 			if (onSuccess != null)
 				onSuccess(modName);
 

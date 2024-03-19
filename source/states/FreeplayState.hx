@@ -367,23 +367,7 @@ class FreeplayState extends MusicBeatState
 					FlxG.sound.music.volume = 0;
 					Mods.currentModDirectory = songs[curSelected].folder;
 					var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
-					try { // why does haxe sometimes don't catch exceptions????
-						PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
-					}
-					catch (exc) {
-						trace('ERROR! $exc');
-
-						var errorStr:String = exc.toString();
-						if (errorStr.startsWith('[file_contents,assets/data/'))
-							errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length - 1); // Missing chart
-						missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
-						missingText.screenCenter(Y);
-						missingText.visible = true;
-						missingTextBG.visible = true;
-						FlxG.sound.play(Paths.sound('cancelMenu'));
-
-						updateTexts(elapsed);
-					}
+					PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
 					Conductor.bpm = PlayState.SONG.bpm;
 					Conductor.mapBPMChanges(PlayState.SONG);
 					if (PlayState.SONG.needsVoices)

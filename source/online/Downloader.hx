@@ -40,8 +40,8 @@ class Downloader {
 	public var gotContent:Float = 0;
 	
 	public function new(fileName:String, id:String, url:String, onFinished:(fileName:String, downloader:Downloader) -> Void, ?mod:GBMod, ?headers:Map<String, String>, ?ogURL:String) {
-		this.fileName = idFilter(fileName);
-		id = idFilter(id);
+		this.fileName = FileUtils.formatFile(fileName);
+		id = FileUtils.formatFile(id);
 		if (downloading.contains(id)) {
 			// Waiter.put(() -> {
 			// 	Alert.alert('Downloading failed!', 'Download ' + id + " is already being downloaded!");
@@ -109,6 +109,7 @@ class Downloader {
 		var headers:String = "";
 		headers += '\nHost: ${urlFormat.domain}:${urlFormat.port}';
 		headers += '\nUser-Agent: haxe';
+		headers += '\nConnection: close';
 		if (requestHeaders != null) {
 			for (key => value in requestHeaders) {
 				headers += '\n$key: $value';
@@ -306,20 +307,5 @@ class Downloader {
 
 	static function isLetter(char:Int) {
 		return (char >= 65 && char <= 90) || /* A-Z */ (char >= 97 && char <= 122); // a-z
-	}
-	
-	public static function idFilter(id:String):String {
-		var filtered = "";
-		var i = -1;
-		while (++i < id.length) {
-			var char = id.charCodeAt(i);
-			if (isNumber(char) || isLetter(char))
-				filtered += id.charAt(i);
-			else if (filtered.charAt(filtered.length - 1) != "-")
-				filtered += "-";
-		}
-		if (filtered.length >= 250)
-			filtered = filtered.substr(0, 250);
-		return filtered;
 	}
 }
