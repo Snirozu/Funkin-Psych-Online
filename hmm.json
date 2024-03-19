@@ -53,7 +53,7 @@
     {
       "name": "SScript",
       "type": "haxelib",
-      "version": "11.0.618"
+      "version": "17.0.618"
     },
     {
       "name": "discord_rpc",

@@ -44,6 +44,7 @@ class GameClient {
 
 			client.create("room", getOptions(true), RoomState, (err, room) -> _onJoin(err, room, true, address, onJoin));
 		}, (exc) -> {
+			onJoin(exc);
 			LoadingScreen.toggle(false);
 			Alert.alert("Failed to connect!", exc.toString());
 		});
@@ -67,6 +68,7 @@ class GameClient {
 
 			client.joinById(roomID, getOptions(false), RoomState, (err, room) -> _onJoin(err, room, false, roomAddress, onJoin));
 		}, (exc) -> {
+			onJoin(exc);
 			LoadingScreen.toggle(false);
 			Alert.alert("Failed to connect!", exc.toString());
 		});

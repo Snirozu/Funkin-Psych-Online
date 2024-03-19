@@ -105,7 +105,7 @@ class Downloader {
 	private function startDownload(url:String, ?requestHeaders:Map<String, String>) {
 		isConnected = true;
 
-		var urlFormat = getURLFormat(url);
+		var urlFormat = URLScraper.getURLFormat(url);
 		var headers:String = "";
 		headers += '\nHost: ${urlFormat.domain}:${urlFormat.port}';
 		headers += '\nUser-Agent: haxe';
@@ -184,7 +184,7 @@ class Downloader {
 		else {
 			if (!cancelRequested) {
 				Waiter.put(() -> {
-					Alert.alert('Downloading failed!', "Host didn't specify the byte length");
+					Alert.alert('Downloading failed!', "Server's response was empty!");
 				});
 			}
 			doCancel();
@@ -228,36 +228,6 @@ class Downloader {
 		isConnected = false;
 
 		doCancel(!cancelRequested);
-	}
-
-	function getURLFormat(url:String):URLFormat {
-		var urlFormat:URLFormat = {
-			isSSL: false,
-			domain: "",
-			port: 80,
-			path: ""
-		};
-
-		if (url.startsWith("https://")) {
-			urlFormat.isSSL = true;
-			urlFormat.port = 443;
-			url = url.substr("https://".length);
-		}
-		else if (url.startsWith("http://")) {
-			urlFormat.isSSL = false;
-			urlFormat.port = 80;
-			url = url.substr("http://".length);
-		}
-
-		urlFormat.domain = url.substring(0, url.indexOf("/"));
-		if (urlFormat.domain.indexOf(":") != -1) {
-			var split = urlFormat.domain.split(":");
-			urlFormat.domain = split[0];
-			urlFormat.port = Std.parseInt(split[1]);
-		}
-		urlFormat.path = url.substr(url.indexOf("/"));
-
-		return urlFormat;
 	}
 
 	public static function checkCreateDlDir() {
@@ -352,11 +322,4 @@ class Downloader {
 			filtered = filtered.substr(0, 250);
 		return filtered;
 	}
-}
-
-typedef URLFormat = {
-	var isSSL:Bool;
-	var domain:String;
-	var port:Int;
-	var path:String;
 }

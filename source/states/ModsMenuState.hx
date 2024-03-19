@@ -228,13 +228,20 @@ class ModsMenuState extends MusicBeatState
 				FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
 				return;
 			}
-			try { // not trusting this shit lol
-				FileUtils.removeFiles(haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]])); // remove the old mod (paths can change between versions)
-			} catch (exc) {
-				trace(exc);
-			}
-			OnlineMods.downloadMod(OnlineMods.getModURL(modsList[curSelected][0]));
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			var oldModName = modsList[curSelected][0];
+			OnlineMods.downloadMod(modURL, modName -> {
+				if (modName != oldModName) {
+					Sys.println("names conflict: " + modName + " to " + oldModName);
+					var list:ModsList = Mods.parseList();
+					var swagMods:Array<Dynamic> = [];
+					for (mod in list.all) swagMods.push([mod, list.enabled.contains(mod)]);
+					swagMods.remove(oldModName);
+					saveTxt(swagMods);
+					FileUtils.removeFiles(haxe.io.Path.join([Paths.mods(), oldModName]));
+				}
+				Mods.updatedOnState = false;
+				MusicBeatState.switchState(new ModsMenuState());
+			});
 		});
 		buttonVerify.setGraphicSize(170, 50);
 		buttonVerify.updateHitbox();
@@ -264,8 +271,10 @@ class ModsMenuState extends MusicBeatState
 					modsList.remove(modsList[curSelected]);
 					mods.remove(mods[curSelected]);
 
-					if(curSelected >= mods.length) --curSelected;
+					if (curSelected >= mods.length && curSelected != 0) --curSelected;
 					changeSelection();
+
+					saveTxt(modsList);
 				}
 				catch(e)
 				{
@@ -474,7 +483,7 @@ class ModsMenuState extends MusicBeatState
 		}
 	}
 
-	function saveTxt()
+	static function saveTxt(modsList:Array<Dynamic>)
 	{
 		var fileStr:String = '';
 		for (values in modsList)
@@ -505,7 +514,7 @@ class ModsMenuState extends MusicBeatState
 			}
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			FlxG.mouse.visible = false;
-			saveTxt();
+			saveTxt(modsList);
 			if(needaReset)
 			{
 				//MusicBeatState.switchState(new TitleState());
