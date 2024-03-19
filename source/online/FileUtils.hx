@@ -73,4 +73,17 @@ class FileUtils {
 	public static function readAndSave(path:String, callback:(contents:String)->String) {
 		File.saveContent(path, callback(FileSystem.exists(path) ? File.getContent(path) : null));
 	}
+
+	static final illegalCharacters = ~/[\/|\\|\?|\*|:|\||"|<|>]/;
+
+	public static function formatFile(file:String):String {
+		var filtered = "";
+		var i = -1;
+		while (++i < file.length) {
+			var char = file.charAt(i);
+			if (!illegalCharacters.match(char))
+				filtered += char;
+		}
+		return filtered;
+	}
 }

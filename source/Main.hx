@@ -219,7 +219,7 @@ class Main extends Sprite
 		#if windows
 		alertMsg += "\nDo you wish to report this error on GitHub?";
 		WinAPI.alert("Uncaught Exception!", alertMsg, () -> {
-			daError += "\nVersion: " + MainMenuState.psychOnlineVersion;
+			daError += '\nVersion: ${MainMenuState.psychOnlineVersion} (${online.Macros.getGitCommitHash()})';
 			FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${e.error}')}&body=${StringTools.urlEncode(daError)}');
 		});
 		#else
