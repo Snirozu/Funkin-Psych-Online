@@ -4,9 +4,11 @@ class Wrapper {
     public static function wrapperField(field:String) {
         switch (field) {
 			case "camFollowPos.x":
-				return "scrollXCenter";
+				//return "scrollXCenter"; // is psych engine wiki inaccurate or what
+				return "camGame.scroll.x";
 			case "camFollowPos.y":
-				return "scrollYCenter";
+				//return "scrollYCenter";
+				return "camGame.scroll.y";
         }
         return field;
     }

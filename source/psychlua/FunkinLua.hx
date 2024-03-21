@@ -627,7 +627,7 @@ class FunkinLua {
 
 			if(leObj != null)
 			{
-				return LuaUtils.getTargetInstance().members.indexOf(leObj) - 2;
+				return LuaUtils.getTargetInstance().members.indexOf(leObj) - PlayState.orderOffset;
 			}
 			luaTrace("getObjectOrder: Object " + obj + " doesn't exist!", false, false, FlxColor.RED);
 			return -1;
@@ -641,7 +641,7 @@ class FunkinLua {
 
 			if(leObj != null) {
 				LuaUtils.getTargetInstance().remove(leObj, true);
-				LuaUtils.getTargetInstance().insert(position + 2, leObj);
+				LuaUtils.getTargetInstance().insert(position + PlayState.orderOffset, leObj);
 				return;
 			}
 			luaTrace("setObjectOrder: Object " + obj + " doesn't exist!", false, false, FlxColor.RED);
