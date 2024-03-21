@@ -233,6 +233,9 @@ class OnlineMods {
 					FileUtils.removeFiles(Paths.mods(modName + "/" + file));
 			}
 
+			if (FileSystem.exists(Paths.mods(modName + '/mods/pack.json')))
+				FileSystem.deleteFile(Paths.mods(modName + '/mods/pack.json'));
+
 			if (FileSystem.exists(Paths.mods(modName + '/mods'))) {
 				for (file in FileSystem.readDirectory(Paths.mods(modName + '/mods'))) {
 					if (FileSystem.isDirectory(Path.join([Paths.mods(modName + '/mods'), file]))
@@ -271,10 +274,10 @@ class OnlineMods {
 					if (path.endsWith(".json")) {
 						var spath = path.split("/");
 						var songName = formatSongName(spath[spath.length - 2]);
-						if (vanillaSongs.contains(songName.toLowerCase()))
+						if (!formatSongName(spath[spath.length - 1]).startsWith(songName) || vanillaSongs.contains(songName.toLowerCase()))
 							return;
 
-						var preDiff = spath[spath.length - 1].substr(songName.length);
+						var preDiff = spath[spath.length - 1].substr(songName.length + 1);
 						preDiff = preDiff.substring(0, preDiff.length - ".json".length);
 
 						if (!songsToAdd.contains(songName))
