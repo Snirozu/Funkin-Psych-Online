@@ -335,6 +335,7 @@ class PlayState extends MusicBeatState
 	var asyncLoop:FlxAsyncLoop;
 	var isCreated:Bool = false;
 	var stageExists:Bool = false;
+	public static var orderOffset:Int = 0;
 
 	override public function create()
 	{
@@ -359,6 +360,8 @@ class PlayState extends MusicBeatState
 		FlxG.cameras.add(camLoading, false);
 		FlxG.cameras.setDefaultDrawTarget(camGame, true);
 
+		FlxG.cameras.cameraAdded.addOnce(realignLoadCam);
+
 		CustomFadeTransition.nextCamera = camLoading;
 		camGame.bgColor = FlxColor.BLACK;
 
@@ -366,7 +369,7 @@ class PlayState extends MusicBeatState
 
 		var funkay = new FlxSprite();
 		var funkayGraphic = Paths.image('funkay', null, false).bitmap;
-		funkay.makeGraphic(FlxG.width, FlxG.height, funkayGraphic.getPixel32(0, 0));
+		funkay.makeGraphic(FlxG.width, FlxG.height, funkayGraphic.getPixel32(0, 0), true, "_funkay"); // kms
 		funkayGraphic.image.resize(Std.int(funkayGraphic.image.width * (FlxG.height / funkayGraphic.image.height)), FlxG.height);
 		funkay.graphic.bitmap.copyPixels(
 			funkayGraphic, 
@@ -972,8 +975,7 @@ class PlayState extends MusicBeatState
 				isCreated = true;
 
 				FlxTween.tween(camLoading, {alpha: 0}, 0.5, {ease: FlxEase.circOut, onComplete: t -> {
-					remove(loaderGroup, true);
-					loaderGroup.destroy();
+					loaderGroup.killMembers();
 					FlxG.cameras.remove(camLoading, true);
 				}});
 
@@ -982,7 +984,18 @@ class PlayState extends MusicBeatState
 		}, 1);
 		loaderGroup.add(asyncLoop);
 
+		orderOffset = 2;
+
 		super.create();
+	}
+
+	function realignLoadCam(cam:FlxCamera) {
+		if (cam == camLoading || !FlxG.cameras.list.contains(camLoading))
+			return;
+
+		FlxG.cameras.remove(camLoading, false);
+		FlxG.cameras.add(camLoading, false);
+		FlxG.cameras.cameraAdded.addOnce(realignLoadCam);
 	}
 
 	function set_songSpeed(value:Float):Float
@@ -1997,6 +2010,7 @@ class PlayState extends MusicBeatState
 
 		if (FlxG.keys.justPressed.F7) {
 			showFP = !showFP;
+			updateScore();
 		}
 
 		if (!GameClient.isConnected() && FlxG.keys.justPressed.F8) {
@@ -3692,6 +3706,7 @@ class PlayState extends MusicBeatState
 		Note.globalRgbShaders = [];
 		backend.NoteTypesConfig.clearNoteTypesData();
 		instance = null;
+		orderOffset = 0;
 		super.destroy();
 	}
 

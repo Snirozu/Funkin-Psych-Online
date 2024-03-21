@@ -60,6 +60,9 @@ class Downloader {
 		if (gbMod != null) {
 			ChatBox.addMessage("Starting the download of " + gbMod.name + " from: " + originURL);
 		}
+		else if (ChatBox.instance != null) {
+			ChatBox.addMessage("Starting the download of a mod from: " + originURL);
+		}
 		this.id = id;
 		downloaders.push(this);
 		downloading.push(id);
@@ -268,7 +271,7 @@ class Downloader {
 	}
 
 	function doCancel(?callOnFinished:Bool = false) {
-		Sys.println('Download $id cancelled!');
+		Sys.println('Download $id stopped!');
 		try {
 			if (socket != null)
 				socket.close();

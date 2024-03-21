@@ -94,6 +94,8 @@ class OnlineMods {
 		'cocoa', 'eggnog', 'winter-horrorland',
 		'senpai', 'roses', 'thorns',
 		'ugh', 'guns', 'stress'
+		//OTHER SHIT
+		,'dad-battle', 'philly-nice', 'test', 'smash', 'ridge'
 	];
 
 	@:unreflective
@@ -103,6 +105,7 @@ class OnlineMods {
 		}, gbMod, headers, ogURL);
 	}
 
+	//gbMod only works if the url is a mod page url not the direct download one
 	public static function installMod(fileName:String, ?downloader:Downloader, ?modURL:String, ?gbMod:GBMod, ?onSuccess:String->Void) {
 		fileName = Path.normalize(fileName); // I HATE WINDOWS PATH FORMAT AAAAAAAAAAAAAA (C:/ is cool though, JUST INVERT THESE SLASHES PLEASE)
 		var _fileNameSplit = fileName.split("/");
@@ -218,7 +221,7 @@ class OnlineMods {
 			}
 
 			File.saveContent(Paths.mods(modName + '/pack.json'), Json.stringify({
-				name: (gbMod != null ? gbMod.name : swagFileName),
+				name: (gbMod != null ? gbMod.name : modName),
 				description: (gbMod != null ? gbMod.pageDownload : ""),
 				runsGlobally: isLegacy
 			}));
@@ -267,19 +270,22 @@ class OnlineMods {
 				try {
 					if (path.endsWith(".json")) {
 						var spath = path.split("/");
-						if (vanillaSongs.contains(spath[spath.length - 2].toLowerCase()))
+						var songName = formatSongName(spath[spath.length - 2]);
+						if (vanillaSongs.contains(songName.toLowerCase()))
 							return;
 
-						var preDiff = spath[spath.length - 1].substr(spath[spath.length - 2].length);
+						var preDiff = spath[spath.length - 1].substr(songName.length);
 						preDiff = preDiff.substring(0, preDiff.length - ".json".length);
 
-						if (!songsToAdd.contains(spath[spath.length - 2]))
-							songsToAdd.push(spath[spath.length - 2]);
+						if (!songsToAdd.contains(songName))
+							songsToAdd.push(songName);
 						if (!diffsToAdd.contains(preDiff))
 							diffsToAdd.push(preDiff);
 					}
 				}
-				catch (exc) {}
+				catch (exc) {
+					Sys.println("failed to include a song " + exc);
+				}
 			});
 			var _normalIndex = -1;
 			if ((_normalIndex = diffsToAdd.indexOf("normal")) != -1) {
@@ -296,7 +302,7 @@ class OnlineMods {
 						var json = Json.parse(File.getContent(path));
 						var songs:Array<Array<Dynamic>> = json.songs;
 						for (song in songs) {
-							songsToAdd.remove(song[0]);
+							songsToAdd.remove(formatSongName(song[0]));
 						}
 					}
 				}
@@ -306,7 +312,7 @@ class OnlineMods {
 			FileUtils.readAndSave(Paths.mods(modName + "/weeks/auto_gen_week_" + modName + ".json"), text -> {
 				var data:WeekFile = WeekData.createWeekFile();
 				data.hideStoryMode = true;
-				data.difficulties = "Easy, Normal, Hard";
+				data.difficulties = diffsToAdd.join(", ");
 				data.songs = [];
 
 				for (song in songsToAdd) {
@@ -323,7 +329,7 @@ class OnlineMods {
 
 		if (!FileSystem.exists(Paths.mods(modName + '/pack.json')))
 			File.saveContent(Paths.mods(modName + '/pack.json'), Json.stringify({
-				name: (gbMod != null ? gbMod.name : swagFileName),
+				name: (gbMod != null ? gbMod.name : modName),
 				description: (gbMod != null ? gbMod.pageDownload : ""),
 				runsGlobally: false
 			}));
@@ -352,5 +358,9 @@ class OnlineMods {
 			FileSystem.createDirectory(Path.join([newParent, Path.directory(entry.fileName).substring(begins.length)]));
 		}
 		File.saveBytes(Path.join([newParent, entry.fileName.substring(begins.length)]), Reader.unzip(entry));
+	}
+
+	public static function formatSongName(song:String) {
+		return song.trim().replace(" ", "-").toLowerCase();
 	}
 }
