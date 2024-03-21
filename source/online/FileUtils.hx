@@ -74,7 +74,7 @@ class FileUtils {
 		File.saveContent(path, callback(FileSystem.exists(path) ? File.getContent(path) : null));
 	}
 
-	static final illegalCharacters = ~/[\/|\\|\?|\*|:|\||"|<|>]/;
+	static final illegalCharacters = ~/[\/|\\|?|*|:|\||"|<|>|.]/;
 
 	public static function formatFile(file:String):String {
 		var filtered = "";
