@@ -168,8 +168,8 @@ class ResultsScreen extends MusicBeatState {
 		p1Text.text = '${p1Name}\nAccuracy: ${p1Accuracy}% - ${getCoolRating(GameClient.room.state.player1)}\nMisses: ${GameClient.room.state.player1.misses}\nScore: ${GameClient.room.state.player1.score}';
 		p2Text.text = '${p2Name}\nAccuracy: ${p2Accuracy}% - ${getCoolRating(GameClient.room.state.player2)}\nMisses: ${GameClient.room.state.player2.misses}\nScore: ${GameClient.room.state.player2.score}';
 
-		p1Text.x = p1.getMidpoint().x - p1Text.width / 2;
-		p2Text.x = p2.getMidpoint().x - p2Text.width / 2;
+		p1Text.x = 176;
+		p2Text.x = 702;
 		p1Text.y = 120;
 		p2Text.y = 120;
 
@@ -180,8 +180,8 @@ class ResultsScreen extends MusicBeatState {
 		p1Bg.setPosition(p1Text.x - 25, p1Text.y + 15);
 		p2Bg.setPosition(p2Text.x - 25, p2Text.y + 15);
 
-		win.x = winnerPlayer.getMidpoint().x - win.width / 2;
-		lose.x = loserPlayer.getMidpoint().x - lose.width / 2;
+		win.x = (winner == 0 ? p1Bg : p2Bg).getMidpoint().x - win.width / 2;
+		lose.x = (winner == 0 ? p2Bg : p1Bg).getMidpoint().x - lose.width / 2;
 
 		for (letter in p1Text.letters) {
 			if (letter != null) {

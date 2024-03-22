@@ -29,6 +29,7 @@ typedef CharacterFile = {
 	var flip_x:Bool;
 	var no_antialiasing:Bool;
 	var healthbar_colors:Array<Int>;
+	@:optional var vocals_file:String;
 }
 
 typedef AnimArray = {
@@ -58,6 +59,7 @@ class Character extends FlxSprite
 	public var idleSuffix:String = '';
 	public var danceIdle:Bool = false; //Character use "danceLeft" and "danceRight" instead of "idle"
 	public var skipDance:Bool = false;
+	public var vocalsFile:String = '';
 
 	public var healthIcon:String = 'face';
 	public var animationsArray:Array<AnimArray> = [];
@@ -146,6 +148,8 @@ class Character extends FlxSprite
 
 				if(json.healthbar_colors != null && json.healthbar_colors.length > 2)
 					healthColorArray = json.healthbar_colors;
+
+				vocalsFile = json.vocals_file != null ? json.vocals_file : '';
 
 				// antialiasing
 				noAntialiasing = (json.no_antialiasing == true);

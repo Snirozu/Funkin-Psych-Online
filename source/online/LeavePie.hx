@@ -35,10 +35,14 @@ class LeavePie extends FlxTypedSpriteGroup<FlxSprite> {
 			pieDial.amount += elapsed * 2;
 			pieDial.visible = true;
 			if (pieDial.amount >= 1.0) {
-				if (FlxG.state is PlayState && GameClient.hasPerms())
-					GameClient.send("requestEndSong");
+				if (FlxG.state is PlayState)
+					if (FlxG.keys.pressed.F1)
+						GameClient.leaveRoom();
+					else
+						GameClient.send("requestEndSong");
 				else
 					GameClient.leaveRoom();
+				pieDial.amount = 0;
 			}
 		}
 		else {

@@ -33,6 +33,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
     var typeText:InputText;
     var typeTextHint:FlxText; // i can call it a hint or tip whatever i want
 	var targetAlpha:Float;
+	var chatHeight:Float;
 	var onCommand:(String, Array<String>) -> Bool;
 
 	static var lastMessages:Array<String> = [];
@@ -45,7 +46,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 			return;
 		}
 
-		instance.targetAlpha = 3;
+		instance.targetAlpha = 5;
 
 		var chat = new ChatMessage(instance.bg.width, message);
 		instance.chatGroup.insert(0, chat);
@@ -75,10 +76,14 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 	public function new(?camera:FlxCamera, ?onCommand:(command:String, args:Array<String>) -> Bool, ?chatHeight:Int = 400) {
 		super();
 
+		this.chatHeight = chatHeight;
+
 		instance = this;
         
         bg = new FlxSprite();
-		bg.makeGraphic(600, chatHeight, FlxColor.BLACK);
+		bg.makeGraphic(600, 1, FlxColor.BLACK);
+		bg.scale.y = chatHeight;
+		bg.updateHitbox();
 		bg.alpha = 0.6;
         add(bg);
 
@@ -180,6 +185,10 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 						RequestState.requestURL(msg.link);
 					}
 				}
+				if (!focused) {
+					msg.alpha = i == 0 ? 1 : 0;
+				}
+
 				if (msg.alpha > targetAlpha) {
 					msg.alpha = targetAlpha;
 				}
@@ -189,6 +198,21 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 				newClipRect.width = bg.width;
 				newClipRect.y = bg.y - msg.y;
 				msg.clipRect = newClipRect;
+			}
+
+			if (!focused) {
+				bg.y = typeBg.y - bg.height;
+				bg.scale.y = chatGroup.members[0].height;
+				bg.updateHitbox();
+				typeBg.alpha = 0.7;
+				if (typeBg.alpha > targetAlpha) {
+					typeBg.alpha = targetAlpha;
+				}
+			}
+			else {
+				bg.y = y;
+				bg.scale.y = chatHeight;
+				bg.updateHitbox();
 			}
 		}
 
@@ -210,7 +234,6 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
 		alpha = targetAlpha;
 
-		bg.visible = focused;
 		typeText.hasFocus = focused;
     }
 
