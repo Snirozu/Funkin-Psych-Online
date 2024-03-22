@@ -17,7 +17,7 @@ import options.OptionsState;
 
 class MainMenuState extends MusicBeatState
 {
-	public static var psychOnlineVersion:String = "0.5.0";
+	public static var psychOnlineVersion:String = "0.6.0";
 	public static var psychEngineVersion:String = '0.7.1h'; //This is also used for Discord RPC
 	public static var curSelected:Int = 0;
 
