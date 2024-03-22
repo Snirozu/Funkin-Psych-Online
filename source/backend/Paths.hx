@@ -397,10 +397,10 @@ class Paths
 		#end
 	}
 
-	inline static public function formatToSongPath(path:String) {
-		var invalidChars = ~/[~&\\;:<>#]/;
-		var hideChars = ~/[.,'"%?!]/;
+	static var invalidChars = ~/[~&\\;:<>#]/;
+	static var hideChars = ~/[.,"%?]/;
 
+	inline static public function formatToSongPath(path:String) {
 		var path = invalidChars.split(path.replace(' ', '-')).join("-");
 		return hideChars.split(path).join("").toLowerCase();
 	}
