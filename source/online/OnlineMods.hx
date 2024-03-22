@@ -279,6 +279,8 @@ class OnlineMods {
 
 						var preDiff = spath[spath.length - 1].substr(songName.length + 1);
 						preDiff = preDiff.substring(0, preDiff.length - ".json".length);
+						if (preDiff.trim() == "")
+							preDiff = "Normal";
 
 						if (!songsToAdd.contains(songName))
 							songsToAdd.push(songName);
