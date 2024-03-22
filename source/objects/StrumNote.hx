@@ -175,6 +175,20 @@ class StrumNote extends FlxSprite
 		if(useRGBShader) rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
 	}
 
+	override function set_visible(value:Bool):Bool {
+		if (initialized && ClientPrefs.data.disableStrumMovement) {
+			return visible;
+		}
+		return super.set_visible(value);
+	}
+
+	override function set_alpha(value:Float):Float {
+		if (initialized && ClientPrefs.data.disableStrumMovement) {
+			return super.set_alpha(FlxMath.bound(value, 0.75, 1));
+		}
+		return super.set_alpha(value);
+	}
+
 	override function set_x(value:Float):Float {
 		if (initialized && ClientPrefs.data.disableStrumMovement) {
 			return x;

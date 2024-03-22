@@ -139,17 +139,30 @@ class OnlineMods {
 
 			if (!ignoreRest) {
 				var pathSplit = entry.fileName.split("/");
-				if (Mods.ignoreModFolders.contains(pathSplit[pathSplit.length - 2])) {
+
+				var suppModPath = pathSplit[pathSplit.length - 3] ?? "";
+				var suppModFolder = pathSplit[pathSplit.length - 2] ?? "";
+
+				var removeCount = 
+					suppModFolder.length == 0 ? 0 : 1 + 
+					entry.fileName.length == 0 ? 0 : 1
+				;
+
+				if (Mods.ignoreModFolders.contains(suppModFolder)) {
 					beginFolder = 
 						entry.fileName // something/mod_name/characters/ or something/mod_name/assets/characters/ (because assets always go first)
 						.substring(0, entry.fileName.length - (
-								pathSplit[pathSplit.length - 3] == "assets" ?
-								pathSplit[pathSplit.length - 2].length + pathSplit[pathSplit.length - 3].length + 3
+							suppModPath == "assets" ?
+								suppModFolder.length + suppModPath.length + removeCount + (suppModPath.length == 0 ? 0 : 1)
 								:
-								pathSplit[pathSplit.length - 2].length + 2
+								suppModFolder.length + removeCount
 							)
 						)
 					;
+
+					if (beginFolder == "assets/" || beginFolder == "mods/") {
+						beginFolder = "";
+					}
 
 					var splat = beginFolder.split("/");
 					if (splat[splat.length - 1] == "bin" || splat[splat.length - 1] == "mods" || splat[splat.length - 1].trim() == "")
@@ -179,6 +192,8 @@ class OnlineMods {
 			});
 			return;
 		}
+
+		//Sys.println('found data in archive: "${beginFolder}", to: "${parentFolder}"');
 
 		var modName = FileUtils.formatFile(parentFolder.substring(Paths.mods().length, parentFolder.length - 1));
 

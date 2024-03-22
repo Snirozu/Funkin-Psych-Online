@@ -633,6 +633,10 @@ class Room extends MusicBeatState {
 						}
 				}
 			}
+			else if (FlxG.mouse.justPressedRight) {
+				if (curSelected == 5)
+					MusicBeatState.switchState(new BananaDownload());
+			}
 
 			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.C) {
 				Clipboard.text = GameClient.getRoomSecret(true);
@@ -828,7 +832,7 @@ class Room extends MusicBeatState {
 			case 4:
 				itemTip.text = " - SELECT SONG - \nSelects the song.\n\n(Players with host permissions\ncan only do that)";
 			case 5:
-				itemTip.text = " - VERIFY MOD - \nDownloads the currently selected mod\nif it isn't installed.\n\nAfter you install it\npress this button again!";
+				itemTip.text = " - MOD - \nDownloads the currently selected mod\nif it isn't installed.\n\nAfter you install it\npress this button again!\n\nRIGHT CLICK - Open Mod Downloader";
 			default:
 				itemTip.text = " - LOBBY - \nPress UI keybinds\nor use your mouse\nto select an option!";
 		}

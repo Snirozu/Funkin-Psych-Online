@@ -209,15 +209,15 @@ class Paths
 		return file;
 	}
 
-	inline static public function voices(song:String):Any
-	{
-		#if html5
-		return 'songs:assets/songs/${formatToSongPath(song)}/Voices.$SOUND_EXT';
-		#else
+	inline static public function voices(song:String, postfix:String = null):Any {
 		var songKey:String = '${formatToSongPath(song)}/Voices';
+		if (postfix != null)
+			songKey += '-' + postfix;
 		var voices = returnSound('songs', songKey);
+		@:privateAccess
+		if (voices.__buffer == null)
+			return null;
 		return voices;
-		#end
 	}
 
 	inline static public function inst(song:String):Any
