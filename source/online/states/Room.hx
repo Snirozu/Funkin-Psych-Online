@@ -141,7 +141,7 @@ class Room extends MusicBeatState {
 	override function create() {
 		super.create();
 
-		#if desktop
+		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("In the Lobby", null, null, false);
 		#end
 
@@ -486,7 +486,7 @@ class Room extends MusicBeatState {
 		// 	cum.scroll.x += elapsed * 20;
 		// }
 
-		#if desktop
+		#if DISCORD_ALLOWED
 		elapsedShit += elapsed;
 
 		if (elapsedShit >= 3) {

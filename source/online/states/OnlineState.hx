@@ -76,7 +76,7 @@ class OnlineState extends MusicBeatState {
 
 		OnlineMods.checkMods();
 
-		#if desktop
+		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("In the Online Menu.", null, null, false);
 		#end
 

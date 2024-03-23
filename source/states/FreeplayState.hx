@@ -72,7 +72,7 @@ class FreeplayState extends MusicBeatState
 		PlayState.isStoryMode = false;
 		WeekData.reloadWeekFiles(false);
 
-		#if desktop
+		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
@@ -498,7 +498,7 @@ class FreeplayState extends MusicBeatState
 				FlxG.sound.music.volume = 0;
 						
 				destroyFreeplayVocals();
-				#if (MODS_ALLOWED && desktop)
+				#if (MODS_ALLOWED && DISCORD_ALLOWED)
 				DiscordClient.loadModRPC();
 				#end
 			}

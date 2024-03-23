@@ -234,13 +234,13 @@ class GameClient {
 
 				FlxG.sound.music.volume = 0;
 
-				#if (MODS_ALLOWED && desktop)
+				#if (MODS_ALLOWED && DISCORD_ALLOWED)
 				DiscordClient.loadModRPC();
 				#end
 			});
 		});
 
-		#if desktop
+		#if DISCORD_ALLOWED
 		GameClient.room.state.listen("isPrivate", (value, prev) -> {
 			DiscordClient.updateOnlinePresence();
 		});

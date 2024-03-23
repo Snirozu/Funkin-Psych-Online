@@ -16,7 +16,7 @@ class OptionsState extends MusicBeatState {
 
 		camera.follow(camFollow = new FlxObject(), 0.1);
 
-		#if desktop
+		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("In Online Settings.", null, null, false);
 		#end
 

@@ -91,6 +91,10 @@ class Main extends Sprite
 		}
 
 		CoolUtil.setDarkMode(true);
+
+		#if hl
+		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
+		#end
 	
 		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
 		Controls.instance = new Controls();
@@ -121,7 +125,7 @@ class Main extends Sprite
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
 		#end
 
-		#if desktop
+		#if DISCORD_ALLOWED
 		DiscordClient.start();
 		#end
 
@@ -163,7 +167,7 @@ class Main extends Sprite
 		
 		//for some reason only cancels 2 downloads
 		Lib.application.window.onClose.add(() -> {
-			#if windows
+			#if DISCORD_ALLOWED
 			DiscordClient.shutdown();
 			#end
 			online.Downloader.cancelAll();
@@ -216,7 +220,7 @@ class Main extends Sprite
 		File.saveContent(path, alertMsg + "\n");
 		Sys.println("Crash dump saved in " + Path.normalize(path));
 		
-		#if windows
+		#if (windows && cpp)
 		alertMsg += "\nDo you wish to report this error on GitHub?";
 		WinAPI.alert("Uncaught Exception!", alertMsg, () -> {
 			daError += '\nVersion: ${MainMenuState.psychOnlineVersion} (${online.Macros.getGitCommitHash()})';
