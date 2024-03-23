@@ -215,7 +215,7 @@ class ChartingState extends MusicBeatState
 
 		// Paths.clearMemory();
 
-		#if desktop
+		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Chart Editor", StringTools.replace(_song.song, '-', ' '));
 		#end
@@ -1276,7 +1276,7 @@ class ChartingState extends MusicBeatState
 		blockPressWhileTypingOnStepper.push(voicesVolume);
 		
 		#if !html5
-		sliderRate = new FlxUISlider(this, 'playbackSpeed', 120, 120, 0.5, 3, 150, null, 5, FlxColor.WHITE, FlxColor.BLACK);
+		sliderRate = new FlxUISlider(this, 'playbackSpeed', 120, 120, 0.5, 3, 150, 15, 5, FlxColor.WHITE, FlxColor.BLACK);
 		sliderRate.nameLabel.text = 'Playback Rate';
 		tab_group_chart.add(sliderRate);
 		#end
@@ -1427,7 +1427,7 @@ class ChartingState extends MusicBeatState
 				if (check_mute_vocals != null && check_mute_vocals.checked) vocals.volume = 0;
 			}
 
-			#if desktop
+			#if DISCORD_ALLOWED
 			// Updating Discord Rich Presence
 			DiscordClient.changePresence("Chart Editor", StringTools.replace(_song.song, '-', ' '));
 			#end

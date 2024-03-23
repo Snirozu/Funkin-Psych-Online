@@ -25,7 +25,7 @@ class SkinsState extends MusicBeatState {
 	static var flipped:Bool = false;
 
     override function create() {
-		#if desktop
+		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("In a Skin Selector.", null, null, false);
 		#end
 

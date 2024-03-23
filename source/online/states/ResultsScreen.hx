@@ -36,7 +36,7 @@ class ResultsScreen extends MusicBeatState {
     override function create() {
         super.create();
 
-		#if desktop
+		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Viewing song results.", null, null, false);
 		#end
         
