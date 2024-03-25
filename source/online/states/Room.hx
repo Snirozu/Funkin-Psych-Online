@@ -546,7 +546,7 @@ class Room extends MusicBeatState {
 			}
 
 			if (controls.TAUNT)
-				playerAnim('taunt')
+				playerAnim('taunt');
 
 			if (FlxG.keys.pressed.ALT) { // useless, but why not?
 				var suffix = FlxG.keys.pressed.CONTROL ? 'miss' : '';
