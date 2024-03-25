@@ -911,9 +911,7 @@ class Room extends MusicBeatState {
 	}
 
 	function playerAnim(anim:String, ?incoming:Bool = false) {
-		var player = getPlayer(!incoming)
-		if (player != null)
-			player.playAnim(anim, true);
+		getPlayer(!incoming)?.playAnim(anim, true);
 		if (anim.endsWith('miss'))
 			var sond = FlxG.sound.play(Paths.sound('missnote' + FlxG.random.int(1, 3)), 0.25);
 
@@ -935,10 +933,10 @@ class Room extends MusicBeatState {
 		stage.beatHit(curBeat);
 		#end
 
-		if (p1.animation.curAnim.finished && curBeat % p1.danceEveryNumBeats == 0)
+		if (p1 != null && p1.animation.curAnim.finished && curBeat % p1.danceEveryNumBeats == 0)
 			p1.dance();
 		
-		if (p2.animation.curAnim.finished && curBeat % p2.danceEveryNumBeats == 0)
+		if (p2 != null && p2.animation.curAnim.finished && curBeat % p2.danceEveryNumBeats == 0)
 			p2.dance();
 	}
 }
