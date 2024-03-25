@@ -312,6 +312,7 @@ class PlayState extends MusicBeatState
 	var readyTween:FlxTween;
 	var waitReady(default, set) = false;
 	var isReady = false;
+	var canStart = true;
 	function set_waitReady(v) {
 		if (readyTween != null)
 			readyTween.cancel();
@@ -403,7 +404,9 @@ class PlayState extends MusicBeatState
 				paused = true;
 				GameClient.send("status", "In-Game");
 				startCallback = () -> {
+					canStart = false;
 					waitReady = true;
+					startCountdown();
 				};
 				endCallback = () -> {
 					GameClient.send("playerEnded");
@@ -948,6 +951,7 @@ class PlayState extends MusicBeatState
 				add(leavePie = new LeavePie());
 				leavePie.cameras = [camOther];
 				add(waitReadySpr);
+				waitReadySpr.visible = false;
 			});
 		}
 
@@ -1326,6 +1330,11 @@ class PlayState extends MusicBeatState
 		inCutscene = false;
 		var ret:Dynamic = callOnScripts('onStartCountdown', null, true);
 		if(ret != FunkinLua.Function_Stop) {
+			if (!canStart) {
+				canStart = true;
+				waitReadySpr.visible = true;
+				return false;
+			}
 			if (!GameClient.isConnected())
 				generateStrums();
 
@@ -2070,7 +2079,7 @@ class PlayState extends MusicBeatState
 				endSong();
 			}
 
-			if (!isReady && controls.ACCEPT && canInput()) {
+			if (canStart && !isReady && controls.ACCEPT && canInput()) {
 				isReady = true;
 				FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
 				if (ClientPrefs.data.flashing)
