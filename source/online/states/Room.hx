@@ -911,7 +911,9 @@ class Room extends MusicBeatState {
 	}
 
 	function playerAnim(anim:String, ?incoming:Bool = false) {
-		getPlayer(!incoming).playAnim(anim, true);
+		var player = getPlayer(!incoming)
+		if (player != null)
+			player.playAnim(anim, true);
 		if (anim.endsWith('miss'))
 			var sond = FlxG.sound.play(Paths.sound('missnote' + FlxG.random.int(1, 3)), 0.25);
 
