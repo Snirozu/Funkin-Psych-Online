@@ -545,17 +545,36 @@ class Room extends MusicBeatState {
 				}
 			}
 
-			if (controls.UI_LEFT_P) {
-				changeSelection(1);
-			}
-			if (controls.UI_RIGHT_P) {
-				changeSelection(-1);
-			}
-			if (controls.UI_UP_P) {
-				changeSelection(1);
-			}
-			if (controls.UI_DOWN_P) {
-				changeSelection(-1);
+			if (controls.TAUNT)
+				playerAnim('taunt')
+
+			if (FlxG.keys.pressed.ALT) { // useless, but why not?
+				var suffix = FlxG.keys.pressed.CONTROL ? 'miss' : '';
+				if (controls.NOTE_LEFT_P) {
+					playerAnim('singLEFT' + suffix);
+				}
+				if (controls.NOTE_RIGHT_P) {
+					playerAnim('singRIGHT' + suffix);
+				}
+				if (controls.NOTE_UP_P) {
+					playerAnim('singUP' + suffix);
+				}
+				if (controls.NOTE_DOWN_P) {
+					playerAnim('singDOWN' + suffix);
+				}
+			} else {
+				if (controls.UI_LEFT_P) {
+					changeSelection(1);
+				}
+				if (controls.UI_RIGHT_P) {
+					changeSelection(-1);
+				}
+				if (controls.UI_UP_P) {
+					changeSelection(1);
+				}
+				if (controls.UI_DOWN_P) {
+					changeSelection(-1);
+				}
 			}
 
 			if (controls.ACCEPT || FlxG.mouse.justPressed) {
@@ -893,6 +912,8 @@ class Room extends MusicBeatState {
 
 	function playerAnim(anim:String, ?incoming:Bool = false) {
 		getPlayer(!incoming).playAnim(anim, true);
+		if (anim.endsWith('miss'))
+			var sond = FlxG.sound.play(Paths.sound('missnote' + FlxG.random.int(1, 3)), 0.25);
 
 		if (!incoming)
 			GameClient.send("charPlay", [anim]);
