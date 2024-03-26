@@ -3809,12 +3809,12 @@ class PlayState extends MusicBeatState
 			gf.dance();
 
 		if (curBeat % boyfriend.danceEveryNumBeats == 0 && boyfriend.animation.curAnim != null && !boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.stunned) {
-			sendDance = PlayState.isCharacterPlayer(boyfriend) && boyfriend.animation.curAnim.name.startsWith('idle') && boyfriend.animation.curAnim.name.startsWith('dance');
+			sendDance = PlayState.isCharacterPlayer(boyfriend) && !boyfriend.animation.curAnim.name.startsWith('idle') && !boyfriend.animation.curAnim.name.startsWith('dance');
 			boyfriend.dance();
 		}
 
 		if (curBeat % dad.danceEveryNumBeats == 0 && dad.animation.curAnim != null && !dad.animation.curAnim.name.startsWith('sing') && !dad.stunned) {
-			sendDance = PlayState.isCharacterPlayer(dad) && dad.animation.curAnim.name.startsWith('idle') && dad.animation.curAnim.name.startsWith('dance');
+			sendDance = PlayState.isCharacterPlayer(dad) && !dad.animation.curAnim.name.startsWith('idle') && !dad.animation.curAnim.name.startsWith('dance');
 			dad.dance();
 		}
 
