@@ -208,8 +208,11 @@ class PauseSubState extends MusicBeatSubstate
 						var poop = Highscore.formatSong(name, curSelected);
 						PlayState.SONG = Song.loadFromJson(poop, name);
 						PlayState.storyDifficulty = curSelected;
-						// MusicBeatState.resetState();
-						LoadingState.loadAndSwitchState(new PlayState());
+						#if (flixel <= "5.5.0")
+							MusicBeatState.resetState();
+						#else
+							LoadingState.loadAndSwitchState(new PlayState());
+						#end
 						FlxG.sound.music.volume = 0;
 						PlayState.changedDifficulty = true;
 						PlayState.chartingMode = false;
@@ -333,8 +336,11 @@ class PauseSubState extends MusicBeatSubstate
 			FlxTransitionableState.skipNextTransIn = true;
 			FlxTransitionableState.skipNextTransOut = true;
 		}
-		LoadingState.loadAndSwitchState(new PlayState());
-		// MusicBeatState.resetState();
+		#if (flixel <= "5.5.0")
+			MusicBeatState.resetState();
+		#else
+			LoadingState.loadAndSwitchState(new PlayState());
+		#end
 	}
 
 	override function destroy()

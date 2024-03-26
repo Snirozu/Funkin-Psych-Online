@@ -172,7 +172,11 @@ class GameOverSubstate extends MusicBeatSubstate
 			{
 				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
 				{
-					LoadingState.loadAndSwitchState(new PlayState());
+					#if (flixel <= "5.5.0")
+						MusicBeatState.resetState();
+					#else
+						LoadingState.loadAndSwitchState(new PlayState());
+					#end
 				});
 			});
 			PlayState.instance.callOnScripts('onGameOverConfirm', [true]);
