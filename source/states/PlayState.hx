@@ -3451,6 +3451,8 @@ class PlayState extends MusicBeatState
 					&& !getPlayer().animation.curAnim.name.endsWith('miss'))
 			{
 				getPlayer().dance();
+				if (GameClient.isConnected())
+					GameClient.send("charPlay", [getPlayer().animation.curAnim.name]);
 				//boyfriend.animation.curAnim.finish();
 			}
 		}
@@ -3662,7 +3664,7 @@ class PlayState extends MusicBeatState
 					char.holdTimer = 0;
 
 					GameClient.send("charPlay", [animToPlay, note.gfNote]);
-					
+
 					if(note.noteType == 'Hey!') {
 						if(char.animOffsets.exists(animCheck)) {
 							char.playAnim(animCheck, true);
