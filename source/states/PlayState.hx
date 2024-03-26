@@ -2480,8 +2480,6 @@ class PlayState extends MusicBeatState
 					boyfriend.playAnim('hey', true);
 					boyfriend.specialAnim = true;
 					boyfriend.heyTimer = flValue2;
-					if (GameClient.isConnected() && PlayState.isCharacterPlayer(boyfriend))
-						GameClient.send("charPlay", [value1, false, true]);
 				}
 
 			case 'Set GF Speed':
@@ -2517,8 +2515,6 @@ class PlayState extends MusicBeatState
 				{
 					char.playAnim(value1, true);
 					char.specialAnim = true;
-					if (GameClient.isConnected() && PlayState.isCharacterPlayer(char))
-						GameClient.send("charPlay", [value1, char == gf, true]);
 				}
 
 			case 'Camera Follow Pos':
@@ -3808,12 +3804,22 @@ class PlayState extends MusicBeatState
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
 
+		var sendDance:Bool = false;
 		if (gf != null && curBeat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && gf.animation.curAnim != null && !gf.animation.curAnim.name.startsWith("sing") && !gf.stunned)
 			gf.dance();
-		if (curBeat % boyfriend.danceEveryNumBeats == 0 && boyfriend.animation.curAnim != null && !boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.stunned)
+
+		if (curBeat % boyfriend.danceEveryNumBeats == 0 && boyfriend.animation.curAnim != null && !boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.stunned) {
+			sendDance = PlayState.isCharacterPlayer(boyfriend) && boyfriend.animation.curAnim.name.startsWith('idle') && boyfriend.animation.curAnim.name.startsWith('dance');
 			boyfriend.dance();
-		if (curBeat % dad.danceEveryNumBeats == 0 && dad.animation.curAnim != null && !dad.animation.curAnim.name.startsWith('sing') && !dad.stunned)
+		}
+
+		if (curBeat % dad.danceEveryNumBeats == 0 && dad.animation.curAnim != null && !dad.animation.curAnim.name.startsWith('sing') && !dad.stunned) {
+			sendDance = PlayState.isCharacterPlayer(dad) && dad.animation.curAnim.name.startsWith('idle') && dadMap.animation.curAnim.name.startsWith('dance');
 			dad.dance();
+		}
+
+		if (sendDance)
+			GameClient.send("charPlay", [getPlayer().animation.curAnim.name]);
 
 		super.beatHit();
 		lastBeatHit = curBeat;
