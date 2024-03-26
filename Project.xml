@@ -2,9 +2,10 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin': Psych Online" file="PsychEngine"  main="Main" version="0.2.8" />
+	<app title="Friday Night Funkin': Psych Online" file="PsychEngine"  main="Main" version="0.6.0" />
 	<app if="desktop" packageName="com.shadowmario.psychengine" package="com.shadowmario.psychengine" company="ShadowMario" />
-	<app if="mobile" packageName="snirozu.psychonline" package="snirozu.psychonline" company="Snirozu" />
+	<!-- leaving mobile stuff here, if someone manages to compile this project to android then i'll be willing to merge that  -->
+	<app if="mobile" title='Psych Online' packageName="snirozu.psychonline" package="snirozu.psychonline" company="Snirozu" />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />
@@ -23,7 +24,7 @@
 	<!-- ______________________ PSYCH ENGINE CUSTOMIZATION ______________________ -->
 
 	<define name="MODS_ALLOWED" />
-	<define name="HSCRIPT_ALLOWED" />
+	<define name="HSCRIPT_ALLOWED" unless="mobile" /> <!-- sscript isn't compatible with android (crashes clang?) -->
 	<define name="LUA_ALLOWED" if="cpp" />
 	<define name="ACHIEVEMENTS_ALLOWED" />
 	<define name="DISCORD_ALLOWED" if="cpp && windows" />
