@@ -315,6 +315,7 @@ class PlayState extends MusicBeatState
 	function set_playerHold(v) {
 		if (playerHold != v) {
 			playerHold = v;
+			GameClient.send("noteHold", [v]);
 		}
 		return v;
 	}
@@ -4490,6 +4491,15 @@ class PlayState extends MusicBeatState
 				updateScoreOpponent();
 				getOpponentVocals().volume = 0;
 				opCumboo = 0;
+			});
+		});
+
+		GameClient.room.onMessage("noteHold", function(message:Array<Dynamic>) {
+			Waiter.put(() -> {
+				if (message == null || message[0] == null) {
+					return;
+				}
+				oppHold = message[0];
 			});
 		});
 
