@@ -209,9 +209,9 @@ class PauseSubState extends MusicBeatSubstate
 						PlayState.SONG = Song.loadFromJson(poop, name);
 						PlayState.storyDifficulty = curSelected;
 						#if (flixel <= "5.5.0")
-							MusicBeatState.resetState();
+						MusicBeatState.resetState();
 						#else
-							LoadingState.loadAndSwitchState(new PlayState());
+						LoadingState.loadAndSwitchState(new PlayState());
 						#end
 						FlxG.sound.music.volume = 0;
 						PlayState.changedDifficulty = true;
@@ -337,9 +337,9 @@ class PauseSubState extends MusicBeatSubstate
 			FlxTransitionableState.skipNextTransOut = true;
 		}
 		#if (flixel <= "5.5.0")
-			MusicBeatState.resetState();
+		MusicBeatState.resetState();
 		#else
-			LoadingState.loadAndSwitchState(new PlayState());
+		LoadingState.loadAndSwitchState(new PlayState());
 		#end
 	}
 
