@@ -270,7 +270,7 @@ class Character extends FlxSprite
 				holdTimer = 0;
 
 			if ((PlayState.instance == null || (!GameClient.isConnected() && PlayState.instance.getPlayer() != this) // check for null or not connected
-				|| PlayState.instance.getPlayer() != this && PlayState.instance.getOpponent() != this) && // check if not player/opp
+				|| PlayState.instance.getPlayer() != this && (PlayState.instance.getOpponent() != this)) && // check if not player/opp
 				holdTimer >= Conductor.stepCrochet * (0.0011 / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1)) * singDuration)
 			{
 				dance();

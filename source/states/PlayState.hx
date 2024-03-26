@@ -279,6 +279,10 @@ class PlayState extends MusicBeatState
 	var boyfriendIdleTime:Float = 0.0;
 	var boyfriendIdled:Bool = false;
 
+	// uh... check if opponent is holding
+	public var playerHold(default, set):Bool = false;
+	public var oppHold:Bool = false;
+
 	// Lua shit
 	public static var instance:PlayState;
 	public var luaArray:Array<FunkinLua> = [];
@@ -306,6 +310,13 @@ class PlayState extends MusicBeatState
 			return false;
 		}
 		return true;
+	}
+
+	function set_playerHold(v) {
+		if (playerHold != v) {
+			playerHold = v;
+		}
+		return v;
 	}
 
 	var freakyFlicker:FlxFlicker;
@@ -2224,6 +2235,15 @@ class PlayState extends MusicBeatState
 					//boyfriend.animation.curAnim.finish();
 				}
 
+				if (GameClient.isConnected() && (!oppHold || endingSong) && getOpponent().animation.curAnim != null
+					&& getOpponent().holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * getOpponent().singDuration
+					&& getOpponent().animation.curAnim.name.startsWith('sing')
+					&& !getOpponent().animation.curAnim.name.endsWith('miss'))
+				{
+					getOpponent().dance();
+					//boyfriend.animation.curAnim.finish();
+				}
+
 				var forceShowOpStrums = false;
 				if(notes.length > 0)
 				{
@@ -3441,22 +3461,21 @@ class PlayState extends MusicBeatState
 				});
 			}
 
-			if (holdArray.contains(true) && !endingSong) {
+			playerHold = holdArray.contains(true);
+
+			if (playerHold && !endingSong) {
 				#if ACHIEVEMENTS_ALLOWED
 				var achieve:String = checkForAchievement(['oversinging']);
 				if (achieve != null) {
 					startAchievement(achieve);
 				}
 				#end
-			}
-			else if (getPlayer().animation.curAnim != null
+			} else if (getPlayer().animation.curAnim != null
 					&& getPlayer().holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * getPlayer().singDuration
 					&& getPlayer().animation.curAnim.name.startsWith('sing')
 					&& !getPlayer().animation.curAnim.name.endsWith('miss'))
 			{
 				getPlayer().dance();
-				if (GameClient.isConnected())
-					GameClient.send("charPlay", [getPlayer().animation.curAnim.name]);
 				//boyfriend.animation.curAnim.finish();
 			}
 		}
@@ -3808,22 +3827,12 @@ class PlayState extends MusicBeatState
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
 
-		var sendDance:Bool = false;
 		if (gf != null && curBeat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && gf.animation.curAnim != null && !gf.animation.curAnim.name.startsWith("sing") && !gf.stunned)
 			gf.dance();
-
-		if (curBeat % boyfriend.danceEveryNumBeats == 0 && boyfriend.animation.curAnim != null && !boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.stunned) {
-			sendDance = PlayState.isCharacterPlayer(boyfriend) && !boyfriend.animation.curAnim.name.startsWith('idle') && !boyfriend.animation.curAnim.name.startsWith('dance');
+		if (curBeat % boyfriend.danceEveryNumBeats == 0 && boyfriend.animation.curAnim != null && !boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.stunned)
 			boyfriend.dance();
-		}
-
-		if (curBeat % dad.danceEveryNumBeats == 0 && dad.animation.curAnim != null && !dad.animation.curAnim.name.startsWith('sing') && !dad.stunned) {
-			sendDance = PlayState.isCharacterPlayer(dad) && !dad.animation.curAnim.name.startsWith('idle') && !dad.animation.curAnim.name.startsWith('dance');
+		if (curBeat % dad.danceEveryNumBeats == 0 && dad.animation.curAnim != null && !dad.animation.curAnim.name.startsWith('sing') && !dad.stunned)
 			dad.dance();
-		}
-
-		if (sendDance)
-			GameClient.send("charPlay", [getPlayer().animation.curAnim.name]);
 
 		super.beatHit();
 		lastBeatHit = curBeat;
