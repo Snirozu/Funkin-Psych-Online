@@ -16,6 +16,8 @@ import backend.Song;
 import backend.Section;
 import states.stages.objects.TankmenBG;
 
+import online.GameClient;
+
 typedef CharacterFile = {
 	var animations:Array<AnimArray>;
 	var image:String;
