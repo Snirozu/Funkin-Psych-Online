@@ -185,7 +185,7 @@ class GameClient {
 
 			FlxG.autoPause = ClientPrefs.data.autoPause;
 
-			MusicBeatState.switchState(new OnlineState());
+			FlxG.switchState(() -> new OnlineState());
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 

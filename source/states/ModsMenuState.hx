@@ -240,7 +240,7 @@ class ModsMenuState extends MusicBeatState
 					FileUtils.removeFiles(haxe.io.Path.join([Paths.mods(), oldModName]));
 				}
 				Mods.updatedOnState = false;
-				MusicBeatState.switchState(new ModsMenuState());
+				FlxG.switchState(() -> new ModsMenuState());
 			});
 		});
 		buttonVerify.setGraphicSize(170, 50);
@@ -517,7 +517,7 @@ class ModsMenuState extends MusicBeatState
 			saveTxt(modsList);
 			if(needaReset)
 			{
-				//MusicBeatState.switchState(new TitleState());
+				//FlxG.switchState(() -> new TitleState());
 				TitleState.initialized = false;
 				TitleState.closedState = false;
 				FlxG.sound.music.fadeOut(0.3);
@@ -530,7 +530,7 @@ class ModsMenuState extends MusicBeatState
 			}
 			else
 			{
-				MusicBeatState.switchState(new MainMenuState());
+				FlxG.switchState(() -> new MainMenuState());
 			}
 		}
 

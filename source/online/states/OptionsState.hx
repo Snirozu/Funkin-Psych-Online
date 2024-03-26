@@ -104,7 +104,7 @@ class OptionsState extends MusicBeatState {
 		if (!inputWait) {
 			if (controls.BACK) {
 				FlxG.sound.music.volume = 1;
-				MusicBeatState.switchState(new OnlineState());
+				FlxG.switchState(() -> new OnlineState());
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 			}
 
@@ -138,7 +138,7 @@ class OptionsState extends MusicBeatState {
 						case "skin":
 							LoadingState.loadAndSwitchState(new SkinsState());
 						case "setup mods":
-							MusicBeatState.switchState(new SetupMods(Mods.getModDirectories(), true));
+							FlxG.switchState(() -> new SetupMods(Mods.getModDirectories(), true));
 						case "clear trusted domains":
 							ClientPrefs.data.trustedSources = ["https://gamebanana.com/"];
 							ClientPrefs.saveSettings();

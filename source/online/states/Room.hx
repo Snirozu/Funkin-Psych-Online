@@ -234,7 +234,7 @@ class Room extends MusicBeatState {
 					}
 					return true;
 				case "results":
-					MusicBeatState.switchState(new ResultsScreen());
+					FlxG.switchState(() -> new ResultsScreen());
 					return true;
 				default:
 					return false;
@@ -615,7 +615,7 @@ class Room extends MusicBeatState {
 					case 4:
 						if (GameClient.hasPerms()) {
 							GameClient.clearOnMessage();
-							MusicBeatState.switchState(new FreeplayState());
+							FlxG.switchState(() -> new FreeplayState());
 							FlxG.mouse.visible = false;
 						}
 						else {
@@ -629,13 +629,13 @@ class Room extends MusicBeatState {
 					case 5:
 						if (verifyDownloadMod()) {
 							GameClient.clearOnMessage();
-							MusicBeatState.switchState(new BananaDownload());
+							FlxG.switchState(() -> new BananaDownload());
 						}
 				}
 			}
 			else if (FlxG.mouse.justPressedRight) {
 				if (curSelected == 5)
-					MusicBeatState.switchState(new BananaDownload());
+					FlxG.switchState(() -> new BananaDownload());
 			}
 
 			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.C) {

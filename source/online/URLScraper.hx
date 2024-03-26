@@ -17,6 +17,12 @@ class URLScraper {
 				Waiter.put(() -> {
                     var doc = new HtmlDocument(data, true);
 					var titles = doc.find("#downloadButton");
+					if (titles[0] == null) {
+						Waiter.put(() -> {
+							Alert.alert("Download failed!", "Can't get the download link for this MediaFire file!");
+						});
+						return;
+					}
 					OnlineMods.startDownloadMod(url, titles[0].getAttribute("href"), null, onSuccess, [], url);
 				});
 			}
