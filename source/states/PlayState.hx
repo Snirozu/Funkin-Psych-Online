@@ -2480,7 +2480,7 @@ class PlayState extends MusicBeatState
 					boyfriend.playAnim('hey', true);
 					boyfriend.specialAnim = true;
 					boyfriend.heyTimer = flValue2;
-					if (PlayState.isCharacterPlayer(boyfriend))
+					if (GameClient.isConnected() && PlayState.isCharacterPlayer(boyfriend))
 						GameClient.send("charPlay", [value1, false, true]);
 				}
 
@@ -2517,7 +2517,7 @@ class PlayState extends MusicBeatState
 				{
 					char.playAnim(value1, true);
 					char.specialAnim = true;
-					if (PlayState.isCharacterPlayer(char))
+					if (GameClient.isConnected() && PlayState.isCharacterPlayer(char))
 						GameClient.send("charPlay", [value1, char == gf, true]);
 				}
 
