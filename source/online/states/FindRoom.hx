@@ -87,7 +87,7 @@ class FindRoom extends MusicBeatState {
 			refreshTimer.cancel();
             LoadingScreen.toggle(false);
 			FlxG.sound.music.volume = 1;
-			MusicBeatState.switchState(new OnlineState());
+			FlxG.switchState(() -> new OnlineState());
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 		}
 
@@ -209,7 +209,7 @@ class RoomBox extends FlxSpriteGroup {
 					if (err != null) {
 						return;
 					}
-					MusicBeatState.switchState(new Room());
+					FlxG.switchState(() -> new Room());
 				}));
 			}
         }

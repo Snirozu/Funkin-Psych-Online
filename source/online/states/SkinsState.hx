@@ -193,7 +193,7 @@ class SkinsState extends MusicBeatState {
 					GameClient.send("setSkin", null);
 				}
 			}
-			MusicBeatState.switchState(GameClient.isConnected() ? new Room() : new OptionsState());
+			FlxG.switchState(() -> GameClient.isConnected() ? new Room() : new OptionsState());
         }
 
         if (controls.ACCEPT) {
@@ -221,7 +221,7 @@ class SkinsState extends MusicBeatState {
 
 		if (FlxG.keys.justPressed.EIGHT) {
 			Mods.currentModDirectory = charactersMod.get(charactersName.get(curCharacter));
-			MusicBeatState.switchState(new CharacterEditorState(charactersName.get(curCharacter), false, true));
+			FlxG.switchState(() -> new CharacterEditorState(charactersName.get(curCharacter), false, true));
 		}
 
 		if (FlxG.keys.justPressed.NINE) {

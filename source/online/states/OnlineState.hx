@@ -55,7 +55,7 @@ class OnlineState extends MusicBeatState {
 		}
 
 		Waiter.put(() -> {
-			MusicBeatState.switchState(new Room());
+			FlxG.switchState(() -> new Room());
 		});
     }
 
@@ -205,16 +205,16 @@ class OnlineState extends MusicBeatState {
 					case "find":
 						disableInput = true;
 						// FlxG.openURL(GameClient.serverAddress + "/rooms");
-						MusicBeatState.switchState(new FindRoom());
+						FlxG.switchState(() -> new FindRoom());
 					case "host":
 						disableInput = true;
 						GameClient.createRoom(GameClient.serverAddress, onRoomJoin);
 					case "options":
 						disableInput = true;
-						MusicBeatState.switchState(new OptionsState());
+						FlxG.switchState(() -> new OptionsState());
 					case "mod downloader":
 						disableInput = true;
-						MusicBeatState.switchState(new BananaDownload());
+						FlxG.switchState(() -> new BananaDownload());
 					case "discord":
 						RequestState.requestURL("https://discord.gg/juHypjWuNc", true);
 					case "wiki":
@@ -229,7 +229,7 @@ class OnlineState extends MusicBeatState {
 				FlxG.mouse.visible = false;
 
 				FlxG.sound.play(Paths.sound('cancelMenu'));
-				MusicBeatState.switchState(new MainMenuState());
+				FlxG.switchState(() -> new MainMenuState());
 			}
 			
 			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V) {

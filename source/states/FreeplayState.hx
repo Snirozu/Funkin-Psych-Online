@@ -344,10 +344,10 @@ class FreeplayState extends MusicBeatState
 			if (GameClient.isConnected()) {
 				destroyFreeplayVocals();
 				GameClient.clearOnMessage();
-				MusicBeatState.switchState(new Room());
+				FlxG.switchState(() -> new Room());
 			}
 			else {
-				MusicBeatState.switchState(new MainMenuState());
+				FlxG.switchState(() -> new MainMenuState());
 			}
 			FlxG.autoPause = prevPauseGame;
 		}
@@ -385,7 +385,7 @@ class FreeplayState extends MusicBeatState
 					listening = true;
 					#end
 				}
-				catch (e) {
+				catch (e:Dynamic) {
 					trace('ERROR! $e');
 
 					var errorStr:String = e.toString();
@@ -418,10 +418,10 @@ class FreeplayState extends MusicBeatState
 							GameClient.send("verifyChart", hash);
 							destroyFreeplayVocals();
 							GameClient.clearOnMessage();
-							MusicBeatState.switchState(new Room());
+							FlxG.switchState(() -> new Room());
 							FlxG.autoPause = prevPauseGame;
 						}
-						catch (exc) {
+						catch (exc:Dynamic) {
 							Sys.println(exc);
 						}
 					});
@@ -438,7 +438,7 @@ class FreeplayState extends MusicBeatState
 						online.OnlineMods.getModURL(Mods.currentModDirectory)
 					]);
 				}
-				catch (e) {
+				catch (e:Dynamic) {
 					trace('ERROR! $e');
 
 					var errorStr:String = e.toString();

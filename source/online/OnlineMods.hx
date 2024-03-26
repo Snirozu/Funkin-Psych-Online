@@ -29,7 +29,7 @@ class OnlineMods {
 		}
 
 		if (needMods.length > 0) {
-			MusicBeatState.switchState(new SetupMods(needMods, false));
+			FlxG.switchState(() -> new SetupMods(needMods, false));
 			return true;
 		}
 		return false;

@@ -143,7 +143,7 @@ class ResultsScreen extends MusicBeatState {
 
 		if (!GameClient.isConnected()) {
 			GameClient.clearOnMessage();
-			MusicBeatState.switchState(new OnlineState());
+			FlxG.switchState(() -> new OnlineState());
 			return;
 		}
 
@@ -298,7 +298,7 @@ class ResultsScreen extends MusicBeatState {
 					FlxTween.tween(gainedText, {alpha: 0}, 0.2, {ease: FlxEase.quadInOut});
                 new FlxTimer().start(0.5, (t) -> {
 					GameClient.clearOnMessage();
-					MusicBeatState.switchState(new Room());
+					FlxG.switchState(() -> new Room());
                 });
             }
 

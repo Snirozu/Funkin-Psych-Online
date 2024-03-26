@@ -60,7 +60,7 @@ class DiscordClient
 				}
 
 				Waiter.put(() -> {
-					MusicBeatState.switchState(new Room());
+					FlxG.switchState(() -> new Room());
 				});
 			});
 		});

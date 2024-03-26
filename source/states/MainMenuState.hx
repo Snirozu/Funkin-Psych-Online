@@ -198,7 +198,7 @@ class MainMenuState extends MusicBeatState
 			{
 				selectedSomethin = true;
 				FlxG.sound.play(Paths.sound('cancelMenu'));
-				MusicBeatState.switchState(new TitleState());
+				FlxG.switchState(() -> new TitleState());
 			}
 
 			if (controls.ACCEPT)
@@ -235,17 +235,17 @@ class MainMenuState extends MusicBeatState
 								switch (daChoice)
 								{
 									case 'story_mode':
-										MusicBeatState.switchState(new StoryMenuState());
+										FlxG.switchState(() -> new StoryMenuState());
 									case 'freeplay':
-										MusicBeatState.switchState(new FreeplayState());
+										FlxG.switchState(() -> new FreeplayState());
 									#if MODS_ALLOWED
 									case 'mods':
-										MusicBeatState.switchState(new ModsMenuState());
+										FlxG.switchState(() -> new ModsMenuState());
 									#end
 									case 'awards':
-										MusicBeatState.switchState(new AchievementsMenuState());
+										FlxG.switchState(() -> new AchievementsMenuState());
 									case 'credits':
-										MusicBeatState.switchState(new CreditsState());
+										FlxG.switchState(() -> new CreditsState());
 									case 'options':
 										LoadingState.loadAndSwitchState(new OptionsState());
 										OptionsState.onPlayState = false;
@@ -256,7 +256,7 @@ class MainMenuState extends MusicBeatState
 											PlayState.SONG.splashSkin = null;
 										}
 									case 'online':
-										MusicBeatState.switchState(new OnlineState());
+										FlxG.switchState(() -> new OnlineState());
 								}
 							});
 						}
@@ -267,7 +267,7 @@ class MainMenuState extends MusicBeatState
 			else if (controls.justPressed('debug_1'))
 			{
 				selectedSomethin = true;
-				MusicBeatState.switchState(new MasterEditorMenu());
+				FlxG.switchState(() -> new MasterEditorMenu());
 			}
 			#end
 		}
