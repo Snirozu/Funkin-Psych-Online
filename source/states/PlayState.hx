@@ -3814,7 +3814,7 @@ class PlayState extends MusicBeatState
 		}
 
 		if (curBeat % dad.danceEveryNumBeats == 0 && dad.animation.curAnim != null && !dad.animation.curAnim.name.startsWith('sing') && !dad.stunned) {
-			sendDance = PlayState.isCharacterPlayer(dad) && dad.animation.curAnim.name.startsWith('idle') && dadMap.animation.curAnim.name.startsWith('dance');
+			sendDance = PlayState.isCharacterPlayer(dad) && dad.animation.curAnim.name.startsWith('idle') && dad.animation.curAnim.name.startsWith('dance');
 			dad.dance();
 		}
 
