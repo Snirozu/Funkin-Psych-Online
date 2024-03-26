@@ -2480,6 +2480,8 @@ class PlayState extends MusicBeatState
 					boyfriend.playAnim('hey', true);
 					boyfriend.specialAnim = true;
 					boyfriend.heyTimer = flValue2;
+					if (PlayState.isCharacterPlayer(boyfriend))
+						GameClient.send("charPlay", [value1, false, true]);
 				}
 
 			case 'Set GF Speed':
@@ -2515,6 +2517,8 @@ class PlayState extends MusicBeatState
 				{
 					char.playAnim(value1, true);
 					char.specialAnim = true;
+					if (PlayState.isCharacterPlayer(char))
+						GameClient.send("charPlay", [value1, char == gf, true]);
 				}
 
 			case 'Camera Follow Pos':
@@ -3663,14 +3667,13 @@ class PlayState extends MusicBeatState
 					char.playAnim(animToPlay, true);
 					char.holdTimer = 0;
 
-					GameClient.send("charPlay", [animToPlay, note.gfNote]);
-
-					if(note.noteType == 'Hey!') {
-						if(char.animOffsets.exists(animCheck)) {
-							char.playAnim(animCheck, true);
-							char.specialAnim = true;
-							char.heyTimer = 0.6;
-						}
+					if (note.noteType == 'Hey!' && char.animOffsets.exists(animCheck)) {
+						char.playAnim(animCheck, true);
+						char.specialAnim = true;
+						char.heyTimer = 0.6;
+						GameClient.send("charPlay", [animCheck, note.gfNote, true]);
+					} else {
+						GameClient.send("charPlay", [animToPlay, note.gfNote]);
 					}
 				}
 			}
@@ -4407,10 +4410,15 @@ class PlayState extends MusicBeatState
 				if (message == null || message[0] == null)
 					return;
 
-				if (message[1] ?? false && gf != null)
+				if (message[1] ?? false && gf != null) {
 					gf.playAnim(message[0], true);
-				else if (!(message[1] ?? false) && getOpponent() != null)
+					if (message[2] ?? false)
+						gf.specialAnim = true;
+				} else if (!(message[1] ?? false) && getOpponent() != null) {
 					getOpponent().playAnim(message[0], true);
+					if (message[2] ?? false)
+						getOpponent().specialAnim = true;
+				}
 			});
 		});
 
