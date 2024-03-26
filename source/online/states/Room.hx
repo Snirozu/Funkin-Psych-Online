@@ -545,19 +545,41 @@ class Room extends MusicBeatState {
 				}
 			}
 
-			if (controls.UI_LEFT_P) {
-				changeSelection(1);
-			}
-			if (controls.UI_RIGHT_P) {
-				changeSelection(-1);
-			}
-			if (controls.UI_UP_P) {
-				changeSelection(1);
-			}
-			if (controls.UI_DOWN_P) {
-				changeSelection(-1);
-			}
+			if (controls.TAUNT)
+				playerAnim('taunt');
 
+			if (FlxG.keys.pressed.ALT) { // useless, but why not?
+				var suffix = FlxG.keys.pressed.CONTROL ? 'miss' : '';
+				if (controls.NOTE_LEFT_P) {
+					playerAnim('singLEFT' + suffix);
+				}
+				if (controls.NOTE_RIGHT_P) {
+					playerAnim('singRIGHT' + suffix);
+				}
+				if (controls.NOTE_UP_P) {
+					playerAnim('singUP' + suffix);
+				}
+				if (controls.NOTE_DOWN_P) {
+					playerAnim('singDOWN' + suffix);
+				}
+			} else {
+				if (controls.UI_LEFT_P) {
+					changeSelection(1);
+				}
+				if (controls.UI_RIGHT_P) {
+					changeSelection(-1);
+				}
+				if (controls.UI_UP_P) {
+					changeSelection(1);
+				}
+				if (controls.UI_DOWN_P) {
+					changeSelection(-1);
+				}
+			}
+			
+			danceLogic(p1);
+			danceLogic(p2);
+			
 			if (controls.ACCEPT || FlxG.mouse.justPressed) {
 				switch (curSelected) {
 					case 0:
@@ -892,7 +914,9 @@ class Room extends MusicBeatState {
 	}
 
 	function playerAnim(anim:String, ?incoming:Bool = false) {
-		getPlayer(!incoming).playAnim(anim, true);
+		getPlayer(!incoming)?.playAnim(anim, true);
+		if (anim.endsWith('miss'))
+			var sond = FlxG.sound.play(Paths.sound('missnote' + FlxG.random.int(1, 3)), 0.25);
 
 		if (!incoming)
 			GameClient.send("charPlay", [anim]);
@@ -905,6 +929,19 @@ class Room extends MusicBeatState {
 			return GameClient.room.state.player2;
 	}
 
+	function danceLogic(char:Character, ?isBeat = false) {
+		if (char != null && char.animation.curAnim != null && !char.animation.curAnim.name.startsWith('sing')
+		&& !char.animation.curAnim.name.endsWith('miss')) {
+			if (isBeat) {
+				if (curBeat % char.danceEveryNumBeats == 0) {
+					char.dance();
+				}
+			} else if (char.holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * char.singDuration) {
+				char.dance();
+			}
+		}
+	}
+
 	override function beatHit() {
 		super.beatHit();
 
@@ -912,10 +949,7 @@ class Room extends MusicBeatState {
 		stage.beatHit(curBeat);
 		#end
 
-		if (p1.animation.curAnim.finished && curBeat % p1.danceEveryNumBeats == 0)
-			p1.dance();
-		
-		if (p2.animation.curAnim.finished && curBeat % p2.danceEveryNumBeats == 0)
-			p2.dance();
+		danceLogic(p1, true);
+		danceLogic(p2, true);
 	}
 }
