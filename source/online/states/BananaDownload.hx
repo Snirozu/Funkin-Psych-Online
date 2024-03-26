@@ -156,7 +156,7 @@ class BananaDownload extends MusicBeatState {
 		if (!searchInput.hasFocus) {
 			if (controls.BACK) {
 				FlxG.sound.music.volume = 1;
-				MusicBeatState.switchState(GameClient.isConnected() ? new Room() : new OnlineState());
+				FlxG.switchState(() -> GameClient.isConnected() ? new Room() : new OnlineState());
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				LoadingScreen.loading = false;
 			}
