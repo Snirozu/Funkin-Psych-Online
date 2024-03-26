@@ -576,7 +576,10 @@ class Room extends MusicBeatState {
 					changeSelection(-1);
 				}
 			}
-
+			
+			danceLogic(p1);
+			danceLogic(p2);
+			
 			if (controls.ACCEPT || FlxG.mouse.justPressed) {
 				switch (curSelected) {
 					case 0:
@@ -926,6 +929,19 @@ class Room extends MusicBeatState {
 			return GameClient.room.state.player2;
 	}
 
+	function danceLogic(char:Character, ?isBeat = false) {
+		if (isBeat) {
+			if (char != null && char.animation.curAnim.finished && curBeat % char.danceEveryNumBeats == 0
+				&& !char.animation.curAnim.name.startsWith('sing') && !char.animation.curAnim.name.endsWith('miss'))
+				char.dance();
+		} else {
+			if(char != null && char.animation.curAnim != null &&
+				char.holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * char.singDuration
+				&& char.animation.curAnim.name.startsWith('sing') && !char.animation.curAnim.name.endsWith('miss'))
+				char.dance();
+		}
+	}
+
 	override function beatHit() {
 		super.beatHit();
 
@@ -933,10 +949,7 @@ class Room extends MusicBeatState {
 		stage.beatHit(curBeat);
 		#end
 
-		if (p1 != null && p1.animation.curAnim.finished && curBeat % p1.danceEveryNumBeats == 0)
-			p1.dance();
-		
-		if (p2 != null && p2.animation.curAnim.finished && curBeat % p2.danceEveryNumBeats == 0)
-			p2.dance();
+		danceLogic(p1, true);
+		danceLogic(p2, true);
 	}
 }
