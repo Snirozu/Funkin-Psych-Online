@@ -932,13 +932,13 @@ class Room extends MusicBeatState {
 	function danceLogic(char:Character, ?isBeat = false) {
 		if (isBeat) {
 			if (char != null && char.animation.curAnim.finished && curBeat % char.danceEveryNumBeats == 0
-				&& !char.animation.curAnim.name.startsWith('sing') && !char.animation.curAnim.name.endsWith('miss'))
-				char.dance();
-		} else {
-			if(char != null && char.animation.curAnim != null &&
-				char.holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * char.singDuration
-				&& char.animation.curAnim.name.startsWith('sing') && !char.animation.curAnim.name.endsWith('miss'))
-				char.dance();
+				&& !char.animation.curAnim.name.startsWith('sing') && !char.animation.curAnim.name.endsWith('miss')) {
+					char.dance();
+				}
+		} else if(char != null && char.animation.curAnim != null &&
+			char.holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * char.singDuration
+			&& char.animation.curAnim.name.startsWith('sing') && !char.animation.curAnim.name.endsWith('miss')) {
+			char.dance();
 		}
 	}
 
