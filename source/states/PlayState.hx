@@ -2242,6 +2242,7 @@ class PlayState extends MusicBeatState
 					&& !getOpponent().animation.curAnim.name.endsWith('miss'))
 				{
 					getOpponent().dance();
+					playerHold = false;
 					//boyfriend.animation.curAnim.finish();
 				}
 
@@ -3700,7 +3701,10 @@ class PlayState extends MusicBeatState
 				GameClient.send("strumPlay", ["confirm", note.noteData, 0]);
 				if(spr != null) spr.playAnim('confirm', true);
 			}
-			else strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
+			else {
+				strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
+				playerHold = true;
+			}
 			getPlayerVocals().volume = 1;
 
 			var isSus:Bool = note.isSustainNote; //GET OUT OF MY HEAD, GET OUT OF MY HEAD, GET OUT OF MY HEAD
