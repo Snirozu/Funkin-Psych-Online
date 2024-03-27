@@ -431,8 +431,11 @@ class PlayState extends MusicBeatState
 			healthLoss = ClientPrefs.getGameplaySetting('healthloss');
 			instakillOnMiss = ClientPrefs.getGameplaySetting('instakill');
 			practiceMode = ClientPrefs.getGameplaySetting('practice');
-			cpuControlled = ClientPrefs.getGameplaySetting('botplay');
 			opponentMode = ClientPrefs.getGameplaySetting('opponentplay');
+			if (GameClient.isConnected())
+				cpuControlled = GameClient.canBotplay() && ClientPrefs.getGameplaySetting('botplay', null, null, true);
+			else
+				cpuControlled = ClientPrefs.getGameplaySetting('botplay');
 		});
 
 		preloadTasks.push(() -> {
@@ -2104,7 +2107,7 @@ class PlayState extends MusicBeatState
 		}*/
 		callOnScripts('onUpdate', [elapsed]);
 
-		if (cpuControlled && GameClient.isConnected()) {
+		if (cpuControlled && GameClient.isConnected() && !GameClient.canBotplay()) {
 			cpuControlled = false;
 		}
 
@@ -2258,7 +2261,8 @@ class PlayState extends MusicBeatState
 
 							if (GameClient.isConnected() && daNote.strumTime <= Conductor.songPosition) {
 								camZooming = true;
-								cpuControlled = false;
+								if (!GameClient.canBotplay())
+									cpuControlled = false;
 							}
 
 							if (isPlayerNote(daNote))
@@ -3693,8 +3697,9 @@ class PlayState extends MusicBeatState
 				var spr = getPlayerStrums().members[note.noteData];
 				GameClient.send("strumPlay", ["confirm", note.noteData, 0]);
 				if(spr != null) spr.playAnim('confirm', true);
+			} else {
+				strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
 			}
-			else strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
 			getPlayerVocals().volume = 1;
 
 			var isSus:Bool = note.isSustainNote; //GET OUT OF MY HEAD, GET OUT OF MY HEAD, GET OUT OF MY HEAD

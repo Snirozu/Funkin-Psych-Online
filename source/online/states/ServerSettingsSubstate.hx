@@ -21,6 +21,11 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 	var anarchyMode:Option;
 	var swapSides:Option;
 
+	var canBotP1:Option;
+	var canBotP2:Option;
+
+	var distance:Int = 75;
+
 	override function create() {
 		super.create();
 
@@ -58,7 +63,7 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 			publicRoom.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
 			publicRoom.checked = !GameClient.room.state.isPrivate;
-		}, 0, 80 * i, !GameClient.room.state.isPrivate));
+		}, 0, distance * i, !GameClient.room.state.isPrivate));
 		publicRoom.ID = i++;
 
 		items.add(anarchyMode = new Option("Anarchy Mode", "This option gives Player 2 host permissions.", () -> {
@@ -69,7 +74,7 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 			anarchyMode.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
 			anarchyMode.checked = GameClient.room.state.anarchyMode;
-		}, 0, 80 * i, GameClient.room.state.anarchyMode));
+		}, 0, distance * i, GameClient.room.state.anarchyMode));
 		anarchyMode.ID = i++;
 
 		items.add(swapSides = new Option("Swap Sides", "Swaps Player 1's strums with Player 2.", () -> {
@@ -80,7 +85,7 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 			swapSides.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
 			swapSides.checked = GameClient.room.state.swagSides;
-		}, 0, 80 * i, GameClient.room.state.swagSides));
+		}, 0, distance * i, GameClient.room.state.swagSides));
 		swapSides.ID = i++;
 
 		var unlockModifiers:Option;
@@ -92,20 +97,57 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 			unlockModifiers.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
 			unlockModifiers.checked = GameClient.room.state.permitModifiers;
-		}, 0, 80 * i, GameClient.room.state.permitModifiers));
+		}, 0, distance * i, GameClient.room.state.permitModifiers));
 		unlockModifiers.ID = i++;
+
+		// ignore this jank below just to make it prettier
+		var canBot:Array<Array<String>> = [[
+			"Allow Player Botplay", "This will allow you to use botplay! Only your opponent can enable this."]];
+		canBot.insert(GameClient.isOwner ? 1 : 0, [
+			"Allow Opponent Botplay", "This will allow your opponent to use botplay! Only you can enable this."]);
+
+		if (!GameClient.isOwner)
+			i++;
+		canBotP1 = new Option(canBot[0][0], canBot[0][1], GameClient.isOwner ? () -> {} : () -> {
+			GameClient.send("toggleBot", [!GameClient.room.state.canBotP1]);
+		}, (elapsed) -> {
+			canBotP1.alpha = !GameClient.isOwner ? 1 : 0.8;
+			canBotP1.checked = GameClient.room.state.canBotP1;
+		}, 0, distance * i, GameClient.room.state.canBotP1);
+
+		canBotP1.ID = i++;
+		if (!GameClient.isOwner)
+			i -= 2;
+
+		canBotP2 = new Option(canBot[1][0], canBot[1][1], !GameClient.isOwner ? () -> {} : () -> {
+			GameClient.send("toggleBot", [!GameClient.room.state.canBotP2]);
+		}, (elapsed) -> {
+			canBotP2.alpha = GameClient.isOwner ? 1 : 0.8;
+			canBotP2.checked = GameClient.room.state.canBotP2;
+		}, 0, distance * i, GameClient.room.state.canBotP2);
+		canBotP2.ID = i++;
+
+		if (GameClient.isOwner) {
+			items.add(canBotP1);
+			items.add(canBotP2);
+		} else {
+			i++;
+			items.add(canBotP2);
+			items.add(canBotP1);
+		}
+		// ignore this jank above just to make it prettier
 
 		var modifers:Option;
 		items.add(modifers = new Option("Game Modifiers", "Select room's gameplay modifiers here!", () -> {
 			close();
 			FlxG.state.openSubState(new GameplayChangersSubstate());
-		}, null, 0, 80 * i, false, true));
+		}, null, 0, distance * i, false, true));
 		modifers.ID = i++;
 
 		items.add(skinSelect = new Option("Select Skin", "Select your skin here!", () -> {
 			GameClient.clearOnMessage();
 			LoadingState.loadAndSwitchState(new SkinsState());
-		}, null, 0, 80 * i, false, true));
+		}, null, 0, distance * i, false, true));
 		skinSelect.ID = i++;
 
 		items.add(gameOptions = new Option("Game Options", "Open your game options here!", () -> {
@@ -113,7 +155,7 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 			LoadingState.loadAndSwitchState(new OptionsState());
 			OptionsState.onPlayState = false;
 			OptionsState.onOnlineRoom = true;
-		}, null, 0, 80 * i, false, true));
+		}, null, 0, distance * i, false, true));
 		gameOptions.ID = i++;
 
 		add(items);
