@@ -431,8 +431,11 @@ class PlayState extends MusicBeatState
 			healthLoss = ClientPrefs.getGameplaySetting('healthloss');
 			instakillOnMiss = ClientPrefs.getGameplaySetting('instakill');
 			practiceMode = ClientPrefs.getGameplaySetting('practice');
-			cpuControlled = ClientPrefs.getGameplaySetting('botplay', null, null, GameClient.canBotplay());
 			opponentMode = ClientPrefs.getGameplaySetting('opponentplay');
+			if (GameClient.isConnected())
+				cpuControlled = GameClient.canBotplay() && ClientPrefs.getGameplaySetting('botplay', null, null, true);
+			else
+				cpuControlled = ClientPrefs.getGameplaySetting('botplay');
 		});
 
 		preloadTasks.push(() -> {
