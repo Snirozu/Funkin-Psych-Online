@@ -279,6 +279,10 @@ class PlayState extends MusicBeatState
 	var boyfriendIdleTime:Float = 0.0;
 	var boyfriendIdled:Bool = false;
 
+	// uh... check if opponent is holding
+	public var playerHold(default, set):Bool = false;
+	public var oppHold:Bool = false;
+
 	// Lua shit
 	public static var instance:PlayState;
 	public var luaArray:Array<FunkinLua> = [];
@@ -305,6 +309,14 @@ class PlayState extends MusicBeatState
 			return false;
 		}
 		return true;
+	}
+
+	function set_playerHold(v) {
+		if (playerHold != v) {
+			playerHold = v;
+			GameClient.send("noteHold", [v]);
+		}
+		return v;
 	}
 
 	var freakyFlicker:FlxFlicker;
@@ -2231,8 +2243,19 @@ class PlayState extends MusicBeatState
 			{
 				if(!cpuControlled) {
 					keysCheck();
-				} else if(getPlayer().animation.curAnim != null && getPlayer().holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * getPlayer().singDuration && getPlayer().animation.curAnim.name.startsWith('sing') && !getPlayer().animation.curAnim.name.endsWith('miss')) {
+				} else if(getPlayer().animation.curAnim != null && getPlayer().holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * getPlayer().singDuration &&
+					getPlayer().animation.curAnim.name.startsWith('sing') && !(getPlayer().animation.curAnim.name.endsWith('miss') || getOpponent().isMissing)) {
 					getPlayer().dance();
+					//boyfriend.animation.curAnim.finish();
+				}
+
+				if (GameClient.isConnected() && (!oppHold || endingSong) && getOpponent().animation.curAnim != null
+					&& getOpponent().holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * getOpponent().singDuration
+					&& getOpponent().animation.curAnim.name.startsWith('sing')
+					&& !(getOpponent().animation.curAnim.name.endsWith('miss') || getOpponent().isMissing))
+				{
+					getOpponent().dance();
+					playerHold = false;
 					//boyfriend.animation.curAnim.finish();
 				}
 
@@ -3452,18 +3475,19 @@ class PlayState extends MusicBeatState
 				});
 			}
 
-			if (holdArray.contains(true) && !endingSong) {
+			playerHold = holdArray.contains(true);
+
+			if (playerHold && !endingSong) {
 				#if ACHIEVEMENTS_ALLOWED
 				var achieve:String = checkForAchievement(['oversinging']);
 				if (achieve != null) {
 					startAchievement(achieve);
 				}
 				#end
-			}
-			else if (getPlayer().animation.curAnim != null
+			} else if (getPlayer().animation.curAnim != null
 					&& getPlayer().holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * getPlayer().singDuration
 					&& getPlayer().animation.curAnim.name.startsWith('sing')
-					&& !getPlayer().animation.curAnim.name.endsWith('miss'))
+					&& !(getPlayer().animation.curAnim.name.endsWith('miss') || getPlayer().isMissing))
 			{
 				getPlayer().dance();
 				//boyfriend.animation.curAnim.finish();
@@ -3676,14 +3700,13 @@ class PlayState extends MusicBeatState
 					char.playAnim(animToPlay, true);
 					char.holdTimer = 0;
 
-					GameClient.send("charPlay", [animToPlay, note.gfNote]);
-					
-					if(note.noteType == 'Hey!') {
-						if(char.animOffsets.exists(animCheck)) {
-							char.playAnim(animCheck, true);
-							char.specialAnim = true;
-							char.heyTimer = 0.6;
-						}
+					if (note.noteType == 'Hey!' && char.animOffsets.exists(animCheck)) {
+						char.playAnim(animCheck, true);
+						char.specialAnim = true;
+						char.heyTimer = 0.6;
+						GameClient.send("charPlay", [animCheck, note.gfNote, true]);
+					} else {
+						GameClient.send("charPlay", [animToPlay, note.gfNote]);
 					}
 				}
 			}
@@ -3694,7 +3717,10 @@ class PlayState extends MusicBeatState
 				GameClient.send("strumPlay", ["confirm", note.noteData, 0]);
 				if(spr != null) spr.playAnim('confirm', true);
 			}
-			else strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
+			else {
+				strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
+				playerHold = true;
+			}
 			getPlayerVocals().volume = 1;
 
 			var isSus:Bool = note.isSustainNote; //GET OUT OF MY HEAD, GET OUT OF MY HEAD, GET OUT OF MY HEAD
@@ -4420,10 +4446,15 @@ class PlayState extends MusicBeatState
 				if (message == null || message[0] == null)
 					return;
 
-				if (message[1] ?? false && gf != null)
+				if (message[1] ?? false && gf != null) {
 					gf.playAnim(message[0], true);
-				else if (!(message[1] ?? false) && getOpponent() != null)
+					if (message[2] ?? false)
+						gf.specialAnim = true;
+				} else if (!(message[1] ?? false) && getOpponent() != null) {
 					getOpponent().playAnim(message[0], true);
+					if (message[2] ?? false)
+						getOpponent().specialAnim = true;
+				}
 			});
 		});
 
@@ -4476,6 +4507,15 @@ class PlayState extends MusicBeatState
 				updateScoreOpponent();
 				getOpponentVocals().volume = 0;
 				opCumboo = 0;
+			});
+		});
+
+		GameClient.room.onMessage("noteHold", function(message:Array<Dynamic>) {
+			Waiter.put(() -> {
+				if (message == null || message[0] == null) {
+					return;
+				}
+				oppHold = message[0];
 			});
 		});
 
