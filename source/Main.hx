@@ -184,6 +184,18 @@ class Main extends Sprite
 				online.LoadingScreen.toggle(false);
 			});
 		});
+		
+		FlxG.signals.postStateSwitch.add(() -> {
+			online.SyncScript.dispatch("switchState", [FlxG.state]);
+
+			FlxG.state.subStateOpened.add(substate -> {
+				online.SyncScript.dispatch("openSubState", [substate]);
+			});
+		});
+
+		online.SyncScript.resyncScript(false, () -> {
+			online.SyncScript.dispatch("init");
+		});
 	}
 
 	static function resetSpriteCache(sprite:Sprite):Void {
