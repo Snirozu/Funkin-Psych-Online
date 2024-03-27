@@ -98,7 +98,6 @@ class OnlineMods {
 		,'dad-battle', 'philly-nice', 'test', 'smash', 'ridge'
 	];
 
-	@:unreflective
 	public static function startDownloadMod(fileName:String, modURL:String, ?gbMod:GBMod, ?onSuccess:String->Void, ?headers:Map<String, String>, ?ogURL:String) {
 		new Downloader(fileName, ogURL ?? modURL, modURL, (fileName, downloader) -> {
 			installMod(fileName, downloader, downloader.originURL, gbMod, onSuccess);
