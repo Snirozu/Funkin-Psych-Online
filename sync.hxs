@@ -1,5 +1,5 @@
 // for future use, hooking into classes
-// this can be locally tested with sync.hx in the game directory
+// this can be locally tested with sync.hxs in the game directory
 
 import online.OnlineMods;
 
