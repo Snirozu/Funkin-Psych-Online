@@ -166,6 +166,8 @@
 	<haxedef name="HXCPP_STACK_LINE" if="CRASH_HANDLER" />
 	<haxedef name="HXCPP_STACK_TRACE" if="CRASH_HANDLER" />
 	<haxedef name='no-deprecation-warnings' />
+
+	<haxedef name='NO_PRECOMPILED_HEADERS' if="linux" />
 	
 	<!--Macro fixes-->
 	<haxeflag name="--macro" value="allowPackage('flash')" />
