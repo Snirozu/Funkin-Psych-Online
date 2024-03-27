@@ -52,4 +52,10 @@ class RoomState extends Schema {
 
 	@:type("boolean")
 	public var permitModifiers:Bool = false;
+
+	@:type("boolean")
+	public var canBotP1: Bool = false;
+
+	@:type("boolean")
+	public var canBotP2: Bool = false;
 }

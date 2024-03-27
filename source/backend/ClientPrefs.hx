@@ -249,10 +249,10 @@ class ClientPrefs {
 		}
 	}
 
-	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic = null, ?customDefaultValue:Bool = false):Dynamic {
+	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic = null, ?customDefaultValue:Bool = false, ?forceClient:Bool = false):Dynamic {
 		if(!customDefaultValue) defaultValue = defaultData.gameplaySettings.get(name);
-		var daGameplaySetting:Dynamic = GameClient.isConnected() && !GameClient.room.state.permitModifiers ? GameClient.getGameplaySetting(name) : data.gameplaySettings.get(name);
-		return /*PlayState.isStoryMode ? defaultValue : */ (daGameplaySetting != null ? daGameplaySetting : defaultValue);
+		var daGameplaySetting:Dynamic = (GameClient.isConnected() && !GameClient.room.state.permitModifiers && !forceClient) ? GameClient.getGameplaySetting(name) : data.gameplaySettings.get(name);
+		return (daGameplaySetting ?? defaultValue);
 	}
 
 	public static function reloadVolumeKeys() {

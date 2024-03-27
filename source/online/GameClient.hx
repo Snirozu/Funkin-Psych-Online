@@ -252,6 +252,10 @@ class GameClient {
 			room.send(type, message);
 	}
 
+	public static function canBotplay() {
+		return GameClient.isOwner ? GameClient.room.state.canBotP1 : GameClient.room.state.canBotP2;
+	}
+
 	public static function hasPerms() {
 		if (!GameClient.isConnected())
 			return false;

@@ -71,10 +71,12 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 			var option:GameplayOption = new GameplayOption('Practice Mode', 'practice', 'bool', false);
 			optionsArray.push(option);
 
-			var option:GameplayOption = new GameplayOption('Botplay', 'botplay', 'bool', false);
-			optionsArray.push(option);
-
 			var option:GameplayOption = new GameplayOption('Play as Opponent', 'opponentplay', 'bool', false);
+			optionsArray.push(option);
+		}
+
+		if (!GameClient.isConnected() || GameClient.canBotplay()) {
+			var option:GameplayOption = new GameplayOption('Botplay', 'botplay', 'bool', false);
 			optionsArray.push(option);
 		}
 
@@ -147,7 +149,6 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 		if (GameClient.isConnected()) {
 			GameClient.room.state.gameplaySettings.onChange(receiveChange);
-			
 		}
 	}
 
@@ -476,14 +477,17 @@ class GameplayOption
 
 	public function getValue():Dynamic
 	{
-		if (GameClient.isConnected() && !GameClient.room.state.permitModifiers) {
+		if (GameClient.isConnected() && !GameClient.room.state.permitModifiers &&
+			!(variable == 'botplay' && GameClient.canBotplay())) {
 			return GameClient.getGameplaySetting(variable);
 		}
 		return ClientPrefs.data.gameplaySettings.get(variable);
 	}
+
 	public function setValue(value:Dynamic)
 	{
-		if (GameClient.isConnected() && !GameClient.room.state.permitModifiers) {
+		if (GameClient.isConnected() && !GameClient.room.state.permitModifiers &&
+			!(variable == 'botplay' && GameClient.canBotplay())) {
 			return GameClient.setGameplaySetting(variable, value);
 		}
 		ClientPrefs.data.gameplaySettings.set(variable, value);
