@@ -33,7 +33,7 @@ jobs:
             ~/haxelib
             export/release/linux/haxe
             export/release/linux/obj
-          key: ${{ runner.os }}-cache
+          key: ${{ runner.os }}-build-cache
 
       - uses: krdlab/setup-haxe@master
         with:
@@ -70,7 +70,7 @@ jobs:
             ~/haxelib
             export/release/windows/haxe
             export/release/windows/obj
-          key: ${{ runner.os }}-cache
+          key: ${{ runner.os }}-build-cache
 
       - uses: krdlab/setup-haxe@master
         with:
@@ -106,7 +106,7 @@ jobs:
             ~/haxelib
             export/release/macos/haxe
             export/release/macos/obj
-          key: ${{ runner.os }}-cache
+          key: ${{ runner.os }}-build-cache
 
       - uses: krdlab/setup-haxe@master
         with:

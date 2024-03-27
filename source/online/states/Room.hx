@@ -803,7 +803,7 @@ class Room extends MusicBeatState {
 			player2Text.text = returnPlayerText(GameClient.room.state.player2);
         }
         else {
-			player2Text.text = "WAITING FOR OPPONENT";
+			player2Text.text = "WAITING FOR\nOPPONENT";
 			player2Text.alpha = 0.8;
 			p2.colorTransform.redOffset = -255;
 			p2.colorTransform.greenOffset = -255;
