@@ -253,6 +253,8 @@ class GameClient {
 	}
 
 	public static function canBotplay() {
+		if (!GameClient.isConnected())
+			return true;
 		return GameClient.isOwner ? GameClient.room.state.canBotP1 : GameClient.room.state.canBotP2;
 	}
 
