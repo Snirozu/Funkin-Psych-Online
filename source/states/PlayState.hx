@@ -2233,7 +2233,6 @@ class PlayState extends MusicBeatState
 					keysCheck();
 				} else if(getPlayer().animation.curAnim != null && getPlayer().holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * getPlayer().singDuration && getPlayer().animation.curAnim.name.startsWith('sing') && !getPlayer().animation.curAnim.name.endsWith('miss')) {
 					getPlayer().dance();
-					playerHold = false;
 					//boyfriend.animation.curAnim.finish();
 				}
 
@@ -3697,7 +3696,6 @@ class PlayState extends MusicBeatState
 				if(spr != null) spr.playAnim('confirm', true);
 			} else {
 				strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
-				playerHold = true;
 			}
 			getPlayerVocals().volume = 1;
 
