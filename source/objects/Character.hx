@@ -16,6 +16,8 @@ import backend.Song;
 import backend.Section;
 import states.stages.objects.TankmenBG;
 
+import online.GameClient;
+
 typedef CharacterFile = {
 	var animations:Array<AnimArray>;
 	var image:String;
@@ -48,6 +50,7 @@ class Character extends FlxSprite
 
 	public var isPlayer:Bool = false;
 	public var curCharacter:String = DEFAULT_CHARACTER;
+	public var isMissing:Bool = false;
 
 	public var colorTween:FlxTween;
 	public var holdTimer:Float = 0;
@@ -241,7 +244,7 @@ class Character extends FlxSprite
 				specialAnim = false;
 				dance();
 			}
-			else if (animation.curAnim.name.endsWith('miss') && animation.curAnim.finished)
+			else if ((animation.curAnim.name.endsWith('miss') || isMissing) && animation.curAnim.finished)
 			{
 				dance();
 				animation.finish();
@@ -267,7 +270,9 @@ class Character extends FlxSprite
 			else if(PlayState.isCharacterPlayer(this))
 				holdTimer = 0;
 
-			if (!PlayState.isCharacterPlayer(this) && holdTimer >= Conductor.stepCrochet * (0.0011 / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1)) * singDuration)
+			if ((PlayState.instance == null || (!GameClient.isConnected() && PlayState.instance.getPlayer() != this) // check for null or not connected
+				|| PlayState.instance.getPlayer() != this && (PlayState.instance.getOpponent() != this)) && // check if not player/opp
+				holdTimer >= Conductor.stepCrochet * (0.0011 / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1)) * singDuration)
 			{
 				dance();
 				holdTimer = 0;
@@ -313,6 +318,7 @@ class Character extends FlxSprite
 		colorTransform.blueMultiplier = 1;
 
 		specialAnim = false;
+		isMissing = AnimName.endsWith("miss");
 
 		if (AnimName == "taunt") {
 			specialAnim = true;
