@@ -67,7 +67,7 @@ class Room extends MusicBeatState {
 	function set_playerHold(v) {
 		if (playerHold != v) {
 			playerHold = v;
-			GameClient.send("noteHold", [v]);
+			GameClient.send("noteHold", v);
 		}
 		return v;
 	}
@@ -148,12 +148,12 @@ class Room extends MusicBeatState {
 			});
 		});
 
-		GameClient.room.onMessage("noteHold", function(message:Array<Dynamic>) {
+		GameClient.room.onMessage("noteHold", function(?message:Bool) {
 			Waiter.put(() -> {
-				if (message == null || message[0] == null) {
+				if (message == null) {
 					return;
 				}
-				oppHold = message[0];
+				oppHold = message;
 			});
 		});
 	}
