@@ -2255,7 +2255,6 @@ class PlayState extends MusicBeatState
 					&& !(getOpponent().animation.curAnim.name.endsWith('miss') || getOpponent().isMissing))
 				{
 					getOpponent().dance();
-					playerHold = false;
 					//boyfriend.animation.curAnim.finish();
 				}
 
@@ -3720,7 +3719,6 @@ class PlayState extends MusicBeatState
 			}
 			else {
 				strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
-				playerHold = true;
 			}
 			getPlayerVocals().volume = 1;
 

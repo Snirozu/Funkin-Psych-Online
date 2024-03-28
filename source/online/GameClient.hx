@@ -368,4 +368,12 @@ class GameClient {
 			return 2;
 		return 1;
 	}
+
+	public static function getStaticPlayer(?self:Bool = true) {
+		if (PlayState.instance != null) {
+			return self ? PlayState.instance.getPlayer() : PlayState.instance.getOpponent();
+		} else {
+			return online.states.Room.getStaticPlayer(self);
+		}
+	}
 }
