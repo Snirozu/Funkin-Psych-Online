@@ -2255,7 +2255,6 @@ class PlayState extends MusicBeatState
 					&& !(getOpponent().animation.curAnim.name.endsWith('miss') || getOpponent().isMissing))
 				{
 					getOpponent().dance();
-					playerHold = false;
 					//boyfriend.animation.curAnim.finish();
 				}
 
