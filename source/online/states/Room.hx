@@ -59,9 +59,23 @@ class Room extends MusicBeatState {
 	var leavePie:LeavePie;
 
 	var revealTimer:FlxTimer;
-	
+	var playerHold(default, set):Bool = false;
+	var oppHold:Bool = false;
+
+	static var instance:Room = null;
+
+	function set_playerHold(v) {
+		if (playerHold != v) {
+			playerHold = v;
+			GameClient.send("noteHold", [v]);
+		}
+		return v;
+	}
+
 	public function new() {
 		super();
+
+		instance = this;
 
 		GameClient.room.onMessage("checkChart", function(message) {
 			Waiter.put(() -> {
@@ -131,6 +145,15 @@ class Room extends MusicBeatState {
 					return;
 
 				playerAnim(message[0], true);
+			});
+		});
+
+		GameClient.room.onMessage("noteHold", function(message:Array<Dynamic>) {
+			Waiter.put(() -> {
+				if (message == null || message[0] == null) {
+					return;
+				}
+				oppHold = message[0];
 			});
 		});
 	}
@@ -548,6 +571,17 @@ class Room extends MusicBeatState {
 			if (controls.TAUNT)
 				playerAnim('taunt');
 
+			var held = false;
+			for (key in ['note_left', 'note_down', 'note_up', 'note_right']) {
+				if (controls.pressed(key)) {
+					held = true;
+					break;
+				}
+			}
+			playerHold = held;
+
+			trace('playerHold = ' + playerHold + ', oppHold = ' + oppHold);
+
 			if (FlxG.keys.pressed.ALT) { // useless, but why not?
 				var suffix = FlxG.keys.pressed.CONTROL ? 'miss' : '';
 				if (controls.NOTE_LEFT_P) {
@@ -904,7 +938,13 @@ class Room extends MusicBeatState {
 		}
 	}
 
-	function getPlayer(?isSelf:Bool = true) {
+	static public function getStaticPlayer(?isSelf:Bool = true) {
+		if (instance != null)
+			return instance.getPlayer(isSelf);
+		return null;
+	}
+
+	public function getPlayer(?isSelf:Bool = true) {
 		if (GameClient.isOwner) {
 			return isSelf ? p1 : p2;
 		}
@@ -930,14 +970,18 @@ class Room extends MusicBeatState {
 	}
 
 	function danceLogic(char:Character, ?isBeat = false) {
-		if (char != null && char.animation.curAnim != null && !char.animation.curAnim.name.startsWith('sing')
-		&& !char.animation.curAnim.name.endsWith('miss')) {
+		if (char != null && char.animation.curAnim != null) {
 			if (isBeat) {
-				if (curBeat % char.danceEveryNumBeats == 0) {
+				if (curBeat % char.danceEveryNumBeats == 0 &&
+					!char.animation.curAnim.name.startsWith('sing'))
 					char.dance();
-				}
-			} else if (char.holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * char.singDuration) {
-				char.dance();
+			} else {
+				if (!(char.animation.curAnim.name.endsWith('miss') || char.isMissing) &&
+					!(getPlayer() == char ? (playerHold || !(char.holdTimer >
+					Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * char.singDuration)) : oppHold) &&
+					char.animation.curAnim.name.startsWith('sing') &&
+					!(char.animation.curAnim.name.endsWith('miss') || char.isMissing))
+					char.dance();
 			}
 		}
 	}
