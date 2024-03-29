@@ -67,7 +67,7 @@ class Room extends MusicBeatState {
 	function set_playerHold(v) {
 		if (playerHold != v) {
 			playerHold = v;
-			GameClient.send("noteHold", [v]);
+			GameClient.send("noteHold", v);
 		}
 		return v;
 	}
@@ -148,12 +148,12 @@ class Room extends MusicBeatState {
 			});
 		});
 
-		GameClient.room.onMessage("noteHold", function(message:Array<Dynamic>) {
+		GameClient.room.onMessage("noteHold", function(?message:Bool) {
 			Waiter.put(() -> {
-				if (message == null || message[0] == null) {
+				if (message == null) {
 					return;
 				}
-				oppHold = message[0];
+				oppHold = message;
 			});
 		});
 	}
@@ -580,7 +580,7 @@ class Room extends MusicBeatState {
 			}
 			playerHold = held;
 
-			trace('playerHold = ' + playerHold + ', oppHold = ' + oppHold);
+			// trace('playerHold = ' + playerHold + ', oppHold = ' + oppHold);
 
 			if (FlxG.keys.pressed.ALT) { // useless, but why not?
 				var suffix = FlxG.keys.pressed.CONTROL ? 'miss' : '';
@@ -977,9 +977,9 @@ class Room extends MusicBeatState {
 					char.dance();
 			} else {
 				if (!(char.animation.curAnim.name.endsWith('miss') || char.isMissing) &&
-					!(getPlayer() == char ? (playerHold || !(char.holdTimer >
-					Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * char.singDuration)) : oppHold) &&
-					char.animation.curAnim.name.startsWith('sing') &&
+					!(getPlayer() == char ? playerHold : oppHold) &&
+					char.holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * char.singDuration
+					&& char.animation.curAnim.name.startsWith('sing') &&
 					!(char.animation.curAnim.name.endsWith('miss') || char.isMissing))
 					char.dance();
 			}
