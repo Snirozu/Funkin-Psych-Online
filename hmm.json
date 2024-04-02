@@ -78,6 +78,13 @@
       "name": "HtmlParser",
       "type": "haxelib",
       "version": "3.4.0"
+    },
+    {
+      "name": "unrar",
+      "type": "git",
+      "dir": null,
+      "ref": "main",
+      "url": "https://github.com/Snirozu/Haxe-UnRAR"
     }
   ]
 }
