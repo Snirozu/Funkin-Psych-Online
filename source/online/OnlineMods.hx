@@ -1,7 +1,8 @@
 package online;
 
+#if RAR_SUPPORTED
 import unrar.UnRAR;
-import unrar.RARUtil;
+#end
 import backend.WeekData;
 import haxe.io.Path;
 import online.states.RequestState;
@@ -112,7 +113,7 @@ class OnlineMods {
 		var parentFolder = Paths.mods(); // the destination mod path
 		var ignoreRest = false;
 		var isExecutable = false;
-		var isRar = RARUtil.isRAR(fileName);
+		var isRar = unrar.RARUtil.isRAR(fileName);
 		var zipFiles:List<Entry> = null;
 
 		function iterFunc(fileName:String) {
@@ -167,6 +168,7 @@ class OnlineMods {
 		}
 
 		if (isRar) {
+			#if RAR_SUPPORTED
 			UnRAR.openArchive({
 				openPath: fileName,
 				mode: LIST,
@@ -181,6 +183,11 @@ class OnlineMods {
 					return file;
 				}
 			});
+			#else
+			Waiter.put(() -> {
+				Alert.alert("RAR is not supported on this platform!");
+			});
+			#end
 		}
 		else {
 			var file = File.read(fileName, true);
@@ -238,6 +245,7 @@ class OnlineMods {
 		}
 
 		if (isRar) {
+			#if RAR_SUPPORTED
 			UnRAR.openArchive({
 				openPath: fileName,
 				mode: EXTRACT,
@@ -255,6 +263,11 @@ class OnlineMods {
 					return Path.join([parentFolder, file.substring(beginFolder.length)]);
 				}
 			});
+			#else
+			Waiter.put(() -> {
+				Alert.alert("RAR is not supported on this platform!");
+			});
+			#end
 		}
 		else {
 			for (entry in zipFiles) {
