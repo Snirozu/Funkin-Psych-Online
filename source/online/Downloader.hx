@@ -93,7 +93,9 @@ class Downloader {
 		"application/x-tar",
 		"application/gzip",
 		"application/x-gtar",
-		"application/octet-stream" // unknown files
+		"application/octet-stream", // unknown files
+		"application/vnd.rar",
+		"application/x-rar-compressed",
 	];
 
 	public static function isMediaTypeAllowed(file:String) {
@@ -129,6 +131,9 @@ class Downloader {
 			try {
 				socket.connect(new Host(urlFormat.domain), urlFormat.port);
 
+				if (ClientPrefs.isDebug())
+					Sys.println("DHX: Connected to HTTP 1.1 socket!");
+
 				socket.write('GET ${urlFormat.path} HTTP/1.1${headers}\n\n');
 
 				var httpStatus:String = null;
@@ -141,6 +146,8 @@ class Downloader {
 					});
 					cancelRequested = true;
 				}
+				if (ClientPrefs.isDebug())
+					Sys.println("DHX: Got response headers!");
 				break;
 			}
 			catch (exc) {
@@ -170,6 +177,9 @@ class Downloader {
 			var splitHeader = readLine.split(": ");
 			gotHeaders.set(splitHeader[0].toLowerCase(), splitHeader[1]);
 		}
+
+		if (ClientPrefs.isDebug())
+			Sys.println("DHX: Parsed response headers!");
 
 		if (cancelRequested) {
 			doCancel();
@@ -206,6 +216,9 @@ class Downloader {
 			return;
 		}
 
+		if (ClientPrefs.isDebug())
+			Sys.println("DHX: Transfer-Encoding type: " + gotHeaders.get("transfer-encoding"));
+
 		try {
 			file = File.append(downloadPath, true);
 		}
@@ -219,6 +232,9 @@ class Downloader {
 			doCancel();
 			return;
 		}
+
+		if (ClientPrefs.isDebug())
+			Sys.println("DHX: Starting the download!");
 		
 		var buffer:Bytes = Bytes.alloc(1024);
 		var _bytesWritten:Int = 0;

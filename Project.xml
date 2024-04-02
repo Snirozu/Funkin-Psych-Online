@@ -27,7 +27,7 @@
 	<define name="HSCRIPT_ALLOWED" unless="mobile" /> <!-- sscript isn't compatible with android (crashes clang?) -->
 	<define name="LUA_ALLOWED" if="cpp" />
 	<define name="ACHIEVEMENTS_ALLOWED" />
-	<define name="DISCORD_ALLOWED" if="cpp && windows" />
+	<define name="DISCORD_ALLOWED" if="windows" unless="hl" />
 	<define name="VIDEOS_ALLOWED" if="windows || linux || android" unless="32bits"/>
 	<define name="PSYCH_WATERMARKS"/> <!-- DELETE THIS TO REMOVE WATERMARKS/DEV NAMES ON TITLE SCREEN -->
 	<define name="TITLE_SCREEN_EASTER_EGG" if="officialBuild"/> <!-- DELETE THE if="officialBuild" for enabling this on an unofficial build -->
@@ -118,6 +118,7 @@
 	<haxelib name="tjson" />
 	<haxelib name="colyseus" />
 	<haxelib name="HtmlParser" />
+	<haxelib name="unrar" if="windows" unless="hl" />
 
 	<haxedef name="openflPos" />
 	<haxedef name="hscriptPos" />
