@@ -1,17 +1,16 @@
 package online;
 
+import unrar.UnRAR;
+import unrar.RARUtil;
 import backend.WeekData;
 import haxe.io.Path;
 import online.states.RequestState;
-import openfl.net.URLRequestHeader;
-import haxe.Http;
 import online.GameBanana.GBMod;
 import openfl.display.PNGEncoderOptions;
 import haxe.Json;
 import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
 import openfl.display.BitmapData;
-import lime.system.System;
 import haxe.zip.Reader;
 import haxe.zip.Entry;
 import online.states.SetupMods;
@@ -109,48 +108,36 @@ class OnlineMods {
 		fileName = Path.normalize(fileName); // I HATE WINDOWS PATH FORMAT AAAAAAAAAAAAAA (C:/ is cool though, JUST INVERT THESE SLASHES PLEASE)
 		var _fileNameSplit = fileName.split("/");
 		var swagFileName = _fileNameSplit[_fileNameSplit.length - 1].split(".")[0];
-		var file = File.read(fileName, true);
-		var zipFiles:List<Entry>;
-		try {
-			zipFiles = Reader.readZip(file);
-		} 
-		catch (exc) {
-			trace(exc);
-			file.close();
-			Waiter.put(() -> {
-				Alert.alert("Mod's data is corrupted or invalid!");
-			});
-			return;
-		}
-		file.close();
 		var beginFolder = null; // the folder inside the archive to extract
 		var parentFolder = Paths.mods(); // the destination mod path
 		var ignoreRest = false;
-		var fileSize = 0.;
-		var dataSize = 0.;
 		var isExecutable = false;
-		for (entry in zipFiles) {
-			fileSize += entry.fileSize;
-			dataSize += entry.dataSize;
+		var isRar = RARUtil.isRAR(fileName);
+		var zipFiles:List<Entry> = null;
 
-			if (entry.fileName.endsWith(".exe"))
+		function iterFunc(fileName:String) {
+			if (fileName.endsWith(".exe"))
 				isExecutable = true;
 
 			if (!ignoreRest) {
-				var pathSplit = entry.fileName.split("/");
+				var pathSplit = fileName.split("/");
 
 				var suppModPath = pathSplit[pathSplit.length - 3] ?? "";
 				var suppModFolder = pathSplit[pathSplit.length - 2] ?? "";
 
 				var removeCount = 
 					suppModFolder.length == 0 ? 0 : 1 + 
-					entry.fileName.length == 0 ? 0 : 1
+					fileName.length == 0 ? 0 : 1
 				;
 
-				if (Mods.ignoreModFolders.contains(suppModFolder)) {
+				if (suppModPath != "shared"
+					&& fileName.endsWith("/")
+					&& Mods.ignoreModFolders.contains(suppModFolder)
+					&& !Mods.ignoreModFolders.contains(suppModPath)
+				) {
 					beginFolder = 
-						entry.fileName // something/mod_name/characters/ or something/mod_name/assets/characters/ (because assets always go first)
-						.substring(0, entry.fileName.length - (
+						fileName // something/mod_name/characters/ or something/mod_name/assets/characters/ (because assets always go first)
+						.substring(0, fileName.length - (
 							suppModPath == "assets" ?
 								suppModFolder.length + suppModPath.length + removeCount + (suppModPath.length == 0 ? 0 : 1)
 								:
@@ -173,19 +160,61 @@ class OnlineMods {
 							parentFolder += splat[splat.length - 1] ?? (gbMod != null ? gbMod._id : swagFileName);
 					parentFolder += "/"; //dont ask
 					ignoreRest = true;
+					if (ClientPrefs.isDebug())
+						trace(fileName, parentFolder, beginFolder);
 				}
 			}
 		}
-		if (Math.min(fileSize, dataSize) < 0 || Math.max(fileSize, dataSize) >= 3000000000) {
-			Waiter.put(() -> {
-				Alert.alert("Downloading Cancelled",
-					'Mod\'s archive file is WAY too big!\n${FlxMath.roundDecimal(Math.max(fileSize, dataSize) / 1000000000, 4)}GB');
+
+		if (isRar) {
+			UnRAR.openArchive({
+				openPath: fileName,
+				mode: LIST,
+				onError: (code, type) -> {
+					Waiter.put(() -> {
+						Alert.alert("Listing RAR failed!", '$code\n$type');
+					});
+					return;
+				},
+				onFile: (file, flags) -> {
+					iterFunc(file);
+					return file;
+				}
 			});
-			return;
 		}
+		else {
+			var file = File.read(fileName, true);
+			try {
+				zipFiles = Reader.readZip(file);
+			}
+			catch (exc) {
+				trace(exc);
+				file.close();
+				Waiter.put(() -> {
+					Alert.alert("Mod's data is corrupted or invalid!");
+				});
+				return;
+			}
+			file.close();
+
+			var fileSize = 0.;
+			var dataSize = 0.;
+			for (entry in zipFiles) {
+				fileSize += entry.fileSize;
+				dataSize += entry.dataSize;
+
+				iterFunc(entry.fileName);
+			}
+			if (Math.min(fileSize, dataSize) < 0 || Math.max(fileSize, dataSize) >= 3000000000) {
+				Waiter.put(() -> {
+					Alert.alert("Downloading Cancelled",
+						'Mod\'s archive file is WAY too big!\n${FlxMath.roundDecimal(Math.max(fileSize, dataSize) / 1000000000, 4)}GB');
+				});
+				return;
+			}
+		}
+		
 		if (beginFolder == null) {
-			if (downloader != null)
-				System.openFile(downloader.tryRenameFile());
 			Waiter.put(() -> {
 				Alert.alert("Mod data not found inside of the archive!");
 			});
@@ -208,8 +237,36 @@ class OnlineMods {
 			}
 		}
 
-		for (entry in zipFiles) {
-			_unzip(entry, beginFolder, parentFolder);
+		if (isRar) {
+			UnRAR.openArchive({
+				openPath: fileName,
+				mode: EXTRACT,
+				onError: (code, type) -> {
+					Waiter.put(() -> {
+						Alert.alert("Extracting RAR failed!", '$code\n$type');
+					});
+					return;
+				},
+				onFile: (file, flags) -> {
+					if (!StringTools.startsWith(file, beginFolder) || flags.isDirectory) {
+						return null;
+					}
+
+					return Path.join([parentFolder, file.substring(beginFolder.length)]);
+				}
+			});
+		}
+		else {
+			for (entry in zipFiles) {
+				if (!StringTools.startsWith(entry.fileName, beginFolder) || entry.fileName.endsWith("/")) {
+					return;
+				}
+
+				if (!FileSystem.exists(Path.directory(Path.join([parentFolder, entry.fileName.substring(beginFolder.length)])))) {
+					FileSystem.createDirectory(Path.join([parentFolder, Path.directory(entry.fileName).substring(beginFolder.length)]));
+				}
+				File.saveBytes(Path.join([parentFolder, entry.fileName.substring(beginFolder.length)]), Reader.unzip(entry));
+			}
 		}
 
 		if ((gbMod != null ? gbMod.rootCategory == "Skins" : false) && !FileSystem.exists(Paths.mods(modName + '/pack.json'))) {
@@ -366,17 +423,6 @@ class OnlineMods {
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			}
 		});
-	}
-
-	private static function _unzip(entry:Entry, begins:String, newParent:String) {
-		if (!StringTools.startsWith(entry.fileName, begins) || entry.fileName.endsWith("/")) {
-			return;
-		}
-
-		if (!FileSystem.exists(Path.directory(Path.join([newParent, entry.fileName.substring(begins.length)])))) {
-			FileSystem.createDirectory(Path.join([newParent, Path.directory(entry.fileName).substring(begins.length)]));
-		}
-		File.saveBytes(Path.join([newParent, entry.fileName.substring(begins.length)]), Reader.unzip(entry));
 	}
 
 	public static function formatSongName(song:String) {
