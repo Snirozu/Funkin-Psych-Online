@@ -120,6 +120,7 @@
 	<haxelib name="colyseus" />
 	<haxelib name="HtmlParser" />
 	<haxelib name="unrar" />
+	<haxelib name="away3d" /> <!-- exposing away so people can use it with lua/hscript or whatever -->
 
 	<haxedef name="openflPos" />
 	<haxedef name="hscriptPos" />

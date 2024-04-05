@@ -98,6 +98,10 @@ class OnlineMods {
 		,'dad-battle', 'philly-nice', 'test', 'smash', 'ridge'
 	];
 
+	static final vanillaWeeks:Array<String> = [
+		'tutorial', 'week1', 'week2', 'week3', 'week4', 'week5', 'week6', 'week7'
+	];
+
 	public static function startDownloadMod(fileName:String, modURL:String, ?gbMod:GBMod, ?onSuccess:String->Void, ?headers:Map<String, String>, ?ogURL:String) {
 		new Downloader(fileName, ogURL ?? modURL, modURL, (fileName, downloader) -> {
 			installMod(fileName, downloader, downloader.originURL, gbMod, onSuccess);
@@ -111,6 +115,7 @@ class OnlineMods {
 		var swagFileName = _fileNameSplit[_fileNameSplit.length - 1].split(".")[0];
 		var beginFolder = null; // the folder inside the archive to extract
 		var parentFolder = Paths.mods(); // the destination mod path
+		var modName:String = null;
 		var ignoreRest = false;
 		var isExecutable = false;
 		var isRar = unrar.RARUtil.isRAR(fileName);
@@ -123,51 +128,31 @@ class OnlineMods {
 			if (!ignoreRest) {
 				var pathSplit = fileName.split("/");
 
-				var suppModPath = pathSplit[pathSplit.length - 3] ?? "";
-				var suppModFolder = pathSplit[pathSplit.length - 2] ?? "";
+				var forFiles = [];
+				for (file in pathSplit) {
+					if (file == "shared" || file == "mods")
+						return;
 
-				var removeCount = 
-					suppModFolder.length == 0 ? 0 : 1 + 
-					fileName.length == 0 ? 0 : 1
-				;
+					if (file == "assets" || Mods.ignoreModFolders.contains(file)) {
+						modName = forFiles[forFiles.length - 1] ?? null;
+						if (modName == null || modName.trim() == "" || modName == "bin" || modName == "PsychEngine")
+							modName = gbMod != null ? gbMod._id : swagFileName;
+						modName = FileUtils.formatFile(modName);
 
-				if (suppModPath != "shared"
-					&& fileName.endsWith("/")
-					&& Mods.ignoreModFolders.contains(suppModFolder)
-					&& !Mods.ignoreModFolders.contains(suppModPath)
-				) {
-					beginFolder = 
-						fileName // something/mod_name/characters/ or something/mod_name/assets/characters/ (because assets always go first)
-						.substring(0, fileName.length - (
-							suppModPath == "assets" ?
-								suppModFolder.length + suppModPath.length + removeCount + (suppModPath.length == 0 ? 0 : 1)
-								:
-								suppModFolder.length + removeCount
-							)
-						)
-					;
-
-					if (beginFolder == "assets/" || beginFolder == "mods/") {
-						beginFolder = "";
+						parentFolder += modName + "/";
+						beginFolder = forFiles.join("/") + "/";
+						ignoreRest = true;
+						if (ClientPrefs.isDebug())
+							trace(beginFolder + ' -> ' + parentFolder);
+						return;
 					}
-
-					var splat = beginFolder.split("/");
-					if (splat[splat.length - 1] == "bin" || splat[splat.length - 1] == "mods" || splat[splat.length - 1].trim() == "")
-						parentFolder += (gbMod != null ? gbMod._id : swagFileName);
-					else
-						if (splat[splat.length - 1] == "assets")
-							parentFolder += splat[splat.length - 2] ?? (gbMod != null ? gbMod._id : swagFileName);
-						else
-							parentFolder += splat[splat.length - 1] ?? (gbMod != null ? gbMod._id : swagFileName);
-					parentFolder += "/"; //dont ask
-					ignoreRest = true;
-					if (ClientPrefs.isDebug())
-						trace(fileName, parentFolder, beginFolder);
+					forFiles.push(file);
 				}
 			}
 		}
 
 		if (isRar) {
+			var rarFailed = false;
 			#if RAR_SUPPORTED
 			UnRAR.openArchive({
 				openPath: fileName,
@@ -176,7 +161,7 @@ class OnlineMods {
 					Waiter.put(() -> {
 						Alert.alert("Listing RAR failed!", '$code\n$type');
 					});
-					return;
+					rarFailed = true;
 				},
 				onFile: (file, flags) -> {
 					iterFunc(file);
@@ -188,6 +173,9 @@ class OnlineMods {
 				Alert.alert("RAR is not supported on this platform!");
 			});
 			#end
+			if (rarFailed) {
+				return;
+			}
 		}
 		else {
 			var file = File.read(fileName, true);
@@ -228,13 +216,9 @@ class OnlineMods {
 			return;
 		}
 
-		//Sys.println('found data in archive: "${beginFolder}", to: "${parentFolder}"');
-
-		var modName = FileUtils.formatFile(parentFolder.substring(Paths.mods().length, parentFolder.length - 1));
-
 		if (FileSystem.exists(Paths.mods(modName))) {
 			try {
-				FileUtils.removeFiles(Paths.mods(modName));
+				FileUtils.removeFiles(parentFolder);
 			}
 			catch (exc) {
 				Waiter.put(() -> {
@@ -245,22 +229,29 @@ class OnlineMods {
 		}
 
 		if (isRar) {
+			var rarFailed = false; 
 			#if RAR_SUPPORTED
 			UnRAR.openArchive({
 				openPath: fileName,
 				mode: EXTRACT,
 				onError: (code, type) -> {
+					trace("RAR FAILED: " + code + " - " + type);
 					Waiter.put(() -> {
 						Alert.alert("Extracting RAR failed!", '$code\n$type');
 					});
-					return;
+					rarFailed = true;
 				},
 				onFile: (file, flags) -> {
 					if (!StringTools.startsWith(file, beginFolder) || flags.isDirectory) {
 						return null;
 					}
 
-					return Path.join([parentFolder, file.substring(beginFolder.length)]);
+					var coolPath = Path.join([parentFolder, file.substring(beginFolder.length)]).split("/");
+					for (i => file in coolPath) {
+						// seems like unrar (c++ side) doesn't want to create files with invalid characters?
+						coolPath[i] = FileUtils.formatFile(file, i == coolPath.length - 1);
+					}
+					return coolPath.join("/");
 				}
 			});
 			#else
@@ -268,11 +259,17 @@ class OnlineMods {
 				Alert.alert("RAR is not supported on this platform!");
 			});
 			#end
+			if (rarFailed) {
+				try {
+					FileUtils.removeFiles(parentFolder);
+				} catch (exc) {}
+				return;
+			}
 		}
 		else {
 			for (entry in zipFiles) {
 				if (!StringTools.startsWith(entry.fileName, beginFolder) || entry.fileName.endsWith("/")) {
-					return;
+					continue;
 				}
 
 				if (!FileSystem.exists(Path.directory(Path.join([parentFolder, entry.fileName.substring(beginFolder.length)])))) {
@@ -346,6 +343,11 @@ class OnlineMods {
 				FileSystem.deleteFile(Paths.mods(modName + "/images/alphabet.xml"));
 			}
 
+			//get yo ass outta here
+			if (FileSystem.exists(Paths.mods(modName + "/weeks/weekList.txt"))) {
+				FileSystem.deleteFile(Paths.mods(modName + "/weeks/weekList.txt"));
+			}
+
 			var songsToAdd = [];
 			var diffsToAdd = [];
 			// for (file in FileSystem.readDirectory(Paths.mods(modName + "/songs"))) {
@@ -388,6 +390,15 @@ class OnlineMods {
 			FileUtils.forEachFile(Paths.mods(modName + "/weeks/"), (path) -> {
 				try {
 					if (path.endsWith(".json")) {
+						var pathSplit = path.split("/");
+						var week = pathSplit.pop();
+						week = week.substring(0, week.length - ".json".length);
+
+						if (vanillaWeeks.contains(week)) {
+							pathSplit.push(week + "_" + modName + ".json");
+							FileSystem.rename(path, path = Path.join(pathSplit));
+						}
+
 						var json = Json.parse(File.getContent(path));
 						var songs:Array<Array<Dynamic>> = json.songs;
 						for (song in songs) {

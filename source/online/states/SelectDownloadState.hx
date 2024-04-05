@@ -79,6 +79,9 @@ class SelectDownloadState extends MusicBeatSubstate {
 
 		if (downloads._aFiles != null && downloads._aFiles.length > 0) {
 			for (dl in downloads._aFiles) {
+				if (dl._sFile.endsWith(".7z"))
+					continue;
+				
 				dl._sDescription += (dl._sDescription.trim() != "" ? "\n" : "") + "Size: " + DownloadAlert.prettyBytes(dl._nFilesize);
 
 				var download = new DownloadBox(dl._sFile, dl._sDescription, dl._sDownloadUrl, ++i);

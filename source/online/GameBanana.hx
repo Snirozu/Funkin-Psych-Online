@@ -27,6 +27,8 @@ typedef GBMod = {
 	var withheld:Bool;
 	var rootCategory:String;
 	var downloadCount:Float;
+	var likes:Float;
+	var screenshots:Array<GBImage>;
 }
 
 typedef GBSub = {
@@ -102,11 +104,11 @@ class GameBanana {
 		});
 	}
 
-	public static function getMod(id:String, response:(mod:GBMod, err:Dynamic)->Void) {
-		Thread.run(() -> {
+	public static function getMod(id:String, response:(mod:GBMod, err:Dynamic)->Void, ?threaded:Bool = true) {
+		var func = () -> {
 			var http = new Http(
 			"https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=" + id + 
-			"&fields=name,description,Files().aFiles(),Url().sDownloadUrl(),Game().name,Trash().bIsTrashed(),Withhold().bIsWithheld(),RootCategory().name,downloads"
+			"&fields=name,description,Files().aFiles(),Url().sDownloadUrl(),Game().name,Trash().bIsTrashed(),Withhold().bIsWithheld(),RootCategory().name,downloads,likes,screenshots"
 			);
 
 			http.onData = function(data:String) {
@@ -122,7 +124,9 @@ class GameBanana {
 					trashed: arr[5],
 					withheld: arr[6],
 					rootCategory: arr[7],
-					downloadCount: arr[8]
+					downloadCount: arr[8],
+					likes: arr[9],
+					screenshots: Json.parse(arr[10])
 				}, null);
 			}
 
@@ -131,7 +135,11 @@ class GameBanana {
 			}
 
 			http.request();
-		});
+		};
+		if (threaded)
+			Thread.run(func);
+		else
+			func();
     }
 
 	public static function getModDownloads(modID:Float, response:(downloads:DownloadPage, err:Dynamic) -> Void) {
@@ -174,7 +182,7 @@ class GameBanana {
         }
 
 		if (daModUrl == null) {
-			Alert.alert("Failed to download!", "Unsupported file archive type!\n(Only ZIP, TAR, TGZ archives are supported!)");
+			Alert.alert("Failed to download!", "Unsupported file archive type!\n(Only ZIP, TAR, TGZ, RAR archives are supported!)");
 			RequestState.requestURL(mod.pageDownload, "The following mod needs to be installed from this source", true);
 			return;
 		}
