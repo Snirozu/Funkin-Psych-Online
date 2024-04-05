@@ -20,6 +20,18 @@ class BananaDownload extends MusicBeatState {
 	var searchInput:InputText;
 	var pageInfo:FlxText;
 	
+	//var showVerified = false;
+	// public static var verified:Array<Float> = [
+	// 	305075,
+	// 	358364,
+	// 	360477,
+	// 	387484,
+	// 	377938,
+	// 	398737,
+	// 	411524,
+	// 	418767
+	// ];
+	
 	override function create() {
 		curSelected = 0;
 		
@@ -65,6 +77,10 @@ class BananaDownload extends MusicBeatState {
 
 		searchInput = new InputText(0, 0, Std.int(searchBg.width - 40), text -> {
 			if (StringTools.startsWith(searchInput.text, "https://")) {
+				if (StringTools.startsWith(searchInput.text, "https://gamebanana.com/mods/")) {
+					openModDownloads(Std.parseFloat(searchInput.text.substr("https://gamebanana.com/mods/".length)));
+					return;
+				}
 				OnlineMods.downloadMod(searchInput.text);
 				searchInput.text = "";
 			}
@@ -107,9 +123,12 @@ class BananaDownload extends MusicBeatState {
 
 		var query = "";
 		var order:String = null;
+		var collection:String = null;
 		for (word in searchInput.text.split(" ")) {
 			if (word.startsWith("sort:"))
 				order = word.substr("sort:".length);
+			else if (word.startsWith("collection:"))
+				collection = word.substr("collection:".length);
 			else
 				query += word + " ";
 		}
@@ -119,6 +138,88 @@ class BananaDownload extends MusicBeatState {
 		if (query != null && newSearch) {
 			newPage = 1;
 		}
+
+		// if (collection == "verified") {
+		// 	items.clear();
+		// 	curSelected = 0;
+
+		// 	var i:Int = (newPage - 1) * 15;
+		// 	var maxI:Int = newPage * 15;
+
+		// 	function onMods(mods:Array<ModInfo>) {
+		// 		LoadingScreen.toggle(false);
+
+		// 		if (destroyed)
+		// 			return;
+
+		// 		for (i => mod in mods) {
+		// 			var item = new ModItem(mod);
+		// 			item.y = Math.floor(i / 5) * 190;
+		// 			item.x = Math.floor(i % 5) * 250;
+		// 			item.ID = i;
+		// 			items.add(item);
+		// 		}
+
+		// 		items.screenCenter(X);
+		// 		items.y = itemsY;
+
+		// 		page = newPage;
+		// 		pageInfo.text = '< Page ${page} >';
+		// 	}
+
+		// 	Thread.run(() -> {
+		// 		var mods:Array<ModInfo> = [];
+		// 		while (i <= maxI) {
+		// 			if (destroyed)
+		// 				return;
+
+		// 			if (i >= verified.length) {
+		// 				break;
+		// 			}
+
+		// 			var modID = verified[i] + "";
+
+		// 			GameBanana.getMod(modID, (mod, err) -> {
+		// 				if (err != null)
+		// 					return;
+
+		// 				var thumbnailsLength = mod.screenshots.length;
+		// 				var firstThumb = mod.screenshots.shift();
+
+		// 				var thumbnails:Array<Thumbnail> = [];
+		// 				for (image in mod.screenshots) {
+		// 					thumbnails.push({
+		// 						url: "https://images.gamebanana.com/img/ss/mods/" + image._sFile,
+		// 						width: 220,
+		// 						height: 125
+		// 					});
+		// 				}
+
+		// 				mods.push({
+		// 					url: "https://gamebanana.com/mods/" + mod._id,
+		// 					id: Std.parseFloat(mod._id),
+		// 					name: mod.name,
+		// 					likes: mod.likes,
+		// 					category: mod.rootCategory,
+		// 					categoryIconURL: null,
+		// 					thumbnail: {
+		// 						url: "https://images.gamebanana.com/img/ss/mods/" + firstThumb._sFile220,
+		// 						width: firstThumb._wFile220,
+		// 						height: firstThumb._hFile220
+		// 					},
+		// 					thumbnails: thumbnails,
+		// 					thumbnailsLength: thumbnailsLength
+		// 				});
+		// 			}, false);
+
+		// 			i++;
+		// 		}
+		// 		Waiter.put(() -> {
+		// 			onMods(mods);
+		// 		});
+		// 	});
+		// 	return;
+		// }
 
 		GameBanana.searchMods(query, newPage, order, (mods, err) -> {
 			LoadingScreen.toggle(false);
@@ -214,28 +315,28 @@ class BananaDownload extends MusicBeatState {
 				else if (curSelected >= 0 && items.length - 1 >= curSelected) {
 					if (FlxG.mouse.justPressed) {
 						if (FlxG.mouse.overlaps(items.members[curSelected].dlBg)) {
-							openModDownloads();
+							openModDownloads(items.members[curSelected].mod.id);
 						}
 						else if (FlxG.mouse.overlaps(items.members[curSelected].linkBg)) {
-							RequestState.requestURL(items.members[curSelected].mod._sProfileUrl, "The following button redirects to:", true);
+							RequestState.requestURL(items.members[curSelected].mod.url, "The following button redirects to:", true);
 						}
 					}
 					else {
-						openModDownloads();
+						openModDownloads(items.members[curSelected].mod.id);
 					}
 				}
 			}
 		}
     }
 
-	function openModDownloads() {
-		if (items.members[curSelected].mod._idRow == 479714) {
+	function openModDownloads(modId:Float) {
+		if (modId == 479714) {
 			FlxG.openURL('https://www.youtube.com/watch?v=WC_mHIBCHDo');
 			return;
 		}
 
 		LoadingScreen.toggle(true);
-		GameBanana.getModDownloads(items.members[curSelected].mod._idRow, (downloads, err) -> {
+		GameBanana.getModDownloads(modId, (downloads, err) -> {
 			LoadingScreen.toggle(false);
 
 			if (err != null) {
@@ -260,11 +361,34 @@ class BananaDownload extends MusicBeatState {
 
 		var i:Int = 0;
 		for (mod in mods) {
-			// if (mod._aRootCategory._sName == "Executables") {
-			// 	continue;
-			// }
+			var thumbnailsLength = mod._aPreviewMedia._aImages.length;
+			var firstThumb = mod._aPreviewMedia._aImages.shift();
 
-			var item = new ModItem(mod);
+			var thumbnails:Array<Thumbnail> = [];
+			for (image in mod._aPreviewMedia._aImages) {
+				thumbnails.push({
+					url: image._sBaseUrl + "/" + image._sFile,
+					width: 220,
+					height: 125
+				});
+			}
+
+			var item = new ModItem({
+				url: mod._sProfileUrl,
+				id: mod._idRow,
+				name: mod._sName,
+				likes: mod._nLikeCount,
+				category: mod._aRootCategory._sName,
+				categoryIconURL: mod._aRootCategory._sIconUrl,
+				thumbnail: {
+					url: firstThumb._sBaseUrl + "/" + firstThumb._sFile220,
+					width: firstThumb._wFile220,
+					height: firstThumb._hFile220
+				},
+				thumbnails: thumbnails,
+				thumbnailsLength: thumbnailsLength
+			});
+
 			item.y = Math.floor(i / 5) * 190;
 			item.x = Math.floor(i % 5) * 250;
 			item.ID = i;
@@ -283,7 +407,7 @@ class BananaDownload extends MusicBeatState {
 }
 
 class ModItem extends FlxSpriteGroup {
-	public var mod:GBSub;
+	public var mod:ModInfo;
 
 	public var bg:FlxSprite;
 	public var dlBg:FlxSprite;
@@ -294,7 +418,7 @@ class ModItem extends FlxSpriteGroup {
 
 	public var selected = false;
 
-	public function new(mod:GBSub) {
+	public function new(mod:ModInfo) {
 		this.mod = mod;
 		super();
 
@@ -316,7 +440,7 @@ class ModItem extends FlxSpriteGroup {
 		categoryNameBg.visible = false;
 		add(categoryNameBg);
 
-		var categoryName = new FlxText(5, 5, 0, mod._aRootCategory._sName);
+		var categoryName = new FlxText(5, 5, 0, mod.category);
 		categoryName.setFormat("VCR OSD Mono", 15, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		categoryName.visible = false;
 		add(categoryName);
@@ -325,7 +449,7 @@ class ModItem extends FlxSpriteGroup {
 		category.visible = false;
 		add(category);
 
-		getImage(mod._aRootCategory._sIconUrl, (bytes, err) -> {
+		getImage(mod.categoryIconURL, (bytes, err) -> {
 			if (!exists)
 				return;
 
@@ -348,7 +472,7 @@ class ModItem extends FlxSpriteGroup {
 			categoryNameBg.setPosition(categoryName.x, categoryName.y);
 		});
 
-		var name = new FlxText(0, thumb.clipRect.height, bg.width, mod._sName);
+		var name = new FlxText(0, thumb.clipRect.height, bg.width, mod.name);
 		name.setFormat("VCR OSD Mono", 15, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(name);
 
@@ -361,7 +485,7 @@ class ModItem extends FlxSpriteGroup {
 		like.loadGraphic(Paths.image("like"));
 		add(like);
 
-		var likes = new FlxText(0, 0, 0, (mod._nLikeCount == null ? 0 : mod._nLikeCount) + "");
+		var likes = new FlxText(0, 0, 0, (mod.likes == null ? 0 : mod.likes) + "");
 		likes.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(likes);
 
@@ -463,7 +587,7 @@ class ModItem extends FlxSpriteGroup {
 	}
 
 	function loadScreenshot(index:Int) {
-		if (index >= mod._aPreviewMedia._aImages.length) {
+		if (index >= mod.thumbnailsLength) {
 			index = 0;
 		}
 
@@ -471,7 +595,7 @@ class ModItem extends FlxSpriteGroup {
 		if (index != curScreenshot) {
 			loadingScreenshot = true;
 			if (index == 0) {
-				getImage(mod._aPreviewMedia._aImages[0]._sBaseUrl + "/" + mod._aPreviewMedia._aImages[0]._sFile220, (bytes, err) -> {
+				getImage(mod.thumbnail.url, (bytes, err) -> {
 					if (!exists)
 						return;
 
@@ -484,11 +608,11 @@ class ModItem extends FlxSpriteGroup {
 
 					thumb.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes), false, null, false));
 					thumb.antialiasing = ClientPrefs.data.antialiasing;
-					if (mod._aPreviewMedia._aImages[0]._hFile220 < thumb.clipRect.height) {
-						thumb.setGraphicSize(mod._aPreviewMedia._aImages[0]._wFile220, thumb.clipRect.height);
+					if (mod.thumbnail.height < thumb.clipRect.height) {
+						thumb.setGraphicSize(mod.thumbnail.width, thumb.clipRect.height);
 					}
 					else {
-						thumb.setGraphicSize(mod._aPreviewMedia._aImages[0]._wFile220, mod._aPreviewMedia._aImages[0]._hFile220);
+						thumb.setGraphicSize(mod.thumbnail.width, mod.thumbnail.height);
 					}
 					thumb.updateHitbox();
 
@@ -496,7 +620,7 @@ class ModItem extends FlxSpriteGroup {
 				});
 			}
 			else {
-				getImage(mod._aPreviewMedia._aImages[index]._sBaseUrl + "/" + mod._aPreviewMedia._aImages[index]._sFile, (bytes, err) -> {
+				getImage(mod.thumbnails[index - 1].url, (bytes, err) -> {
 					if (!exists)
 						return;
 					if (err != null || !selected) {
@@ -519,6 +643,9 @@ class ModItem extends FlxSpriteGroup {
 	}
 
 	public static function getImage(url:String, response:(bytes:Bytes, err:Dynamic) -> Void) {
+		if (url == null)
+			return;
+		
 		Thread.run(() -> {
 			var http = new Http(url);
 
@@ -538,3 +665,22 @@ class ModItem extends FlxSpriteGroup {
 		});
 	}
 }
+
+typedef ModInfo = {
+	var url:String;
+	var id:Float;
+	var category:String;
+	var likes:Null<Float>;
+	var name:String;
+
+	var categoryIconURL:String;
+	var thumbnail:Thumbnail;
+	var thumbnails:Array<Thumbnail>;
+	var thumbnailsLength:Float;
+}
+
+typedef Thumbnail = {
+	var url:String;
+	var width:Float;
+	var height:Float;
+} 

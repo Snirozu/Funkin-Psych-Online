@@ -438,8 +438,11 @@ class Note extends FlxSprite
 		_lastValidChecked = '';
 	}
 
+	var following:StrumNote = null;
 	public function followStrumNote(myStrum:StrumNote, fakeCrochet:Float, songSpeed:Float = 1)
 	{
+		following = myStrum;
+
 		var strumX:Float = myStrum.x;
 		var strumY:Float = myStrum.y;
 		var strumAngle:Float = myStrum.angle;
@@ -457,20 +460,21 @@ class Note extends FlxSprite
 			alpha = strumAlpha * multAlpha;
 
 		if(copyX)
-			x = strumX + offsetX + Math.cos(angleDir) * distance;
+			set_x(strumX + offsetX + Math.cos(angleDir) * distance);
 
 		if(copyY)
 		{
-			y = strumY + offsetY + correctionOffset + Math.sin(angleDir) * distance;
+			set_y(strumY + offsetY + correctionOffset + Math.sin(angleDir) * distance);
 			if(myStrum.downScroll && isSustainNote)
 			{
 				if(PlayState.isPixelStage)
 				{
-					y -= PlayState.daPixelZoom * 9.5;
+					set_y(y - PlayState.daPixelZoom * 9.5);
 				}
-				y -= (frameHeight * scale.y) - (Note.swagWidth / 2);
+				set_y(y - (frameHeight * scale.y) - (Note.swagWidth / 2));
 			}
 		}
+
 	}
 
 	public function clipToStrumNote(myStrum:StrumNote)
@@ -499,5 +503,33 @@ class Note extends FlxSprite
 			}
 			clipRect = swagRect;
 		}
+	}
+
+	override function set_visible(value:Bool):Bool {
+		if (following != null && ClientPrefs.data.disableStrumMovement) {
+			return super.set_visible(following.visible);
+		}
+		return super.set_visible(value);
+	}
+
+	override function set_alpha(value:Float):Float {
+		if (following != null && ClientPrefs.data.disableStrumMovement) {
+			return super.set_alpha(following.alpha);
+		}
+		return super.set_alpha(value);
+	}
+
+	override function set_x(value:Float):Float {
+		if (following != null && ClientPrefs.data.disableStrumMovement) {
+			return x;
+		}
+		return super.set_x(value);
+	}
+
+	override function set_y(value:Float):Float {
+		if (following != null && ClientPrefs.data.disableStrumMovement) {
+			return y;
+		}
+		return super.set_y(value);
 	}
 }

@@ -76,6 +76,7 @@ class Downloader {
 			}
 			catch (exc) {
 				if (!cancelRequested) {
+					trace(id + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
 					Waiter.put(() -> {
 						Alert.alert('Uncaught Download Error!', id + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
 					});
@@ -123,6 +124,7 @@ class Downloader {
 
 		socket = !urlFormat.isSSL ? new Socket() : new sys.ssl.Socket();
 		socket.setTimeout(5);
+		socket.setBlocking(true);
 
 		var tries = 0;
 		while (!cancelRequested) {
@@ -137,14 +139,14 @@ class Downloader {
 				socket.write('GET ${urlFormat.path} HTTP/1.1${headers}\n\n');
 
 				var httpStatus:String = null;
+				socket.waitForRead();
 				httpStatus = socket.input.readLine();
 				httpStatus = httpStatus.substr(httpStatus.indexOf(" ")).ltrim();
 
 				if (httpStatus == null || httpStatus.startsWith("4") || httpStatus.startsWith("5")) {
 					Waiter.put(() -> {
-						Alert.alert('Server doesn\'t have this mod!', httpStatus);
+						Alert.alert('Server Error - $httpStatus', 'Retrying ($tries)...');
 					});
-					cancelRequested = true;
 				}
 				if (ClientPrefs.isDebug())
 					Sys.println("DHX: Got response headers!");
@@ -152,12 +154,15 @@ class Downloader {
 			}
 			catch (exc) {
 				if (tries >= 5) {
+					trace(id + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
 					Waiter.put(() -> {
 						Alert.alert('Couldn\'t connect to the server after multiple tries!', '${urlFormat.domain + urlFormat.path}' + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
 					});
 					cancelRequested = true;
 					break;
 				}
+				if (ClientPrefs.isDebug())
+					Sys.println("DHX: Retrying...");
 				Sys.sleep(1);
 			}
 		}
@@ -169,6 +174,7 @@ class Downloader {
 
 		var gotHeaders:Map<String, String> = new Map<String, String>();
 		while (gotContent < contentLength && !cancelRequested) {
+			socket.waitForRead();
 			var readLine:String = socket.input.readLine();
 			gotContent += readLine.length;
 			if (readLine.trim() == "") {
@@ -240,6 +246,7 @@ class Downloader {
 		var _bytesWritten:Int = 0;
 		isDownloading = true;
 		while (gotContent < contentLength && !cancelRequested) {
+			socket.waitForRead();
 			_bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
 			file.writeBytes(buffer, 0, _bytesWritten);
 			gotContent += _bytesWritten;

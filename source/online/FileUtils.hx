@@ -76,12 +76,12 @@ class FileUtils {
 
 	static final illegalCharacters = ~/[\/|\\|?|*|:|\||"|<|>|.]/;
 
-	public static function formatFile(file:String):String {
+	public static function formatFile(file:String, ?ignoreExtension:Bool = false):String {
 		var filtered = "";
 		var i = -1;
 		while (++i < file.length) {
 			var char = file.charAt(i);
-			if (!illegalCharacters.match(char))
+			if ((ignoreExtension && char == ".") || !illegalCharacters.match(char))
 				filtered += char;
 		}
 		return filtered;

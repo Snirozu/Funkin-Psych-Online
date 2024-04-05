@@ -210,13 +210,20 @@ class Paths
 	}
 
 	inline static public function voices(song:String, postfix:String = null):Any {
-		var songKey:String = '${formatToSongPath(song)}/Voices';
-		if (postfix != null)
-			songKey += '-' + postfix;
-		var voices = returnSound('songs', songKey);
-		@:privateAccess
-		if (voices.__buffer == null)
-			return null;
+		var voices:Sound = null;
+		try {
+			var songKey:String = '${formatToSongPath(song)}/Voices';
+			if (postfix != null)
+				songKey += '-' + postfix;
+			var sound = returnSound('songs', songKey);
+			if (sound == null || sound.length <= 0)
+				sound = null;
+			voices = sound;
+		}
+		catch (_) {
+			voices = null;
+		}
+
 		return voices;
 	}
 

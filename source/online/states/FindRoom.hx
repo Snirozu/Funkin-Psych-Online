@@ -91,6 +91,8 @@ class FindRoom extends MusicBeatState {
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 		}
 
+		camera.scroll.x = camFollow.getMidpoint().x;
+
 		tip.visible = items.length > 0;
 		tipBg.visible = tip.visible;
 
