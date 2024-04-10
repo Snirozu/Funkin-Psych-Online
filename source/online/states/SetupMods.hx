@@ -63,7 +63,7 @@ class SetupMods extends MusicBeatState {
 				text.y += prevText.height * i;
 			}
 			text.ID = i;
-			text.setFormat("VCR OSD Mono", 30, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			text.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			items.add(prevText = text);
 			modsInput.push(OnlineMods.getModURL(itm));
 			i++;
@@ -72,7 +72,7 @@ class SetupMods extends MusicBeatState {
 		add(items);
 
 		var title = new FlxText(0, 0, FlxG.width, 
-        "Before you play, it is recommended to set links for your mods!\nGamebanana mod links need to look similiar to this: https://gamebanana.com/mods/479714\nSelect mods with ACCEPT, Paste links with CTRL + V, Leave with BACK"
+        "Before you play, it is recommended to set links for your mods!\nGamebanana mod links need to look similiar to this: https://gamebanana.com/mods/479714\nSelect mods with ACCEPT, Paste links with CTRL + V, Leave with BACK\nHold SHIFT while exiting to discard all changes"
         );
 		title.setFormat("VCR OSD Mono", 22, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		title.y = 50;
@@ -111,11 +111,13 @@ class SetupMods extends MusicBeatState {
 				changeSelection(1);
 
 			if (controls.BACK || FlxG.mouse.justPressedRight) {
-                var i = 0;
-                for (mod in swagMods) {
-					OnlineMods.saveModURL(mod, modsInput[i]);
-                    i++;
-                }
+				if (!FlxG.keys.pressed.SHIFT) {
+					var i = 0;
+					for (mod in swagMods) {
+						OnlineMods.saveModURL(mod, modsInput[i]);
+						i++;
+					}
+				}
 
 				FlxG.switchState(() -> fromOptions ? new OptionsState() : new OnlineState());
 				FlxG.sound.play(Paths.sound('cancelMenu'));
@@ -155,7 +157,7 @@ class SetupMods extends MusicBeatState {
 
 	function getItemName(item:Int) {
 		if (item == curSelected && inInput)
-			return swagMods[item] + ": " + modsInput[item];
+			return modsInput[item];
 		return swagMods[item];
 	}
 

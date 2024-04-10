@@ -111,7 +111,7 @@ class SkinsState extends MusicBeatState {
 		add(swagText);
 
 		var swagText = new FlxText(0, swagText.y + swagText.height + 5, FlxG.width);
-		swagText.text = 'Use Note keybinds while pressing SHIFT to move!';
+		swagText.text = 'Press F1 if you want to know how to create your own skin!';
 		swagText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		swagText.alpha = 0.8;
 		swagText.cameras = [hud];
@@ -131,6 +131,13 @@ class SkinsState extends MusicBeatState {
 		charSelect.alpha = 0.8;
 		charSelect.cameras = [hud];
 		add(charSelect);
+
+		var swagText = new FlxText(0, charSelect.y + charSelect.height + 5, FlxG.width);
+		swagText.text = 'Use Note keybinds while pressing SHIFT to move!';
+		swagText.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		swagText.alpha = 0.8;
+		swagText.cameras = [hud];
+		add(swagText);
 
 		var tip1 = new FlxText(20, 0, FlxG.width, 'UI LEFT - Switch to previous\n8 - Edit skin');
 		tip1.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -227,6 +234,10 @@ class SkinsState extends MusicBeatState {
 		if (FlxG.keys.justPressed.NINE) {
 			flipped = !flipped;
 			LoadingState.loadAndSwitchState(new SkinsState());
+		}
+
+		if (FlxG.keys.justPressed.F1) {
+			RequestState.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki#skins", true);
 		}
     }
 
