@@ -49,6 +49,7 @@ class CreditsState extends MusicBeatState
 			[''],
 			['Contributors'],
 			['Magniill', 'notmagniill', 'Remade the Online button sprite!', 'https://twitter.com/magniill', '910000'],
+			['xenkap', '', 'Contributed some cool stuff to the source code!', 'https://github.com/xenkap', '9370DB'],
 			[''],
 			['Psych Engine Team'],
 			['Shadow Mario',		'shadowmario',		'Main Programmer of Psych Engine',								'https://twitter.com/Shadow_Mario_',	'444444'],
@@ -63,7 +64,7 @@ class CreditsState extends MusicBeatState
 			['Keoiki',				'keoiki',			'Note Splash Animations and Latin Alphabet',					'https://twitter.com/Keoiki_',			'D2D2D2'],
 			['superpowers04',		'superpowers04',	'LUA JIT Fork',													'https://twitter.com/superpowers04',	'B957ED'],
 			['Smokey',				'smokey',			'Sprite Atlas Support',											'https://twitter.com/Smokey_5_',		'483D92'],
-			['shubs',				'shubs',			'Ex-Programmer of Psych Engine',								'https://twitter.com/yoshubs',			'5E99DF'],
+			['shubs',				'',					'Ex-Programmer of Psych Engine',								'',									    '5E99DF'],
 			['bb-panzu',			'bb',				'Ex-Programmer of Psych Engine',								'https://twitter.com/bbsub3',			'3E813A'],
 			[''],
 			["Funkin' Crew"],
@@ -220,7 +221,7 @@ class CreditsState extends MusicBeatState
 		} while(unselectableCheck(curSelected));
 
 		var newColor:FlxColor = CoolUtil.colorFromString(creditsStuff[curSelected][4]);
-		trace('The BG color is: $newColor');
+		//trace('The BG color is: $newColor');
 		if(newColor != intendedColor) {
 			if(colorTween != null) {
 				colorTween.cancel();

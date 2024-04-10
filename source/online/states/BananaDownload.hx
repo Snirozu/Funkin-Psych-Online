@@ -487,11 +487,11 @@ class ModItem extends FlxSpriteGroup {
 				category.antialiasing = ClientPrefs.data.antialiasing;
 				category.x = bg.x + bg.width - category.width; // bg.x is needed for some reason
 				category.visible = true;
-				if (categoryName.width > bg.width - 10)
-					categoryName.fieldWidth = bg.width - category.frameWidth - 20;
+				if (categoryName.width > bg.width - category.frameWidth - 15)
+					categoryName.fieldWidth = bg.width - category.frameWidth - 15;
 			}
-			else if (categoryName.width > bg.width - 10) {
-				categoryName.fieldWidth = bg.width - 10;
+			else if (categoryName.width > bg.width - 15) {
+				categoryName.fieldWidth = bg.width - 15;
 			}
 			categoryNameBg.scale.set(categoryName.width + 5, categoryName.height + 5);
 			categoryNameBg.updateHitbox();
