@@ -36,7 +36,7 @@ class FindRoom extends MusicBeatState {
 		DiscordClient.changePresence("Finding a room.", null, null, false);
 		#end
 
-		camera.follow(camFollow = new FlxObject(), 0.1);
+		camera.follow(camFollow = new FlxObject(FlxG.width / 2), 0.1);
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff252844;
@@ -91,7 +91,7 @@ class FindRoom extends MusicBeatState {
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 		}
 
-		camera.scroll.x = camFollow.getMidpoint().x;
+		camera.scroll.x = FlxG.width / 2 - camFollow.getMidpoint().x;
 
 		tip.visible = items.length > 0;
 		tipBg.visible = tip.visible;

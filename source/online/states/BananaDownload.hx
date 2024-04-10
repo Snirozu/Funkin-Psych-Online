@@ -139,7 +139,28 @@ class BananaDownload extends MusicBeatState {
 			newPage = 1;
 		}
 
-		// if (collection == "verified") {
+		if (collection != null) {
+			GameBanana.listCollection(query, newPage, (mods, err) -> {
+				LoadingScreen.toggle(false);
+
+				if (destroyed)
+					return;
+
+				if (mods == null)
+					err = "Mods not found!";
+
+				if (err != null) {
+					pageInfo.text = "Error: " + err;
+					return;
+				}
+
+				page = newPage;
+				pageInfo.text = '< Page ${page} >';
+
+				loadMods(mods);
+			});
+		}
+		// else if (collection == "verified") {
 		// 	items.clear();
 		// 	curSelected = 0;
 
@@ -220,26 +241,27 @@ class BananaDownload extends MusicBeatState {
 		// 	});
 		// 	return;
 		// }
+		else {
+			GameBanana.searchMods(query, newPage, order, (mods, err) -> {
+				LoadingScreen.toggle(false);
 
-		GameBanana.searchMods(query, newPage, order, (mods, err) -> {
-			LoadingScreen.toggle(false);
-			
-			if (destroyed)
-				return;
+				if (destroyed)
+					return;
 
-			if (mods == null)
-				err = "Mods not found!";
-			
-			if (err != null) {
-				pageInfo.text = "Error: " + err;
-				return;
-			}
+				if (mods == null)
+					err = "Mods not found!";
 
-			page = newPage;
-			pageInfo.text = '< Page ${page} >';
+				if (err != null) {
+					pageInfo.text = "Error: " + err;
+					return;
+				}
 
-			loadMods(mods);
-		});
+				page = newPage;
+				pageInfo.text = '< Page ${page} >';
+
+				loadMods(mods);
+			});
+		}
 	}
 
 	function changeSelection(value:Int) {
@@ -361,6 +383,10 @@ class BananaDownload extends MusicBeatState {
 
 		var i:Int = 0;
 		for (mod in mods) {
+			if (mod._aGame != null && mod._aGame._idRow != 8694) {
+				continue;
+			}
+
 			var thumbnailsLength = mod._aPreviewMedia._aImages.length;
 			var firstThumb = mod._aPreviewMedia._aImages.shift();
 

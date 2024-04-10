@@ -96,6 +96,8 @@ class GameClient {
 		}
 
 		GameClient.room.onLeave += () -> {
+			trace("Leaving!");
+
 			if (client == null) {
 				leaveRoom();
 			}
@@ -105,7 +107,7 @@ class GameClient {
 		}
 
 		Waiter.put(() -> {
-			Sys.println("joined!");
+			trace("Joined!");
 
 			FlxG.autoPause = false;
 

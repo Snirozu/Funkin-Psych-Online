@@ -38,7 +38,12 @@ typedef GBSub = {
 	var _aPreviewMedia:GBPrevMedia;
 	var _aRootCategory:GBCategory;
 	var _sVersion:String;
+	var _aGame:GBGame;
 	var _nLikeCount:Null<Float>; // "null cant be used as int!!!" then why does this return null instead of 0
+}
+
+typedef GBGame = {
+	var _idRow:Float;
 }
 
 typedef GBPrevMedia = {
@@ -85,6 +90,29 @@ class GameBanana {
 		Thread.run(() -> {
 			var http = new Http(
 			'https://gamebanana.com/apiv11/Game/8694/Subfeed?_nPage=${page}&_sSort=${sortOrder}&_csvModelInclusions=Mod' + (search != null ? '&_sName=$search' : '')
+			);
+
+			http.onData = function(data:String) {
+				Waiter.put(() -> {
+					var json:Dynamic = Json.parse(data);
+					response(cast(json._aRecords), json._sErrorCode != null ? json._sErrorMessage : null);
+				});
+			}
+
+			http.onError = function(error) {
+				Waiter.put(() -> {
+					response(null, error);
+				});
+			}
+
+			http.request();
+		});
+	}
+
+	public static function listCollection(id:String, page:Int, response:(mods:Array<GBSub>, err:Dynamic) -> Void) {
+		Thread.run(() -> {
+			var http = new Http(
+			'https://gamebanana.com/apiv11/Collection/${id}/Items?_nPage=${page}&_nPerpage=15'
 			);
 
 			http.onData = function(data:String) {

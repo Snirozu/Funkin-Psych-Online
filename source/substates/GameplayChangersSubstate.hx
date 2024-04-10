@@ -64,14 +64,14 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		option.displayFormat = '%vX';
 		optionsArray.push(option);
 
+		var option:GameplayOption = new GameplayOption('Botplay', 'botplay', 'bool', false);
+		optionsArray.push(option);
+
 		if (!GameClient.isConnected()) {
 			var option:GameplayOption = new GameplayOption('Instakill on Miss', 'instakill', 'bool', false);
 			optionsArray.push(option);
 
 			var option:GameplayOption = new GameplayOption('Practice Mode', 'practice', 'bool', false);
-			optionsArray.push(option);
-
-			var option:GameplayOption = new GameplayOption('Botplay', 'botplay', 'bool', false);
 			optionsArray.push(option);
 
 			var option:GameplayOption = new GameplayOption('Play as Opponent', 'opponentplay', 'bool', false);
