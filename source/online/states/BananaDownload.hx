@@ -140,7 +140,7 @@ class BananaDownload extends MusicBeatState {
 		}
 
 		if (collection != null) {
-			GameBanana.listCollection(query, newPage, (mods, err) -> {
+			GameBanana.listCollection(collection, newPage, (mods, err) -> {
 				LoadingScreen.toggle(false);
 
 				if (destroyed)
