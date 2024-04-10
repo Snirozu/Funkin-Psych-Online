@@ -6,6 +6,7 @@ class LeavePie extends FlxTypedSpriteGroup<FlxSprite> {
 	public var pieDial:FlxPieDial;
 	var exitTip:FlxText;
 	var theFog:FlxSprite;
+	var finished:Bool = false;
     
     public function new() {
         super();
@@ -34,7 +35,9 @@ class LeavePie extends FlxTypedSpriteGroup<FlxSprite> {
 			exitTip.alpha = 1;
 			pieDial.amount += elapsed * 2;
 			pieDial.visible = true;
-			if (pieDial.amount >= 1.0) {
+			if (!finished && pieDial.amount >= 1.0) {
+				finished = true;
+
 				if (FlxG.state is PlayState)
 					if (FlxG.keys.pressed.F1)
 						GameClient.leaveRoom();
@@ -42,7 +45,6 @@ class LeavePie extends FlxTypedSpriteGroup<FlxSprite> {
 						GameClient.send("requestEndSong");
 				else
 					GameClient.leaveRoom();
-				pieDial.amount = 0;
 			}
 		}
 		else {

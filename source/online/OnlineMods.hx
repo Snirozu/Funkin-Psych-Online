@@ -343,6 +343,14 @@ class OnlineMods {
 				FileSystem.deleteFile(Paths.mods(modName + "/images/alphabet.xml"));
 			}
 
+			//...and also health bar and time bar
+			if (FileSystem.exists(Paths.mods(modName + "/images/healthBar.png"))) {
+				FileSystem.deleteFile(Paths.mods(modName + "/images/healthBar.png"));
+			}
+			if (FileSystem.exists(Paths.mods(modName + "/images/timeBar.png"))) {
+				FileSystem.deleteFile(Paths.mods(modName + "/images/timeBar.png"));
+			}
+
 			//get yo ass outta here
 			if (FileSystem.exists(Paths.mods(modName + "/weeks/weekList.txt"))) {
 				FileSystem.deleteFile(Paths.mods(modName + "/weeks/weekList.txt"));

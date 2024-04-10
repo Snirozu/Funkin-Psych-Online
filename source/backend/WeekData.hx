@@ -117,7 +117,7 @@ class WeekData {
 
 						if (
 							weekFile != null && (
-								(online.GameClient.isConnected() && !isStoryMode) || //freeplay unlocked patched ad free
+								(/*online.GameClient.isConnected() &&*/ !isStoryMode) || //freeplay unlocked patched ad free
 								((isStoryMode && !weekFile.hideStoryMode) || (!isStoryMode && !weekFile.hideFreeplay))
 							)
 						) {
@@ -171,7 +171,7 @@ class WeekData {
 					#end
 				}
 				if(
-					(online.GameClient.isConnected() && !isStoryMode) || // freeplay unlocked patched ad free
+					(/*online.GameClient.isConnected() &&*/ !isStoryMode) || // freeplay unlocked patched ad free
 					((isStoryMode && !weekFile.hideStoryMode) || (!isStoryMode && !weekFile.hideFreeplay)))
 				{
 					weeksLoaded.set(weekToCheck, weekFile);

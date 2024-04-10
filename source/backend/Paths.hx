@@ -405,7 +405,7 @@ class Paths
 	}
 
 	static var invalidChars = ~/[~&\\;:<>#]/;
-	static var hideChars = ~/[.,"%?]/;
+	static var hideChars = ~/[.,'"%?!]/;
 
 	inline static public function formatToSongPath(path:String) {
 		var path = invalidChars.split(path.replace(' ', '-')).join("-");
