@@ -33,6 +33,7 @@ typedef GBMod = {
 
 typedef GBSub = {
 	var _idRow:Float;
+	var _sModelName:String;
 	var _sName:String;
 	var _sProfileUrl:String;
 	var _aPreviewMedia:GBPrevMedia;

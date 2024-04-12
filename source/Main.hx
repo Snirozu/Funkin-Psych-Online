@@ -45,6 +45,8 @@ class Main extends Sprite
 
 	public static var fpsVar:FPS;
 
+	public static final GIT_COMMIT:String = online.Macros.getGitCommitHash();
+
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
 	public static function main():Void
@@ -235,7 +237,7 @@ class Main extends Sprite
 		#if (windows && cpp)
 		alertMsg += "\nDo you wish to report this error on GitHub?";
 		WinAPI.alert("Uncaught Exception!", alertMsg, () -> {
-			daError += '\nVersion: ${MainMenuState.psychOnlineVersion} (${online.Macros.getGitCommitHash()})';
+			daError += '\nVersion: ${MainMenuState.psychOnlineVersion} ($GIT_COMMIT)';
 			FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${e.error}')}&body=${StringTools.urlEncode(daError)}');
 		});
 		#else

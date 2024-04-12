@@ -1469,9 +1469,9 @@ class PlayState extends MusicBeatState
 					if(ClientPrefs.data.opponentStrums || isPlayerNote(note))
 					{
 						note.copyAlpha = false;
-						note.alpha = note.multAlpha;
+						note.noteAlpha = note.multAlpha;
 						if (ClientPrefs.data.middleScroll && !isPlayerNote(note))
-							note.alpha *= 0.35;
+							note.noteAlpha *= 0.35;
 					}
 				});
 
@@ -1827,13 +1827,13 @@ class PlayState extends MusicBeatState
 							oldNote.updateHitbox();
 						}
 
-						if (sustainNote.mustPress) sustainNote.x += FlxG.width / 2; // general offset
+						if (sustainNote.mustPress) sustainNote.followX += FlxG.width / 2; // general offset
 						else if(ClientPrefs.data.middleScroll)
 						{
-							sustainNote.x += 310;
+							sustainNote.followX += 310;
 							if(daNoteData > 1) //Up and Right
 							{
-								sustainNote.x += FlxG.width / 2 + 25;
+								sustainNote.followX += FlxG.width / 2 + 25;
 							}
 						}
 					}
@@ -1841,14 +1841,14 @@ class PlayState extends MusicBeatState
 
 				if (swagNote.mustPress)
 				{
-					swagNote.x += FlxG.width / 2; // general offset
+					swagNote.followX += FlxG.width / 2; // general offset
 				}
 				else if(ClientPrefs.data.middleScroll)
 				{
-					swagNote.x += 310;
+					swagNote.followX += 310;
 					if(daNoteData > 1) //Up and Right
 					{
-						swagNote.x += FlxG.width / 2 + 25;
+						swagNote.followX += FlxG.width / 2 + 25;
 					}
 				}
 
@@ -2324,7 +2324,7 @@ class PlayState extends MusicBeatState
 							if (!playsAsBF()) {
 								forceShowOpStrums = true;
 								daNote.visible = true;
-								daNote.alpha = 1;
+								daNote.noteAlpha = 1;
 							}
 								
 							daNote.followStrumNote(strum, fakeCrochet, songSpeed / playbackRate);

@@ -1,5 +1,7 @@
 package online;
 
+import haxe.io.Eof;
+import haxe.io.Error;
 import haxe.CallStack;
 import haxe.io.Path;
 import online.states.RequestState;
@@ -246,10 +248,18 @@ class Downloader {
 		var _bytesWritten:Int = 0;
 		isDownloading = true;
 		while (gotContent < contentLength && !cancelRequested) {
-			socket.waitForRead();
-			_bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
-			file.writeBytes(buffer, 0, _bytesWritten);
-			gotContent += _bytesWritten;
+			try {
+				socket.waitForRead();
+				_bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
+				file.writeBytes(buffer, 0, _bytesWritten);
+				gotContent += _bytesWritten;
+			}
+			catch (e:Dynamic) {
+				if (e != Eof && e != Error.Blocked) {
+					throw e;
+				}
+				// Eof and Blocked will be ignored
+			}
 		}
 		isDownloading = false;
 		isConnected = false;

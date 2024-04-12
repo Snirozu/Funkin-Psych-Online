@@ -92,7 +92,7 @@ class Note extends FlxSprite
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;
 	public var offsetAngle:Float = 0;
-	public var multAlpha:Float = 1;
+	public var multAlpha(default, set):Float = 1;
 	public var multSpeed(default, set):Float = 1;
 
 	public var copyX:Bool = true;
@@ -427,8 +427,8 @@ class Note extends FlxSprite
 
 		if (tooLate && !inEditor)
 		{
-			if (alpha > 0.3)
-				alpha = 0.3;
+			if (noteAlpha > 0.3)
+				noteAlpha = 0.3;
 		}
 	}
 
@@ -457,21 +457,21 @@ class Note extends FlxSprite
 			angle = strumDirection - 90 + strumAngle + offsetAngle;
 
 		if(copyAlpha)
-			alpha = strumAlpha * multAlpha;
+			noteAlpha = strumAlpha * multAlpha;
 
 		if(copyX)
-			set_x(strumX + offsetX + Math.cos(angleDir) * distance);
+			followX = strumX + offsetX + Math.cos(angleDir) * distance;
 
 		if(copyY)
 		{
-			set_y(strumY + offsetY + correctionOffset + Math.sin(angleDir) * distance);
+			followY = strumY + offsetY + correctionOffset + Math.sin(angleDir) * distance;
 			if(myStrum.downScroll && isSustainNote)
 			{
 				if(PlayState.isPixelStage)
 				{
-					set_y(y - PlayState.daPixelZoom * 9.5);
+					followY = y - PlayState.daPixelZoom * 9.5;
 				}
-				set_y(y - (frameHeight * scale.y) - (Note.swagWidth / 2));
+				followY = y - (frameHeight * scale.y) - (Note.swagWidth / 2);
 			}
 		}
 
@@ -532,4 +532,23 @@ class Note extends FlxSprite
 		}
 		return super.set_y(value);
 	}
+
+	function set_multAlpha(value:Float):Float {
+		if (following != null && ClientPrefs.data.disableStrumMovement) {
+			return multAlpha;
+		}
+		return multAlpha = value;
+	}
+
+	@:unreflective public var followX(get, set):Float;
+	@:unreflective function get_followX():Float { return x; }
+	@:unreflective function set_followX(value:Float):Float { return super.set_x(value); }
+
+	@:unreflective public var followY(get, set):Float;
+	@:unreflective function get_followY():Float { return y; }
+	@:unreflective function set_followY(value:Float):Float { return super.set_y(value); }
+
+	@:unreflective public var noteAlpha(get, set):Float;
+	@:unreflective function get_noteAlpha():Float { return alpha; }
+	@:unreflective function set_noteAlpha(value:Float):Float { return super.set_alpha(value); }
 }

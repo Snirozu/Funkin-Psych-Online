@@ -383,17 +383,24 @@ class BananaDownload extends MusicBeatState {
 
 		var i:Int = 0;
 		for (mod in mods) {
-			if (mod._aGame != null && mod._aGame._idRow != 8694) {
+			if (mod._sModelName != "Mod" || (mod._aGame != null && mod._aGame._idRow != 8694)) {
 				continue;
 			}
 
-			var thumbnailsLength = mod._aPreviewMedia._aImages.length;
-			var firstThumb = mod._aPreviewMedia._aImages.shift();
-
 			var thumbnails:Array<Thumbnail> = [];
+
+			var firstThumb = mod._aPreviewMedia._aImages.shift();
 			for (image in mod._aPreviewMedia._aImages) {
 				thumbnails.push({
 					url: image._sBaseUrl + "/" + image._sFile,
+					width: 220,
+					height: 125
+				});
+			}
+
+			if (mod._idRow == 505754) {
+				thumbnails.push({
+					url: 'https://i.pinimg.com/474x/1d/81/e0/1d81e065de302045e5d8709bef235ac4.jpg',
 					width: 220,
 					height: 125
 				});
@@ -411,8 +418,7 @@ class BananaDownload extends MusicBeatState {
 					width: firstThumb._wFile220,
 					height: firstThumb._hFile220
 				},
-				thumbnails: thumbnails,
-				thumbnailsLength: thumbnailsLength
+				thumbnails: thumbnails
 			});
 
 			item.y = Math.floor(i / 5) * 190;
@@ -613,7 +619,7 @@ class ModItem extends FlxSpriteGroup {
 	}
 
 	function loadScreenshot(index:Int) {
-		if (index >= mod.thumbnailsLength) {
+		if (index >= mod.thumbnails.length + 1 /* with first thumbnail */) {
 			index = 0;
 		}
 
@@ -702,7 +708,6 @@ typedef ModInfo = {
 	var categoryIconURL:String;
 	var thumbnail:Thumbnail;
 	var thumbnails:Array<Thumbnail>;
-	var thumbnailsLength:Float;
 }
 
 typedef Thumbnail = {
