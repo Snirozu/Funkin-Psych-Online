@@ -345,6 +345,10 @@ class Character extends FlxSprite
 				AnimName = "hey";
 			}
 
+			if (AnimName == "hey" && curCharacter.startsWith("tankman") && animation._animations.get(AnimName) == null) {
+				AnimName = "singUP-alt";
+			}
+
 			if (animation._animations.get(AnimName) == null) {
 				if (AnimName == "hey") {
 					specialAnim = false;

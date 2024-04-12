@@ -116,7 +116,7 @@ class Song
 			#end
 
 			if (rawJson == null) {
-				throw "Missing file: " + Paths.json(formattedFolder + '/' + formattedSong);
+				throw new haxe.Exception("Missing file: " + Paths.json(formattedFolder + '/' + formattedSong));
 			}
 
 			rawJson = rawJson.trim();
