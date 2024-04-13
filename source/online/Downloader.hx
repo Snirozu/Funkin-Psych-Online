@@ -175,10 +175,9 @@ class Downloader {
 		}
 
 		var gotHeaders:Map<String, String> = new Map<String, String>();
-		while (gotContent < contentLength && !cancelRequested) {
+		while (!cancelRequested) {
 			socket.waitForRead();
 			var readLine:String = socket.input.readLine();
-			gotContent += readLine.length;
 			if (readLine.trim() == "") {
 				break;
 			}
@@ -255,10 +254,11 @@ class Downloader {
 				gotContent += _bytesWritten;
 			}
 			catch (e:Dynamic) {
-				if (e != Eof && e != Error.Blocked) {
-					throw e;
+				if (e is Eof || e == Error.Blocked) {
+					// Eof and Blocked will be ignored
+					continue;
 				}
-				// Eof and Blocked will be ignored
+				throw e;
 			}
 		}
 		isDownloading = false;
@@ -323,7 +323,8 @@ class Downloader {
 			alert.destroy();
 		alert = null;
 		try {
-			deleteTempFile();
+			if (!FlxG.keys.pressed.F2)
+				deleteTempFile();
 		}
 		catch (exc) {
 		}
