@@ -1,5 +1,6 @@
 package online;
 
+import haxe.CallStack;
 #if RAR_SUPPORTED
 import unrar.UnRAR;
 #end
@@ -183,10 +184,10 @@ class OnlineMods {
 				zipFiles = Reader.readZip(file);
 			}
 			catch (exc) {
-				trace(exc);
+				trace(exc, CallStack.toString(exc.stack));
 				file.close();
 				Waiter.put(() -> {
-					Alert.alert("Mod's data is corrupted or invalid!");
+					Alert.alert("Mod's data is corrupted or invalid!", exc + "\n" + CallStack.toString(exc.stack) + "\n\n" + fileName);
 				});
 				return;
 			}
