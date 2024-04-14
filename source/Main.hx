@@ -23,13 +23,11 @@ import lime.graphics.Image;
 import sys.FileSystem;
 
 //crash handler stuff
-#if CRASH_HANDLER
 import openfl.events.UncaughtErrorEvent;
 import haxe.CallStack;
 import haxe.io.Path;
 import sys.io.File;
 import sys.io.Process;
-#end
 
 class Main extends Sprite
 {
@@ -125,9 +123,7 @@ class Main extends Sprite
 		FlxG.mouse.visible = false;
 		#end
 		
-		#if CRASH_HANDLER
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
-		#end
 
 		#if DISCORD_ALLOWED
 		DiscordClient.start();
@@ -189,6 +185,7 @@ class Main extends Sprite
 			});
 		});
 		
+		#if HSCRIPT_ALLOWED
 		FlxG.signals.postStateSwitch.add(() -> {
 			online.SyncScript.dispatch("switchState", [FlxG.state]);
 
@@ -200,6 +197,7 @@ class Main extends Sprite
 		online.SyncScript.resyncScript(false, () -> {
 			online.SyncScript.dispatch("init");
 		});
+		#end
 	}
 
 	static function resetSpriteCache(sprite:Sprite):Void {
@@ -209,7 +207,6 @@ class Main extends Sprite
 		}
 	}
 
-	#if CRASH_HANDLER
 	function onCrash(e:UncaughtErrorEvent):Void
 	{
 		var alertMsg:String = "";
@@ -247,5 +244,4 @@ class Main extends Sprite
 		#end
 		Sys.exit(1);
 	}
-	#end
 }

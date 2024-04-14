@@ -59,9 +59,6 @@
 	<classpath name="source" />
 
 	<!-- __________________________ Game Assets & Etc. __________________________ -->
-	
-	<!-- Turn on Crash Handler -->
-	<define name="CRASH_HANDLER" if="desktop release" />
 
 	<!-- Preload Assets -->
 	<define name="PRELOAD_ALL" unless="web" />
@@ -165,9 +162,10 @@
 	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
 	
 	<!--Used for Izzy Engine's crash handler-->
-	<haxedef name="HXCPP_CHECK_POINTER" if="CRASH_HANDLER" />
-	<haxedef name="HXCPP_STACK_LINE" if="CRASH_HANDLER" />
-	<haxedef name="HXCPP_STACK_TRACE" if="CRASH_HANDLER" />
+	<haxedef name="HXCPP_CHECK_POINTER" />
+	<haxedef name="HXCPP_STACK_LINE" />
+	<haxedef name="HXCPP_STACK_TRACE" />
+	<haxedef name="HXCPP_DEBUG_LINK" />
 	<haxedef name='no-deprecation-warnings' />
 
 	<haxedef name='NO_PRECOMPILED_HEADERS' if="linux" />
