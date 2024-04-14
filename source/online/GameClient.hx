@@ -1,5 +1,6 @@
 package online;
 
+import states.OutdatedState;
 import haxe.crypto.Md5;
 import backend.Song;
 import backend.Rating;
@@ -80,6 +81,10 @@ class GameClient {
 			client = null;
 			onJoin(err);
 			LoadingScreen.toggle(false);
+			if (err.code == 5003)
+				Waiter.put(() -> {
+					FlxG.switchState(() -> new OutdatedState());
+				});
 			return;
 		}
 		LoadingScreen.toggle(false);
@@ -155,7 +160,7 @@ class GameClient {
 	static function getOptions(asHost:Bool):Map<String, Dynamic> {
 		var options:Map<String, Dynamic> = [
 			"name" => ClientPrefs.data.nickname, 
-			"version" => MainMenuState.psychOnlineVersion,
+			"protocol" => Main.CLIENT_PROTOCOL,
 			"points" => FunkinPoints.funkinPoints
 		];
 

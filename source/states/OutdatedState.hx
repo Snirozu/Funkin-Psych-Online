@@ -13,10 +13,11 @@ class OutdatedState extends MusicBeatState
 		add(bg);
 
 		warnText = new FlxText(0, 0, FlxG.width,
-			"Sorry man but you have to update this mod\n
-			your current version is '" + MainMenuState.psychOnlineVersion + "' but\n
-			the latest is `" + TitleState.updateVersion + "`\n\n
-			Press ACCEPT to jump into the download page!",
+			"Sorry, but you have to update this mod
+			your current version is '" + Main.PSYCH_ONLINE_VERSION + "' while
+			the latest is '" + TitleState.updateVersion + "'\n
+			ACCEPT - Jump into the download page!
+			BACK - Continue without updating.",
 			32);
 		warnText.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
 		warnText.screenCenter(Y);
