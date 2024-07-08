@@ -293,11 +293,11 @@ class PlayState extends MusicBeatState
 
 	public var defaultCamZoom:Float = 1.05;
 	public var defaultHUDCamZoom:Float = 1;
-	public var currentCameraZoom(get, set):Float;
-	function get_currentCameraZoom() {
+	public var forceCameraZoom(get, set):Float;
+	function get_forceCameraZoom() {
 		return defaultCamZoom;
 	}
-	function set_currentCameraZoom(v) {
+	function set_forceCameraZoom(v) {
 		FlxG.camera.zoom = v;
 		defaultCamZoom = v;
 		return v;
@@ -2585,7 +2585,7 @@ class PlayState extends MusicBeatState
 
 	public var isDead:Bool = false; //Don't mess with this on Lua!!!
 	function doDeathCheck(?skipHealthCheck:Bool = false) {
-		if (!GameClient.isConnected() && ((skipHealthCheck && instakillOnMiss) || (playsAsBF() ? health <= 0 : health >= 2)) && !practiceMode && !isDead)
+		if (!GameClient.isConnected() && ((skipHealthCheck && instakillOnMiss) || (playsAsBF() ? health <= 0 : health >= 2)) && !practiceMode && !isDead && replayPlayer == null)
 		{
 			var ret:Dynamic = callOnScripts('onGameOver', null, true);
 			if(ret != FunkinLua.Function_Stop) {
@@ -2626,7 +2626,7 @@ class PlayState extends MusicBeatState
 	public function tweenCameraZoom(zoom:Float, duration:Float, direct:Bool, ease:Null<Float->Float>) {
 		if (cameraTwn != null)
 			cameraTwn.cancel();
-		cameraTwn = FlxTween.tween(this, {currentCameraZoom: zoom * (direct ? FlxCamera.defaultZoom : stageData.defaultZoom)}, duration, {ease: ease, onComplete: twn -> {cameraTwn = null;}});
+		cameraTwn = FlxTween.tween(this, {forceCameraZoom: zoom * (direct ? FlxCamera.defaultZoom : stageData.defaultZoom)}, duration, {ease: ease, onComplete: twn -> {cameraTwn = null;}});
 	}
 
 	public function tweenCameraToPosition(x:Float, y:Float, duration:Float, ease:Null<Float->Float>) {
@@ -4111,7 +4111,7 @@ class PlayState extends MusicBeatState
 
 		if (camZooming && FlxG.camera.zoom < 1.35 && ClientPrefs.data.camZooms && curBeat % cameraZoomRate == 0)
 		{
-			currentCameraZoom += (0.015 * camZoomingMult) * cameraBopIntensity * defaultCamZoom;
+			FlxG.camera.zoom += (0.015 * camZoomingMult) * cameraBopIntensity * defaultCamZoom;
 			camHUD.zoom += (hudCameraZoomIntensity * camZoomingMult) * defaultHUDCamZoom;
 		}
 

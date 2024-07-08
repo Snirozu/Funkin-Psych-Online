@@ -38,16 +38,16 @@ class ReplayPlayer extends FlxBasic {
     }
 
     override function update(elapsed:Float) {
-        // if (state.controls.UI_LEFT) {
-		// 	if (state.playbackRate - elapsed * 0.25 > 0)
-        //         state.playbackRate -= elapsed * 0.25;
-		// 	state.botplayTxt.text = data.player + "'s\nREPLAY\n" + '(${CoolUtil.floorDecimal(state.playbackRate, 2)}x)';
-        // }
+        if (state.controls.UI_LEFT) {
+			if (state.playbackRate - elapsed * 0.25 > 0)
+                state.playbackRate -= elapsed * 0.25;
+			state.botplayTxt.text = data.player + "'s\nREPLAY\n" + '(${CoolUtil.floorDecimal(state.playbackRate, 2)}x)';
+        }
         
-        // if (state.controls.UI_RIGHT) {
-		// 	state.playbackRate += elapsed * 0.25;
-		// 	state.botplayTxt.text = data.player + "'s\nREPLAY\n" + '(${CoolUtil.floorDecimal(state.playbackRate, 2)}x)';
-        // }
+        if (state.controls.UI_RIGHT) {
+			state.playbackRate += elapsed * 0.25;
+			state.botplayTxt.text = data.player + "'s\nREPLAY\n" + '(${CoolUtil.floorDecimal(state.playbackRate, 2)}x)';
+        }
 
 		for (key => status in pressedKeys) {
             if (status == JUST_PRESSED) {

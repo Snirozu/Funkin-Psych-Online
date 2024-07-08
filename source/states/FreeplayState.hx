@@ -687,7 +687,7 @@ class FreeplayState extends MusicBeatState
 				}
 
 				for (i in 0...top.length) {
-					topShit.setRow(i, [(i + 1) + ". " + top[i].player, top[i].score, top[i].accuracy + "%"]);
+					topShit.setRow(i, [(i + 1 + curPage * 15) + ". " + top[i].player, top[i].score, top[i].accuracy + "%"]);
 				}
 
 				if (selected) {
