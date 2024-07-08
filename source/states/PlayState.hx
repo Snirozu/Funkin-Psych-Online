@@ -3072,6 +3072,7 @@ class PlayState extends MusicBeatState
 			if(Math.isNaN(percent)) percent = 0;
 			if (!isInvalidScore()) {
 				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent);
+				online.FunkinPoints.save(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate);
 				if (replayRecorder != null)
 					replayRecorder.save();
 			}
@@ -3091,8 +3092,7 @@ class PlayState extends MusicBeatState
 			if (GameClient.isConnected()) {
 				Lib.application.window.resizable = true;
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
-				if (!isInvalidScore()) online.FunkinPoints.save(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate);
-				else online.Alert.alert("Calculated Points", "+" + online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate));
+				if (isInvalidScore()) online.Alert.alert("Calculated Points", "+" + online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate));
 				GameClient.clearOnMessage();
 				if (!skipResults)
 					FlxG.switchState(() -> new online.states.ResultsScreen());
