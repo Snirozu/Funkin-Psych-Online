@@ -57,6 +57,7 @@ class Main extends Sprite
 
 	public static function main():Void
 	{
+		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
 		Lib.current.addChild(new Main());
 	}
 

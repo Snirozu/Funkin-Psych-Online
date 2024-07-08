@@ -38,8 +38,8 @@ class ReplayRecorder extends FlxBasic {
 
     var state:PlayState;
 
-	var keyboardIds:Map<FlxKey, String> = [];
-	var controllerIds:Map<FlxGamepadInputID, String> = [];
+	var keyboardIds:Map<FlxKey, Array<String>> = [];
+	var controllerIds:Map<FlxGamepadInputID, Array<String>> = [];
 
 	public function new(state:PlayState) {
         super();
@@ -54,20 +54,27 @@ class ReplayRecorder extends FlxBasic {
 		//data.mod_url = OnlineMods.getModURL(Mods.currentModDirectory); 
 		data.opponent_mode = !PlayState.playsAsBF();
 		
-		data.chart_hash = GameClient.isConnected()
-			? Md5.encode(Song.loadRawSong(GameClient.room.state.song, GameClient.room.state.folder))
-			: Md5.encode(Song.loadRawSong(Highscore.formatSong(PlayState.SONG.song, PlayState.storyDifficulty), PlayState.SONG.song))
-		;
+		data.chart_hash = Md5.encode(Song.loadRawSong(Highscore.formatSong(PlayState.SONG.song, PlayState.storyDifficulty), PlayState.SONG.song));
 
 		for (id => binds in state.controls.keyboardBinds) {
             for (bind in binds) {
-				keyboardIds.set(bind, id);
+				if (REGISTER_BINDS.contains(id)) {
+					if (keyboardIds.exists(bind))
+						keyboardIds.get(bind).push(id);
+					else
+						keyboardIds.set(bind, [id]);
+				}
             }
 		}
 
 		for (id => binds in state.controls.gamepadBinds) {
 			for (bind in binds) {
-				controllerIds.set(bind, id);
+				if (REGISTER_BINDS.contains(id)) {
+					if (controllerIds.exists(bind))
+						controllerIds.get(bind).push(id);
+					else
+						controllerIds.set(bind, [id]);
+				}
 			}
 		}
 
@@ -92,10 +99,15 @@ class ReplayRecorder extends FlxBasic {
 		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode) ?? (state.controls.controllerMode ? controllerIds.get(e.keyCode) : null), 1);
 	}
 
-	function recordKey(time:Float, id:String, move:Int) {
-		if (id == null || state.paused || !REGISTER_BINDS.contains(id))
+	function recordKey(time:Float, ids:Array<String>, move:Int) {
+		if (ids == null)
 			return;
-		data.inputs.push([time, id, move]);
+
+		for (id in ids) {
+			if (id == null || state.paused || !REGISTER_BINDS.contains(id))
+				continue;
+			data.inputs.push([time, id, move]);
+		}
 	}
 
     public function save() {
