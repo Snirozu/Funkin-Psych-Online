@@ -55,7 +55,6 @@ class HTTPClient {
 			socket.write('${request.post ? "POST" : "GET"} ${request.path} HTTP/1.1${header}\r\n\r\n${request.body != null ? request.body : ""}');
 
             //read response status
-            socket.waitForRead();
             var status:Array<String> = socket.input.readLine().split(" ");
 			status.shift();
 			response.status = Std.parseInt(status.shift());
@@ -64,7 +63,6 @@ class HTTPClient {
             //read response headers
             response.headers = new Map<String, String>();
             while (true) {
-                socket.waitForRead();
                 var readLine:String = socket.input.readLine();
                 if (readLine.trim() == "")
                     break;
@@ -88,7 +86,6 @@ class HTTPClient {
             if (request.bodyOutput != null)
                 while (receivedContent < bodySize) {
                     try {
-                        socket.waitForRead();
                         _bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
                         request.bodyOutput.writeBytes(buffer, 0, _bytesWritten);
                         receivedContent += _bytesWritten;
@@ -107,7 +104,6 @@ class HTTPClient {
                     response.body = "";
                 while (receivedContent < bodySize) {
                     try {
-                        socket.waitForRead();
                         _bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
                         response.body += buffer.getString(0, _bytesWritten);
                         receivedContent += _bytesWritten;

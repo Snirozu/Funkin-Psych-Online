@@ -141,7 +141,6 @@ class Downloader {
 				socket.write('GET ${urlFormat.path} HTTP/1.1${headers}\n\n');
 
 				var httpStatus:String = null;
-				socket.waitForRead();
 				httpStatus = socket.input.readLine();
 				httpStatus = httpStatus.substr(httpStatus.indexOf(" ")).ltrim();
 
@@ -176,7 +175,6 @@ class Downloader {
 
 		var gotHeaders:Map<String, String> = new Map<String, String>();
 		while (!cancelRequested) {
-			socket.waitForRead();
 			var readLine:String = socket.input.readLine();
 			if (readLine.trim() == "") {
 				break;
@@ -248,7 +246,6 @@ class Downloader {
 		isDownloading = true;
 		while (gotContent < contentLength && !cancelRequested) {
 			try {
-				socket.waitForRead();
 				_bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
 				file.writeBytes(buffer, 0, _bytesWritten);
 				gotContent += _bytesWritten;
