@@ -209,6 +209,8 @@ class OnlineMods {
 				return;
 			}
 		}
+
+		trace(modName);
 		
 		if (beginFolder == null) {
 			Waiter.put(() -> {
@@ -305,7 +307,7 @@ class OnlineMods {
 			File.saveContent(Paths.mods(modName + '/pack.json'), Json.stringify({
 				name: (gbMod != null ? gbMod.name : modName),
 				description: (gbMod != null ? gbMod.pageDownload : ""),
-				runsGlobally: isLegacy
+				runsGlobally: FileSystem.exists(Paths.mods(modName + '/songs/')) ? false : isLegacy
 			}));
 		}
 		else if (/*(gbMod != null ? gbMod.rootCategory == "Executables" : */isExecutable) { // sometimes dum dum people put their non-exe mods to that section

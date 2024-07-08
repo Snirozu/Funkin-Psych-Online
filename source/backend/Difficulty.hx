@@ -49,6 +49,14 @@ class Difficulty
 				list = diffs;
 		}
 		else resetList();
+
+		if (FlxG.state is states.FreeplayState) {
+			var freeplay:states.FreeplayState = cast FlxG.state;
+			if (freeplay.songs[states.FreeplayState.curSelected].hasErect)
+				list.push("Erect");
+			if (freeplay.songs[states.FreeplayState.curSelected].hasNightmare)
+				list.push("Nightmare");
+		}
 	}
 
 	inline public static function resetList()

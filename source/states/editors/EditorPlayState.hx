@@ -13,6 +13,8 @@ import flixel.util.FlxStringUtil;
 import flixel.animation.FlxAnimationController;
 import flixel.input.keyboard.FlxKey;
 import openfl.events.KeyboardEvent;
+import openfl.media.Sound;
+import openfl.utils.Assets as OpenFlAssets;
 
 class EditorPlayState extends MusicBeatSubstate
 {
@@ -24,6 +26,7 @@ class EditorPlayState extends MusicBeatSubstate
 
 	var playbackRate:Float = 1;
 	var vocals:FlxSound;
+	var opponentVocals:FlxSound;
 	var inst:FlxSound;
 	
 	var notes:FlxTypedGroup<Note>;
@@ -222,10 +225,12 @@ class EditorPlayState extends MusicBeatSubstate
 	{
 		if (FlxG.sound.music.time >= -ClientPrefs.data.noteOffset)
 		{
-			if (Math.abs(FlxG.sound.music.time - (Conductor.songPosition - Conductor.offset)) > (20 * playbackRate)
-				|| (PlayState.SONG.needsVoices && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > (20 * playbackRate)))
-			{
-				resyncVocals();
+			for (v in [vocals, opponentVocals]) {
+				if (v == null) continue;
+				
+				if (Math.abs(FlxG.sound.music.time - (Conductor.songPosition - Conductor.offset)) > (200 * playbackRate)
+					|| (PlayState.SONG.needsVoices && Math.abs(v.time - (Conductor.songPosition - Conductor.offset)) > (200 * playbackRate)))
+					resyncVocals();
 			}
 		}
 		super.stepHit();
@@ -275,9 +280,13 @@ class EditorPlayState extends MusicBeatSubstate
 		FlxG.sound.music.time = startPos;
 		FlxG.sound.music.pitch = playbackRate;
 		FlxG.sound.music.onComplete = finishSong;
-		vocals.volume = 1;
-		vocals.time = startPos;
-		vocals.play();
+		for (v in [vocals, opponentVocals]) {
+			if (v == null) continue;
+
+			v.volume = 1;
+			v.time = startPos;
+			v.play();
+		}
 
 		// Song duration in a float, useful for the time left feature
 		songLength = FlxG.sound.music.length;
@@ -301,14 +310,37 @@ class EditorPlayState extends MusicBeatSubstate
 		var songData = PlayState.SONG;
 		Conductor.bpm = songData.bpm;
 
+		var trackSuffix = Difficulty.getString() == "Erect" || Difficulty.getString() == "Nightmare" ? "-erect" : "";
+
 		vocals = new FlxSound();
-		if (songData.needsVoices) vocals.loadEmbedded(Paths.voices(songData.song));
-		vocals.volume = 0;
+		opponentVocals = new FlxSound();
 
-		vocals.pitch = playbackRate;
-		FlxG.sound.list.add(vocals);
+		if (songData.needsVoices) {
+			try {
+				var playerVocals = Paths.voices(songData.song, 'Player', trackSuffix);
+				vocals.loadEmbedded(playerVocals != null ? playerVocals : Paths.voices(songData.song, null, trackSuffix));
+				
+				var oppVocals = Paths.voices(songData.song, 'Opponent', trackSuffix);
+				if(oppVocals != null) opponentVocals.loadEmbedded(oppVocals);
+			}
+			catch (exc:Dynamic) {
+				var file:Dynamic = Paths.voices(songData.song, null, trackSuffix);
+				if (Std.isOfType(file, Sound) || OpenFlAssets.exists(file)) {
+					vocals.loadEmbedded(file);
+				}
+			}
+		}
 
-		inst = new FlxSound().loadEmbedded(Paths.inst(songData.song));
+		for (v in [vocals, opponentVocals]) {
+			if (v == null) continue;
+
+			v.volume = 0;
+			v.pitch = playbackRate;
+			FlxG.sound.list.add(v);
+		}
+		opponentVocals.volume = 1;
+
+		inst = new FlxSound().loadEmbedded(Paths.inst(songData.song, trackSuffix));
 		FlxG.sound.list.add(inst);
 		FlxG.sound.music.volume = 0;
 
@@ -462,8 +494,11 @@ class EditorPlayState extends MusicBeatSubstate
 
 	public function endSong()
 	{
-		vocals.pause();
-		vocals.destroy();
+		for (v in [vocals, opponentVocals]) {
+			if (v == null) continue;
+			v.pause();
+			v.destroy();
+		}
 		if(finishTimer != null)
 		{
 			finishTimer.cancel();
@@ -857,18 +892,23 @@ class EditorPlayState extends MusicBeatSubstate
 	function resyncVocals():Void
 	{
 		if(finishTimer != null) return;
-
-		vocals.pause();
-
+		
 		FlxG.sound.music.play();
 		FlxG.sound.music.pitch = playbackRate;
 		Conductor.songPosition = FlxG.sound.music.time;
-		if (Conductor.songPosition <= vocals.length)
-		{
-			vocals.time = Conductor.songPosition;
-			vocals.pitch = playbackRate;
+
+		for (v in [vocals, opponentVocals]) {
+			if (v == null) continue;
+
+			v.pause();
+
+			if (Conductor.songPosition <= v.length)
+			{
+				v.time = Conductor.songPosition;
+				v.pitch = playbackRate;
+			}
+			v.play();
 		}
-		vocals.play();
 	}
 
 	function RecalculateRating(badHit:Bool = false) {

@@ -149,7 +149,7 @@ class Song
 				daBpm = songData.bpm; */
 
 		var songJson:Dynamic = parseJSONshit(loadRawSong(jsonInput, folder));
-		if(jsonInput != 'events') StageData.loadDirectory(songJson);
+		if(!jsonInput.startsWith('events')) StageData.loadDirectory(songJson);
 		onLoadJson(songJson);
 		return songJson;
 	}

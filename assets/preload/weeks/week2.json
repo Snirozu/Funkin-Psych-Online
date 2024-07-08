@@ -1,7 +1,7 @@
 {
 	"songs": [
-		["Spookeez", "spooky", [34, 51, 68]],
-		["South", "spooky", [34, 51, 68]],
+		["Spookeez", "spooky", [34, 51, 68], true, true],
+		["South", "spooky", [34, 51, 68], true, true],
 		["Monster", "monster", [34, 51, 68]]
 	],
 

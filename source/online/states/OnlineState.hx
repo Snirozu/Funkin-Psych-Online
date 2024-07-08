@@ -1,5 +1,7 @@
 package online.states;
 
+import shaders.WarpShader;
+import online.net.FunkinNetwork;
 import states.FreeplayState;
 import lime.system.Clipboard;
 import haxe.Json;
@@ -15,11 +17,11 @@ class OnlineState extends MusicBeatState {
         "HOST",
         "FIND",
 		"OPTIONS",
-		"MOD DOWNLOADER",
-		"DISCORD",
-		"WIKI",
+		"LEADERBOARD",
+		"MOD DOWNLOADER"
     ];
 
+	var networkPlayer:FlxText;
 	var itemDesc:FlxText;
 	var playersOnline:FlxText;
 
@@ -47,6 +49,9 @@ class OnlineState extends MusicBeatState {
 
 	var selectLine:FlxSprite;
 	var descBox:FlxSprite;
+	
+	var discord:FlxSprite;
+	var github:FlxSprite;
 
     function onRoomJoin(err:Dynamic) {
 		if (err != null) {
@@ -70,7 +75,6 @@ class OnlineState extends MusicBeatState {
     override function create() {
         super.create();
 
-		if(FreeplayState.vocals != null) FreeplayState.vocals.destroy();
 		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
@@ -81,11 +85,19 @@ class OnlineState extends MusicBeatState {
 		#end
 
         var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-        bg.color = 0xff3f2b5a;
+		bg.color = 0xff2b2b2b;
         bg.updateHitbox();
         bg.screenCenter();
         bg.antialiasing = ClientPrefs.data.antialiasing;
         add(bg);
+		
+		var warp:FlxSprite = new FlxSprite();
+		warp.makeGraphic(FlxG.width, FlxG.height, FlxColor.TRANSPARENT);
+		warp.updateHitbox();
+		warp.screenCenter();
+		add(new WarpEffect(warp));
+		warp.antialiasing = ClientPrefs.data.antialiasing;
+		add(warp);
 
 		var lines:FlxSprite = new FlxSprite().loadGraphic(Paths.image('coolLines'));
 		lines.updateHitbox();
@@ -124,6 +136,32 @@ class OnlineState extends MusicBeatState {
 		items.screenCenter(Y);
         add(items);
 
+		discord = new FlxSprite();
+		discord.antialiasing = ClientPrefs.data.antialiasing;
+		discord.frames = Paths.getSparrowAtlas('online_discord');
+		discord.animation.addByPrefix('idle', "idle", 24);
+		discord.animation.addByPrefix('active', "active", 24);
+		discord.animation.play('idle');
+		//discord.scale.set(0.5, 0.5);
+		discord.updateHitbox();
+		discord.x = 30;
+		discord.y = FlxG.height - discord.height - 30;
+		discord.alpha = 0.8;
+		add(discord);
+
+		github = new FlxSprite();
+		github.antialiasing = ClientPrefs.data.antialiasing;
+		github.frames = Paths.getSparrowAtlas('online_github');
+		github.animation.addByPrefix('idle', "idle", 24);
+		github.animation.addByPrefix('active', "active", 24);
+		github.animation.play('idle');
+		// github.scale.set(0.5, 0.5);
+		github.updateHitbox();
+		github.x = discord.x + discord.width + 20;
+		github.y = FlxG.height - github.height - 28;
+		github.alpha = 0.8;
+		add(github);
+
 		itemDesc = new FlxText(0, FlxG.height - 125);
 		itemDesc.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		itemDesc.screenCenter(X);
@@ -132,22 +170,46 @@ class OnlineState extends MusicBeatState {
 		playersOnline = new FlxText(0, 100);
 		playersOnline.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		playersOnline.alpha = 0.7;
+		playersOnline.text = "Fetching...";
+		playersOnline.screenCenter(X);
 		add(playersOnline);
+
+		var availableRooms = new FlxText(0, 130);
+		availableRooms.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		availableRooms.alpha = 0.6;
+		availableRooms.screenCenter(X);
+		add(availableRooms);
+
+		networkPlayer = new FlxText(30, 30);
+		networkPlayer.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		networkPlayer.alpha = 0.5;
+		networkPlayer.text = FunkinNetwork.loggedIn ? "Logged in as " + FunkinNetwork.nickname : "Not logged in";
+		add(networkPlayer);
+
+		var frontMessage = new FlxText(0, 0, 500);
+		frontMessage.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		frontMessage.alpha = 0.5;
+		frontMessage.x = FlxG.width - frontMessage.fieldWidth - 50;
+		add(frontMessage);
 		
 		changeSelection(0);
 
-		GameClient.getServerPlayerCount((v) -> {
-			if (v == null) {
-				playersOnline.text = "OFFLINE";
-				//thought this would look cool
-				//playersOnline.applyMarkup("$•$ OFFLINE $•$", [new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GRAY), "$")]);
-			}
-			else {
-				playersOnline.text = 'Players Online: $v';
-				//playersOnline.applyMarkup("$•$ Players Online: " + v + " $•$", [new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GREEN), "$")]);
-			}
-			
-			playersOnline.screenCenter(X);
+		Thread.run(() -> {
+			var data = FunkinNetwork.fetchFront();
+			Waiter.put(() -> {
+				if (data == null) {
+					playersOnline.text = "OFFLINE";
+				}
+				else {
+					playersOnline.text = 'Players Online: ' + data.online;
+					availableRooms.text = 'Available Rooms: ' + data.rooms;
+					frontMessage.text = data.sez;
+					frontMessage.y = FlxG.height - frontMessage.height - 20;
+				}
+
+				playersOnline.screenCenter(X);
+				availableRooms.screenCenter(X);
+			});
 		});
 
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
@@ -216,13 +278,11 @@ class OnlineState extends MusicBeatState {
 					case "options":
 						disableInput = true;
 						FlxG.switchState(() -> new OptionsState());
+					case "leaderboard":
+						openSubState(new PTopSubState());
 					case "mod downloader":
 						disableInput = true;
 						FlxG.switchState(() -> new BananaDownload());
-					case "discord":
-						RequestState.requestURL("https://discord.gg/juHypjWuNc", true);
-					case "wiki":
-						RequestState.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki", true);
 				}
 			}
 
@@ -239,6 +299,42 @@ class OnlineState extends MusicBeatState {
 			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V) {
 				disableInput = true;
 				GameClient.joinRoom(Clipboard.text, onRoomJoin);
+			}
+
+			if (FlxG.mouse.justPressed || FlxG.mouse.justMoved) {
+				if (FlxG.mouse.overlaps(discord)) {
+					discord.alpha = 1;
+					discord.animation.play("active");
+					discord.offset.set(2, 2);
+
+					itemDesc.text = "Join Psych Online Discord Server!";
+					itemDesc.screenCenter(X);
+
+					if (FlxG.mouse.justPressed) {
+						RequestState.requestURL("https://discord.gg/juHypjWuNc", true);
+					}
+				}
+				else {
+					discord.alpha = 0.8;
+					discord.animation.play("idle");
+					discord.offset.set(0, 0);
+				}
+
+				if (FlxG.mouse.overlaps(github)) {
+					github.alpha = 1;
+					github.animation.play("active");
+
+					itemDesc.text = "Documentation, FAQ and the Source Code!";
+					itemDesc.screenCenter(X);
+
+					if (FlxG.mouse.justPressed) {
+						RequestState.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki", true);
+					}
+				}
+				else {
+					github.alpha = 0.8;
+					github.animation.play("idle");
+				}
 			}
 		}
     }
@@ -263,15 +359,13 @@ class OnlineState extends MusicBeatState {
 			case 3:
 				itemDesc.text = "Psych Online options, configure stuff here!";
 			case 4:
-				itemDesc.text = "Download mods from Gamebanana here!";
+				itemDesc.text = "The Funkin Points Leaderboard!";
 			case 5:
-				itemDesc.text = "Also join the Discord server of this mod!";
-			case 6:
-				itemDesc.text = "Documentation, Tips, FAQ etc.";
+				itemDesc.text = "Download mods from Gamebanana here!";
 		}
 		itemDesc.screenCenter(X);
 
-		descBox.scale.set(FlxG.width - 100, (itemDesc.text.split("\n").length + 2) * (itemDesc.size));
+		descBox.scale.set(FlxG.width - 500, (itemDesc.text.split("\n").length + 2) * (itemDesc.size));
 		descBox.y = (FlxG.height - 125) + descBox.scale.y * 0.5 - itemDesc.size;
 		descBox.screenCenter(X);
 		

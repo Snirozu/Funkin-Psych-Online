@@ -1,5 +1,8 @@
 package online.states;
 
+import lime.ui.FileDialog;
+import flixel.util.FlxSpriteUtil;
+import online.net.FunkinNetwork;
 import flixel.FlxObject;
 import lime.system.Clipboard;
 import flixel.group.FlxGroup;
@@ -32,14 +35,11 @@ class OptionsState extends MusicBeatState {
 
 		var nicknameOption:InputOption;
 		items.add(nicknameOption = new InputOption("Nickname", "Set your nickname here!", "Boyfriend", true, text -> {
-			curOption.input.text = curOption.input.text.trim().substr(0, 20);
-			if (curOption.input.text == "")
-				ClientPrefs.data.nickname = "Boyfriend";
-			else
-				ClientPrefs.data.nickname = curOption.input.text;
+			curOption.input.text = curOption.input.text.trim().substr(0, 14);
+			ClientPrefs.setNickname(curOption.input.text);
 			ClientPrefs.saveSettings();
 		}));
-		nicknameOption.input.text = ClientPrefs.data.nickname;
+		nicknameOption.input.text = ClientPrefs.getNickname();
 		nicknameOption.y = 50;
 		nicknameOption.screenCenter(X);
 		nicknameOption.ID = i++;
@@ -90,6 +90,56 @@ class OptionsState extends MusicBeatState {
 		trustedOption.y = modsOption.y + modsOption.height + 50;
 		trustedOption.screenCenter(X);
 		trustedOption.ID = i++;
+
+		var sezOption:InputOption;
+		items.add(sezOption = new InputOption("Leave a Global Message",
+			"Leave a message for others to see in the Online Menu!", "Message", true, message -> {
+				if (FunkinNetwork.postFrontMessage(message))
+					FlxG.switchState(() -> new OnlineState());
+		}));
+		sezOption.y = trustedOption.y + trustedOption.height + 50;
+		sezOption.screenCenter(X);
+		sezOption.ID = i++;
+
+		if (ClientPrefs.data.networkAuthID == null && ClientPrefs.data.networkAuthToken == null) {
+			// var registerOption:InputOption;
+			// items.add(registerOption = new InputOption("Join the Network",
+			// "Join the Psych Online Network\nSubmit your song replays to the leaderboard system!", null, false));
+			// registerOption.y = trustedOption.y + trustedOption.height + 50;
+			// registerOption.screenCenter(X);
+			// registerOption.ID = i++;
+
+			var registerOption:InputOption;
+			items.add(registerOption = new InputOption("Register to the Network",
+				"Join the Psych Online Network\nSubmit your song replays to the leaderboard system!", "Username", true, username -> {
+					FunkinNetwork.register(username);
+					FlxG.resetState();
+				}));
+			registerOption.y = sezOption.y + sezOption.height + 50;
+			registerOption.screenCenter(X);
+			registerOption.ID = i++;
+
+			var recoverOption:InputOption;
+			items.add(recoverOption = new InputOption("Recover Account", "Recover your account using the Recovery File", null, false));
+			recoverOption.y = registerOption.y + registerOption.height + 50;
+			recoverOption.screenCenter(X);
+			recoverOption.ID = i++;
+		}
+		else {
+			var loginBrowserOption:InputOption;
+			items.add(loginBrowserOption = new InputOption("Login in Browser",
+				"Authenticates you to the network in the browser", null, false));
+			loginBrowserOption.y = sezOption.y + sezOption.height + 50;
+			loginBrowserOption.screenCenter(X);
+			loginBrowserOption.ID = i++;
+
+			var logoutOption:InputOption;
+			items.add(logoutOption = new InputOption("Logout of the Network",
+				"Logout of the Psych Online Network", null, false));
+			logoutOption.y = loginBrowserOption.y + loginBrowserOption.height + 50;
+			logoutOption.screenCenter(X);
+			logoutOption.ID = i++;
+		}
 
 		add(items);
 
@@ -143,6 +193,19 @@ class OptionsState extends MusicBeatState {
 							ClientPrefs.data.trustedSources = ["https://gamebanana.com/"];
 							ClientPrefs.saveSettings();
 							Alert.alert("Cleared the trusted domains list!", "");
+						case "logout of the network":
+							FunkinNetwork.logout();
+							FlxG.resetState();
+						case "login in browser":
+							FlxG.openURL(FunkinNetwork.client.getURL("/api/network/account/cookie?id=" + ClientPrefs.data.networkAuthID + "&token=" + ClientPrefs.data.networkAuthToken));
+						case "recover account":
+							var fileDialog = new FileDialog();
+							fileDialog.onOpen.add(res -> {
+								var recFile = Std.string(res).split("\n");
+								FunkinNetwork.login(recFile[0], recFile[1]);
+								FlxG.resetState();
+							});
+							fileDialog.open('txt', Sys.getCwd(), "Load Recovery File");
 					}
 			}
 		}
@@ -177,6 +240,7 @@ class OptionsState extends MusicBeatState {
             curOption = items.members[curSelected];
 
         for (item in items) {
+			item.borderline.visible = item == curOption;
 			item.alpha = inputWait ? 0.5 : 0.6;
 			if (item.isInput)
 				item.input.alpha = 0.5;
@@ -199,6 +263,7 @@ class OptionsState extends MusicBeatState {
 
 class InputOption extends FlxSpriteGroup {
 	var box:FlxSprite;
+	public var borderline:FlxSprite;
 	public var text:FlxText;
 	public var descText:FlxText;
 	var inputBg:FlxSprite;
@@ -257,17 +322,22 @@ class InputOption extends FlxSpriteGroup {
 		}
 
 		box.makeGraphic(Std.int(width) + 10, Std.int(height) + 20, 0x81000000);
-		box.visible = true;
+
+		borderline = new FlxSprite(box.x, box.y);
+		borderline.makeGraphic(Std.int(box.width), Std.int(box.height), FlxColor.TRANSPARENT);
+		FlxSpriteUtil.drawRect(borderline, 0, 0, borderline.width, borderline.height, FlxColor.TRANSPARENT, {thickness: 6, color: 0x34FFFFFF});
+		borderline.visible = false;
+		add(borderline);
     }
 
-	var targetScale:Float = 1;
+	//var targetScale:Float = 1;
 	override function update(elapsed) {
 		super.update(elapsed);
 
 		if (isInput)
 			inputPlaceholder.visible = input.text == "";
 
-		targetScale = alpha == 1 ? 1.02 : 1;
-		scale.set(FlxMath.lerp(scale.x, targetScale, elapsed * 10), FlxMath.lerp(scale.y, targetScale, elapsed * 10));
+		//targetScale = alpha == 1 ? 1.02 : 1;
+		//scale.set(FlxMath.lerp(scale.x, targetScale, elapsed * 10), FlxMath.lerp(scale.y, targetScale, elapsed * 10));
 	}
 }

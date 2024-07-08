@@ -27,7 +27,7 @@ class GameClient {
 	public static var rpcClientRoomID:String;
 
 	/**
-	 * the server address that the player set, if player set nothing then it returns `serverAddresses[0]`
+	 * the server address that the player set, if the player has set nothing then it returns `serverAddresses[0]`
 	 */
 	public static var serverAddress(get, set):String;
 	/**
@@ -159,10 +159,15 @@ class GameClient {
 
 	static function getOptions(asHost:Bool):Map<String, Dynamic> {
 		var options:Map<String, Dynamic> = [
-			"name" => ClientPrefs.data.nickname, 
+			"name" => ClientPrefs.getNickname(), 
 			"protocol" => Main.CLIENT_PROTOCOL,
 			"points" => FunkinPoints.funkinPoints
 		];
+
+		if (ClientPrefs.data.networkAuthID != null && ClientPrefs.data.networkAuthToken != null) {
+			options.set("networkId", ClientPrefs.data.networkAuthID);
+			options.set("networkToken", ClientPrefs.data.networkAuthToken);
+		}
 
 		if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
 			options.set("skinMod", ClientPrefs.data.modSkin[0]);
@@ -232,7 +237,9 @@ class GameClient {
 				FlxG.mouse.visible = false;
 
 				Mods.currentModDirectory = GameClient.room.state.modDir;
-				trace("WOWO : " + GameClient.room.state.song + " | " + GameClient.room.state.folder);
+				Difficulty.list = [];
+				for (d in GameClient.room.state.diffList.items)
+					Difficulty.list.push(d);
 				PlayState.SONG = Song.loadFromJson(GameClient.room.state.song, GameClient.room.state.folder);
 				PlayState.isStoryMode = false;
 				PlayState.storyDifficulty = GameClient.room.state.diff;

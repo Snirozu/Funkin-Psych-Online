@@ -11,9 +11,9 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	private var curSelected:Int = 0;
 	private var optionsArray:Array<Dynamic> = [];
 
-	private var grpOptions:FlxTypedGroup<Alphabet>;
-	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
-	private var grpTexts:FlxTypedGroup<AttachedText>;
+	private var grpOptions:FlxTypedSpriteGroup<Alphabet>;
+	private var checkboxGroup:FlxTypedSpriteGroup<CheckboxThingie>;
+	private var grpTexts:FlxTypedSpriteGroup<AttachedText>;
 
 	function getOptions()
 	{
@@ -98,16 +98,20 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0.6;
+		bg.scrollFactor.set();
 		add(bg);
 
 		// avoids lagspikes while scrolling through menus!
-		grpOptions = new FlxTypedGroup<Alphabet>();
+		grpOptions = new FlxTypedSpriteGroup<Alphabet>();
+		grpOptions.scrollFactor.set();
 		add(grpOptions);
 
-		grpTexts = new FlxTypedGroup<AttachedText>();
+		grpTexts = new FlxTypedSpriteGroup<AttachedText>();
+		grpTexts.scrollFactor.set();
 		add(grpTexts);
 
-		checkboxGroup = new FlxTypedGroup<CheckboxThingie>();
+		checkboxGroup = new FlxTypedSpriteGroup<CheckboxThingie>();
+		checkboxGroup.scrollFactor.set();
 		add(checkboxGroup);
 		
 		getOptions();

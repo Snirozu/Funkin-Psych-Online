@@ -67,6 +67,9 @@ class ChartingState extends MusicBeatState
 	var eventStuff:Array<Dynamic> =
 	[
 		['', "Nothing. Yep, that's right."],
+		['Must Hit Camera', "This event moves the camera to a specified character.\nValue 1: dad, bf or gf\nValue 2: {null, ease, x, y}\n (PSYCH ONLINE ONLY)\n(EXPERIMENTAL)"],
+		['Tween Camera Zoom', "Tweens a camera zoom to a value.\nValue 1: {zoom, duration}\nValue 2: {ease, mode}\n (PSYCH ONLINE ONLY)"],
+		['Change Camera Bop', "Changes the rate and intensity of camera bopping.\nValue 1: rate\nValue 2: intensity\n (PSYCH ONLINE ONLY)"],
 		['Dadbattle Spotlight', "Used in Dad Battle,\nValue 1: 0/1 = ON/OFF,\n2 = Target Dad\n3 = Target BF"],
 		['Hey!', "Plays the \"Hey!\" animation from Bopeebo,\nValue 1: BF = Only Boyfriend, GF = Only Girlfriend,\nSomething else = Both.\nValue 2: Custom animation duration,\nleave it blank for 0.6s"],
 		['Set GF Speed', "Sets GF head bopping speed,\nValue 1: 1 = Normal speed,\n2 = 1/2 speed, 4 = 1/4 speed etc.\nUsed on Fresh during the beatbox parts.\n\nWarning: Value must be integer!"],
@@ -130,6 +133,9 @@ class ChartingState extends MusicBeatState
 	var curUndoIndex = 0;
 	var curRedoIndex = 0;
 	var _song:SwagSong;
+
+	var trackSuffix:String = '';
+
 	/*
 	 * WILL BE THE CURRENT / LAST PLACED NOTE
 	**/
@@ -138,6 +144,7 @@ class ChartingState extends MusicBeatState
 	var playbackSpeed:Float = 1;
 
 	var vocals:FlxSound = null;
+	var opponentVocals:FlxSound = null;
 
 	var leftIcon:HealthIcon;
 	var rightIcon:HealthIcon;
@@ -432,15 +439,15 @@ class ChartingState extends MusicBeatState
 		{
 
 			var songName:String = Paths.formatToSongPath(_song.song);
-			var file:String = Paths.json(songName + '/events');
+			var file:String = Paths.json(songName + '/events' + trackSuffix);
 			#if sys
-			if (#if MODS_ALLOWED FileSystem.exists(Paths.modsJson(songName + '/events')) || #end FileSystem.exists(file))
+			if (#if MODS_ALLOWED FileSystem.exists(Paths.modsJson(songName + '/events' + trackSuffix)) || #end FileSystem.exists(file))
 			#else
 			if (OpenFlAssets.exists(file))
 			#end
 			{
 				clearEvents();
-				var events:SwagSong = Song.loadFromJson('events', songName);
+				var events:SwagSong = Song.loadFromJson('events' + trackSuffix, songName);
 				_song.events = events.events;
 				changeSection(curSec);
 			}
@@ -1218,13 +1225,14 @@ class ChartingState extends MusicBeatState
 		check_mute_vocals.checked = false;
 		check_mute_vocals.callback = function()
 		{
-			if(vocals != null) {
-				var vol:Float = 1;
+			var vol:Float = 1;
 
-				if (check_mute_vocals.checked)
-					vol = 0;
+			if (check_mute_vocals.checked)
+				vol = 0;
 
-				vocals.volume = vol;
+			for (v in [vocals, opponentVocals]) {
+				if (v == null) continue;
+				v.volume = vol;
 			}
 		};
 
@@ -1381,13 +1389,29 @@ class ChartingState extends MusicBeatState
 			// vocals.stop();
 		}
 
-		var file:Dynamic = Paths.voices(currentSongName);
 		vocals = new FlxSound();
-		if (Std.isOfType(file, Sound) || OpenFlAssets.exists(file)) {
-			vocals.loadEmbedded(file);
-			vocals.autoDestroy = false;
-			FlxG.sound.list.add(vocals);
+		vocals.autoDestroy = false;
+		opponentVocals = new FlxSound();
+		opponentVocals.autoDestroy = false;
+		FlxG.sound.list.add(vocals);
+		FlxG.sound.list.add(opponentVocals);
+
+		trackSuffix = Difficulty.getString() == "Erect" || Difficulty.getString() == "Nightmare" ? "-erect" : "";
+
+		try {
+			var playerVocals = Paths.voices(currentSongName, 'Player', trackSuffix);
+			vocals.loadEmbedded(playerVocals != null ? playerVocals : Paths.voices(currentSongName, null, trackSuffix));
+			
+			var oppVocals = Paths.voices(currentSongName, 'Opponent', trackSuffix);
+			if(oppVocals != null) opponentVocals.loadEmbedded(oppVocals);
 		}
+		catch (exc:Dynamic) {
+			var file:Dynamic = Paths.voices(currentSongName, null, trackSuffix);
+			if (Std.isOfType(file, Sound) || OpenFlAssets.exists(file)) {
+				vocals.loadEmbedded(file);
+			}
+		}
+		
 		generateSong();
 		FlxG.sound.music.pause();
 		Conductor.songPosition = sectionStartTime();
@@ -1419,12 +1443,14 @@ class ChartingState extends MusicBeatState
 			if (instVolume != null) FlxG.sound.music.volume = instVolume.value;
 			if (check_mute_inst != null && check_mute_inst.checked) FlxG.sound.music.volume = 0;
 
-			if(vocals != null)
+			for (v in [vocals, opponentVocals])
 			{
-				vocals.pause();
-				vocals.time = playtestingTime;
-				if (voicesVolume != null) vocals.volume = voicesVolume.value;
-				if (check_mute_vocals != null && check_mute_vocals.checked) vocals.volume = 0;
+				if (v == null) continue;
+
+				v.pause();
+				v.time = playtestingTime;
+				if (voicesVolume != null) v.volume = voicesVolume.value;
+				if (check_mute_vocals != null && check_mute_vocals.checked) v.volume = 0;
 			}
 
 			#if DISCORD_ALLOWED
@@ -1436,7 +1462,7 @@ class ChartingState extends MusicBeatState
 	}
 
 	function generateSong() {
-		FlxG.sound.playMusic(Paths.inst(currentSongName), 0.6/*, false*/);
+		FlxG.sound.playMusic(Paths.inst(currentSongName, trackSuffix), 0.6/*, false*/);
 		FlxG.sound.music.autoDestroy = false;
 		if (instVolume != null) FlxG.sound.music.volume = instVolume.value;
 		if (check_mute_inst != null && check_mute_inst.checked) FlxG.sound.music.volume = 0;
@@ -1445,15 +1471,18 @@ class ChartingState extends MusicBeatState
 		{
 			FlxG.sound.music.pause();
 			Conductor.songPosition = 0;
-			if(vocals != null) {
-				vocals.pause();
-				vocals.time = 0;
+			for (v in [vocals, opponentVocals]) {
+				if (v == null)
+					continue;
+				v.pause();
+				v.time = 0;
 			}
 			changeSection();
 			curSec = 0;
 			updateGrid();
 			updateSectionUI();
 			vocals.play();
+			opponentVocals.play();
 		};
 	}
 
@@ -1531,7 +1560,10 @@ class ChartingState extends MusicBeatState
 					FlxG.sound.music.volume = nums.value;
 
 				case 'voices_volume':
-					vocals.volume = nums.value;
+					for (v in [vocals, opponentVocals]) {
+						if (v == null) continue;
+						v.volume = nums.value;
+					}
 			}
 		}
 		else if(id == FlxUIInputText.CHANGE_EVENT && (sender is FlxUIInputText)) {
@@ -1744,7 +1776,10 @@ class ChartingState extends MusicBeatState
 			if (FlxG.keys.justPressed.ESCAPE)
 			{
 				FlxG.sound.music.pause();
-				if(vocals != null) vocals.pause();
+				for (v in [vocals, opponentVocals]) {
+					if (v == null) continue;
+					v.pause();
+				}
 
 				autosaveSong();
 				playtesting = true;
@@ -1758,7 +1793,10 @@ class ChartingState extends MusicBeatState
 				FlxG.mouse.visible = false;
 				PlayState.SONG = _song;
 				FlxG.sound.music.stop();
-				if(vocals != null) vocals.stop();
+				for (v in [vocals, opponentVocals]) {
+					if (v == null) continue;
+					v.stop();
+				}
 
 				//if(_song.stage == null) _song.stage = stageDropDown.selectedLabel;
 				StageData.loadDirectory(_song);
@@ -1821,15 +1859,19 @@ class ChartingState extends MusicBeatState
 				if (FlxG.sound.music.playing)
 				{
 					FlxG.sound.music.pause();
-					if(vocals != null) vocals.pause();
+					for (v in [vocals, opponentVocals]) {
+						if (v == null) continue;
+						v.pause();
+					}
 				}
 				else
 				{
-					if(vocals != null) {
-						vocals.play();
-						vocals.pause();
-						vocals.time = FlxG.sound.music.time;
-						vocals.play();
+					for (v in [vocals, opponentVocals]) {
+						if (v == null) continue;
+						v.play();
+						v.pause();
+						v.time = FlxG.sound.music.time;
+						v.play();
 					}
 					FlxG.sound.music.play();
 				}
@@ -1863,9 +1905,10 @@ class ChartingState extends MusicBeatState
 							FlxG.sound.music.time = Conductor.beatToSeconds(fuck);
 						}
 					}
-				if(vocals != null) {
-					vocals.pause();
-					vocals.time = FlxG.sound.music.time;
+				for (v in [vocals, opponentVocals]) {
+					if (v == null) continue;
+					v.pause();
+					v.time = FlxG.sound.music.time;
 				}
 			}
 
@@ -1890,9 +1933,10 @@ class ChartingState extends MusicBeatState
 				else
 					FlxG.sound.music.time += daTime;
 
-				if(vocals != null) {
-					vocals.pause();
-					vocals.time = FlxG.sound.music.time;
+				for (v in [vocals, opponentVocals]) {
+					if (v == null) continue;
+					v.pause();
+					v.time = FlxG.sound.music.time;
 				}
 			}
 
@@ -1980,9 +2024,10 @@ class ChartingState extends MusicBeatState
 						feces = Conductor.beatToSeconds(fuck);
 					}
 					FlxTween.tween(FlxG.sound.music, {time:feces}, 0.1, {ease:FlxEase.circOut});
-					if(vocals != null) {
-						vocals.pause();
-						vocals.time = FlxG.sound.music.time;
+					for (v in [vocals, opponentVocals]) {
+						if (v == null) continue;
+						v.pause();
+						v.time = FlxG.sound.music.time;
 					}
 
 					var dastrum = 0;
@@ -2074,6 +2119,7 @@ class ChartingState extends MusicBeatState
 
 		FlxG.sound.music.pitch = playbackSpeed;
 		vocals.pitch = playbackSpeed;
+		opponentVocals.pitch = playbackSpeed;
 
 		bpmTxt.text =
 		Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2)) + " / " + Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2)) +
@@ -2320,19 +2366,22 @@ class ChartingState extends MusicBeatState
 		}
 
 		if (FlxG.save.data.chart_waveformVoices) {
-			var sound:FlxSound = vocals;
-			if (sound._sound != null && sound._sound.__buffer != null) {
-				var bytes:Bytes = sound._sound.__buffer.data.toBytes();
+			for (v in [vocals, opponentVocals]) {
+				if (v == null) continue;
 
-				wavData = waveformData(
-					sound._sound.__buffer,
-					bytes,
-					st,
-					et,
-					1,
-					wavData,
-					Std.int(gridBG.height)
-				);
+				if (v._sound != null && v._sound.__buffer != null) {
+					var bytes:Bytes = v._sound.__buffer.data.toBytes();
+
+					wavData = waveformData(
+						v._sound.__buffer,
+						bytes,
+						st,
+						et,
+						1,
+						wavData,
+						Std.int(gridBG.height)
+					);
+				}
 			}
 		}
 
@@ -2536,9 +2585,10 @@ class ChartingState extends MusicBeatState
 			curSec = 0;
 		}
 
-		if(vocals != null) {
-			vocals.pause();
-			vocals.time = FlxG.sound.music.time;
+		for (v in [vocals, opponentVocals]) {
+			if (v == null) continue;
+			v.pause();
+			v.time = FlxG.sound.music.time;
 		}
 		updateCurStep();
 
@@ -2558,9 +2608,10 @@ class ChartingState extends MusicBeatState
 				FlxG.sound.music.pause();
 
 				FlxG.sound.music.time = sectionStartTime();
-				if(vocals != null) {
-					vocals.pause();
-					vocals.time = FlxG.sound.music.time;
+				for (v in [vocals, opponentVocals]) {
+					if (v == null) continue;
+					v.pause();
+					v.time = FlxG.sound.music.time;
 				}
 				updateCurStep();
 			}

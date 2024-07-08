@@ -64,4 +64,7 @@ class Player extends Schema {
 
 	@:type("boolean")
 	public var botplay:Bool = false;
+
+	@:type("boolean")
+	public var verified:Bool = false;
 }
