@@ -20,6 +20,9 @@ class RoomState extends Schema {
 	@:type("number")
 	public var diff: Dynamic = 0;
 
+	@:type("array", "string")
+	public var diffList:ArraySchema<String> = new ArraySchema<String>();
+
 	@:type("string")
 	public var modDir: String = "";
 

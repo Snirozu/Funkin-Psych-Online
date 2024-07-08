@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="online_discord.png">
+	<!-- Created with Adobe Animate version 23.0.2.103 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="active0000" x="0" y="0" width="102" height="72"/>
+	<SubTexture name="active0001" x="0" y="0" width="102" height="72"/>
+	<SubTexture name="active0002" x="102" y="0" width="102" height="72"/>
+	<SubTexture name="active0003" x="102" y="0" width="102" height="72"/>
+	<SubTexture name="active0004" x="204" y="0" width="102" height="72"/>
+	<SubTexture name="active0005" x="204" y="0" width="102" height="72"/>
+	<SubTexture name="active0006" x="306" y="0" width="102" height="72"/>
+	<SubTexture name="active0007" x="306" y="0" width="102" height="72"/>
+	<SubTexture name="idle0000" x="408" y="0" width="97" height="68"/>
+	<SubTexture name="idle0001" x="408" y="0" width="97" height="68"/>
+	<SubTexture name="idle0002" x="0" y="72" width="97" height="68"/>
+	<SubTexture name="idle0003" x="0" y="72" width="97" height="68"/>
+	<SubTexture name="idle0004" x="97" y="72" width="97" height="68"/>
+	<SubTexture name="idle0005" x="97" y="72" width="97" height="68"/>
+	<SubTexture name="idle0006" x="194" y="72" width="97" height="68"/>
+	<SubTexture name="idle0007" x="194" y="72" width="97" height="68"/>
+</TextureAtlas>

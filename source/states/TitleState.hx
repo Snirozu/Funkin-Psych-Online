@@ -468,9 +468,9 @@ class TitleState extends MusicBeatState
 								}
 							});
 							FlxG.sound.music.fadeOut();
-							if(FreeplayState.vocals != null)
-							{
-								FreeplayState.vocals.fadeOut();
+							for (v in [FreeplayState.vocals, FreeplayState.opponentVocals]) {
+								if (v == null) continue;
+								v.fadeOut();
 							}
 							closedState = true;
 							transitioning = true;
@@ -692,9 +692,9 @@ class TitleState extends MusicBeatState
 				if(easteregg == 'SHADOW')
 				{
 					FlxG.sound.music.fadeOut();
-					if(FreeplayState.vocals != null)
-					{
-						FreeplayState.vocals.fadeOut();
+					for (v in [FreeplayState.vocals, FreeplayState.opponentVocals]) {
+						if (v == null) continue;
+						v.fadeOut();
 					}
 				}
 				#end

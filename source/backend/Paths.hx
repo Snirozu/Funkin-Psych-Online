@@ -1,5 +1,6 @@
 package backend;
 
+import flxanimate.FlxAnimate;
 import animateatlas.AtlasFrameMaker;
 
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
@@ -33,6 +34,7 @@ class Paths
 {
 	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
 	inline public static var VIDEO_EXT = "mp4";
+	inline public static var PATH_SLASH = #if windows '\\' #else '/' #end;
 
 	public static function excludeAsset(key:String) {
 		if (!dumpExclusions.contains(key))
@@ -141,7 +143,7 @@ class Paths
 		return if (library == "preload" || library == "default") getPreloadPath(file); else getLibraryPathForce(file, library);
 	}
 
-	inline static function getLibraryPathForce(file:String, library:String, ?level:String)
+	inline public static function getLibraryPathForce(file:String, library:String, ?level:String)
 	{
 		if(level == null) level = library;
 		var returnPath = '$library:assets/$level/$file';
@@ -209,10 +211,10 @@ class Paths
 		return file;
 	}
 
-	inline static public function voices(song:String, postfix:String = null):Any {
+	inline static public function voices(song:String, postfix:String = null, songSuffix:String = null):Any {
 		var voices:Sound = null;
 		try {
-			var songKey:String = '${formatToSongPath(song)}/Voices';
+			var songKey:String = '${formatToSongPath(song)}/Voices' + (songSuffix ?? "");
 			if (postfix != null)
 				songKey += '-' + postfix;
 			var sound = returnSound('songs', songKey);
@@ -227,12 +229,12 @@ class Paths
 		return voices;
 	}
 
-	inline static public function inst(song:String):Any
+	inline static public function inst(song:String, songSuffix:String = null):Any
 	{
 		#if html5
 		return 'songs:assets/songs/${formatToSongPath(song)}/Inst.$SOUND_EXT';
 		#else
-		var songKey:String = '${formatToSongPath(song)}/Inst';
+		var songKey:String = '${formatToSongPath(song)}/Inst' + (songSuffix ?? "");
 		var inst = returnSound('songs', songKey);
 		return inst;
 		#end
@@ -506,4 +508,64 @@ class Paths
 		return 'mods/' + key;
 	}
 	#end
+
+	public static function loadAnimateAtlas(spr:FlxAnimate, folderOrImg:Dynamic, spriteJson:Dynamic = null, animationJson:Dynamic = null) {
+		var changedAnimJson = false;
+		var changedAtlasJson = false;
+		var changedImage = false;
+
+		if (spriteJson != null) {
+			changedAtlasJson = true;
+			spriteJson = File.getContent(spriteJson);
+		}
+
+		if (animationJson != null) {
+			changedAnimJson = true;
+			animationJson = File.getContent(animationJson);
+		}
+
+		// is folder or image path
+		if (Std.isOfType(folderOrImg, String)) {
+			var originalPath:String = folderOrImg;
+			for (i in 0...10) {
+				var st:String = '$i';
+				if (i == 0)
+					st = '';
+
+				if (!changedAtlasJson) {
+					spriteJson = getTextFromFile('images/$originalPath/spritemap$st.json');
+					if (spriteJson != null) {
+						// trace('found Sprite Json');
+						changedImage = true;
+						changedAtlasJson = true;
+						folderOrImg = Paths.image('$originalPath/spritemap$st');
+						break;
+					}
+				}
+				else if (Paths.fileExists('images/$originalPath/spritemap$st.png', IMAGE)) {
+					// trace('found Sprite PNG');
+					changedImage = true;
+					folderOrImg = Paths.image('$originalPath/spritemap$st');
+					break;
+				}
+			}
+
+			if (!changedImage) {
+				// trace('Changing folderOrImg to FlxGraphic');
+				changedImage = true;
+				folderOrImg = Paths.image(originalPath);
+			}
+
+			if (!changedAnimJson) {
+				// trace('found Animation Json');
+				changedAnimJson = true;
+				animationJson = getTextFromFile('images/$originalPath/Animation.json');
+			}
+		}
+
+		// trace(folderOrImg);
+		// trace(spriteJson);
+		// trace(animationJson);
+		spr.loadAtlasEx(folderOrImg, spriteJson, animationJson);
+	}
 }

@@ -88,6 +88,18 @@
       "name": "away3d",
       "type": "haxelib",
       "version": "5.0.9"
+    },
+    {
+      "name": "json2object",
+      "type": "haxelib",
+      "version": "3.11.0"
+    },
+    {
+      "name": "flxanimate",
+      "type": "git",
+      "dir": null,
+      "ref": "dev",
+      "url": "https://github.com/ShadowMario/flxanimate"
     }
   ]
 }

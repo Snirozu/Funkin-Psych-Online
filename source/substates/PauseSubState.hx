@@ -1,5 +1,8 @@
 package substates;
 
+import sys.io.File;
+import online.net.Leaderboard;
+import haxe.Json;
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
@@ -11,6 +14,8 @@ import flixel.util.FlxStringUtil;
 import states.StoryMenuState;
 import states.FreeplayState;
 import options.OptionsState;
+import online.Alert;
+import online.FileUtils;
 
 class PauseSubState extends MusicBeatSubstate
 {
@@ -50,6 +55,13 @@ class PauseSubState extends MusicBeatSubstate
 			menuItemsOG.insert(3 + num, 'End Song');
 			menuItemsOG.insert(4 + num, 'Toggle Practice Mode');
 			menuItemsOG.insert(5 + num, 'Toggle Botplay');
+		}
+		if (PlayState.replayData != null) {
+			menuItemsOG.remove('Change Difficulty');
+			menuItemsOG.insert(2, 'Save Replay');
+			if (PlayState.replayID != null) {
+				menuItemsOG.insert(3, 'Report Replay');
+			}
 		}
 		menuItems = menuItemsOG;
 
@@ -204,7 +216,7 @@ class PauseSubState extends MusicBeatSubstate
 			{
 				try{
 					if(menuItems.length - 1 != curSelected && difficultyChoices.contains(daSelected)) {
-
+						PlayState.replayData = null;
 						var name:String = PlayState.SONG.song;
 						var poop = Highscore.formatSong(name, curSelected);
 						PlayState.SONG = Song.loadFromJson(poop, name);
@@ -294,6 +306,7 @@ class PauseSubState extends MusicBeatSubstate
 					#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 					PlayState.deathCounter = 0;
 					PlayState.seenCutscene = false;
+					PlayState.replayData = null;
 
 					Mods.loadTopMod();
 					if(PlayState.isStoryMode) {
@@ -306,6 +319,15 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.changedDifficulty = false;
 					PlayState.chartingMode = false;
 					FlxG.camera.followLerp = 0;
+				case "Report Replay":
+					if (Leaderboard.reportScore(PlayState.replayID) != null)
+						Alert.alert("Replay Reported");
+					close();
+				case "Save Replay":
+					var replayData = Json.stringify(PlayState.replayData);
+					File.saveContent("replays/" + FileUtils.formatFile(PlayState.replayData.player) + "Replay-" + PlayState.SONG.song + "-" + Difficulty.getString().toUpperCase() + ".funkinreplay", replayData);
+					Alert.alert("Replay Saved!", "replays/" + FileUtils.formatFile(PlayState.replayData.player) + "Replay-" + PlayState.SONG.song + "-" + Difficulty.getString().toUpperCase() + ".funkinreplay");
+					close();
 			}
 		}
 	}

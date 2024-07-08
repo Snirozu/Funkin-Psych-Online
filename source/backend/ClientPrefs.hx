@@ -1,5 +1,6 @@
 package backend;
 
+import online.net.FunkinNetwork;
 import online.GameClient;
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
@@ -66,7 +67,7 @@ class SaveVariables {
 	public var safeFrames:Float = 10;
 	public var discordRPC:Bool = true;
 	//ONLINE
-	public var nickname:String = "Boyfriend";
+	private var nickname:String = "Boyfriend";
 	public var serverAddress:String = null;
 	public var modSkin:Array<String> = null;
 	public var trustedSources:Array<String> = ["https://gamebanana.com/"];
@@ -75,6 +76,10 @@ class SaveVariables {
 	public var disableStrumMovement:Bool = false;
 	public var unlockFramerate:Bool = false;
 	public var debugMode:Bool = false;
+	public var recordReplays:Bool = false;
+	public var networkAuthID:String = null;
+	public var networkAuthToken:String = null;
+	public var disableSubmiting:Bool = false;
 
 	public function new()
 	{
@@ -284,5 +289,23 @@ class ClientPrefs {
 			return true;
 		
 		return data.debugMode;
+	}
+
+	public static function getNickname() {
+		if (FunkinNetwork.loggedIn)
+			return FunkinNetwork.nickname;
+
+		@:privateAccess
+		return data.nickname;
+	}
+
+	public static function setNickname(name) {
+		if (FunkinNetwork.loggedIn)
+			return FunkinNetwork.updateName(name);
+
+		if (name == "")
+			return @:privateAccess data.nickname = "Boyfriend";
+
+		return @:privateAccess data.nickname = name;
 	}
 }

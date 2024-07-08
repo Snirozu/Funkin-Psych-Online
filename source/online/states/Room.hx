@@ -161,6 +161,8 @@ class Room extends MusicBeatState {
 	var waitingForPlayer1Skin = false;
 	var waitingForPlayer2Skin = false;
 
+	var lastSwapped = false;
+
 	override function create() {
 		super.create();
 
@@ -410,7 +412,7 @@ class Room extends MusicBeatState {
 					Mods.currentModDirectory = GameClient.room.state.player1.skinMod;
 
 				if (GameClient.room.state.player1.skinName != null)
-					p1 = new Character(0, 0, GameClient.room.state.player1.skinName);
+					p1 = new Character(0, 0, GameClient.room.state.player1.skinName + (GameClient.room.state.swagSides ? "-player" : ''), GameClient.room.state.swagSides);
 			}
 			else if (enableDownload && GameClient.room.state.player1.skinURL != null) {
 				waitingForPlayer1Skin = true;
@@ -424,9 +426,7 @@ class Room extends MusicBeatState {
 			}
 
 			if (p1 == null)
-				p1 = new Character(0, 0, "default");
-			p1.x = 100 + p1.positionArray[0];
-			p1.y = 120 + p1.positionArray[1];
+				p1 = new Character(0, 0, "default" + (GameClient.room.state.swagSides ? "-player" : ''), GameClient.room.state.swagSides);
 
 			p1Layer.add(p1);
 		}
@@ -444,7 +444,7 @@ class Room extends MusicBeatState {
 					Mods.currentModDirectory = GameClient.room.state.player2.skinMod;
 
 				if (GameClient.room.state.player2.skinName != null)
-					p2 = new Character(0, 0, GameClient.room.state.player2.skinName + "-player", true);
+					p2 = new Character(0, 0, GameClient.room.state.player2.skinName + (GameClient.room.state.swagSides ? '' : "-player"), !GameClient.room.state.swagSides);
 			}
 			else if (enableDownload && GameClient.room.state.player2.skinURL != null) {
 				waitingForPlayer2Skin = true;
@@ -458,14 +458,50 @@ class Room extends MusicBeatState {
 			}
 
 			if (p2 == null)
-				p2 = new Character(/*770*/ 0, 0, "default-player", true);
-			p2.x = 600 + p2.positionArray[0];
-			p2.y = 120 + p2.positionArray[1];
+				p2 = new Character(/*770*/ 0, 0, "default" + (GameClient.room.state.swagSides ? '' : "-player"), !GameClient.room.state.swagSides);
 
 			p2Layer.add(p2);
 		}
+
+		positionCharacters();
 		
 		Mods.currentModDirectory = oldModDir;
+	}
+
+	var rightSide:Character;
+	var leftSide:Character;
+	var rightSideText:FlxText;
+	var leftSideText:FlxText;
+	var rightSideTextBG:FlxSprite;
+	var leftSideTextBG:FlxSprite;
+
+	function positionCharacters() {
+		rightSide = GameClient.room.state.swagSides ? p1 : p2;
+		leftSide = GameClient.room.state.swagSides ? p2 : p1;
+		rightSideText = GameClient.room.state.swagSides ? player1Text : player2Text;
+		leftSideText = GameClient.room.state.swagSides ? player2Text : player1Text;
+		rightSideTextBG = GameClient.room.state.swagSides ? player1Bg : player2Bg;
+		leftSideTextBG = GameClient.room.state.swagSides ? player2Bg : player1Bg;
+
+		if (rightSide != null) {
+			rightSide.x = 600 + rightSide.positionArray[0];
+			rightSide.y = 120 + rightSide.positionArray[1];
+		}
+
+		if (leftSide != null) {
+			leftSide.x = 100 + leftSide.positionArray[0];
+			leftSide.y = 120 + leftSide.positionArray[1];
+		}
+
+		if (leftSideText != null) {
+			leftSideText.x = 250 - leftSideText.width / 2;
+			leftSideTextBG.x = 250 - leftSideTextBG.width / 2;
+		}
+
+		if (rightSideText != null) {
+			rightSideText.x = 700 - rightSideText.width / 2;
+			rightSideTextBG.x = 700 - rightSideTextBG.width / 2;
+		}
 	}
 
 	override function openSubState(obj:FlxSubState) {
@@ -483,9 +519,15 @@ class Room extends MusicBeatState {
 
 	var elapsedShit = 3.;
     override function update(elapsed:Float) {
-		if (!GameClient.isConnected()) {
+		if (!GameClient.isConnected())
 			return;
+
+		if (lastSwapped != GameClient.room.state.swagSides) {
+			loadCharacter(true);
+			loadCharacter(false);
 		}
+
+		lastSwapped = GameClient.room.state.swagSides;
 		
 		// if (FlxG.keys.justPressed.SPACE) {
 		// 	Alert.alert("Camera Location:", '${cum.scroll.x},${cum.scroll.y} x ${cum.zoom}');
@@ -568,9 +610,6 @@ class Room extends MusicBeatState {
 				}
 			}
 
-			if (controls.TAUNT)
-				playerAnim('taunt');
-
 			var held = false;
 			for (key in ['note_left', 'note_down', 'note_up', 'note_right']) {
 				if (controls.pressed(key)) {
@@ -596,6 +635,8 @@ class Room extends MusicBeatState {
 				if (controls.NOTE_DOWN_P) {
 					playerAnim('singDOWN' + suffix);
 				}
+				if (controls.TAUNT)
+					playerAnim('taunt');
 			} else {
 				if (controls.UI_LEFT_P) {
 					changeSelection(1);
@@ -609,12 +650,20 @@ class Room extends MusicBeatState {
 				if (controls.UI_DOWN_P) {
 					changeSelection(-1);
 				}
+				if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.C) {
+					Clipboard.text = GameClient.getRoomSecret(true);
+					Alert.alert("Room code copied!");
+				}
+
+				if (FlxG.keys.justPressed.SHIFT) {
+					openSubState(new ServerSettingsSubstate());
+				}
 			}
 			
 			danceLogic(p1);
 			danceLogic(p2);
 			
-			if (controls.ACCEPT || FlxG.mouse.justPressed) {
+			if ((!FlxG.keys.pressed.ALT && controls.ACCEPT) || FlxG.mouse.justPressed) {
 				switch (curSelected) {
 					case 0:
 						openSubState(new ServerSettingsSubstate());
@@ -692,15 +741,6 @@ class Room extends MusicBeatState {
 			else if (FlxG.mouse.justPressedRight) {
 				if (curSelected == 5)
 					FlxG.switchState(() -> new BananaDownload());
-			}
-
-			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.C) {
-				Clipboard.text = GameClient.getRoomSecret(true);
-				Alert.alert("Room code copied!");
-			}
-
-			if (FlxG.keys.justPressed.SHIFT) {
-				openSubState(new ServerSettingsSubstate());
 			}
 		}
 
@@ -793,9 +833,6 @@ class Room extends MusicBeatState {
 		if (GameClient.room == null)
 			return;
 
-		player1Text.x = 250 - player1Text.width / 2;
-		player2Text.x = 700 - player2Text.width / 2;
-
 		var selfPlayer:Player = getSelfPlayer();
 
 		if (GameClient.room.state.modDir == "" || GameClient.room.state.song == "") {
@@ -826,7 +863,7 @@ class Room extends MusicBeatState {
 		songNameBg.updateHitbox();
 		songNameBg.x = songName.x;
 
-		player1Text.text = returnPlayerText(GameClient.room.state.player1);
+		setPlayerText(player1Text, GameClient.room.state.player1);
 
 		if (GameClient.room.state.player2 != null && GameClient.room.state.player2.name != "") {
 			player2Text.alpha = 1;
@@ -834,17 +871,18 @@ class Room extends MusicBeatState {
 			p2.colorTransform.greenOffset = 0;
 			p2.colorTransform.blueOffset = 0;
 			p2.alpha = 1;
-			player2Text.text = returnPlayerText(GameClient.room.state.player2);
+			setPlayerText(player2Text, GameClient.room.state.player2);
         }
         else {
+			if (p2.curCharacter != "default-player")
+				loadCharacter(false);
+			player2Text.clearFormats();
 			player2Text.text = "WAITING FOR\nOPPONENT";
 			player2Text.alpha = 0.8;
 			p2.colorTransform.redOffset = -255;
 			p2.colorTransform.greenOffset = -255;
 			p2.colorTransform.blueOffset = -255;
 			p2.alpha = 0.5;
-			if (p2.curCharacter != "default-player")
-				loadCharacter(false);
         }
 
 		if (waitingForPlayer1Skin) {
@@ -873,8 +911,7 @@ class Room extends MusicBeatState {
 		player2Bg.scale.set(FlxMath.bound(player2Text.width, 300), player2Text.height + 60);
 		player2Bg.updateHitbox();
 
-		player1Bg.x = 250 - player1Bg.width / 2;
-		player2Bg.x = 700 - player2Bg.width / 2;
+		positionCharacters();
 
 		switch (curSelected) {
 			case 0:
@@ -901,16 +938,28 @@ class Room extends MusicBeatState {
 		itemTipBg.updateHitbox();
     }
 
-	function returnPlayerText(player:Player) {
-		return 
-			player.name + "\n\n" +
-			//player.title + "\n\n" + //completely unsure about that
+	var yellowMarker:FlxTextFormatMarkerPair;
+	var pingMarker:FlxTextFormatMarkerPair;
+
+	function setPlayerText(text:FlxText, player:Player) {
+		if (yellowMarker == null)
+			yellowMarker = new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.YELLOW), "<y>");
+		if (pingMarker == null)
+			pingMarker = new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GREEN), "<p>");
+
+		@:privateAccess
+		pingMarker.format.format.color = FlxColor.interpolate(FlxColor.fromString("#00ff00"), FlxColor.fromString("#ff0000"), player.ping / 400);
+
+		yellowMarker = new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.YELLOW), "<y>");
+
+		text.applyMarkup(
+			(player.verified ? '<y>${player.name}<y>' : player.name) + "\n\n" +
             "Statistics\n" +
             "Points: " + player.points + "\n" +
-            "Ping: " + player.ping + "ms" + "\n\n" +
+			"Ping: <p>" + player.ping + "ms<p>\n\n" +
 			player.status + "\n" +
 			(!player.isReady ? "NOT " : "") + "READY"
-		;
+		, [yellowMarker, pingMarker]);
 	}
 
 	function changeSelection(diffe:Int) {
@@ -925,10 +974,15 @@ class Room extends MusicBeatState {
 	}
 
 	function playMusic(value:Bool) {
+		FreeplayState.destroyFreeplayVocals();
 		if (value) {
 			Mods.currentModDirectory = GameClient.room.state.modDir;
 			PlayState.SONG = Song.loadFromJson(GameClient.room.state.song, GameClient.room.state.folder);
-			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 0.5);
+
+			var diff = Difficulty.getString(GameClient.room.state.diff);
+			var trackSuffix = diff == "Erect" || diff == "Nightmare" ? "-erect" : "";
+
+			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song, trackSuffix), 0.5);
 			Conductor.mapBPMChanges(PlayState.SONG);
 			Conductor.bpm = PlayState.SONG.bpm;
 		}

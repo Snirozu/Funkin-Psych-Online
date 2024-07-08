@@ -113,6 +113,18 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Enable Replays Recording',
+			'If checked, the game will record your gameplay and save it in the replays folder!',
+			'recordReplays',
+			'bool');
+		addOption(option);
+
+		var option:Option = new Option('Disable Leaderboard Submiting',
+			'If checked, the game will no longer submit your replays (when you beat a song) to the leaderboard\nCan be toggled in-game with F2',
+			'disableSubmiting',
+			'bool');
+		addOption(option);
+
 		super();
 	}
 

@@ -239,8 +239,10 @@ class ModsMenuState extends MusicBeatState
 					saveTxt(swagMods);
 					FileUtils.removeFiles(haxe.io.Path.join([Paths.mods(), oldModName]));
 				}
-				Mods.updatedOnState = false;
-				FlxG.switchState(() -> new ModsMenuState());
+				if (FlxG.state is ModsMenuState) {
+					Mods.updatedOnState = false;
+					FlxG.switchState(() -> new ModsMenuState());
+				}
 			});
 		});
 		buttonVerify.setGraphicSize(170, 50);
@@ -521,11 +523,12 @@ class ModsMenuState extends MusicBeatState
 				TitleState.initialized = false;
 				TitleState.closedState = false;
 				FlxG.sound.music.fadeOut(0.3);
-				if(FreeplayState.vocals != null)
-				{
-					FreeplayState.vocals.fadeOut(0.3);
-					FreeplayState.vocals = null;
+				for (v in [FreeplayState.vocals, FreeplayState.opponentVocals]) {
+					if (v == null) continue;
+					v.fadeOut(0.3);
 				}
+				FreeplayState.vocals = null;
+				FreeplayState.opponentVocals = null;
 				FlxG.camera.fade(FlxColor.BLACK, 0.5, false, FlxG.resetGame, false);
 			}
 			else

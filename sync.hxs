@@ -1,38 +1,12 @@
 // for quick patches, hooking into classes
 // this can be locally tested with sync.hxs in the game directory
 
-import flixel.text.FlxText;
-import online.GameClient;
-import online.Waiter;
-
 function init() { // initializes the game
     print("received sync script from git!");
 }
 
 function switchState(state) { // game state gets switched
-    if (typeof(state) == "online.states.OnlineState") {
-        if (state.playersOnline.text == "") {
-            state.playersOnline.text = "...";
-            state.playersOnline.screenCenter(0x01);
-        }
 
-        var availableRooms = new FlxText(0, 130);
-		availableRooms.setFormat("VCR OSD Mono", 16, 0xFFFFFFFF, "center", state.playersOnline.borderStyle, 0xFF000000);
-		availableRooms.alpha = 0.6;
-        availableRooms.text = "...";
-        availableRooms.screenCenter(0x01);
-		state.add(availableRooms);
-
-        GameClient.getAvailableRooms(GameClient.serverAddress, (err, rooms) -> {
-            if (err != null)
-                return;
-
-            Waiter.put(() -> {
-                availableRooms.text = 'Available Rooms: ' + rooms.length;
-			    availableRooms.screenCenter(0x01);
-            });
-        });
-    }
 }
 
 function openSubState(substate) { // game substate gets opened

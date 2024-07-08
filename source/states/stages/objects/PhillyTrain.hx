@@ -86,7 +86,7 @@ class PhillyTrain extends BGSprite
 			PlayState.instance.gf.playAnim('hairFall');
 			PlayState.instance.gf.specialAnim = true;
 		}
-		x = FlxG.width + 200;
+		x = FlxG.width + 300;
 		moving = false;
 		cars = 8;
 		finishing = false;

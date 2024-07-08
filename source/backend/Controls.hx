@@ -1,5 +1,7 @@
 package backend;
 
+import online.replay.ReplayPlayer;
+import online.replay.ReplayRecorder;
 import flixel.input.gamepad.FlxGamepadButton;
 import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.input.gamepad.mappings.FlxGamepadMapping;
@@ -89,6 +91,10 @@ class Controls
 	public var gamepadBinds:Map<String, Array<FlxGamepadInputID>>;
 	public function justPressed(key:String)
 	{
+		if (moodyBlues != null && ReplayRecorder.REGISTER_BINDS.contains(key)) {
+			return moodyBlues.pressedKeys.get(key) == JUST_PRESSED;
+		}
+
 		var result:Bool = (FlxG.keys.anyJustPressed(keyboardBinds[key]) == true);
 		if(result) controllerMode = false;
 
@@ -97,6 +103,11 @@ class Controls
 
 	public function pressed(key:String)
 	{
+		if (moodyBlues != null && ReplayRecorder.REGISTER_BINDS.contains(key)) {
+			var status = moodyBlues.pressedKeys.get(key);
+			return status == PRESSED || status == JUST_PRESSED;
+		}
+
 		var result:Bool = (FlxG.keys.anyPressed(keyboardBinds[key]) == true);
 		if(result) controllerMode = false;
 
@@ -105,6 +116,11 @@ class Controls
 
 	public function justReleased(key:String)
 	{
+		if (moodyBlues != null && ReplayRecorder.REGISTER_BINDS.contains(key)) {
+			var status = moodyBlues.pressedKeys.get(key);
+			return status == null || status == JUST_RELEASED;
+		}
+
 		var result:Bool = (FlxG.keys.anyJustReleased(keyboardBinds[key]) == true);
 		if(result) controllerMode = false;
 
@@ -157,6 +173,8 @@ class Controls
 		}
 		return false;
 	}
+
+	public var moodyBlues:ReplayPlayer;
 
 	// IGNORE THESE
 	public static var instance:Controls;

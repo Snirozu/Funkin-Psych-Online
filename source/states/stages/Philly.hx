@@ -23,31 +23,32 @@ class Philly extends BaseStage
 	override function create()
 	{
 		if(!ClientPrefs.data.lowQuality) {
-			bg = new BGSprite('philly/sky', -100, 0, 0.1, 0.1);
+			bg = new BGSprite('philly/sky', -120, -50, 0.1, 0.1);
 			add(bg);
 		}
 
-		city = new BGSprite('philly/city', -10, 0, 0.3, 0.3);
-		city.setGraphicSize(Std.int(city.width * 0.85));
+		city = new BGSprite('philly/city', -80, 0, 0.1, 0.3);
+		city.setGraphicSize(Std.int(city.width * 0.9));
 		city.updateHitbox();
 		add(city);
 
 		phillyLightsColors = [0xFF31A2FD, 0xFF31FD8C, 0xFFFB33F5, 0xFFFD4531, 0xFFFBA633];
-		phillyWindow = new BGSprite('philly/window', city.x, city.y, 0.3, 0.3);
-		phillyWindow.setGraphicSize(Std.int(phillyWindow.width * 0.85));
+		phillyWindow = new BGSprite('philly/window', city.x, city.y, 0.1, 0.3);
+		phillyWindow.setGraphicSize(Std.int(phillyWindow.width * 0.9));
 		phillyWindow.updateHitbox();
 		add(phillyWindow);
 		phillyWindow.alpha = 0;
 
 		if(!ClientPrefs.data.lowQuality) {
-			var streetBehind:BGSprite = new BGSprite('philly/behindTrain', -40, 50);
+			var streetBehind:BGSprite = new BGSprite('philly/behindTrain', -100, 50);
 			add(streetBehind);
 		}
 
 		phillyTrain = new PhillyTrain(2000, 360);
 		add(phillyTrain);
 
-		phillyStreet = new BGSprite('philly/street', -40, 50);
+		phillyStreet = new BGSprite('philly/street', -70, 50);
+		phillyStreet.setGraphicSize(Std.int(phillyStreet.width * 1.05));
 		add(phillyStreet);
 	}
 	override function eventPushed(event:objects.Note.EventNote)

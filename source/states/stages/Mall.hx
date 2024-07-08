@@ -1,5 +1,7 @@
 package states.stages;
 
+import openfl.media.Sound;
+import flxanimate.FlxAnimate;
 import states.stages.objects.*;
 
 class Mall extends BaseStage
@@ -30,19 +32,26 @@ class Mall extends BaseStage
 		var tree:BGSprite = new BGSprite('christmas/christmasTree', 370, -250, 0.40, 0.40);
 		add(tree);
 
-		bottomBoppers = new MallCrowd(-300, 140);
+		bottomBoppers = new MallCrowd(-300, 120);
 		add(bottomBoppers);
 
-		var fgSnow:BGSprite = new BGSprite('christmas/fgSnow', -600, 700);
+		var fgSnow:BGSprite = new BGSprite('christmas/fgSnow', -600, 720);
 		add(fgSnow);
 
 		santa = new BGSprite('christmas/santa', -840, 150, 1, 1, ['santa idle in fear']);
-		add(santa);
 		precacheSound('Lights_Shut_off');
 		setDefaultGF('gf-christmas');
 
 		if(isStoryMode && !seenCutscene)
 			setEndCallback(eggnogEndCutscene);
+		else if (PlayState.isErect && songName == "eggnog") {
+			prepareSanta();
+			setEndCallback(santaCutscene);
+		}
+	}
+
+	override function createPost() {
+		add(santa);
 	}
 
 	override function countdownTick(count:Countdown, num:Int) everyoneDance();
@@ -69,6 +78,72 @@ class Mall extends BaseStage
 
 		bottomBoppers.dance(true);
 		santa.dance(true);
+	}
+
+	var santaSpeak:FlxAnimate;
+	var dadTroll:FlxAnimate;
+	var _santaSpeaks:Sound;
+	var _dadShoot:Sound;
+
+	function prepareSanta() {
+		trace("santa is about to fucking die");
+
+		santaSpeak = new FlxAnimate(0, 0);
+		santaSpeak.antialiasing = ClientPrefs.data.antialiasing;
+		Paths.loadAnimateAtlas(santaSpeak, 'christmas/santa_speaks_assets');
+		santaSpeak.anim.addBySymbol('scene', 'santa whole scene', 24, false);
+
+		dadTroll = new FlxAnimate(0, 0);
+		dadTroll.antialiasing = ClientPrefs.data.antialiasing;
+		Paths.loadAnimateAtlas(dadTroll, 'christmas/parents_shoot_assets');
+		dadTroll.anim.addBySymbol('scene', 'parents whole scene', 24, false);
+
+		_santaSpeaks = Paths.sound('santa_emotion');
+		_dadShoot = Paths.sound('santa_shot_n_falls');
+	}
+
+	function santaCutscene() {
+		game.canPause = false;
+		game.canReset = false;
+
+		FlxTween.tween(game.camHUD, {alpha: 0}, 1, {ease: FlxEase.quadIn});
+		
+		game.tweenCameraZoom(0.85, 2, true, FlxEase.expoOut);
+		game.camFollow.setPosition(santa.getMidpoint().x + 230, santa.getMidpoint().y - 120);
+		//FlxG.camera.follow(santa, LOCKON, 0.05);
+
+		santa.visible = false; // guys the real santa is not dead!@!!! wie cool ist das bitte
+		santaSpeak.anim.play('scene');
+		santaSpeak.setPosition(-455, 500);
+
+		game.dad.visible = false;
+		dadTroll.anim.play('scene');
+		dadTroll.setPosition(-520, 505);
+		add(dadTroll);
+		add(santaSpeak);
+
+		FlxG.sound.play(_santaSpeaks, 1.0);
+
+		new FlxTimer().start(2.8, function(tmr) {
+			game.tweenCameraZoom(0.7, 9, true, FlxEase.quadInOut);
+		});
+
+		new FlxTimer().start(11.375, function(tmr) {
+			FlxG.sound.play(_dadShoot, 1.0);
+		});
+
+		new FlxTimer().start(12.83, function(tmr) {
+			game.camGame.shake(0.005, 0.2);
+			game.camFollow.setPosition(santa.getMidpoint().x + 300, santa.getMidpoint().y);
+		});
+
+		new FlxTimer().start(15, function(tmr) {
+			game.camHUD.fade(0xFF000000, 1, false, null, true);
+		});
+
+		new FlxTimer().start(16, function(tmr) {
+			endSong();
+		});
 	}
 
 	function eggnogEndCutscene()

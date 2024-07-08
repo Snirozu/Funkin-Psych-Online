@@ -1,5 +1,8 @@
 package;
 
+#if AWAY_TEST
+import states.stages.AwayStage;
+#end
 import states.MainMenuState;
 import externs.WinAPI;
 import haxe.Exception;
@@ -42,9 +45,12 @@ class Main extends Sprite
 	};
 
 	public static var fpsVar:FPS;
+	#if AWAY_TEST
+	public static var stage3D:AwayStage;
+	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.6.4";
-	public static final CLIENT_PROTOCOL:Float = 1;
+	public static final PSYCH_ONLINE_VERSION:String = "0.7.0";
+	public static final CLIENT_PROTOCOL:Float = 2;
 	public static final GIT_COMMIT:String = online.Macros.getGitCommitHash();
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
@@ -97,6 +103,10 @@ class Main extends Sprite
 		#if hl
 		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
 		#end
+
+		#if AWAY_TEST
+		addChild(stage3D = new AwayStage());
+		#end
 	
 		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
 		Controls.instance = new Controls();
@@ -123,7 +133,12 @@ class Main extends Sprite
 		FlxG.mouse.visible = false;
 		#end
 		
-		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
+		//haxe errors caught by openfl
+		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, (e) -> {
+			onCrash(e.error);
+		});
+		//internal c++ exceptions
+		untyped __global__.__hxcpp_set_critical_error_handler(onCrash);
 
 		#if DISCORD_ALLOWED
 		DiscordClient.start();
@@ -155,7 +170,11 @@ class Main extends Sprite
 			trace('error: $error');
 		}
 		http.request();
+		#if LOCAL
+		online.GameClient.serverAddresses.insert(0, "ws://localhost:2567");
+		#else
 		online.GameClient.serverAddresses.push("ws://localhost:2567");
+		#end
 
 		online.Downloader.checkDeleteDlDir();
 
@@ -164,6 +183,15 @@ class Main extends Sprite
 		addChild(new online.DownloadAlert.DownloadAlerts());
 
 		FlxG.plugins.add(new online.Waiter());
+
+		online.Thread.repeat(() -> {
+			try {
+				online.net.FunkinNetwork.ping();
+			}
+			catch (exc) {
+				trace(exc);
+			}
+		}, 60, _ -> {}); // ping the server every minute
 		
 		//for some reason only cancels 2 downloads
 		Lib.application.window.onClose.add(() -> {
@@ -178,11 +206,16 @@ class Main extends Sprite
 			if (FileSystem.isDirectory(path))
 				return;
 
-			online.Thread.run(() -> {
-				online.LoadingScreen.toggle(true);
-				online.OnlineMods.installMod(path);
-				online.LoadingScreen.toggle(false);
-			});
+			if (path.endsWith(".json") && (path.contains("-chart") || path.contains("-metadata"))) {
+				online.vslice.VUtil.convertVSlice(path);
+			}
+			else {
+				online.Thread.run(() -> {
+					online.LoadingScreen.toggle(true);
+					online.OnlineMods.installMod(path);
+					online.LoadingScreen.toggle(false);
+				});
+			}
 		});
 		
 		#if HSCRIPT_ALLOWED
@@ -207,8 +240,11 @@ class Main extends Sprite
 		}
 	}
 
-	function onCrash(e:UncaughtErrorEvent):Void
+	static function onCrash(exc:Dynamic):Void
 	{
+		if (exc == null)
+			exc = new Exception("Empty Uncaught Exception");
+
 		var alertMsg:String = "";
 		var daError:String = "";
 		var path:String;
@@ -220,10 +256,10 @@ class Main extends Sprite
 
 		path = "./crash/" + "PsychEngine_" + dateNow + ".txt";
 
-		alertMsg += e.error + "\n";
+		alertMsg += exc + "\n";
 		daError += CallStack.toString(callStack) + "\n";
-		if (e.error is Exception)
-			daError += cast(e.error, Exception).stack.toString() + "\n";
+		if (exc is Exception)
+			daError += cast(exc, Exception).stack.toString() + "\n";
 		alertMsg += daError;
 
 		Sys.println(alertMsg);
@@ -237,7 +273,7 @@ class Main extends Sprite
 		alertMsg += "\nDo you wish to report this error on GitHub?";
 		WinAPI.alert("Uncaught Exception!", alertMsg, () -> {
 			daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ($GIT_COMMIT)';
-			FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${e.error}')}&body=${StringTools.urlEncode(daError)}');
+			FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${exc}')}&body=${StringTools.urlEncode(daError)}');
 		});
 		#else
 		Application.current.window.alert(alertMsg, "Uncaught Exception!");

@@ -3,13 +3,13 @@ package backend;
 typedef SwagSection =
 {
 	var sectionNotes:Array<Dynamic>;
-	var sectionBeats:Float;
-	var typeOfSection:Int;
+	@:optional var sectionBeats:Float;
+	@:optional var typeOfSection:Int;
 	var mustHitSection:Bool;
-	var gfSection:Bool;
-	var bpm:Float;
-	var changeBPM:Bool;
-	var altAnim:Bool;
+	@:optional var gfSection:Bool;
+	@:optional var bpm:Float;
+	@:optional var changeBPM:Bool;
+	@:optional var altAnim:Bool;
 }
 
 class Section
