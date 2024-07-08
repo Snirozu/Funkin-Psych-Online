@@ -542,7 +542,9 @@ class PlayState extends MusicBeatState
 			Conductor.mapBPMChanges(SONG);
 			Conductor.bpm = SONG.bpm;
 
+			#if DISCORD_ALLOWED
 			storyDifficultyText = Difficulty.getString();
+			#end
 
 			#if DISCORD_ALLOWED
 			// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
@@ -1763,7 +1765,6 @@ class PlayState extends MusicBeatState
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence (with Time Left)
-		trace(detailsText);
 		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter(), true, songLength);
 		#end
 		setOnScripts('songLength', songLength);
