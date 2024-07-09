@@ -490,7 +490,10 @@ class PlayState extends MusicBeatState
 
 			if (!GameClient.isConnected()) {
 				startCallback = startCountdown;
-				endCallback = endSong;
+				endCallback = () -> {
+					finishingSong = true;
+					endSong();
+				};
 			}
 			else {
 				paused = true;
@@ -501,6 +504,7 @@ class PlayState extends MusicBeatState
 					startCountdown();
 				};
 				endCallback = () -> {
+					finishingSong = true;
 					GameClient.send("playerEnded");
 				};
 			}
@@ -3070,7 +3074,7 @@ class PlayState extends MusicBeatState
 			#if !switch
 			var percent:Float = ratingPercent;
 			if(Math.isNaN(percent)) percent = 0;
-			if (!isInvalidScore()) {
+			if (!isInvalidScore() && finishingSong) {
 				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent);
 				online.FunkinPoints.save(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate);
 				if (replayRecorder != null)
