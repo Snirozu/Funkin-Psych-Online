@@ -977,6 +977,9 @@ class Room extends MusicBeatState {
 		FreeplayState.destroyFreeplayVocals();
 		if (value) {
 			Mods.currentModDirectory = GameClient.room.state.modDir;
+			Difficulty.list = [];
+			for (d in GameClient.room.state.diffList.items)
+				Difficulty.list.push(d);
 			PlayState.SONG = Song.loadFromJson(GameClient.room.state.song, GameClient.room.state.folder);
 
 			var diff = Difficulty.getString(GameClient.room.state.diff);
