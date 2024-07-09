@@ -29,6 +29,9 @@ class ReplayPlayer extends FlxBasic {
 
         state.botplayVisibility = true;
         state.botplayTxt.text = data.player + "'s\nREPLAY";
+
+		if (data.note_offset == null)
+			data.note_offset = 0;
     }
 
     override function destroy() {
@@ -58,7 +61,7 @@ class ReplayPlayer extends FlxBasic {
 			}
         }
 
-        while (events.length > 0 && events[0][0] <= Conductor.songPosition) {
+		while (events.length > 0 && events[0][0] <= Conductor.songPosition - (ClientPrefs.data.noteOffset - data.note_offset)) {
             if (ReplayRecorder.REGISTER_BINDS.contains(events[0][1])) {
                 if (events[0][2] == 0) {
                     @:privateAccess
