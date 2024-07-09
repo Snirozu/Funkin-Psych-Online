@@ -33,6 +33,8 @@ class CharacterEditorState extends MusicBeatState
 {
 	var char:Character;
 	var ghostChar:Character;
+	var dadMilk:Character;
+	var bfGhost:Character;
 	var textAnim:FlxText;
 	var bgLayer:FlxTypedGroup<FlxSprite>;
 	var charLayer:FlxTypedGroup<Character>;
@@ -84,6 +86,33 @@ class CharacterEditorState extends MusicBeatState
 
 		bgLayer = new FlxTypedGroup<FlxSprite>();
 		add(bgLayer);
+
+		bfGhost = new Character(0, 0, "bf", true);
+		if (bfGhost.animationsArray[0] != null) {
+			bfGhost.playAnim(bfGhost.animationsArray[0].anim, true);
+		}
+		bfGhost.debugMode = true;
+		bfGhost.setPosition(bfGhost.positionArray[0] + OFFSET_X + 100, bfGhost.positionArray[1]);
+		bfGhost.colorTransform.redOffset = -255;
+		bfGhost.colorTransform.greenOffset = -255;
+		bfGhost.colorTransform.blueOffset = -255;
+		bfGhost.alpha = 0.25;
+		bfGhost.visible = false;
+		add(bfGhost);
+
+		dadMilk = new Character(0, 0, "dad", false);
+		if (dadMilk.animationsArray[0] != null) {
+			dadMilk.playAnim(dadMilk.animationsArray[0].anim, true);
+		}
+		dadMilk.debugMode = true;
+		dadMilk.setPosition(dadMilk.positionArray[0] + OFFSET_X + 100, dadMilk.positionArray[1]);
+		dadMilk.colorTransform.redOffset = -255;
+		dadMilk.colorTransform.greenOffset = -255;
+		dadMilk.colorTransform.blueOffset = -255;
+		dadMilk.alpha = 0.25;
+		dadMilk.visible = false;
+		add(dadMilk);
+
 		charLayer = new FlxTypedGroup<Character>();
 		add(charLayer);
 
@@ -101,7 +130,7 @@ class CharacterEditorState extends MusicBeatState
 		});
 		changeBGbutton.cameras = [camMenu];
 
-		loadChar(!daAnim.startsWith('bf'), false);
+		loadChar(!daAnim.startsWith('bf') && !daAnim.endsWith('-player'), false);
 
 		healthBar = new HealthBar(30, FlxG.height - 75);
 		healthBar.scrollFactor.set();
@@ -193,6 +222,11 @@ class CharacterEditorState extends MusicBeatState
 		reloadCharacterOptions();
 
 		super.create();
+	}
+
+	function showGhost(isPlayer:Bool) {
+		dadMilk.visible = !isPlayer;
+		bfGhost.visible = isPlayer;
 	}
 
 	var onPixelBG:Bool = false;
@@ -404,7 +438,7 @@ class CharacterEditorState extends MusicBeatState
 		tab_group.name = "Settings";
 
 		var check_player = new FlxUICheckBox(10, 60, null, null, "Playable Character", 100);
-		check_player.checked = daAnim.startsWith('bf');
+		check_player.checked = daAnim.startsWith('bf') || daAnim.endsWith('-player');
 		check_player.callback = function()
 		{
 			char.isPlayer = !char.isPlayer;
@@ -412,12 +446,13 @@ class CharacterEditorState extends MusicBeatState
 			updatePointerPos();
 			reloadBGs();
 			ghostChar.flipX = char.flipX;
+			showGhost(char.isPlayer);
 		};
 
 		charDropDown = new FlxUIDropDownMenu(10, 30, FlxUIDropDownMenu.makeStrIdLabelArray([''], true), function(character:String)
 		{
 			daAnim = characterList[Std.parseInt(character)];
-			check_player.checked = daAnim.startsWith('bf');
+			check_player.checked = daAnim.startsWith('bf') || daAnim.endsWith('-player');
 			loadChar(!check_player.checked);
 			updatePresence();
 			reloadCharacterDropDown();
@@ -933,6 +968,7 @@ class CharacterEditorState extends MusicBeatState
 		reloadCharacterOptions();
 		reloadBGs();
 		updatePointerPos();
+		showGhost(!isDad);
 	}
 
 	function updatePointerPos() {
