@@ -33,7 +33,8 @@ class ReplayRecorder extends FlxBasic {
 		misses: 0,
 		points: 0,
 		score: 0,
-        inputs: []
+        inputs: [],
+		note_offset: 0
     };
 
     var state:PlayState;
@@ -53,6 +54,7 @@ class ReplayRecorder extends FlxBasic {
 		data.difficulty = Difficulty.getString(PlayState.storyDifficulty);
 		//data.mod_url = OnlineMods.getModURL(Mods.currentModDirectory); 
 		data.opponent_mode = !PlayState.playsAsBF();
+		data.note_offset = ClientPrefs.data.noteOffset;
 		
 		data.chart_hash = Md5.encode(Song.loadRawSong(Highscore.formatSong(PlayState.SONG.song, PlayState.storyDifficulty), PlayState.SONG.song));
 
@@ -123,6 +125,12 @@ class ReplayRecorder extends FlxBasic {
 		data.shits = state.songShits;
 		data.points = FunkinPoints.calcFP(state.ratingPercent, state.songMisses, state.noteDensity, state.totalNotesHit, state.combo, state.playbackRate);
 		data.beat_time = Date.now().getTime();
+		data.note_offset = ClientPrefs.data.noteOffset;
+
+		if (data.accuracy < 30) {
+			Alert.alert("GIT GUD", 'your performance was so shit that\nim not even going to save the replay for it');
+			return;
+		}
 
 		trace("Saving replay...");
 		var replayData = Json.stringify(data);
@@ -151,6 +159,7 @@ typedef ReplayData = {
 	var opponent_mode:Bool;
 	var beat_time:Float;
 	var chart_hash:String;
+	var note_offset:Null<Float>;
 	/**
 	 * [ SONG_POSITION, BIND_ID, DOWN_OR_UP_INT ]
 	 */
