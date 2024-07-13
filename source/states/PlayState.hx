@@ -271,6 +271,9 @@ class PlayState extends MusicBeatState
 	public var camOther:FlxCamera;
 	public var camLoading:FlxCamera;
 	public var cameraSpeed:Float = 1;
+	//the cum
+	public var laneunderlay:FlxSprite;
+
 
 	public var songScore:Int = 0;
 	public var songHits:Int = 0;
@@ -792,6 +795,14 @@ class PlayState extends MusicBeatState
 			uiGroup = new FlxSpriteGroup();
 			add(uiGroup);
 
+			laneunderlay = new FlxSprite(0, 0).makeGraphic(110 * 4 + 50, FlxG.height * 2);
+			laneunderlay.color = FlxColor.BLACK;
+			laneunderlay.scrollFactor.set();
+			laneunderlay.alpha = ClientPrefs.data.underlaneVisibility - 1;
+			laneunderlay.visible = true;
+			  //add(laneunderlay);
+			insert(1, laneunderlay);
+			
 			uiGroup.cameras = [camHUD];
 			noteGroup.cameras = [camHUD];
 			comboGroup.cameras = [camHUD];
@@ -1930,6 +1941,7 @@ class PlayState extends MusicBeatState
 								sustainNote.followX += FlxG.width / 2 + 25;
 							}
 						}
+						sustainNote.noAnimation = (!ClientPrefs.data.oldHold);
 					}
 				}
 
@@ -3872,7 +3884,18 @@ class PlayState extends MusicBeatState
 		if (SONG.needsVoices)
 			getOpponentVocals().volume = 1;
 
-		strumPlayAnim(true, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
+		if(opponentVocals.length <= 0) vocals.volume = 1;
+		//	strumPlayAnim(true, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
+		if (ClientPrefs.data.strumAnim == 'BPM Based') {
+			strumPlayAnim(true, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
+		}
+		if (ClientPrefs.data.strumAnim == 'Full Anim') {
+			var time:Float = 0.15;
+			if(note.isSustainNote && !note.animation.curAnim.name.endsWith('end')) {
+				time += 0.15;
+			}
+			strumPlayAnim(true, Std.int(Math.abs(note.noteData)), time);
+		}
 		note.hitByOpponent = true;
 
 		var compat:String = note.mustPress ? 'goodNoteHit' : 'opponentNoteHit';

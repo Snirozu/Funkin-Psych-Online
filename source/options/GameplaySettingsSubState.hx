@@ -125,6 +125,30 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Old Sustain Animations',
+		"If checked, the characters will studder when doing HOLD notes\nlike old FNF before the WEEKEND update",
+		'oldHold',
+		'bool');
+		addOption(option);
+
+		var option:Option = new Option('Strum Animation:',
+		"How do you want the opponent stums\nto play their animation?",
+		'strumAnim',
+		'string',
+		['BPM Based', 'Full Anim', 'None']);
+		addOption(option);
+
+		var option:Option = new Option('Lane Underlay Visibility:',
+		'Sets visibility of lane underlay.',
+		'underlaneVisibility',
+		'percent');
+		addOption(option);	
+		option.scrollSpeed = 1;
+		option.minValue = 0.0;
+		option.maxValue = 1;
+		option.changeValue = 0.1;
+		option.decimals = 1;
+
 		super();
 	}
 

@@ -66,6 +66,10 @@ class SaveVariables {
 	public var badWindow:Int = 135;
 	public var safeFrames:Float = 10;
 	public var discordRPC:Bool = true;
+	//cool stuff from circuitella :P
+	public var oldHold:Bool = false;
+	public var underlaneVisibility:Float = 0;
+	public var strumAnim:String = 'BPM Based';
 	//ONLINE
 	private var nickname:String = "Boyfriend";
 	public var serverAddress:String = null;
