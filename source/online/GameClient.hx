@@ -263,7 +263,9 @@ class GameClient {
 
 	public static function send(type:Dynamic, ?message:Null<Dynamic>) {
 		if (GameClient.isConnected() && type != null)
-			room.send(type, message);
+			Waiter.put(() -> {
+				room.send(type, message);
+			});
 	}
 
 	public static function hasPerms() {

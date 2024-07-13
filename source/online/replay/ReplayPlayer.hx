@@ -29,9 +29,6 @@ class ReplayPlayer extends FlxBasic {
 
         state.botplayVisibility = true;
         state.botplayTxt.text = data.player + "'s\nREPLAY";
-
-		if (data.note_offset == null)
-			data.note_offset = 0;
     }
 
     override function destroy() {

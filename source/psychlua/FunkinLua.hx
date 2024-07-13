@@ -172,7 +172,7 @@ class FunkinLua {
 		set('downscroll', ClientPrefs.data.downScroll);
 		set('middlescroll', ClientPrefs.data.middleScroll);
 		set('framerate', ClientPrefs.data.unlockFramerate ? 999 : ClientPrefs.data.framerate);
-		set('ghostTapping', ClientPrefs.data.ghostTapping);
+		set('ghostTapping', ClientPrefs.getGhostTapping());
 		set('hideHud', ClientPrefs.data.hideHud);
 		set('timeBarType', ClientPrefs.data.timeBarType);
 		set('scoreZoom', ClientPrefs.data.scoreZoom);

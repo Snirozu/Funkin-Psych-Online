@@ -257,6 +257,8 @@ class ClientPrefs {
 	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic = null, ?customDefaultValue:Bool = false):Dynamic {
 		if(!customDefaultValue) defaultValue = defaultData.gameplaySettings.get(name);
 		var daGameplaySetting:Dynamic = GameClient.isConnected() && !GameClient.room.state.permitModifiers ? GameClient.getGameplaySetting(name) : data.gameplaySettings.get(name);
+		if (PlayState.instance?.replayPlayer?.data?.gameplay_modifiers != null)
+			daGameplaySetting = PlayState.instance?.replayPlayer?.data?.gameplay_modifiers?.get(name);
 		return /*PlayState.isStoryMode ? defaultValue : */ (daGameplaySetting != null ? daGameplaySetting : defaultValue);
 	}
 
@@ -307,5 +309,17 @@ class ClientPrefs {
 			return @:privateAccess data.nickname = "Boyfriend";
 
 		return @:privateAccess data.nickname = name;
+	}
+
+	public static function getGhostTapping() {
+		return PlayState.instance?.replayPlayer?.data?.ghost_tapping ?? data.ghostTapping;
+	}
+
+	public static function getRatingOffset() {
+		return PlayState.instance?.replayPlayer?.data?.rating_offset ?? data.ratingOffset;
+	}
+
+	public static function getSafeFrames() {
+		return PlayState.instance?.replayPlayer?.data?.safe_frames ?? data.safeFrames;
 	}
 }
