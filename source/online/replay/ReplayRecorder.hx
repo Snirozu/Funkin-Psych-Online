@@ -34,7 +34,11 @@ class ReplayRecorder extends FlxBasic {
 		points: 0,
 		score: 0,
         inputs: [],
-		note_offset: 0
+		note_offset: 0,
+		gameplay_modifiers: [],
+		ghost_tapping: true,
+		rating_offset: null,
+		safe_frames: null
     };
 
     var state:PlayState;
@@ -55,6 +59,10 @@ class ReplayRecorder extends FlxBasic {
 		//data.mod_url = OnlineMods.getModURL(Mods.currentModDirectory); 
 		data.opponent_mode = !PlayState.playsAsBF();
 		data.note_offset = ClientPrefs.data.noteOffset;
+		data.gameplay_modifiers = ClientPrefs.data.gameplaySettings;
+		data.ghost_tapping = ClientPrefs.data.ghostTapping;
+		data.rating_offset = ClientPrefs.data.ratingOffset;
+		data.safe_frames = ClientPrefs.data.safeFrames;
 		
 		data.chart_hash = Md5.encode(Song.loadRawSong(Highscore.formatSong(PlayState.SONG.song, PlayState.storyDifficulty), PlayState.SONG.song));
 
@@ -159,7 +167,13 @@ typedef ReplayData = {
 	var opponent_mode:Bool;
 	var beat_time:Float;
 	var chart_hash:String;
-	var note_offset:Null<Float>;
+
+	var note_offset:Float;
+	var gameplay_modifiers:Map<String, Dynamic>;
+	var ghost_tapping:Null<Bool>;
+	var rating_offset:Null<Int>;
+	var safe_frames:Null<Float>;
+
 	/**
 	 * [ SONG_POSITION, BIND_ID, DOWN_OR_UP_INT ]
 	 */

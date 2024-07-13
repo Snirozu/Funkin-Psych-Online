@@ -14,7 +14,7 @@ import haxe.Json;
 
 @:unreflective
 class FunkinNetwork {
-	public static var client:HTTPClient = new HTTPClient(#if LOCAL "http://localhost:2567" #else "https://psychic.chickenkiller.com" #end);
+	public static var client:HTTPClient = new HTTPClient(#if LOCAL "http://localhost:2567" #else "https://funkin.sniro.boo" #end);
 	public static var nickname(default, null):String = null;
 	public static var loggedIn:Bool = false;
 

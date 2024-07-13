@@ -1199,7 +1199,7 @@ class PlayState extends MusicBeatState
 
 		playbackRate = value;
 		FlxG.animationTimeScale = value;
-		Conductor.safeZoneOffset = (ClientPrefs.data.safeFrames / 60) * 1000 * value;
+		Conductor.safeZoneOffset = (ClientPrefs.getSafeFrames() / 60) * 1000 * value;
 		setOnScripts('playbackRate', playbackRate);
 		return value;
 	}
@@ -3368,7 +3368,7 @@ class PlayState extends MusicBeatState
 
 	private function popUpScore(note:Note = null):Rating
 	{
-		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.data.ratingOffset);
+		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.getRatingOffset());
 		getPlayerVocals().volume = 1;
 
 		var placement:Float = FlxG.width * 0.35;
@@ -3580,7 +3580,7 @@ class PlayState extends MusicBeatState
 				var lastTime:Float = Conductor.songPosition;
 				if(Conductor.songPosition >= 0) Conductor.songPosition = FlxG.sound.music.time;
 
-				var canMiss:Bool = !ClientPrefs.data.ghostTapping;
+				var canMiss:Bool = !ClientPrefs.getGhostTapping();
 
 				// heavily based on my own code LOL if it aint broke dont fix it
 				var pressNotes:Array<Note> = [];
@@ -3779,7 +3779,7 @@ class PlayState extends MusicBeatState
 
 	function noteMissPress(direction:Int = 1):Void //You pressed a key when there was no notes to press for this key
 	{
-		if(ClientPrefs.data.ghostTapping) return; //fuck it
+		if(ClientPrefs.getGhostTapping()) return; //fuck it
 
 		noteMissCommon(direction);
 		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
