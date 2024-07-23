@@ -19,14 +19,18 @@ class SkinsState extends MusicBeatState {
 	var characterCamera:FlxCamera;
 
 	var hud:FlxCamera;
-	var charText:FlxText;
 	var charSelect:FlxText;
+
+	var bg:FlxSprite;
+	var title:Alphabet;
+	var arrowLeft:Alphabet;
+	var arrowRight:Alphabet;
 
 	static var flipped:Bool = false;
 
     override function create() {
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("In a Skin Selector.", null, null, false);
+		DiscordClient.changePresence("Selects their Skin", null, null, false);
 		#end
 
 		Mods.loadTopMod();
@@ -39,7 +43,7 @@ class SkinsState extends MusicBeatState {
 		hud.bgColor.alpha = 0;
 		characterCamera.zoom = 0.8;
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff303030;
 		bg.screenCenter();
 		bg.antialiasing = ClientPrefs.data.antialiasing;
@@ -104,30 +108,46 @@ class SkinsState extends MusicBeatState {
 		character.cameras = [characterCamera];
         add(character);
 
-		var swagText = new FlxText(0, 20, FlxG.width);
-		swagText.text = 'Choose your skin!';
-		swagText.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		var barUp = new FlxSprite();
+		barUp.makeGraphic(FlxG.width, 100, FlxColor.BLACK);
+		barUp.cameras = [hud];
+		add(barUp);
+
+		var barDown = new FlxSprite();
+		barDown.makeGraphic(FlxG.width, 100, FlxColor.BLACK);
+		barDown.y = FlxG.height - barDown.height;
+		barDown.cameras = [hud];
+		add(barDown);
+
+		var swagText = new FlxText(10, 10);
+		swagText.text = 'Press F1 for Help!';
+		swagText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		swagText.alpha = 0.4;
 		swagText.cameras = [hud];
 		add(swagText);
 
-		var swagText = new FlxText(0, swagText.y + swagText.height + 5, FlxG.width);
-		swagText.text = 'Press F1 if you want to know how to create your own skin!';
-		swagText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		swagText.alpha = 0.8;
-		swagText.cameras = [hud];
-		add(swagText);
+		title = new Alphabet(0, 0, "BOYFRIEND", true);
+		title.cameras = [hud];
+		title.y = barUp.height / 2 - title.height / 2;
+		title.x = FlxG.width / 2 - title.width / 2;
+		add(title);
 
-		charText = new FlxText(0, 0, FlxG.width);
-		charText.text = '< Characters >';
-		charText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		charText.y = FlxG.height - charText.height - 70;
-		charText.cameras = [hud];
-		add(charText);
+		arrowLeft = new Alphabet(0, 0, "<", true);
+		arrowLeft.cameras = [hud];
+		arrowLeft.y = FlxG.height / 2 - arrowLeft.height / 2;
+		arrowLeft.x = 100;
+		add(arrowLeft);
+
+		arrowRight = new Alphabet(0, 0, ">", true);
+		arrowRight.cameras = [hud];
+		arrowRight.y = FlxG.height / 2 - arrowRight.height / 2;
+		arrowRight.x = FlxG.width - arrowRight.width - 100;
+		add(arrowRight);
 
 		charSelect = new FlxText(0, 0, FlxG.width);
 		charSelect.text = 'Press ACCEPT to select!';
 		charSelect.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		charSelect.y = charText.y + charText.height + 5;
+		charSelect.y = barDown.y + barDown.height / 2 - charSelect.height / 2;
 		charSelect.alpha = 0.8;
 		charSelect.cameras = [hud];
 		add(charSelect);
@@ -139,14 +159,14 @@ class SkinsState extends MusicBeatState {
 		swagText.cameras = [hud];
 		add(swagText);
 
-		var tip1 = new FlxText(20, 0, FlxG.width, 'UI LEFT - Switch to previous\n8 - Edit skin');
+		var tip1 = new FlxText(20, 0, FlxG.width, '8 - Edit skin');
 		tip1.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		tip1.y = charSelect.y;
 		tip1.alpha = 0.6;
 		tip1.cameras = [hud];
 		add(tip1);
 
-		var tip2 = new FlxText(-20, 0, FlxG.width, 'UI RIGHT - Switch to next\n9 - Flip skin');
+		var tip2 = new FlxText(-20, 0, FlxG.width, '9 - Flip skin');
 		tip2.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		tip2.y = tip1.y;
 		tip2.alpha = tip1.alpha;
@@ -183,10 +203,10 @@ class SkinsState extends MusicBeatState {
         }
         else {
 			if (controls.UI_LEFT_P) {
-				setCharacter(1);
+				setCharacter(-1);
 			}
 			if (controls.UI_RIGHT_P) {
-				setCharacter(-1);
+				setCharacter(1);
 			}
         }
 
@@ -200,7 +220,7 @@ class SkinsState extends MusicBeatState {
 					GameClient.send("setSkin", null);
 				}
 			}
-			FlxG.switchState(() -> GameClient.isConnected() ? new Room() : new OptionsState());
+			FlxG.switchState(() -> GameClient.isConnected() ? new RoomState() : new OptionsState());
         }
 
         if (controls.ACCEPT) {
@@ -245,11 +265,14 @@ class SkinsState extends MusicBeatState {
 		curCharacter += difference;
 
 		if (curCharacter >= charactersLength) {
-			curCharacter = 0;
-		}
-		else if (curCharacter < 0) {
 			curCharacter = charactersLength - 1;
 		}
+		else if (curCharacter < 0) {
+			curCharacter = 0;
+		}
+
+		arrowLeft.visible = curCharacter > 0;
+		arrowRight.visible = curCharacter < charactersLength - 1;
 
         character.clear();
 		if (charactersName.exists(curCharacter)) {
@@ -261,10 +284,12 @@ class SkinsState extends MusicBeatState {
 			character.members[0].x = 420 + character.members[0].positionArray[0];
 			character.members[0].y = -100 + character.members[0].positionArray[1];
 
-			charText.text = '< Character: $curCharName - ${charactersMod.get(charactersName.get(curCharacter)) ?? "Vanilla"} >';
-
 			curCharName = !flipped ? curCharName : curCharName.substring(0, curCharName.length - "-player".length);
-			if (isEquiped(charactersMod.get(charactersName.get(curCharacter)), curCharName)) {
+
+			title.text = curCharName == "default" ? "BOYFRIEND" : curCharName;
+			title.x = FlxG.width / 2 - title.width / 2;
+
+			if (isEquiped(charactersMod.get(curCharName), curCharName)) {
 				charSelect.text = 'Selected!';
 				charSelect.alpha = 1;
 			}
@@ -272,8 +297,23 @@ class SkinsState extends MusicBeatState {
 				charSelect.text = 'Press ACCEPT to select!';
 				charSelect.alpha = 0.8;
             }
+
+			var hca = character.members[0].healthColorArray;
+			tweenColor(FlxColor.fromRGB(hca[0], hca[1], hca[2]));
         }
     }
+
+	var colorTween:FlxTween;
+	function tweenColor(color:FlxColor) {
+		if (colorTween != null) {
+			colorTween.cancel();
+		}
+		colorTween = FlxTween.color(bg, 1, bg.color, color, {
+			onComplete: function(twn:FlxTween) {
+				colorTween = null;
+			}
+		});
+	}
 
     function isEquiped(mod:String, skin:String) {
 		if (skin.endsWith("-player"))

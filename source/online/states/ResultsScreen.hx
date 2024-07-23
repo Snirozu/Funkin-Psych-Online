@@ -298,7 +298,7 @@ class ResultsScreen extends MusicBeatState {
 					FlxTween.tween(gainedText, {alpha: 0}, 0.2, {ease: FlxEase.quadInOut});
                 new FlxTimer().start(0.5, (t) -> {
 					GameClient.clearOnMessage();
-					FlxG.switchState(() -> new Room());
+					FlxG.switchState(() -> new RoomState());
                 });
             }
 

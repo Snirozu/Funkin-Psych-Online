@@ -18,7 +18,7 @@ import backend.Song;
 import haxe.crypto.Md5;
 import states.FreeplayState;
 
-class Room extends MusicBeatState {
+class RoomState extends MusicBeatState {
 	//this shit is messy
 	var player1Text:FlxText;
 	var player1Bg:FlxSprite;
@@ -62,7 +62,7 @@ class Room extends MusicBeatState {
 	var playerHold(default, set):Bool = false;
 	var oppHold:Bool = false;
 
-	static var instance:Room = null;
+	static var instance:RoomState = null;
 
 	function set_playerHold(v) {
 		if (playerHold != v) {

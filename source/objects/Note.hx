@@ -142,8 +142,8 @@ class Note extends FlxSprite
 
 	public function defaultRGB()
 	{
-		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];
+		var arr:Array<FlxColor> = ClientPrefs.getRGBColor(mustPress ? 1 : 0)[noteData];
+		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor(mustPress ? 1 : 0)[noteData];
 
 		if (noteData > -1 && noteData <= arr.length)
 		{
@@ -221,7 +221,7 @@ class Note extends FlxSprite
 
 		if(noteData > -1) {
 			texture = '';
-			rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData));
+			rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData, mustPress));
 			if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
 
 			x += swagWidth * (noteData);
@@ -286,14 +286,14 @@ class Note extends FlxSprite
 		x += offsetX;
 	}
 
-	public static function initializeGlobalRGBShader(noteData:Int)
+	public static function initializeGlobalRGBShader(noteData:Int, mustPress:Bool)
 	{
 		if(globalRgbShaders[noteData] == null)
 		{
 			var newRGB:RGBPalette = new RGBPalette();
 			globalRgbShaders[noteData] = newRGB;
 
-			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[noteData] : ClientPrefs.data.arrowRGBPixel[noteData];
+			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.getRGBColor(mustPress ? 1 : 0)[noteData] : ClientPrefs.getRGBPixelColor(mustPress ? 1 : 0)[noteData];
 			if (noteData > -1 && noteData <= arr.length)
 			{
 				newRGB.r = arr[0];

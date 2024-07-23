@@ -1,6 +1,6 @@
 package backend;
 
-import online.states.Room;
+import online.states.RoomState;
 import online.Waiter;
 import haxe.crypto.Md5;
 import online.GameClient;
@@ -60,7 +60,7 @@ class DiscordClient
 				}
 
 				Waiter.put(() -> {
-					FlxG.switchState(() -> new Room());
+					FlxG.switchState(() -> new RoomState());
 				});
 			});
 		});
@@ -131,6 +131,9 @@ class DiscordClient
 		isInitialized = true;
 	}
 
+
+	static var state:String = null;
+
 	public static function changePresence(details:String, state:Null<String>, ?smallImageKey : String, ?hasStartTimestamp : Bool, ?endTimestamp: Float)
 	{
 		var startTimestamp:Float = 0;
@@ -138,7 +141,7 @@ class DiscordClient
 		if (endTimestamp > 0) endTimestamp = startTimestamp + endTimestamp;
 
 		_options.details = details;
-		_options.state = state;
+		_options.state = DiscordClient.state = state;
 		_options.largeImageKey = 'icon';
 		_options.largeImageText = "Engine Version: " + states.MainMenuState.psychEngineVersion + "*";
 		_options.smallImageKey = smallImageKey;
@@ -171,7 +174,7 @@ class DiscordClient
 			_options.joinSecret = null;
 			_options.partySize = 0;
 			_options.partyMax = 0;
-			_options.state = null;
+			_options.state = state;
 		}
 		DiscordRpc.presence(_options);
 	}
