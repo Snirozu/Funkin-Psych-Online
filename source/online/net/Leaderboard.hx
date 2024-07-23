@@ -7,9 +7,9 @@ import haxe.Http;
 class Leaderboard {
     public static function submitScore(replayData:String) {
 		if (!FunkinNetwork.loggedIn)
-            return;
+            return null;
 
-		FunkinNetwork.requestAPI({
+		return FunkinNetwork.requestAPI({
 			path: "/api/network/score/submit",
 			headers: [
 				"authorization" => FunkinNetwork.getAuthHeader(),

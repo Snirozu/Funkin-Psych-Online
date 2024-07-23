@@ -1,5 +1,6 @@
 package states;
 
+import flixel.effects.FlxFlicker;
 import online.Scoreboard;
 import online.net.Leaderboard;
 import flixel.FlxObject;
@@ -16,7 +17,7 @@ import online.ChatBox;
 import online.Alert;
 import online.Waiter;
 import haxe.crypto.Md5;
-import online.states.Room;
+import online.states.RoomState;
 import online.GameClient;
 import backend.WeekData;
 import backend.Highscore;
@@ -45,6 +46,9 @@ class FreeplayState extends MusicBeatState
 	var lerpSelected:Float = 0;
 	var curDifficulty:Int = -1;
 	private static var lastDifficultyName:String = Difficulty.getDefault();
+
+	public static var gainedPoints:Float = 0;
+	var gainedText:FlxText;
 
 	var scoreBG:FlxSprite;
 	var scoreText:FlxText;
@@ -104,7 +108,7 @@ class FreeplayState extends MusicBeatState
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("In the Menus", null);
+		DiscordClient.changePresence("In the Menus", "Freeplay");
 		#end
 
 		for (i in 0...WeekData.weeksList.length) {
@@ -218,6 +222,35 @@ class FreeplayState extends MusicBeatState
 		add(scoreText);
 
 		setDiffVisibility(true);
+
+		gainedText = new FlxText(0, 0, 0, '+ ${gainedPoints}FP');
+		if (gainedPoints < 0) {
+			var aasss = '${gainedPoints}'.split('');
+			aasss.insert(1, ' ');
+			gainedText.text = aasss.join('') + "FP";
+		}
+		gainedText.setFormat(null, 40, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		gainedText.setPosition(FlxG.width - gainedText.width - 50, FlxG.height - gainedText.height - 50);
+		gainedText.visible = false;
+		gainedText.scrollFactor.set();
+		add(gainedText);
+
+		if (gainedPoints != 0) {
+			gainedText.visible = true;
+			if (gainedPoints > 0) {
+				FlxG.sound.play(Paths.sound('fap'));
+				if (ClientPrefs.data.flashing)
+					FlxFlicker.flicker(gainedText, 1, 0.03, true);
+			}
+
+			var prevGained = gainedPoints; 
+
+			new FlxTimer().start(5, (t) -> {
+				FlxTween.tween(gainedText, {x: gainedText.x, y: FlxG.height, alpha: 0, angle: prevGained < 0 ? 90 : 0}, 1, {ease: FlxEase.quartOut});
+			});
+		}
+
+		gainedPoints = 0;
 
 		missingTextBG = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		missingTextBG.alpha = 0.6;
@@ -421,7 +454,7 @@ class FreeplayState extends MusicBeatState
 				if (GameClient.isConnected()) {
 					destroyFreeplayVocals();
 					GameClient.clearOnMessage();
-					FlxG.switchState(() -> new Room());
+					FlxG.switchState(() -> new RoomState());
 				}
 				else {
 					FlxG.switchState(() -> new MainMenuState());
@@ -480,7 +513,7 @@ class FreeplayState extends MusicBeatState
 										GameClient.send("verifyChart", hash);
 										destroyFreeplayVocals();
 										GameClient.clearOnMessage();
-										FlxG.switchState(() -> new Room());
+										FlxG.switchState(() -> new RoomState());
 										FlxG.autoPause = prevPauseGame;
 									}
 									catch (exc:Dynamic) {

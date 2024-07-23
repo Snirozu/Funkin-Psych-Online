@@ -27,7 +27,7 @@ class SetupMods extends MusicBeatState {
         super.create();
 
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("In Setup Mods state.", null, null, false);
+		DiscordClient.changePresence("In the Menus", "Mods URL Setup");
 		#end
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
@@ -72,7 +72,7 @@ class SetupMods extends MusicBeatState {
 		add(items);
 
 		var title = new FlxText(0, 0, FlxG.width, 
-        "Before you play, it is recommended to set links for your mods!\nGamebanana mod links need to look similiar to this: https://gamebanana.com/mods/479714\nSelect mods with ACCEPT, Paste links with CTRL + V, Leave with BACK\nHold SHIFT while exiting to discard all changes"
+        "Before you play, it is recommended to set links for your mods!\nSelect mods with ACCEPT, Paste links with CTRL + V, Leave with BACK\nHold SHIFT while exiting to discard all changes"
         );
 		title.setFormat("VCR OSD Mono", 22, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		title.y = 50;
@@ -151,6 +151,10 @@ class SetupMods extends MusicBeatState {
 				item.text = "> " + item.text + " <";
 				item.alpha = 1;
 			}
+			if (modsInput[item.ID].startsWith("http://") || modsInput[item.ID].startsWith("https://"))
+				item.color = FlxColor.LIME;
+			else
+				item.color = FlxColor.RED;
 			item.screenCenter(X);
 		}
     }

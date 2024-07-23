@@ -1,5 +1,6 @@
 package options;
 
+import online.GameClient;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.display.shapes.FlxShapeCircle;
@@ -180,6 +181,9 @@ class NotesSubState extends MusicBeatSubstate
 
 	override function update(elapsed:Float) {
 		if (controls.BACK) {
+			if (GameClient.isConnected()) {
+				GameClient.send('updateArrColors', [ClientPrefs.data.arrowRGB, ClientPrefs.data.arrowRGBPixel]);
+			}
 			FlxG.mouse.visible = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			close();
@@ -626,7 +630,7 @@ class NotesSubState extends MusicBeatSubstate
 		Note.globalRgbShaders = [];
 		for (i in 0...dataArray.length)
 		{
-			Note.initializeGlobalRGBShader(i);
+			Note.initializeGlobalRGBShader(i, true);
 			var newNote:StrumNote = new StrumNote(150 + (480 / dataArray.length * i), 200, i, 0);
 			newNote.useRGBShader = true;
 			newNote.setGraphicSize(102);

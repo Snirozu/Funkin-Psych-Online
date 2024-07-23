@@ -67,4 +67,22 @@ class Player extends Schema {
 
 	@:type("boolean")
 	public var verified:Bool = false;
+
+	@:type("array", "number")
+	public var arrowColorFill:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+
+	@:type("array", "number")
+	public var arrowColorLight:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+
+	@:type("array", "number")
+	public var arrowColorLine:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+
+	@:type("array", "number")
+	public var arrowColorPFill:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+
+	@:type("array", "number")
+	public var arrowColorPLight:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+
+	@:type("array", "number")
+	public var arrowColorPLine:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 }

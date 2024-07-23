@@ -1,6 +1,6 @@
 package options;
 
-import online.states.Room;
+import online.states.RoomState;
 import states.MainMenuState;
 import backend.StageData;
 
@@ -35,7 +35,7 @@ class OptionsState extends MusicBeatState
 
 	override function create() {
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("Options Menu", null);
+		DiscordClient.changePresence("In the Menus", "Options");
 		#end
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
@@ -94,7 +94,7 @@ class OptionsState extends MusicBeatState
 				FlxG.sound.music.volume = 0;
 			}
 			else if (onOnlineRoom) {
-				LoadingState.loadAndSwitchState(new Room());
+				LoadingState.loadAndSwitchState(new RoomState());
 			}
 			else FlxG.switchState(() -> new MainMenuState());
 		}

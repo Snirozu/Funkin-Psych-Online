@@ -5,6 +5,7 @@ import online.GameClient;
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
+import io.colyseus.serializer.schema.types.*;
 
 import states.TitleState;
 
@@ -321,5 +322,49 @@ class ClientPrefs {
 
 	public static function getSafeFrames() {
 		return PlayState.instance?.replayPlayer?.data?.safe_frames ?? data.safeFrames;
+	}
+
+	public static function getRGBColor(player:Int = 0):Array<Array<FlxColor>> {
+		if (!GameClient.isConnected())
+			return data.arrowRGB;
+
+		if (player == 0)
+			return [ 
+				asta(GameClient.room.state.player2.arrowColorFill),
+				asta(GameClient.room.state.player2.arrowColorLight),
+				asta(GameClient.room.state.player2.arrowColorLine),
+			];
+		
+		return [
+			asta(GameClient.room.state.player1.arrowColorFill),
+			asta(GameClient.room.state.player1.arrowColorLight),
+			asta(GameClient.room.state.player1.arrowColorLine),
+		];
+	}
+
+	public static function getRGBPixelColor(player:Int = 0):Array<Array<FlxColor>> {
+		if (!GameClient.isConnected())
+			return data.arrowRGBPixel;
+
+		if (player == 0)
+			return [
+				asta(GameClient.room.state.player2.arrowColorPFill),
+				asta(GameClient.room.state.player2.arrowColorPLight),
+				asta(GameClient.room.state.player2.arrowColorPLine),
+			];
+
+		return [
+			asta(GameClient.room.state.player1.arrowColorPFill),
+			asta(GameClient.room.state.player1.arrowColorPLight),
+			asta(GameClient.room.state.player1.arrowColorPLine),
+		];
+	}
+
+	static function asta(arr:ArraySchema<Dynamic>) {
+		var haxArr = [];
+		for (thing in arr) {
+			haxArr.push(thing);
+		}
+		return haxArr;
 	}
 }

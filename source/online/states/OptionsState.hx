@@ -20,7 +20,7 @@ class OptionsState extends MusicBeatState {
 		camera.follow(camFollow = new FlxObject(), 0.1);
 
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("In Online Settings.", null, null, false);
+		DiscordClient.changePresence("In the Menus", "Online Options");
 		#end
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));

@@ -1,5 +1,6 @@
 package online;
 
+import online.net.FunkinNetwork;
 import states.OutdatedState;
 import haxe.crypto.Md5;
 import backend.Song;
@@ -14,13 +15,13 @@ import io.colyseus.error.MatchMakeError;
 import lime.app.Application;
 import io.colyseus.events.EventHandler;
 import states.MainMenuState;
-import online.schema.RoomState;
+import online.schema.Room as GameRoom;
 import io.colyseus.Client;
 import io.colyseus.Room;
 
 class GameClient {
     public static var client:Client;
-    public static var room:Room<RoomState>;
+	public static var room:Room<GameRoom>;
 	public static var isOwner:Bool;
 	public static var address:String;
 	public static var reconnectTries:Int = 0;
@@ -43,7 +44,7 @@ class GameClient {
 		Thread.run(() -> {
 			client = new Client(address);
 
-			client.create("room", getOptions(true), RoomState, (err, room) -> _onJoin(err, room, true, address, onJoin));
+			client.create("room", getOptions(true), GameRoom, (err, room) -> _onJoin(err, room, true, address, onJoin));
 		}, (exc) -> {
 			onJoin(exc);
 			LoadingScreen.toggle(false);
@@ -67,7 +68,7 @@ class GameClient {
 		Thread.run(() -> {
 			client = new Client(roomAddress);
 
-			client.joinById(roomID, getOptions(false), RoomState, (err, room) -> _onJoin(err, room, false, roomAddress, onJoin));
+			client.joinById(roomID, getOptions(false), GameRoom, (err, room) -> _onJoin(err, room, false, roomAddress, onJoin));
 		}, (exc) -> {
 			onJoin(exc);
 			LoadingScreen.toggle(false);
@@ -75,7 +76,7 @@ class GameClient {
 		});
     }
 
-	private static function _onJoin(err:MatchMakeError, room:Room<RoomState>, isHost:Bool, address:String, ?onJoin:(err:Dynamic)->Void) {
+	private static function _onJoin(err:MatchMakeError, room:Room<GameRoom>, isHost:Bool, address:String, ?onJoin:(err:Dynamic)->Void) {
 		if (err != null) {
 			Alert.alert("Couldn't connect!", "JOIN ERROR: " + err.code + " - " + err.message);
 			client = null;
@@ -140,7 +141,7 @@ class GameClient {
 			reconnectTries = 5;
 		}
 		
-		client.reconnect(room.reconnectionToken, RoomState, (err, room) -> {
+		client.reconnect(room.reconnectionToken, GameRoom, (err, room) -> {
 			if (err != null) {
 				if (reconnectTries <= 0) {
 					Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + err.code + " - " + err.message);
@@ -161,7 +162,9 @@ class GameClient {
 		var options:Map<String, Dynamic> = [
 			"name" => ClientPrefs.getNickname(), 
 			"protocol" => Main.CLIENT_PROTOCOL,
-			"points" => FunkinPoints.funkinPoints
+			"points" => FunkinPoints.funkinPoints,
+			"arrowRGBT" => ClientPrefs.data.arrowRGB,
+			"arrowRGBP" => ClientPrefs.data.arrowRGBPixel,
 		];
 
 		if (ClientPrefs.data.networkAuthID != null && ClientPrefs.data.networkAuthToken != null) {
@@ -264,7 +267,12 @@ class GameClient {
 	public static function send(type:Dynamic, ?message:Null<Dynamic>) {
 		if (GameClient.isConnected() && type != null)
 			Waiter.put(() -> {
-				room.send(type, message);
+				try {
+					room.send(type, message);
+				}
+				catch (exc) {
+					GameClient.leaveRoom("Lost Server Connection");
+				}
 			});
 	}
 
@@ -290,6 +298,7 @@ class GameClient {
 
 		ClientPrefs.data.serverAddress = v;
 		ClientPrefs.saveSettings();
+		FunkinNetwork.client = new HTTPClient(GameClient.addressToUrl(v));
 		return serverAddress;
 	}
 
@@ -389,7 +398,7 @@ class GameClient {
 		if (PlayState.instance != null) {
 			return self ? PlayState.instance.getPlayer() : PlayState.instance.getOpponent();
 		} else {
-			return online.states.Room.getStaticPlayer(self);
+			return online.states.RoomState.getStaticPlayer(self);
 		}
 	}
 }

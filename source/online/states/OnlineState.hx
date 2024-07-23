@@ -60,7 +60,7 @@ class OnlineState extends MusicBeatState {
 		}
 
 		Waiter.put(() -> {
-			FlxG.switchState(() -> new Room());
+			FlxG.switchState(() -> new RoomState());
 		});
     }
 
@@ -81,7 +81,7 @@ class OnlineState extends MusicBeatState {
 		OnlineMods.checkMods();
 
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("In the Online Menu.", null, null, false);
+		DiscordClient.changePresence("In the Menus", "Online Menu");
 		#end
 
         var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
@@ -198,7 +198,8 @@ class OnlineState extends MusicBeatState {
 			var data = FunkinNetwork.fetchFront();
 			Waiter.put(() -> {
 				if (data == null) {
-					playersOnline.text = "OFFLINE";
+					playersOnline.text = "NETWORK OFFLINE";
+					networkPlayer.visible = false;
 				}
 				else {
 					playersOnline.text = 'Players Online: ' + data.online;

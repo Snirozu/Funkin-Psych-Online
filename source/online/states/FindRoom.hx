@@ -33,7 +33,7 @@ class FindRoom extends MusicBeatState {
 		super.create();
 
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("Finding a room.", null, null, false);
+		DiscordClient.changePresence("Looking for a room.", null, null, false);
 		#end
 
 		camera.follow(camFollow = new FlxObject(FlxG.width / 2), 0.1);
@@ -211,7 +211,7 @@ class RoomBox extends FlxSpriteGroup {
 					if (err != null) {
 						return;
 					}
-					FlxG.switchState(() -> new Room());
+					FlxG.switchState(() -> new RoomState());
 				}));
 			}
         }

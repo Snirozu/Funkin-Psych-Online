@@ -1,5 +1,6 @@
 package online.replay;
 
+import states.FreeplayState;
 import online.net.Leaderboard;
 import haxe.crypto.Md5;
 import backend.Song;
@@ -38,7 +39,8 @@ class ReplayRecorder extends FlxBasic {
 		gameplay_modifiers: [],
 		ghost_tapping: true,
 		rating_offset: null,
-		safe_frames: null
+		safe_frames: null,
+		version: 1
     };
 
     var state:PlayState;
@@ -120,7 +122,7 @@ class ReplayRecorder extends FlxBasic {
 		}
 	}
 
-    public function save() {
+    public function save():Float {
 		if (!FileSystem.exists("replays/"))
 			FileSystem.createDirectory("replays/");
 
@@ -137,15 +139,21 @@ class ReplayRecorder extends FlxBasic {
 
 		if (data.accuracy < 30) {
 			Alert.alert("GIT GUD", 'your performance was so shit that\nim not even going to save the replay for it');
-			return;
+			return 0;
 		}
 
 		trace("Saving replay...");
 		var replayData = Json.stringify(data);
-		if (!ClientPrefs.data.disableSubmiting)
-			Leaderboard.submitScore(replayData);
 		File.saveContent("replays/MyReplay-" + PlayState.SONG.song + "-" + Difficulty.getString().toUpperCase() + "-" + DateTools.format(Date.now(), "%Y-%m-%d_%H'%M'%S") + ".funkinreplay", replayData);
 		trace("Saved a replay!");
+		
+		if (!ClientPrefs.data.disableSubmiting) {
+			var res = Json.parse(Leaderboard.submitScore(replayData)?.body ?? "{}");
+			if (res.gained_points != null) {
+				return res.gained_points;
+			}
+		}
+		return 0;
     }
 }
 
@@ -178,4 +186,6 @@ typedef ReplayData = {
 	 * [ SONG_POSITION, BIND_ID, DOWN_OR_UP_INT ]
 	 */
 	var inputs:Array<Array<Dynamic>>;
+
+	var version:Int;
 }

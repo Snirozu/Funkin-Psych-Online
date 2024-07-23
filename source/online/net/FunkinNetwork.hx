@@ -14,7 +14,7 @@ import haxe.Json;
 
 @:unreflective
 class FunkinNetwork {
-	public static var client:HTTPClient = new HTTPClient(#if LOCAL "http://localhost:2567" #else "https://funkin.sniro.boo" #end);
+	public static var client:HTTPClient = null;
 	public static var nickname(default, null):String = null;
 	public static var loggedIn:Bool = false;
 
@@ -148,7 +148,7 @@ class FunkinNetwork {
 
 		if (response.isFailed()) {
 			if (response.exception != null) {
-				if (response.exception != "EOF")
+				if (response.exception != "Eof" && response.exception != "EOF")
 					Waiter.put(() -> {
 						Alert.alert("Exception: " + request.path, response.exception + (response.exception.stack != null ? "\n\n" + CallStack.toString(response.exception.stack) : ""));
 					});

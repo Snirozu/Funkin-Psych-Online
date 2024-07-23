@@ -67,35 +67,37 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.maxValue = 30;
 		addOption(option);
 
-		var option:Option = new Option('Sick! Hit Window',
-			'Changes the amount of time you have\nfor hitting a "Sick!" in milliseconds.',
-			'sickWindow',
-			'int');
-		option.displayFormat = '%vms';
-		option.scrollSpeed = 15;
-		option.minValue = 15;
-		option.maxValue = 45;
-		addOption(option);
+		// phantom ass options
 
-		var option:Option = new Option('Good Hit Window',
-			'Changes the amount of time you have\nfor hitting a "Good" in milliseconds.',
-			'goodWindow',
-			'int');
-		option.displayFormat = '%vms';
-		option.scrollSpeed = 30;
-		option.minValue = 15;
-		option.maxValue = 90;
-		addOption(option);
+		// var option:Option = new Option('Sick! Hit Window',
+		// 	'Changes the amount of time you have\nfor hitting a "Sick!" in milliseconds.',
+		// 	'sickWindow',
+		// 	'int');
+		// option.displayFormat = '%vms';
+		// option.scrollSpeed = 15;
+		// option.minValue = 15;
+		// option.maxValue = 45;
+		// addOption(option);
 
-		var option:Option = new Option('Bad Hit Window',
-			'Changes the amount of time you have\nfor hitting a "Bad" in milliseconds.',
-			'badWindow',
-			'int');
-		option.displayFormat = '%vms';
-		option.scrollSpeed = 60;
-		option.minValue = 15;
-		option.maxValue = 135;
-		addOption(option);
+		// var option:Option = new Option('Good Hit Window',
+		// 	'Changes the amount of time you have\nfor hitting a "Good" in milliseconds.',
+		// 	'goodWindow',
+		// 	'int');
+		// option.displayFormat = '%vms';
+		// option.scrollSpeed = 30;
+		// option.minValue = 15;
+		// option.maxValue = 90;
+		// addOption(option);
+
+		// var option:Option = new Option('Bad Hit Window',
+		// 	'Changes the amount of time you have\nfor hitting a "Bad" in milliseconds.',
+		// 	'badWindow',
+		// 	'int');
+		// option.displayFormat = '%vms';
+		// option.scrollSpeed = 60;
+		// option.minValue = 15;
+		// option.maxValue = 135;
+		// addOption(option);
 
 		var option:Option = new Option('Safe Frames',
 			'Changes how many frames you have for\nhitting a note earlier or late.',

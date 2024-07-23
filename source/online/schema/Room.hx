@@ -10,7 +10,7 @@ package online.schema;
 import io.colyseus.serializer.schema.Schema;
 import io.colyseus.serializer.schema.types.*;
 
-class RoomState extends Schema {
+class Room extends Schema {
 	@:type("string")
 	public var song: String = "";
 

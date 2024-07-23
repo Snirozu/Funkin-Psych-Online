@@ -49,8 +49,8 @@ class Main extends Sprite
 	public static var stage3D:AwayStage;
 	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.7.2";
-	public static final CLIENT_PROTOCOL:Float = 2;
+	public static final PSYCH_ONLINE_VERSION:String = "0.7.3";
+	public static final CLIENT_PROTOCOL:Float = 3;
 	public static final GIT_COMMIT:String = online.Macros.getGitCommitHash();
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
@@ -176,6 +176,7 @@ class Main extends Sprite
 		#else
 		online.GameClient.serverAddresses.push("ws://localhost:2567");
 		#end
+		online.net.FunkinNetwork.client = new online.HTTPClient(online.GameClient.addressToUrl(online.GameClient.serverAddress));
 
 		online.Downloader.checkDeleteDlDir();
 
