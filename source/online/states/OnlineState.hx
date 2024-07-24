@@ -437,6 +437,14 @@ class OnlineState extends MusicBeatState {
 			switch (itms[curSelected].toLowerCase()) {
 				case "join":
 					disableInput = true;
+					if (daCoomCode.toLowerCase() == "adachi") {
+						var image = new FlxSprite().loadGraphic(Paths.image('unnamed_file_from_google'));
+						image.setGraphicSize(FlxG.width, FlxG.height);
+						image.updateHitbox();
+						add(image);
+						FlxG.sound.playMusic(Paths.sound('cabbage'));
+						return;
+					}
 					GameClient.joinRoom(daCoomCode, onRoomJoin);
 			}
 		}

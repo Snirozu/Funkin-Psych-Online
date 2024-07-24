@@ -166,9 +166,6 @@ class RoomState extends MusicBeatState {
 	override function create() {
 		super.create();
 
-		trace(ClientPrefs.getRGBColor(0));
-		trace(ClientPrefs.getRGBColor(1));
-
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("In the Lobby", null, null, false);
 		#end
