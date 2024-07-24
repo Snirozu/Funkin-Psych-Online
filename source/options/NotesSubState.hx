@@ -17,6 +17,8 @@ import shaders.RGBPalette.RGBShaderReference;
 
 class NotesSubState extends MusicBeatSubstate
 {
+	public static var isOpened:Bool = false;
+
 	var onModeColumn:Bool = true;
 	var curSelectedMode:Int = 0;
 	var curSelectedNote:Int = 0;
@@ -51,6 +53,8 @@ class NotesSubState extends MusicBeatSubstate
 
 	public function new() {
 		super();
+
+		isOpened = true;
 		
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xFFEA71FD;
@@ -186,6 +190,7 @@ class NotesSubState extends MusicBeatSubstate
 			}
 			FlxG.mouse.visible = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
+			isOpened = false;
 			close();
 			return;
 		}
@@ -491,6 +496,12 @@ class NotesSubState extends MusicBeatSubstate
 			FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
 			updateColors();
 		}
+	}
+
+	override function destroy() {
+		super.destroy();
+
+		isOpened = false;
 	}
 
 	function pointerOverlaps(obj:Dynamic)

@@ -69,20 +69,26 @@ class Player extends Schema {
 	public var verified:Bool = false;
 
 	@:type("array", "number")
-	public var arrowColorFill:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColor0:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColorLight:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColor1:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColorLine:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColor2:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColorPFill:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColor3:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColorPLight:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColorP0:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColorPLine:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColorP1:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+
+	@:type("array", "number")
+	public var arrowColorP2:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+
+	@:type("array", "number")
+	public var arrowColorP3:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 }
