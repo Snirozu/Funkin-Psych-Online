@@ -1,5 +1,6 @@
 package backend;
 
+import options.NotesSubState;
 import online.net.FunkinNetwork;
 import online.GameClient;
 import flixel.util.FlxSave;
@@ -325,38 +326,42 @@ class ClientPrefs {
 	}
 
 	public static function getRGBColor(player:Int = 0):Array<Array<FlxColor>> {
-		if (!GameClient.isConnected())
+		if (!GameClient.isConnected() || NotesSubState.isOpened)
 			return data.arrowRGB;
 
 		if (player == 0)
 			return [ 
-				asta(GameClient.room.state.player2.arrowColorFill),
-				asta(GameClient.room.state.player2.arrowColorLight),
-				asta(GameClient.room.state.player2.arrowColorLine),
+				asta(GameClient.room.state.player1.arrowColor0),
+				asta(GameClient.room.state.player1.arrowColor1),
+				asta(GameClient.room.state.player1.arrowColor2),
+				asta(GameClient.room.state.player1.arrowColor3),
 			];
 		
 		return [
-			asta(GameClient.room.state.player1.arrowColorFill),
-			asta(GameClient.room.state.player1.arrowColorLight),
-			asta(GameClient.room.state.player1.arrowColorLine),
+			asta(GameClient.room.state.player2.arrowColor0),
+			asta(GameClient.room.state.player2.arrowColor1),
+			asta(GameClient.room.state.player2.arrowColor2),
+			asta(GameClient.room.state.player2.arrowColor3),
 		];
 	}
 
 	public static function getRGBPixelColor(player:Int = 0):Array<Array<FlxColor>> {
-		if (!GameClient.isConnected())
+		if (!GameClient.isConnected() || NotesSubState.isOpened)
 			return data.arrowRGBPixel;
 
 		if (player == 0)
 			return [
-				asta(GameClient.room.state.player2.arrowColorPFill),
-				asta(GameClient.room.state.player2.arrowColorPLight),
-				asta(GameClient.room.state.player2.arrowColorPLine),
+				asta(GameClient.room.state.player1.arrowColorP0),
+				asta(GameClient.room.state.player1.arrowColorP1),
+				asta(GameClient.room.state.player1.arrowColorP2),
+				asta(GameClient.room.state.player1.arrowColorP3),
 			];
 
 		return [
-			asta(GameClient.room.state.player1.arrowColorPFill),
-			asta(GameClient.room.state.player1.arrowColorPLight),
-			asta(GameClient.room.state.player1.arrowColorPLine),
+			asta(GameClient.room.state.player2.arrowColorP0),
+			asta(GameClient.room.state.player2.arrowColorP1),
+			asta(GameClient.room.state.player2.arrowColorP2),
+			asta(GameClient.room.state.player2.arrowColorP3),
 		];
 	}
 
