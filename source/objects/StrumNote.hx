@@ -1,5 +1,6 @@
 package objects;
 
+import online.GameClient;
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
 
@@ -28,9 +29,9 @@ class StrumNote extends FlxSprite
 		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData, player == 1));
 		rgbShader.enabled = false;
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
-		
-		var arr:Array<FlxColor> = ClientPrefs.getRGBColor(player)[leData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor(player)[leData];
+
+		var arr:Array<FlxColor> = ClientPrefs.getRGBColor(!GameClient.room.state.swagSides ? (player) : (player == 0 ? 1 : 0))[leData];
+		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor(!GameClient.room.state.swagSides ? (player) : (player == 0 ? 1 : 0))[leData];
 		
 		if(leData <= arr.length)
 		{

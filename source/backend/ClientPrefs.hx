@@ -366,9 +366,9 @@ class ClientPrefs {
 	}
 
 	static function asta(arr:ArraySchema<Dynamic>) {
-		var haxArr = [];
-		for (thing in arr) {
-			haxArr.push(thing);
+		var haxArr = [0, 0, 0];
+		for (i => thing in arr.items) {
+			haxArr[i] = thing;
 		}
 		return haxArr;
 	}
