@@ -154,12 +154,7 @@ class FunkinNetwork {
 					});
 			}
 			else if (response.status == 404) {
-				if (request.path == "/api/network/account/ping")
-					return null;
-
-				Waiter.put(() -> {
-					Alert.alert('HTTP Error ${response.status}: ' + request.path, null);
-				});
+				return null;
 			}
 			else {
 				Waiter.put(() -> {

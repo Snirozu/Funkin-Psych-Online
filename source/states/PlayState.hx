@@ -1664,7 +1664,7 @@ class PlayState extends MusicBeatState
 			scoreTextObject.text = 'Score: ' + songScore + ' | Misses: ' + songMisses + ' | Rating: ' + str;
 		}
 
-		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate);
+		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate, songSpeed);
 		if (points != songPoints) {
 			songPoints = points;
 			resetRPC(true);
@@ -3030,7 +3030,7 @@ class PlayState extends MusicBeatState
 	public var transitioning = false;
 	public function endSong()
 	{
-		songPoints = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate);
+		songPoints = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate, songSpeed);
 
 		//Should kill you if you tried to cheat
 		if(!startingSong) {
@@ -3086,7 +3086,9 @@ class PlayState extends MusicBeatState
 			if(Math.isNaN(percent)) percent = 0;
 			if (!isInvalidScore() && finishingSong) {
 				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent);
-				online.FunkinPoints.save(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate);
+				var offlinePoints = online.FunkinPoints.save(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate, songSpeed);
+				if (!online.net.FunkinNetwork.loggedIn)
+					gainedPoints = offlinePoints;
 				if (replayRecorder != null)
 					gainedPoints = replayRecorder.save();
 			}
@@ -3108,6 +3110,7 @@ class PlayState extends MusicBeatState
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				if (isInvalidScore()) online.Alert.alert("Calculated Points", "+" + songPoints);
 				GameClient.clearOnMessage();
+				online.states.ResultsScreen.gainedPoints = gainedPoints;
 				if (!skipResults)
 					FlxG.switchState(() -> new online.states.ResultsScreen());
 				else
@@ -3949,8 +3952,19 @@ class PlayState extends MusicBeatState
 				combo++;
 				if(combo > 9999) combo = 9999;
 				rating = popUpScore(note);
+
+				switch (rating.name) {
+					case "sick":
+						addHealth(note.hitHealth * healthGain);
+					case "good":
+						addHealth((note.hitHealth * 0.5) * healthGain);
+					case "bad":
+						addHealth((note.hitHealth * 0.2) * healthGain);
+				}
 			}
-			addHealth(note.hitHealth * healthGain);
+			else {
+				addHealth(note.hitHealth * healthGain);
+			}
 
 			GameClient.send("noteHit", [note.strumTime, note.noteData, note.isSustainNote, rating?.image]);
 
@@ -4620,7 +4634,7 @@ class PlayState extends MusicBeatState
 	#end
 
 	function isInvalidScore() {
-		return cpuControlled || controls.moodyBlues != null;
+		return cpuControlled || controls.moodyBlues != null || healthGain > 1;
 	}
 
 	// MULTIPLAYER STUFF HERE

@@ -143,8 +143,8 @@ class Note extends FlxSprite
 
 	public function defaultRGB()
 	{
-		var arr:Array<FlxColor> = ClientPrefs.getRGBColor(!GameClient.room.state.swagSides ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1))[noteData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor(!GameClient.room.state.swagSides ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1))[noteData];
+		var arr:Array<FlxColor> = ClientPrefs.getRGBColor(!GameClient.room?.state?.swagSides ?? false ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1))[noteData];
+		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor(!GameClient.room?.state?.swagSides ?? false ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1))[noteData];
 
 		if (noteData > -1 && noteData <= arr.length)
 		{
@@ -294,7 +294,7 @@ class Note extends FlxSprite
 			var newRGB:RGBPalette = new RGBPalette();
 			globalRgbShaders[noteData] = newRGB;
 
-			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.getRGBColor(!GameClient.room.state.swagSides ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1))[noteData] : ClientPrefs.getRGBPixelColor(!GameClient.room.state.swagSides ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1))[noteData];
+			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.getRGBColor(!GameClient.room?.state?.swagSides ?? false ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1))[noteData] : ClientPrefs.getRGBPixelColor(!GameClient.room?.state?.swagSides ?? false ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1))[noteData];
 			if (noteData > -1 && noteData <= arr.length)
 			{
 				newRGB.r = arr[0];

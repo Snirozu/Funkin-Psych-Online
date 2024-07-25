@@ -4,6 +4,7 @@ class SustainSplash extends FlxSprite {
 
   public static var startCrochet:Float;
   public static var frameRate:Int;
+	public var strumNote:StrumNote;
 
   public function new():Void {
     super();
@@ -13,6 +14,13 @@ class SustainSplash extends FlxSprite {
     animation.play('hold', true, false, 0);
     animation.curAnim.frameRate = frameRate;
     animation.curAnim.looped = true;
+  }
+
+  override function update(elapsed) {
+    super.update(elapsed);
+
+		if (strumNote != null)
+			alpha = ClientPrefs.data.splashAlpha - (1 - strumNote.alpha);
   }
 
   public function setupSusSplash(strum:StrumNote, daNote:Note, ?playbackRate:Float = 1):Void {
@@ -33,12 +41,14 @@ class SustainSplash extends FlxSprite {
       shader.data.mult.value = daNote.shader.data.mult.value;
     }
 
+		strumNote = strum;
+		alpha = ClientPrefs.data.splashAlpha - (1 - strumNote.alpha);
     setPosition(strum.x, strum.y);
     offset.set(PlayState.isPixelStage ? 112.5 : 106.25, 100);
 
     new FlxTimer().start(timeThingy, (idk:FlxTimer) -> {
       if (tailEnd.mustPress && !(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled) && ClientPrefs.data.splashAlpha != 0) {
-        alpha = ClientPrefs.data.splashAlpha;
+				alpha = ClientPrefs.data.splashAlpha - (1 - strumNote.alpha);
         animation.play('end', true, false, 0);
         animation.curAnim.looped = false;
         animation.curAnim.frameRate = 24;
