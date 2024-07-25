@@ -30,8 +30,8 @@ class StrumNote extends FlxSprite
 		rgbShader.enabled = false;
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
 
-		var arr:Array<FlxColor> = ClientPrefs.getRGBColor(!GameClient.room.state.swagSides ? (player) : (player == 0 ? 1 : 0))[leData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor(!GameClient.room.state.swagSides ? (player) : (player == 0 ? 1 : 0))[leData];
+		var arr:Array<FlxColor> = ClientPrefs.getRGBColor(!GameClient.room?.state?.swagSides ?? false ? (player) : (player == 0 ? 1 : 0))[leData];
+		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor(!GameClient.room?.state?.swagSides ?? false ? (player) : (player == 0 ? 1 : 0))[leData];
 		
 		if(leData <= arr.length)
 		{
