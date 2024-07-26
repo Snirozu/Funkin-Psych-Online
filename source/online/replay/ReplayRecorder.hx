@@ -104,14 +104,25 @@ class ReplayRecorder extends FlxBasic {
 	}
 
 	function onKeyDown(e:KeyboardEvent) {
-		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode) ?? (state.controls.controllerMode ? controllerIds.get(e.keyCode) : null), 0);
+		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode) ?? (state.controls.controllerMode ? controllerIds.get(e.keyCode) : null), e.keyCode, 0);
     }
 
 	function onKeyUp(e:KeyboardEvent) {
-		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode) ?? (state.controls.controllerMode ? controllerIds.get(e.keyCode) : null), 1);
+		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode) ?? (state.controls.controllerMode ? controllerIds.get(e.keyCode) : null), e.keyCode, 1);
 	}
 
-	function recordKey(time:Float, ids:Array<String>, move:Int) {
+	function recordKey(time:Float, ids:Array<String>, keyCode:Int, move:Int) {
+		switch (keyCode) {
+			case 16: // shift
+				data.inputs.push([time, 'KEY:SHIFT', move]);
+			case 17: // ctrl
+				data.inputs.push([time, 'KEY:CONTROL', move]);
+			case 18: // alt
+				data.inputs.push([time, 'KEY:ALT', move]);
+			case 32: // spaceeee
+				data.inputs.push([time, 'KEY:SPACE', move]);
+		}
+		
 		if (ids == null)
 			return;
 

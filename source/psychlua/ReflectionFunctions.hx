@@ -34,7 +34,19 @@ class ReflectionFunctions
 			LuaUtils.setVarInArray(LuaUtils.getTargetInstance(), variable, value, allowMaps);
 			return true;
 		});
-		Lua_helper.add_callback(lua, "getPropertyFromClass", function(classVar:String, variable:String, ?allowMaps:Bool = false) {
+		Lua_helper.add_callback(lua, "getPropertyFromClass", function(classVar:String, variable:String, ?allowMaps:Bool = false):Dynamic {
+			if (classVar == 'flixel.FlxG' && variable.startsWith('keys')) {
+				var why = variable.split('.');
+				switch (why[1]) {
+					case 'pressed':
+						return ExtraFunctions.luaPressed(why[2]);
+					case 'justPressed':
+						return ExtraFunctions.luaJustPressed(why[2]);
+					case 'justReleased':
+						return ExtraFunctions.luaJustReleased(why[2]);
+				}
+			}
+
 			variable = online.Wrapper.wrapperClassField(classVar, variable);
 			classVar = online.Wrapper.wrapperClass(classVar);
 			

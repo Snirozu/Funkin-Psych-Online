@@ -55,6 +55,7 @@ class Scoreboard extends FlxSpriteGroup {
 				cell.text = "-";
 				if (rowsValues != null && rowsValues[columnI] != null && rowsValues[columnI][rowI] != null) // i need rowsValues[columnI]?[rowI]
 					cell.text = Std.string(rowsValues[columnI][rowI]);
+				cell.wordWrap = false;
 				rows[rowI].push(cell);
 				add(cell);
 			}
@@ -74,9 +75,14 @@ class Scoreboard extends FlxSpriteGroup {
 		rows[row][column].text = Std.string(value);
 	}
 
-	public function setRow(row:Int, cells:Array<Dynamic>) {
+	public function setRow(row:Int, cells:Array<Dynamic>, ?borderColor:Null<FlxColor> = null) {
 		for (cell in 0...rows[row].length) {
 			rows[row][cell].text = Std.string(cells[cell]);
+
+			if (borderColor != null)
+				rows[row][cell].setFormat("VCR OSD Mono", rowHeight, FlxColor.BLACK, LEFT, FlxTextBorderStyle.OUTLINE, borderColor);
+			else
+				rows[row][cell].setFormat("VCR OSD Mono", rowHeight, FlxColor.BLACK, LEFT);
 		}
 	}
 
@@ -84,6 +90,7 @@ class Scoreboard extends FlxSpriteGroup {
 		for (row in rows) {
 			for (cell in row) {
 				cell.text = "-";
+				cell.setFormat("VCR OSD Mono", rowHeight, FlxColor.BLACK, LEFT);
 			}
 		}
 	}

@@ -37,16 +37,20 @@ class ReplayPlayer extends FlxBasic {
         super.destroy();
     }
 
+    var _key:String = null;
     override function update(elapsed:Float) {
         if (state.controls.UI_LEFT) {
 			if (state.playbackRate - elapsed * 0.25 > 0)
                 state.playbackRate -= elapsed * 0.25;
 			state.botplayTxt.text = data.player + "'s\nREPLAY\n" + '(${CoolUtil.floorDecimal(state.playbackRate, 2)}x)';
         }
-        
-        if (state.controls.UI_RIGHT) {
+        else if (state.controls.UI_RIGHT) {
 			state.playbackRate += elapsed * 0.25;
 			state.botplayTxt.text = data.player + "'s\nREPLAY\n" + '(${CoolUtil.floorDecimal(state.playbackRate, 2)}x)';
+        }
+        else if (state.controls.RESET) {
+			state.playbackRate = ClientPrefs.getGameplaySetting('songspeed');
+			state.botplayTxt.text = data.player + "'s\nREPLAY\n";
         }
 
 		for (key => status in pressedKeys) {
@@ -59,16 +63,26 @@ class ReplayPlayer extends FlxBasic {
         }
 
 		while (events.length > 0 && events[0][0] <= Conductor.songPosition - (ClientPrefs.data.noteOffset - data.note_offset)) {
-            if (ReplayRecorder.REGISTER_BINDS.contains(events[0][1])) {
+			_key = events[0][1];
+
+			if (ReplayRecorder.REGISTER_BINDS.contains(_key)) {
                 if (events[0][2] == 0) {
                     @:privateAccess
-                    state.keyPressed(PlayState.getKeyFromEvent(state.keysArray, state.controls.keyboardBinds.get(events[0][1])[0]));
-                    pressedKeys.set(events[0][1], JUST_PRESSED);
+					state.keyPressed(PlayState.getKeyFromEvent(state.keysArray, state.controls.keyboardBinds.get(_key)[0]));
+					pressedKeys.set(_key, JUST_PRESSED);
                 }
                 else {
                     @:privateAccess
-                    state.keyReleased(PlayState.getKeyFromEvent(state.keysArray, state.controls.keyboardBinds.get(events[0][1])[0]));
-                    pressedKeys.set(events[0][1], JUST_RELEASED);
+					state.keyReleased(PlayState.getKeyFromEvent(state.keysArray, state.controls.keyboardBinds.get(_key)[0]));
+					pressedKeys.set(_key, JUST_RELEASED);
+                }
+            }
+			else if (_key == 'KEY:SHIFT' || _key == 'KEY:CONTROL' || _key == 'KEY:ALT' || _key == 'KEY:SPACE') {
+                if (events[0][2] == 0) {
+					pressedKeys.set(_key, JUST_PRESSED);
+                }
+                else {
+					pressedKeys.set(_key, JUST_RELEASED);
                 }
             }
 
@@ -77,6 +91,15 @@ class ReplayPlayer extends FlxBasic {
 
         super.update(elapsed);
     }
+
+    //haxe json class doesn't do it automatically? cool
+	public static function objToMap(obj:Dynamic):Map<String, Dynamic> {
+		var map:Map<String, Dynamic> = new Map<String, Dynamic>();
+		for (field in Reflect.fields(obj)) {
+			map.set(field, Reflect.field(obj, field));
+		}
+		return map;
+	}
 }
 
 enum ReplayPressStatus {

@@ -118,7 +118,7 @@ class Controls
 	{
 		if (moodyBlues != null && ReplayRecorder.REGISTER_BINDS.contains(key)) {
 			var status = moodyBlues.pressedKeys.get(key);
-			return status == null || status == JUST_RELEASED;
+			return status == JUST_RELEASED;
 		}
 
 		var result:Bool = (FlxG.keys.anyJustReleased(keyboardBinds[key]) == true);

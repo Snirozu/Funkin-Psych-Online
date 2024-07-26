@@ -14,21 +14,39 @@ import openfl.utils.Assets;
 
 class ExtraFunctions
 {
+
+	public static var luaJustPressed:(name:String) -> Bool = null;
+	public static var luaPressed:(name:String) -> Bool = null;
+	public static var luaJustReleased:(name:String) -> Bool = null;
+
 	public static function implement(funk:FunkinLua)
 	{
 		var lua:State = funk.lua;
 		
 		// Keyboard & Gamepads
-		Lua_helper.add_callback(lua, "keyboardJustPressed", function(name:String)
+		Lua_helper.add_callback(lua, "keyboardJustPressed", luaJustPressed = function(name:String)
 		{
+			if (Controls.instance?.moodyBlues != null && Controls.instance.moodyBlues.pressedKeys.get('KEY:' + name) == JUST_PRESSED) {
+				return true;
+			}
 			return Reflect.getProperty(FlxG.keys.justPressed, name);
 		});
-		Lua_helper.add_callback(lua, "keyboardPressed", function(name:String)
+		Lua_helper.add_callback(lua, "keyboardPressed", luaPressed = function(name:String)
 		{
+			if (Controls.instance?.moodyBlues != null) {
+				var status = Controls.instance?.moodyBlues.pressedKeys.get('KEY:' + name);
+				if (status == PRESSED || status == JUST_PRESSED)
+					return true;
+			}
 			return Reflect.getProperty(FlxG.keys.pressed, name);
 		});
-		Lua_helper.add_callback(lua, "keyboardReleased", function(name:String)
+		Lua_helper.add_callback(lua, "keyboardReleased", luaJustReleased = function(name:String)
 		{
+			if (Controls.instance?.moodyBlues != null) {
+				var status = Controls.instance?.moodyBlues.pressedKeys.get('KEY:' + name);
+				if (status == JUST_RELEASED)
+					return true;
+			}
 			return Reflect.getProperty(FlxG.keys.justReleased, name);
 		});
 
