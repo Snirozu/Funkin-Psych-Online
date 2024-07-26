@@ -158,6 +158,12 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Show Note timing',
+			'If checked, a timing of the hitted note will be shown on the screen (in miliseconds)',
+			'showNoteTiming',
+			'bool');
+		addOption(option);
+
 		super();
 		add(notes);
 	}

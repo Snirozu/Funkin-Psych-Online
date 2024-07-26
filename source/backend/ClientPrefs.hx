@@ -82,6 +82,7 @@ class SaveVariables {
 	public var networkAuthID:String = null;
 	public var networkAuthToken:String = null;
 	public var disableSubmiting:Bool = false;
+	public var showNoteTiming:Bool = false;
 
 	public function new()
 	{
@@ -259,8 +260,9 @@ class ClientPrefs {
 	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic = null, ?customDefaultValue:Bool = false):Dynamic {
 		if(!customDefaultValue) defaultValue = defaultData.gameplaySettings.get(name);
 		var daGameplaySetting:Dynamic = GameClient.isConnected() && !GameClient.room.state.permitModifiers ? GameClient.getGameplaySetting(name) : data.gameplaySettings.get(name);
-		if (PlayState.instance?.replayPlayer?.data?.gameplay_modifiers != null)
-			daGameplaySetting = PlayState.instance?.replayPlayer?.data?.gameplay_modifiers?.get(name);
+		if (PlayState.replayData?.gameplay_modifiers != null) {
+			daGameplaySetting = PlayState.replayData?.gameplay_modifiers?.get(name);
+		}
 		return /*PlayState.isStoryMode ? defaultValue : */ (daGameplaySetting != null ? daGameplaySetting : defaultValue);
 	}
 
@@ -314,15 +316,15 @@ class ClientPrefs {
 	}
 
 	public static function getGhostTapping() {
-		return PlayState.instance?.replayPlayer?.data?.ghost_tapping ?? data.ghostTapping;
+		return PlayState.replayData?.ghost_tapping ?? data.ghostTapping;
 	}
 
 	public static function getRatingOffset() {
-		return PlayState.instance?.replayPlayer?.data?.rating_offset ?? data.ratingOffset;
+		return PlayState.replayData?.rating_offset ?? data.ratingOffset;
 	}
 
 	public static function getSafeFrames() {
-		return PlayState.instance?.replayPlayer?.data?.safe_frames ?? data.safeFrames;
+		return PlayState.replayData?.safe_frames ?? data.safeFrames;
 	}
 
 	public static function getRGBColor(player:Int = 0):Array<Array<FlxColor>> {

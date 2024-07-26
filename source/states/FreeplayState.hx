@@ -1,5 +1,8 @@
 package states;
 
+import online.replay.ReplayPlayer;
+import online.replay.ReplayRecorder.ReplayData;
+import json2object.JsonParser;
 import flixel.effects.FlxFlicker;
 import online.Scoreboard;
 import online.net.Leaderboard;
@@ -89,7 +92,7 @@ class FreeplayState extends MusicBeatState
 
 	var topTitle:Alphabet = new Alphabet(0, 0, "LEADERBOARD", true);
 	var topLoading:Alphabet = new Alphabet(0, 0, "LOADING", true);
-	var topShit:Scoreboard = new Scoreboard(FlxG.width - 200, 35, 15, ["PLAYER", "SCORE", "ACCURACY"]);
+	var topShit:Scoreboard = new Scoreboard(FlxG.width - 200, 32, 15, ["PLAYER", "SCORE", "ACCURACY"]);
 
 	var _substateIsModifiers = false;
 
@@ -291,6 +294,13 @@ class FreeplayState extends MusicBeatState
 		}
 
 		super.create();
+	}
+
+	override function destroy() {
+		super.destroy();
+
+		if (leaderboardTimer != null)
+			leaderboardTimer.cancel();
 	}
 
 	override function closeSubState() {
@@ -676,7 +686,9 @@ class FreeplayState extends MusicBeatState
 	}
 
 	function playReplay(replayData:String, ?replayID:String) {
-		PlayState.replayData = Json.parse(replayData);
+		var shit = Json.parse(replayData);
+		PlayState.replayData = cast shit;
+		PlayState.replayData.gameplay_modifiers = ReplayPlayer.objToMap(shit.gameplay_modifiers);
 		PlayState.replayID = replayID;
 
 		var songLowercase:String = Paths.formatToSongPath(songs[curSelected].songName);
@@ -711,7 +723,11 @@ class FreeplayState extends MusicBeatState
 			var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
 			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
 			
+			var uhhPage = curPage;
 			Leaderboard.fetchLeaderboard(curPage, filterCharacters(PlayState.SONG.song) + "-" + filterCharacters(Difficulty.getString(curDifficulty)) + "-" + filterCharacters(Md5.encode(Song.loadRawSong(poop, songs[curSelected].songName.toLowerCase()))), top -> {
+				if (uhhPage != curPage || !topShit.exists)
+					return;
+
 				this.top = top;
 
 				if (top == null) {
@@ -719,8 +735,22 @@ class FreeplayState extends MusicBeatState
 					return;
 				}
 
+				var coolColor:Null<FlxColor> = null;
 				for (i in 0...top.length) {
-					topShit.setRow(i, [(i + 1 + curPage * 15) + ". " + top[i].player, top[i].score, top[i].accuracy + "%"]);
+					if (curPage == 0) {
+						switch (i) {
+							case 0:
+								coolColor = FlxColor.ORANGE;
+							default:
+								coolColor = null;
+						}
+					}
+					
+					topShit.setRow(i, [
+						(i + 1 + curPage * 15) + ". " + top[i].player,
+						top[i].score + " - " + top[i].points + "FP",
+						top[i].accuracy + "%" + (top[i].misses == 0 ? " - FC" : "")
+					], coolColor);
 				}
 
 				if (selected) {

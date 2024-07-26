@@ -46,6 +46,9 @@ class PTopSubState extends MusicBeatSubstate {
 		try {
 			Leaderboard.fetchPlayerLeaderboard(curPage, top -> {
 				LoadingScreen.toggle(false);
+				if (!topShit.exists)
+					return;
+
                 this.top = top ?? [];
 
 				if (top == null) {
@@ -53,8 +56,17 @@ class PTopSubState extends MusicBeatSubstate {
                     return;
                 }
 
+				var coolColor:Null<FlxColor> = null;
 				for (i in 0...top.length) {
-					topShit.setRow(i, [(i + 1 + curPage * 15) + ". " + top[i].player, top[i].points]);
+					if (curPage == 0) {
+						switch (i) {
+							case 0:
+								coolColor = FlxColor.ORANGE;
+							default:
+								coolColor = null;
+						}
+					}
+					topShit.setRow(i, [(i + 1 + curPage * 15) + ". " + top[i].player, top[i].points], coolColor);
 				}
 			});
 		}
@@ -65,6 +77,9 @@ class PTopSubState extends MusicBeatSubstate {
 
 	override function destroy() {
 		super.destroy();
+
+		if (leaderboardTimer != null)
+			leaderboardTimer.cancel();
 
 		for (cam in FlxG.cameras.list) {
 			if (cam?.filters != null)

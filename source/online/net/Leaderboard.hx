@@ -90,4 +90,5 @@ typedef TopScore = {
 	var player:String;
 	var submitted:String;
 	var id:String;
+	var misses:Float;
 }

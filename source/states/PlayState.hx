@@ -492,6 +492,9 @@ class PlayState extends MusicBeatState
 			// for lua
 			instance = this;
 
+			if (GameClient.isConnected())
+				replayData = null;
+
 			PauseSubState.songName = null; // Reset to default
 			playbackRate = ClientPrefs.getGameplaySetting('songspeed');
 			fullComboFunction = fullComboUpdate;
@@ -3220,6 +3223,8 @@ class PlayState extends MusicBeatState
 	public var showCombo:Bool = false;
 	public var showComboNum:Bool = true;
 	public var showRating:Bool = true;
+	public var noteTimingRating:FlxText;
+	public var noteTimingRatingTween:FlxTween;
 
 	// Stores Ratings and Combo Sprites in a group
 	public var comboGroup:FlxSpriteGroup;
@@ -3382,7 +3387,8 @@ class PlayState extends MusicBeatState
 
 	private function popUpScore(note:Note = null):Rating
 	{
-		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.getRatingOffset());
+		var noteDiffNoAbs:Float = note.strumTime - Conductor.songPosition + ClientPrefs.getRatingOffset();
+		var noteDiff:Float = Math.abs(noteDiffNoAbs);
 		getPlayerVocals().volume = 1;
 
 		var placement:Float = FlxG.width * 0.35;
@@ -3490,6 +3496,40 @@ class PlayState extends MusicBeatState
 		comboSpr.updateHitbox();
 		rating.updateHitbox();
 
+		// i miss kade engine
+		if (ClientPrefs.data.showNoteTiming && (!ClientPrefs.data.hideHud && showRating) && noteTimingRating == null) {
+			add(noteTimingRating = new FlxText(0, 0, 0, "0ms"));
+		}
+		else if (noteTimingRating == null) {
+			noteTimingRating = new FlxText(0, 0, 0, "0ms");
+		}
+		switch (daRating.name) {
+			case 'shit' | 'bad':
+				noteTimingRating.color = FlxColor.RED;
+			case 'good':
+				noteTimingRating.color = FlxColor.LIME;
+			case 'sick':
+				noteTimingRating.color = FlxColor.CYAN;
+		}
+		noteTimingRating.borderStyle = OUTLINE;
+		noteTimingRating.borderSize = 1;
+		noteTimingRating.borderColor = FlxColor.BLACK;
+		noteTimingRating.text = FlxMath.roundDecimal(noteDiffNoAbs / playbackRate, 3) + "ms";
+		noteTimingRating.size = 20;
+		noteTimingRating.camera = camHUD;
+		noteTimingRating.alpha = 1;
+		noteTimingRating.active = true;
+
+		if (noteTimingRatingTween != null) {
+			noteTimingRatingTween.cancel();
+		}
+
+		noteTimingRating.x = comboSpr.x + 100;
+		noteTimingRating.y = comboSpr.y + comboSpr.height;
+		noteTimingRating.acceleration.y = 600;
+		noteTimingRating.velocity.y -= 150;
+		noteTimingRating.velocity.x += comboSpr.velocity.x;
+
 		var seperatedScore:Array<Int> = [];
 
 		if(combo >= 1000) {
@@ -3567,6 +3607,13 @@ class PlayState extends MusicBeatState
 			},
 			startDelay: Conductor.crochet * 0.002 / playbackRate
 		});
+
+		if (ClientPrefs.data.showNoteTiming) {
+			noteTimingRatingTween = FlxTween.tween(noteTimingRating, {alpha: 0}, 0.2 / playbackRate, {
+				startDelay: Conductor.crochet * 0.001 / playbackRate,
+				onComplete: (t) -> noteTimingRating.active = false
+			});
+		}
 
 		return daRating;
 	}

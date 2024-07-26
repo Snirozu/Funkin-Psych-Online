@@ -210,7 +210,7 @@ class OnlineMods {
 			}
 		}
 
-		trace(modName);
+		trace(modName, parentFolder);
 		
 		if (beginFolder == null) {
 			Waiter.put(() -> {
