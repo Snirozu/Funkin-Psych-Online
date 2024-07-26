@@ -129,8 +129,8 @@ class GameClient {
 	}
 
 	public static function reconnect(?nextTry:Bool = false) {
-		leaveRoom();
-		return;
+		// leaveRoom();
+		// return;
 		//i give up on reconnection stuff, probably a colyseus bug
 		// reconnection token invalid or expired?
 		// i literally give it infinite seconds to reconnect again?
@@ -138,7 +138,8 @@ class GameClient {
 		if (nextTry)
 			reconnectTries--;
 		else {
-			reconnectTries = 5;
+			Alert.alert("Reconnecting...");
+			reconnectTries = 15;
 		}
 		
 		client.reconnect(room.reconnectionToken, GameRoom, (err, room) -> {
