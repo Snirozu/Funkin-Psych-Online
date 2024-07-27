@@ -78,7 +78,7 @@ class SaveVariables {
 	public var disableStrumMovement:Bool = false;
 	public var unlockFramerate:Bool = false;
 	public var debugMode:Bool = false;
-	public var recordReplays:Bool = false;
+	public var disableReplays:Bool = false;
 	public var networkAuthID:String = null;
 	public var networkAuthToken:String = null;
 	public var disableSubmiting:Bool = false;
