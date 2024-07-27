@@ -1065,7 +1065,7 @@ class PlayState extends MusicBeatState
 				FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 				FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
-				if (ClientPrefs.data.recordReplays && !isInvalidScore() && !chartingMode) {
+				if (!ClientPrefs.data.disableReplays && !isInvalidScore() && !chartingMode) {
 					add(replayRecorder = new ReplayRecorder(this));
 				}
 			}
