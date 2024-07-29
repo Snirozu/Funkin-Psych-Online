@@ -40,6 +40,8 @@ class RoomState extends MusicBeatState {
 	var p1Layer:FlxTypedGroup<Character> = new FlxTypedGroup<Character>();
 	var p2Layer:FlxTypedGroup<Character> = new FlxTypedGroup<Character>();
 
+	var dlSkinTxt:FlxText;
+
 	var curSelected:Int = -1;
 	var items:FlxTypedGroup<FlxSprite>;
 	var settingsIconBg:FlxSprite;
@@ -79,7 +81,7 @@ class RoomState extends MusicBeatState {
 
 		GameClient.room.onMessage("checkChart", function(message) {
 			Waiter.put(() -> {
-				verifyDownloadMod(true);
+				verifyDownloadMod(false);
 			});
 		});
 
@@ -93,13 +95,13 @@ class RoomState extends MusicBeatState {
 		GameClient.room.state.player1.listen("skinName", (value, prev) -> {
 			if (value == prev) return;
 			Waiter.put(() -> {
-				loadCharacter(true);
+				loadCharacter(true, true);
 			});
 		});
 		GameClient.room.state.player2.listen("skinName", (value, prev) -> {
 			if (value == prev) return;
 			Waiter.put(() -> {
-				loadCharacter(false);
+				loadCharacter(false, true);
 			});
 		});
 
@@ -218,8 +220,8 @@ class RoomState extends MusicBeatState {
 		add(p1Layer);
 		add(p2Layer);
 
-		loadCharacter(true);
-		loadCharacter(false);
+		loadCharacter(true, true);
+		loadCharacter(false, true);
 
 		// POST STAGE
 
@@ -371,6 +373,11 @@ class RoomState extends MusicBeatState {
 		groupHUD.add(verifyModBg);
 		items.add(verifyMod);
 
+		dlSkinTxt = new FlxText(0, 0, 0, "Download");
+		dlSkinTxt.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		dlSkinTxt.visible = false;
+		groupHUD.add(dlSkinTxt);
+
 		groupHUD.add(items);
 
 		itemTipBg = new FlxSprite(-1000);
@@ -391,12 +398,12 @@ class RoomState extends MusicBeatState {
 		FlxG.mouse.visible = true;
 		FlxG.autoPause = false;
 
-		verifyDownloadMod(true);
+		verifyDownloadMod(false);
 
 		GameClient.send("status", "In the Lobby");
 	}
 
-	function loadCharacter(isP1:Bool, ?enableDownload:Bool = true) {
+	function loadCharacter(isP1:Bool, ?enableDownload:Bool = false, ?manualDownload:Bool = false) {
 		var oldModDir = Mods.currentModDirectory;
 
 		if (isP1) {
@@ -416,7 +423,7 @@ class RoomState extends MusicBeatState {
 			}
 			else if (enableDownload && GameClient.room.state.player1.skinURL != null) {
 				waitingForPlayer1Skin = true;
-				OnlineMods.downloadMod(GameClient.room.state.player1.skinURL, (_) -> {
+				OnlineMods.downloadMod(GameClient.room.state.player1.skinURL, manualDownload, (_) -> {
 					if (destroyed)
 						return;
 
@@ -448,7 +455,7 @@ class RoomState extends MusicBeatState {
 			}
 			else if (enableDownload && GameClient.room.state.player2.skinURL != null) {
 				waitingForPlayer2Skin = true;
-				OnlineMods.downloadMod(GameClient.room.state.player2.skinURL, (_) -> {
+				OnlineMods.downloadMod(GameClient.room.state.player2.skinURL, manualDownload, (_) -> {
 					if (destroyed)
 						return;
 
@@ -732,7 +739,7 @@ class RoomState extends MusicBeatState {
 							optionShake = FlxTween.shake(songName, 0.05, 0.3, FlxAxes.X);
 						}
 					case 5:
-						if (verifyDownloadMod()) {
+						if (verifyDownloadMod(true)) {
 							GameClient.clearOnMessage();
 							FlxG.switchState(() -> new BananaDownload());
 						}
@@ -744,6 +751,13 @@ class RoomState extends MusicBeatState {
 			}
 		}
 
+		if (waitingForPlayer1Skin && FlxG.mouse.justPressed && FlxG.mouse.overlaps(p1)) {
+			loadCharacter(true, true, true);
+		}
+		else if (waitingForPlayer2Skin && FlxG.mouse.justPressed && FlxG.mouse.overlaps(p2)) {
+			loadCharacter(false, true, true);
+		}
+
         super.update(elapsed);
 
 		updateTexts();
@@ -752,7 +766,7 @@ class RoomState extends MusicBeatState {
 			Conductor.songPosition = FlxG.sound.music.time;
     }
 	
-	function verifyDownloadMod(?ignoreAlert:Bool = false) {
+	function verifyDownloadMod(manual:Bool, ?ignoreAlert:Bool = false) {
 		try {
 			if (GameClient.room.state.song == "") {
 				if (ignoreAlert)
@@ -796,7 +810,7 @@ class RoomState extends MusicBeatState {
 			}
 
 			if (GameClient.room.state.modDir != null && GameClient.room.state.modURL != null && GameClient.room.state.modURL != "") {
-				OnlineMods.downloadMod(GameClient.room.state.modURL, (mod) -> {
+				OnlineMods.downloadMod(GameClient.room.state.modURL, manual, (mod) -> {
 					if (destroyed)
 						return;
 
@@ -863,7 +877,7 @@ class RoomState extends MusicBeatState {
 		songNameBg.updateHitbox();
 		songNameBg.x = songName.x;
 
-		setPlayerText(player1Text, GameClient.room.state.player1);
+		setPlayerText(player1Text, GameClient.room.state.player1, waitingForPlayer1Skin);
 
 		if (GameClient.room.state.player2 != null && GameClient.room.state.player2.name != "") {
 			player2Text.alpha = 1;
@@ -871,7 +885,10 @@ class RoomState extends MusicBeatState {
 			p2.colorTransform.greenOffset = 0;
 			p2.colorTransform.blueOffset = 0;
 			p2.alpha = 1;
-			setPlayerText(player2Text, GameClient.room.state.player2);
+			dlSkinTxt.visible = waitingForPlayer2Skin;
+			if (waitingForPlayer2Skin)
+				dlSkinTxt.setPosition(p2.x + p2.width / 2 - dlSkinTxt.width / 2, p2.y + p2.height / 2 - dlSkinTxt.height / 2);
+			setPlayerText(player2Text, GameClient.room.state.player2, waitingForPlayer2Skin);
         }
         else {
 			if (p2.curCharacter != "default-player")
@@ -941,7 +958,7 @@ class RoomState extends MusicBeatState {
 	var yellowMarker:FlxTextFormatMarkerPair;
 	var pingMarker:FlxTextFormatMarkerPair;
 
-	function setPlayerText(text:FlxText, player:Player) {
+	function setPlayerText(text:FlxText, player:Player, noSkin:Bool) {
 		if (yellowMarker == null)
 			yellowMarker = new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.YELLOW), "<y>");
 		if (pingMarker == null)
@@ -958,7 +975,8 @@ class RoomState extends MusicBeatState {
             "Points: " + player.points + "\n" +
 			"Ping: <p>" + player.ping + "ms<p>\n\n" +
 			player.status + "\n" +
-			(!player.isReady ? "NOT " : "") + "READY"
+			(!player.isReady ? "NOT " : "") + "READY" +
+			(noSkin ? "\n(Unloaded Skin)" : "")
 		, [yellowMarker, pingMarker]);
 	}
 

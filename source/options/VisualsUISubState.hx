@@ -164,6 +164,12 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Disable Automatic Downloads',
+			'Disables automatic downloads of Mods and Skins from the opponent',
+			'disableAutoDownloads',
+			'bool');
+		addOption(option);
+
 		super();
 		add(notes);
 	}

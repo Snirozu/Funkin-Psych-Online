@@ -83,6 +83,7 @@ class SaveVariables {
 	public var networkAuthToken:String = null;
 	public var disableSubmiting:Bool = false;
 	public var showNoteTiming:Bool = false;
+	public var disableAutoDownloads:Bool = false;
 
 	public function new()
 	{
