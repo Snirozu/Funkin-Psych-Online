@@ -268,7 +268,7 @@ class Main extends Sprite
 
 		if (!FileSystem.exists("./crash/"))
 			FileSystem.createDirectory("./crash/");
-		File.saveContent(path, alertMsg + "\n");
+		File.saveContent(path, alertMsg + "\n\n === \n\nCommit: " + GIT_COMMIT + "\n");
 		Sys.println("Crash dump saved in " + Path.normalize(path));
 		
 		#if (windows && cpp)
