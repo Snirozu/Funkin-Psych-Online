@@ -2215,6 +2215,8 @@ class PlayState extends MusicBeatState
 	var startedCountdown:Bool = false;
 	public var canPause:Bool = true;
 
+	public var disableForceShow:Bool = false;
+
 	override public function update(elapsed:Float)
 	{
 		if (!isCreated) {
@@ -2433,7 +2435,7 @@ class PlayState extends MusicBeatState
 							if(!daNote.mustPress) strumGroup = opponentStrums;
 
 							var strum:StrumNote = strumGroup.members[daNote.noteData];
-							if (!playsAsBF()) {
+							if (!playsAsBF() && !disableForceShow) {
 								forceShowOpStrums = true;
 								daNote.visible = true;
 								daNote.noteAlpha = 1;
