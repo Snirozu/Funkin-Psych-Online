@@ -81,7 +81,7 @@ class BananaDownload extends MusicBeatState {
 					openModDownloads(Std.parseFloat(searchInput.text.substr("https://gamebanana.com/mods/".length)));
 					return;
 				}
-				OnlineMods.downloadMod(searchInput.text);
+				OnlineMods.downloadMod(searchInput.text, true);
 				searchInput.text = "";
 			}
 			else

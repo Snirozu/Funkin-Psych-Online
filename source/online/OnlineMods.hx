@@ -48,7 +48,10 @@ class OnlineMods {
 		File.saveContent(Paths.mods(mod + "/mod_url.txt"), url);
 	}
 
-	public static function downloadMod(url:String, ?onSuccess:String->Void) {
+	public static function downloadMod(url:String, manual:Bool, ?onSuccess:String->Void) {
+		if (!manual && ClientPrefs.data.disableAutoDownloads)
+			return;
+
 		if (url == null || url.trim() == "")
 			return;
 

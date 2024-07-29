@@ -229,7 +229,7 @@ class ModsMenuState extends MusicBeatState
 				return;
 			}
 			var oldModName = modsList[curSelected][0];
-			OnlineMods.downloadMod(modURL, modName -> {
+			OnlineMods.downloadMod(modURL, true, modName -> {
 				if (modName != oldModName) {
 					Sys.println("names conflict: " + modName + " to " + oldModName);
 					var list:ModsList = Mods.parseList();

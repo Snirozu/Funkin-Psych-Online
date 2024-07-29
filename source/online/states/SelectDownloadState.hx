@@ -192,7 +192,7 @@ class DownloadBox extends FlxSpriteGroup {
 
 			@:privateAccess
 			if (SelectDownloadState.instance.controls.ACCEPT || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(bg, camera))) {
-				OnlineMods.downloadMod(url);
+				OnlineMods.downloadMod(url, true);
 				SelectDownloadState.instance.close();
 			}
 		}
