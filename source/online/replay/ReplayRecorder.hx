@@ -69,14 +69,15 @@ class ReplayRecorder extends FlxBasic {
 		data.chart_hash = Md5.encode(Song.loadRawSong(Highscore.formatSong(PlayState.SONG.song, PlayState.storyDifficulty), PlayState.SONG.song));
 
 		for (id => binds in state.controls.keyboardBinds) {
-            for (bind in binds) {
-				if (REGISTER_BINDS.contains(id)) {
-					if (keyboardIds.exists(bind))
-						keyboardIds.get(bind).push(id);
-					else
-						keyboardIds.set(bind, [id]);
+			if (binds != null)
+				for (bind in binds) {
+					if (REGISTER_BINDS.contains(id)) {
+						if (keyboardIds.exists(bind))
+							keyboardIds.get(bind).push(id);
+						else
+							keyboardIds.set(bind, [id]);
+					}
 				}
-            }
 		}
 
 		for (id => binds in state.controls.gamepadBinds) {
