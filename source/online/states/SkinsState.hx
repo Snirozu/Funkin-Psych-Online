@@ -225,7 +225,11 @@ class SkinsState extends MusicBeatState {
 
         if (controls.ACCEPT) {
 			var charName = charactersName.get(curCharacter);
-			charName = !flipped ? charName : charName.substring(0, charName.length - "-player".length);
+			if (charName.endsWith("-player"))
+				charName = charName.substring(0, charName.length - "-player".length);
+			
+			if (charName.endsWith("-pixel"))
+				charName = charName.substring(0, charName.length - "-pixel".length);
 
 			if (charName == "default")
 				ClientPrefs.data.modSkin = null;
@@ -317,7 +321,10 @@ class SkinsState extends MusicBeatState {
 
     function isEquiped(mod:String, skin:String) {
 		if (skin.endsWith("-player"))
-			skin = !flipped ? skin : skin.substring(0, skin.length - "-player".length);
+			skin = skin.substring(0, skin.length - "-player".length);
+
+		if (skin.endsWith("-pixel"))
+			skin = skin.substring(0, skin.length - "-pixel".length);
 
 		if (skin == "default" && ClientPrefs.data.modSkin == null) {
             return true;
