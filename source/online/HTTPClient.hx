@@ -85,7 +85,7 @@ class HTTPClient {
             
             if (request.bodyOutput != null)
 				if (bodySize > 0) {
-                    while (_bytesWritten > 0) {
+					while (receivedContent < bodySize) {
                         try {
                             _bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
                             request.bodyOutput.writeBytes(buffer, 0, _bytesWritten);
@@ -120,7 +120,7 @@ class HTTPClient {
             else {
 				response.body = "";
                 if (bodySize > 0) {
-					while (_bytesWritten > 0) {
+					while (receivedContent < bodySize) {
 						try {
 							_bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
 							response.body += buffer.getString(0, _bytesWritten);
