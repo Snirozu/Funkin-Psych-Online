@@ -140,7 +140,13 @@ class FunkinNetwork {
 		if (response == null)
 			return null;
 
-		return Json.parse(response.body);
+		try {
+			return Json.parse(response.body);
+		}
+		catch (exc) {
+			trace(exc);
+			return null;
+		}
 	}
 
 	public static function requestAPI(request:HTTPRequest):Null<HTTPResponse> {
