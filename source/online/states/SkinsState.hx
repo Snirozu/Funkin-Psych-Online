@@ -124,6 +124,7 @@ class SkinsState extends MusicBeatState {
 		swagText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		swagText.alpha = 0.4;
 		swagText.cameras = [hud];
+		swagText.x = FlxG.width - swagText.width - 10;
 		add(swagText);
 
 		title = new Alphabet(0, 0, "BOYFRIEND", true);

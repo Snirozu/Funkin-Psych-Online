@@ -26,6 +26,7 @@ class ReplayPlayer extends FlxBasic {
 
         state.controls.moodyBlues = this;
 		events = data.inputs.copy();
+		Conductor.judgePlaybackRate = data.gameplay_modifiers.get('songspeed');
 
         state.botplayVisibility = true;
         state.botplayTxt.text = data.player + "'s\nREPLAY";
@@ -64,6 +65,13 @@ class ReplayPlayer extends FlxBasic {
 
 		while (events.length > 0 && events[0][0] <= Conductor.songPosition - (ClientPrefs.data.noteOffset - data.note_offset)) {
 			_key = events[0][1];
+
+			Conductor.judgeSongPosition = events[0][0] + (ClientPrefs.data.noteOffset - data.note_offset);
+
+			if (Conductor.judgeSongPosition - Conductor.songPosition <= -20) {
+				Conductor.songPosition = events[0][0] + (ClientPrefs.data.noteOffset - data.note_offset);
+                state.resyncVocals(false);
+            }
 
 			if (ReplayRecorder.REGISTER_BINDS.contains(_key)) {
                 if (events[0][2] == 0) {

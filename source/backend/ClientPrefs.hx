@@ -63,9 +63,9 @@ class SaveVariables {
 
 	public var comboOffset:Array<Int> = [0, 0, 0, 0];
 	public var ratingOffset:Int = 0;
-	public var sickWindow:Int = 45;
-	public var goodWindow:Int = 90;
-	public var badWindow:Int = 135;
+	public final sickWindow:Int = 45;
+	public final goodWindow:Int = 90;
+	public final badWindow:Int = 135;
 	public var safeFrames:Float = 10;
 	public var discordRPC:Bool = true;
 	//ONLINE
