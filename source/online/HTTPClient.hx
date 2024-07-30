@@ -141,6 +141,7 @@ class HTTPClient {
                             _bytesWritten = Std.parseInt('0x' + socket.input.readLine());
                             response.body += socket.input.readString(_bytesWritten, UTF8);
                             receivedContent += _bytesWritten;
+                        }
                         catch (e:Dynamic) {
 							if (e is Eof || e == Error.Blocked) {
 								// Eof and Blocked will be ignored
