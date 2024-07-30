@@ -16,6 +16,7 @@ import haxe.Json;
 class FunkinNetwork {
 	public static var client:HTTPClient = null;
 	public static var nickname(default, null):String = null;
+	public static var points(default, null):Float = 0;
 	public static var loggedIn:Bool = false;
 
 	public static function login(id:String, secret:String) {
@@ -41,6 +42,7 @@ class FunkinNetwork {
 		ClientPrefs.saveSettings();
 		loggedIn = false;
 		nickname = null;
+		points = 0;
 	}
 
 	public static function getAuthHeader(?authID:String, ?authToken:String) {
@@ -52,14 +54,16 @@ class FunkinNetwork {
 			return loggedIn = false;
 
 		var response = requestAPI({
-			path: "/api/network/account/ping",
+			path: "/api/network/account/me",
 			headers: ["authorization" => getAuthHeader()]
 		});
 
 		if (response == null)
 			return loggedIn = false;
 
-		nickname = response.body;
+		var json = Json.parse(response.body);
+		nickname = json.name;
+		points = json.points;
 		return loggedIn = true;
 	}
 

@@ -22,6 +22,7 @@ class OnlineState extends MusicBeatState {
     ];
 
 	var networkPlayer:FlxText;
+	var networkBg:FlxSprite;
 	var itemDesc:FlxText;
 	var playersOnline:FlxText;
 
@@ -180,11 +181,22 @@ class OnlineState extends MusicBeatState {
 		availableRooms.screenCenter(X);
 		add(availableRooms);
 
+		networkBg = new FlxSprite(20, 20);
+		networkBg.makeGraphic(1, 1, FlxColor.BLACK);
+		networkBg.alpha = 0.6;
+		add(networkBg);
+
 		networkPlayer = new FlxText(30, 30);
 		networkPlayer.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		networkPlayer.alpha = 0.5;
 		networkPlayer.text = FunkinNetwork.loggedIn ? "Logged in as " + FunkinNetwork.nickname : "Not logged in";
+		if (FunkinNetwork.loggedIn) {
+			networkPlayer.text += "\nPoints:" + FunkinNetwork.points;
+		}
 		add(networkPlayer);
+
+		networkBg.scale.set(networkPlayer.width + 20, networkPlayer.height + 20);
+		networkBg.updateHitbox();
 
 		var frontMessage = new FlxText(0, 0, 500);
 		frontMessage.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -200,6 +212,7 @@ class OnlineState extends MusicBeatState {
 				if (data == null) {
 					playersOnline.text = "NETWORK OFFLINE";
 					networkPlayer.visible = false;
+					networkBg.visible = false;
 				}
 				else {
 					playersOnline.text = 'Players Online: ' + data.online;
