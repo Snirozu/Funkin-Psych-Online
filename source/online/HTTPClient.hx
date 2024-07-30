@@ -103,9 +103,17 @@ class HTTPClient {
                 }
                 else {
 					while (_bytesWritten > 0) {
-						_bytesWritten = Std.parseInt('0x' + socket.input.readLine());
-						request.bodyOutput.writeBytes(socket.input.read(_bytesWritten), 0, _bytesWritten);
-						receivedContent += _bytesWritten;
+						try {
+                            _bytesWritten = Std.parseInt('0x' + socket.input.readLine());
+                            request.bodyOutput.writeBytes(socket.input.read(_bytesWritten), 0, _bytesWritten);
+                            receivedContent += _bytesWritten;
+                        catch (e:Dynamic) {
+							if (e is Eof || e == Error.Blocked) {
+								// Eof and Blocked will be ignored
+								continue;
+							}
+							throw e;
+						}
 					}
                 }
             else {
@@ -128,9 +136,17 @@ class HTTPClient {
                 }
                 else {
 					while (_bytesWritten > 0) {
-						_bytesWritten = Std.parseInt('0x' + socket.input.readLine());
-						response.body += socket.input.readString(_bytesWritten, UTF8);
-						receivedContent += _bytesWritten;
+						try {
+                            _bytesWritten = Std.parseInt('0x' + socket.input.readLine());
+                            response.body += socket.input.readString(_bytesWritten, UTF8);
+                            receivedContent += _bytesWritten;
+                        catch (e:Dynamic) {
+							if (e is Eof || e == Error.Blocked) {
+								// Eof and Blocked will be ignored
+								continue;
+							}
+							throw e;
+						}
 					}
                 }
             }
