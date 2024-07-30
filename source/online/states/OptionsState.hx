@@ -55,7 +55,6 @@ class OptionsState extends MusicBeatState {
 		}
 		items.add(serverOption = new InputOption("Server Address", "Set to empty if you want to use the default server\nLocal Address: 'ws://localhost:2567'" + appendText, GameClient.serverAddresses[0], text -> {
 			GameClient.serverAddress = curOption.input.text;
-			ClientPrefs.saveSettings();
 			try {
 				online.net.FunkinNetwork.ping();
 			}

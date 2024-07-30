@@ -434,6 +434,9 @@ class PlayState extends MusicBeatState
 	{
 		theWorld = true;
 
+		Conductor.judgeSongPosition = null;
+		Conductor.judgePlaybackRate = null;
+
 		if (GameClient.isConnected())
 			Lib.application.window.resizable = false;
 
@@ -1667,7 +1670,7 @@ class PlayState extends MusicBeatState
 			scoreTextObject.text = 'Score: ' + songScore + ' | Misses: ' + songMisses + ' | Rating: ' + str;
 		}
 
-		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate, songSpeed);
+		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, (Conductor.judgePlaybackRate ?? playbackRate), songSpeed);
 		if (points != songPoints) {
 			songPoints = points;
 			resetRPC(true);
@@ -2187,7 +2190,7 @@ class PlayState extends MusicBeatState
 		#end
 	}
 
-	function resyncVocals():Void
+	public function resyncVocals(?updateConductor = true):Void
 	{
 		if(finishTimer != null) return;
 
@@ -2196,7 +2199,8 @@ class PlayState extends MusicBeatState
 
 		FlxG.sound.music.play();
 		#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
-		Conductor.songPosition = FlxG.sound.music.time;
+		if (updateConductor)
+			Conductor.songPosition = FlxG.sound.music.time;
 		if (Conductor.songPosition <= vocals.length)
 		{
 			vocals.time = Conductor.songPosition;
@@ -2383,7 +2387,7 @@ class PlayState extends MusicBeatState
 
 		if (unspawnNotes[0] != null)
 		{
-			var time:Float = spawnTime * playbackRate;
+			var time:Float = spawnTime * (Conductor.judgePlaybackRate == null || Conductor.judgePlaybackRate < 1 ? playbackRate : Conductor.judgePlaybackRate);
 			if(songSpeed < 1) time /= songSpeed;
 			if(unspawnNotes[0].multSpeed < 1) time /= unspawnNotes[0].multSpeed;
 
@@ -3035,7 +3039,7 @@ class PlayState extends MusicBeatState
 	public var transitioning = false;
 	public function endSong()
 	{
-		songPoints = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate, songSpeed);
+		songPoints = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, (Conductor.judgePlaybackRate ?? playbackRate), songSpeed);
 
 		//Should kill you if you tried to cheat
 		if(!startingSong) {
@@ -3389,7 +3393,7 @@ class PlayState extends MusicBeatState
 
 	private function popUpScore(note:Note = null):Rating
 	{
-		var noteDiffNoAbs:Float = note.strumTime - Conductor.songPosition + ClientPrefs.getRatingOffset();
+		var noteDiffNoAbs:Float = note.strumTime - (Conductor.judgeSongPosition ?? Conductor.songPosition) + ClientPrefs.getRatingOffset();
 		var noteDiff:Float = Math.abs(noteDiffNoAbs);
 		getPlayerVocals().volume = 1;
 
@@ -3401,7 +3405,7 @@ class PlayState extends MusicBeatState
 		var score:Int = 350;
 
 		//tryna do MS based judgment due to popular demand
-		var daRating:Rating = Conductor.judgeNote(ratingsData, noteDiff / playbackRate);
+		var daRating:Rating = Conductor.judgeNote(ratingsData, noteDiff / (Conductor.judgePlaybackRate ?? playbackRate));
 
 		totalNotesHit += daRating.ratingMod;
 		note.ratingMod = daRating.ratingMod;
@@ -3516,7 +3520,7 @@ class PlayState extends MusicBeatState
 		noteTimingRating.borderStyle = OUTLINE;
 		noteTimingRating.borderSize = 1;
 		noteTimingRating.borderColor = FlxColor.BLACK;
-		noteTimingRating.text = FlxMath.roundDecimal(noteDiffNoAbs / playbackRate, 3) + "ms";
+		noteTimingRating.text = FlxMath.roundDecimal(noteDiffNoAbs / (Conductor.judgePlaybackRate ?? playbackRate), 3) + "ms";
 		noteTimingRating.size = 20;
 		noteTimingRating.camera = camHUD;
 		noteTimingRating.alpha = 1;
