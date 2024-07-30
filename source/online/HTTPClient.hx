@@ -79,42 +79,59 @@ class HTTPClient {
                 bodySize = Std.parseFloat(response.headers.get("content-length"));
 
             //read response body
-            var buffer:Bytes = Bytes.alloc(1024);
-            var _bytesWritten:Int = 0;
+			var buffer:Bytes = Bytes.alloc(1024);
+            var _bytesWritten:Int = 1;
             var receivedContent:Float = 0;
             
             if (request.bodyOutput != null)
-                while (receivedContent < bodySize) {
-                    try {
-                        _bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
-                        request.bodyOutput.writeBytes(buffer, 0, _bytesWritten);
-                        receivedContent += _bytesWritten;
-                    }
-                    catch (e:Dynamic) {
-                        if (e is Eof || e == Error.Blocked) {
-                            // Eof and Blocked will be ignored
-                            continue;
+				if (bodySize > 0) {
+                    while (_bytesWritten > 0) {
+                        try {
+                            _bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
+                            request.bodyOutput.writeBytes(buffer, 0, _bytesWritten);
+                            receivedContent += _bytesWritten;
                         }
-                        request.bodyOutput.close();
-                        throw e;
+                        catch (e:Dynamic) {
+                            if (e is Eof || e == Error.Blocked) {
+                                // Eof and Blocked will be ignored
+                                continue;
+                            }
+                            request.bodyOutput.close();
+                            throw e;
+                        }
                     }
                 }
+                else {
+					while (_bytesWritten > 0) {
+						_bytesWritten = Std.parseInt('0x' + socket.input.readLine());
+						request.bodyOutput.writeBytes(socket.input.read(_bytesWritten), 0, _bytesWritten);
+						receivedContent += _bytesWritten;
+					}
+                }
             else {
-				if (bodySize > 0)
-                    response.body = "";
-                while (receivedContent < bodySize) {
-                    try {
-                        _bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
-                        response.body += buffer.getString(0, _bytesWritten);
-                        receivedContent += _bytesWritten;
-                    }
-                    catch (e:Dynamic) {
-                        if (e is Eof || e == Error.Blocked) {
-                            // Eof and Blocked will be ignored
-                            continue;
-                        }
-                        throw e;
-                    }
+				response.body = "";
+                if (bodySize > 0) {
+					while (_bytesWritten > 0) {
+						try {
+							_bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
+							response.body += buffer.getString(0, _bytesWritten);
+							receivedContent += _bytesWritten;
+						}
+						catch (e:Dynamic) {
+							if (e is Eof || e == Error.Blocked) {
+								// Eof and Blocked will be ignored
+								continue;
+							}
+							throw e;
+						}
+					}
+                }
+                else {
+					while (_bytesWritten > 0) {
+						_bytesWritten = Std.parseInt('0x' + socket.input.readLine());
+						response.body += socket.input.readString(_bytesWritten, UTF8);
+						receivedContent += _bytesWritten;
+					}
                 }
             }
         }
