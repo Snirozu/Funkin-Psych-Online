@@ -107,6 +107,7 @@ class HTTPClient {
                             _bytesWritten = Std.parseInt('0x' + socket.input.readLine());
                             request.bodyOutput.writeBytes(socket.input.read(_bytesWritten), 0, _bytesWritten);
                             receivedContent += _bytesWritten;
+                        }
                         catch (e:Dynamic) {
 							if (e is Eof || e == Error.Blocked) {
 								// Eof and Blocked will be ignored
