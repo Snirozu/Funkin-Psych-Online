@@ -1,6 +1,11 @@
 {
   "dependencies": [
     {
+      "name": "hscript",
+      "type": "haxelib",
+      "version": "2.5.0"
+    },
+    {
       "name": "lime",
       "type": "haxelib",
       "version": "8.1.2"
