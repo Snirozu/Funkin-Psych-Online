@@ -1,5 +1,6 @@
 package backend;
 
+import haxe.io.Path;
 import flxanimate.FlxAnimate;
 import animateatlas.AtlasFrameMaker;
 
@@ -447,7 +448,7 @@ class Paths
 
 	#if MODS_ALLOWED
 	inline static public function mods(key:String = '') {
-		return 'mods/' + key;
+		return Path.normalize('mods/' + key);
 	}
 
 	inline static public function modsFont(key:String) {

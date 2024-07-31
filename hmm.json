@@ -100,6 +100,13 @@
       "dir": null,
       "ref": "dev",
       "url": "https://github.com/ShadowMario/flxanimate"
+    },
+    {
+      "name": "lumod",
+      "type": "git",
+      "dir": null,
+      "ref": "main",
+      "url": "https://github.com/Snirozu/Lumod"
     }
   ]
 }

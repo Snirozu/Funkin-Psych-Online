@@ -126,6 +126,7 @@
 	<haxelib name="json2object" />
 	<haxelib name="hxjsonast" />
 	<haxelib name="flxanimate" />
+	<haxelib name="lumod" />
 
 	<haxedef name="openflPos" />
 	<haxedef name="hscriptPos" />
@@ -133,6 +134,7 @@
 	<!-- Enables a terminal log prompt on debug builds -->
 	<haxelib name="hxcpp-debug-server" if="debug"/>
 	<haxedef name="HXC_LIBVLC_LOGGING" if="VIDEOS_ALLOWED debug" />
+	<haxedef name="LUMOD_HSCRIPT" />
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
