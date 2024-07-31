@@ -127,6 +127,7 @@
 	<haxelib name="hxjsonast" />
 	<haxelib name="flxanimate" />
 	<haxelib name="lumod" />
+	<haxelib name="hscript" />
 
 	<haxedef name="openflPos" />
 	<haxedef name="hscriptPos" />
