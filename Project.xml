@@ -127,10 +127,10 @@
 	<haxelib name="hxjsonast" />
 	<haxelib name="flxanimate" />
 	<haxelib name="lumod" />
-	<haxelib name="hscript" />
 
 	<haxedef name="openflPos" />
 	<haxedef name="hscriptPos" />
+	<haxedef name="hscript" />
 
 	<!-- Enables a terminal log prompt on debug builds -->
 	<haxelib name="hxcpp-debug-server" if="debug"/>
