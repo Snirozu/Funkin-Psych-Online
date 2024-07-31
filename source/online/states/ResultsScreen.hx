@@ -1,11 +1,13 @@
 package online.states;
 
+import lumod.Lumod;
 import flixel.util.FlxSpriteUtil;
 import flixel.effects.FlxFlicker;
 import sys.FileSystem;
 import objects.Character;
 import online.schema.Player;
 
+@:build(lumod.LuaScriptClass.build())
 class ResultsScreen extends MusicBeatState {
 	public static var gainedPoints:Float = 0;
 
@@ -33,6 +35,11 @@ class ResultsScreen extends MusicBeatState {
 	var dim:FlxSprite;
 	var spotlight:FlxSprite;
 
+	//required for lumod
+	public function new() {
+		super();
+	}
+
     override function create() {
         super.create();
 
@@ -41,6 +48,9 @@ class ResultsScreen extends MusicBeatState {
 		#end
         
         FlxG.sound.music.stop();
+
+		if (luaValue == false)
+			return;
 
 		FlxG.sound.playMusic(Paths.music('title'), 0);
 		FlxG.sound.music.onComplete = () -> {
@@ -282,6 +292,15 @@ class ResultsScreen extends MusicBeatState {
 
 	override function update(elapsed) {
         super.update(elapsed);
+
+		if (FlxG.keys.justPressed.F12) {
+			trace('reloading lumod');
+			Lumod.cache.scripts.clear();
+			luaLoad();
+		}
+
+		if (luaValue == false)
+			return;
 
 		if (!disableInput) {
 			if (back.animation.curAnim.name != "press")

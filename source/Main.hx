@@ -1,5 +1,6 @@
 package;
 
+import lumod.Lumod;
 #if AWAY_TEST
 import states.stages.AwayStage;
 #end
@@ -49,7 +50,7 @@ class Main extends Sprite
 	public static var stage3D:AwayStage;
 	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.7.3";
+	public static final PSYCH_ONLINE_VERSION:String = "0.7.4";
 	public static final CLIENT_PROTOCOL:Float = 3;
 	public static final GIT_COMMIT:String = online.Macros.getGitCommitHash();
 
@@ -100,6 +101,10 @@ class Main extends Sprite
 		}
 
 		CoolUtil.setDarkMode(true);
+
+		Lumod.get_scriptsRootPath = () -> {
+			return Lumod.scriptsRootPath = Paths.mods(Mods.currentModDirectory + "/lumod");
+		}
 
 		#if hl
 		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;

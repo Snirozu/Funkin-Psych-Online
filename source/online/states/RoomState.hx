@@ -1,5 +1,6 @@
 package online.states;
 
+import lumod.Lumod;
 import flixel.util.FlxAxes;
 import flixel.addons.display.FlxPieDial;
 import sys.FileSystem;
@@ -18,6 +19,7 @@ import backend.Song;
 import haxe.crypto.Md5;
 import states.FreeplayState;
 
+@:build(lumod.LuaScriptClass.build())
 class RoomState extends MusicBeatState {
 	//this shit is messy
 	var player1Text:FlxText;
@@ -526,6 +528,12 @@ class RoomState extends MusicBeatState {
 
 	var elapsedShit = 3.;
     override function update(elapsed:Float) {
+		if (FlxG.keys.justPressed.F12) {
+			trace('reloading lumod');
+			Lumod.cache.scripts.clear();
+			luaLoad();
+		}
+		
 		if (!GameClient.isConnected())
 			return;
 

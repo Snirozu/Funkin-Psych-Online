@@ -16,6 +16,7 @@ import sys.FileSystem;
 
 using StringTools;
 
+//TODO move to HTTPClient class (im lazy im lazy)
 class Downloader {
 	var socket:Socket;
 	var file:FileOutput;
@@ -38,7 +39,7 @@ class Downloader {
 	public var isDownloading:Bool = false;
 	public var isInstalling:Bool = false;
 
-	public var contentLength:Float = Math.POSITIVE_INFINITY;
+	public var contentLength:Float = 0;
 	public var gotContent:Float = 0;
 	
 	public function new(fileName:String, id:String, url:String, onFinished:(fileName:String, downloader:Downloader) -> Void, ?mod:GBMod, ?headers:Map<String, String>, ?ogURL:String) {
@@ -200,15 +201,6 @@ class Downloader {
 		if (gotHeaders.exists("content-length")) {
 			contentLength = Std.parseFloat(gotHeaders.get("content-length"));
 		}
-		else {
-			if (!cancelRequested) {
-				Waiter.put(() -> {
-					Alert.alert('Downloading failed!', "Server's response was empty!");
-				});
-			}
-			doCancel();
-			return;
-		}
 
 		if (!isMediaTypeAllowed(gotHeaders.get("content-type"))) {
 			if (!cancelRequested) {
@@ -242,20 +234,38 @@ class Downloader {
 			Sys.println("DHX: Starting the download!");
 		
 		var buffer:Bytes = Bytes.alloc(1024);
-		var _bytesWritten:Int = 0;
+		var _bytesWritten:Int = 1;
 		isDownloading = true;
-		while (gotContent < contentLength && !cancelRequested) {
-			try {
-				_bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
-				file.writeBytes(buffer, 0, _bytesWritten);
-				gotContent += _bytesWritten;
-			}
-			catch (e:Dynamic) {
-				if (e is Eof || e == Error.Blocked) {
-					// Eof and Blocked will be ignored
-					continue;
+		if (contentLength > 0) {
+			while (gotContent < contentLength && !cancelRequested) {
+				try {
+					_bytesWritten = socket.input.readBytes(buffer, 0, buffer.length);
+					file.writeBytes(buffer, 0, _bytesWritten);
+					gotContent += _bytesWritten;
 				}
-				throw e;
+				catch (e:Dynamic) {
+					if (e is Eof || e == Error.Blocked) {
+						// Eof and Blocked will be ignored
+						continue;
+					}
+					throw e;
+				}
+			}
+		}
+		else {
+			while (_bytesWritten > 0) {
+				try {
+					_bytesWritten = Std.parseInt('0x' + socket.input.readLine());
+					file.writeBytes(socket.input.read(_bytesWritten), 0, _bytesWritten);
+					gotContent += _bytesWritten;
+				}
+				catch (e:Dynamic) {
+					if (e is Eof || e == Error.Blocked) {
+						// Eof and Blocked will be ignored
+						continue;
+					}
+					throw e;
+				}
 			}
 		}
 		isDownloading = false;
