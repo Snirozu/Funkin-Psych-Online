@@ -10,9 +10,16 @@ body:
       required: true
 
   - type: textarea
+    id: description
+    attributes:
+      label: "Steps to reproduce this bug."
+    validations:
+      required: true
+
+  - type: textarea
     id: terminal
     attributes:
-      label: "Command Prompt/Terminal logs (if existing)"
+      label: "Command Prompt/Terminal logs"
       render: bash
     validations:
       required: false
@@ -20,31 +27,30 @@ body:
   - type: dropdown
     id: modding
     attributes:
-      label: "Are you modding a build from source or with Lua?"
+      label: "Have you modded the build?"
       options:
-        - Lua
-        - Source
-    validations:
-      required: true
-
-  - type: dropdown
-    id: btarget
-    attributes:
-      label: "What is your build target?"
-      options:
-        - "Windows"
-        - "Linux"
-        - "Mac"
-        - "HTML5"
-        - "Flash/Air-based target"
-        - "Neko, HashLink, or other build system"
+        - Yes, at Source Code level
+        - Yes, using Mods
+        - No
     validations:
       required: true
 
   - type: input
     id: buildsummary
     attributes:
-      label: "Did you edit anything in this build? If so, mention or summarize your changes."
-      placeholder: "Yes, I edited ClientPrefs.hx and tried to add a new setting"
+      label: "If you edited anything in this build, mention or summarize your changes."
+      placeholder: "I edited ClientPrefs.hx and tried to add a new setting"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: btarget
+    attributes:
+      label: "What is your platform?"
+      options:
+        - "Windows"
+        - "Linux"
+        - "MacOS"
+        - "Not in this list (WILL BE CLOSED)"
     validations:
       required: true
