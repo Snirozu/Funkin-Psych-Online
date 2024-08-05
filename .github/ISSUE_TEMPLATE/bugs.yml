@@ -10,7 +10,7 @@ body:
       required: true
 
   - type: textarea
-    id: description
+    id: reproduce
     attributes:
       label: "Steps to reproduce this bug."
     validations:
