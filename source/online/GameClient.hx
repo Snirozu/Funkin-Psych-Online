@@ -141,21 +141,38 @@ class GameClient {
 			Alert.alert("Reconnecting...");
 			reconnectTries = 15;
 		}
-		
-		client.reconnect(room.reconnectionToken, GameRoom, (err, room) -> {
-			if (err != null) {
-				if (reconnectTries <= 0) {
-					Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + err.code + " - " + err.message);
-					leaveRoom();
-				}
-				else {
-					new FlxTimer().start(0.5, t -> reconnect(true));
-				}
-				return;
-			}
 
-			_onJoin(err, room, GameClient.isOwner, GameClient.address);
-			reconnectTries = 0;
+		Thread.run(() -> {
+			try {
+				client.reconnect(room.reconnectionToken, GameRoom, (err, room) -> {
+					if (err != null) {
+						if (reconnectTries <= 0) {
+							Waiter.put(() -> {
+								Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + err.code + " - " + err.message);
+							});
+							leaveRoom();
+						}
+						else {
+							Waiter.put(() -> {
+								new FlxTimer().start(0.5, t -> reconnect(true));
+							});
+						}
+						return;
+					}
+
+					Waiter.put(() -> {
+						Alert.alert("Reconnected!");
+					});
+					_onJoin(err, room, GameClient.isOwner, GameClient.address);
+					reconnectTries = 0;
+				});
+			}
+			catch (exc) {
+				trace(exc);
+				Waiter.put(() -> {
+					new FlxTimer().start(0.5, t -> reconnect(true));
+				});
+			}
 		});
 	}
 
