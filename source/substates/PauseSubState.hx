@@ -59,9 +59,14 @@ class PauseSubState extends MusicBeatSubstate
 		}
 		if (PlayState.replayData != null) {
 			menuItemsOG.remove('Change Difficulty');
-			menuItemsOG.insert(2, 'Save Replay');
+			var num = 0;
+			if (!ClientPrefs.data.disableSongComments) {
+				menuItemsOG.insert(2, 'Leave a Comment Now');
+				num++;
+			}
+			menuItemsOG.insert(2 + num, 'Save Replay');
 			if (PlayState.replayID != null) {
-				menuItemsOG.insert(3, 'Report Replay');
+				menuItemsOG.insert(4 + num, 'Report Replay');
 			}
 		}
 		if (!ClientPrefs.data.disableSongComments && PlayState.instance.replayPlayer != null) {
