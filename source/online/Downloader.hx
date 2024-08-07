@@ -100,6 +100,7 @@ class Downloader {
 		"application/octet-stream", // unknown files
 		"application/vnd.rar",
 		"application/x-rar-compressed",
+		"application/x-rar",
 	];
 
 	public static function isMediaTypeAllowed(file:String) {
@@ -118,7 +119,6 @@ class Downloader {
 		var headers:String = "";
 		headers += '\nHost: ${urlFormat.domain}:${urlFormat.port}';
 		headers += '\nUser-Agent: haxe';
-		headers += '\nConnection: close';
 		if (requestHeaders != null) {
 			for (key => value in requestHeaders) {
 				headers += '\n$key: $value';
@@ -149,13 +149,15 @@ class Downloader {
 					Waiter.put(() -> {
 						Alert.alert('Server Error - $httpStatus', 'Retrying ($tries)...');
 					});
+					continue;
 				}
+
 				if (ClientPrefs.isDebug())
 					Sys.println("DHX: Got response headers!");
 				break;
 			}
 			catch (exc) {
-				if (tries >= 5) {
+				if (tries >= 30) {
 					trace(id + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
 					Waiter.put(() -> {
 						Alert.alert('Couldn\'t connect to the server after multiple tries!', '${urlFormat.domain + urlFormat.path}' + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
@@ -163,6 +165,7 @@ class Downloader {
 					cancelRequested = true;
 					break;
 				}
+
 				if (ClientPrefs.isDebug())
 					Sys.println("DHX: Retrying...");
 				Sys.sleep(1);
@@ -200,6 +203,8 @@ class Downloader {
 
 		if (gotHeaders.exists("content-length")) {
 			contentLength = Std.parseFloat(gotHeaders.get("content-length"));
+			if (ClientPrefs.isDebug())
+				Sys.println("DHX: Response size: " + contentLength);
 		}
 
 		if (!isMediaTypeAllowed(gotHeaders.get("content-type"))) {

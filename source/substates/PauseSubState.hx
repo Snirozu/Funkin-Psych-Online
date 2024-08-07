@@ -1,5 +1,6 @@
 package substates;
 
+import online.states.PostCommentSub;
 import sys.io.File;
 import online.net.Leaderboard;
 import haxe.Json;
@@ -62,6 +63,9 @@ class PauseSubState extends MusicBeatSubstate
 			if (PlayState.replayID != null) {
 				menuItemsOG.insert(3, 'Report Replay');
 			}
+		}
+		if (!ClientPrefs.data.disableSongComments && PlayState.instance.replayPlayer != null) {
+			menuItemsOG.insert(menuItemsOG.length - 2, 'Leave a Comment Now');
 		}
 		menuItems = menuItemsOG;
 
@@ -290,6 +294,12 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.instance.botplayTxt.visible = PlayState.instance.cpuControlled;
 					PlayState.instance.botplayTxt.alpha = 1;
 					PlayState.instance.botplaySine = 0;
+				case 'Leave a Comment Now':
+					close();
+					persistentUpdate = false;
+					persistentDraw = true;
+					PlayState.instance.paused = true;
+					PlayState.instance.openSubState(new PostCommentSub());
 				case 'Options':
 					PlayState.instance.paused = true; // For lua
 					PlayState.instance.vocals.volume = 0;

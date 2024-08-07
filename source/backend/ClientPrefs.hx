@@ -84,6 +84,7 @@ class SaveVariables {
 	public var disableSubmiting:Bool = false;
 	public var showNoteTiming:Bool = false;
 	public var disableAutoDownloads:Bool = false;
+	public var disableSongComments:Bool = false;
 
 	public function new()
 	{

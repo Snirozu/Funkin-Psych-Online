@@ -177,6 +177,22 @@ class DownloadBox extends FlxSpriteGroup {
 			bg.updateHitbox();
 		}
 
+		if (url.startsWith('https://drive.google.com/file/d/')) {
+			name.color = FlxColor.LIME;
+		}
+		else if (url.startsWith('https://gamebanana.com/') 
+			|| url.startsWith('https://www.mediafire.com/file/')
+			|| (url.startsWith('https://github.com/') && FileUtils.isArchiveSupported(url))) {
+			name.color = FlxColor.YELLOW;
+		}
+		else if (url.startsWith('https://drive.google.com/drive/folders/')
+			|| url.startsWith('https://gamejolt.com/')
+			|| url.startsWith('https://mega.nz/')
+			|| url.startsWith('https://mega.io/')
+			|| url.startsWith('https://github.com/')) {
+			name.color = FlxColor.RED;
+		}
+
 		screenCenter(X);
 	}
 
@@ -192,7 +208,12 @@ class DownloadBox extends FlxSpriteGroup {
 
 			@:privateAccess
 			if (SelectDownloadState.instance.controls.ACCEPT || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(bg, camera))) {
-				OnlineMods.downloadMod(url, true);
+				if (name.color == FlxColor.RED) {
+					RequestState.requestURL(url, true);
+				}
+				else {
+					OnlineMods.downloadMod(url, true);
+				}
 				SelectDownloadState.instance.close();
 			}
 		}
