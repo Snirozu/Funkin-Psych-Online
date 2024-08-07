@@ -170,6 +170,12 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Disable Song Comments',
+			'Disables song comments on the replay viewer',
+			'disableSongComments',
+			'bool');
+		addOption(option);
+
 		super();
 		add(notes);
 	}

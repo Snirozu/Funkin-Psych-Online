@@ -10,6 +10,10 @@ package states;
 // "function eventEarlyTrigger" - Used for making your event start a few MILLISECONDS earlier
 // "function triggerEvent" - Called when the song hits your event's timestamp, this is probably what you were looking for
 
+import online.states.PostCommentSub;
+import haxe.crypto.Md5;
+import online.net.FunkinNetwork;
+import online.InputText;
 import online.replay.ReplayRecorder.ReplayData;
 import online.replay.*;
 import openfl.geom.Point;
@@ -429,6 +433,8 @@ class PlayState extends MusicBeatState
 	}
 	public var replayRecorder:ReplayRecorder;
 	public var replayPlayer:ReplayPlayer;
+	
+	public var songId:String;
 
 	override public function create()
 	{
@@ -530,6 +536,11 @@ class PlayState extends MusicBeatState
 
 			Conductor.mapBPMChanges(SONG);
 			Conductor.bpm = SONG.bpm;
+
+			songId = FreeplayState.filterCharacters(PlayState.SONG.song) + "-" + 
+				FreeplayState.filterCharacters(Difficulty.getString()) + "-" + 
+				FreeplayState.filterCharacters(Md5.encode(Song.loadRawSong(Highscore.formatSong(PlayState.SONG.song, PlayState.storyDifficulty), PlayState.SONG.song)))
+			;
 
 			#if DISCORD_ALLOWED
 			storyDifficultyText = Difficulty.getString();
@@ -1071,6 +1082,12 @@ class PlayState extends MusicBeatState
 				if (!ClientPrefs.data.disableReplays && !isInvalidScore() && !chartingMode) {
 					add(replayRecorder = new ReplayRecorder(this));
 				}
+			}
+
+			if (!ClientPrefs.data.disableSongComments && replayPlayer != null) {
+				var comments = new online.NicommentsView(songId);
+				comments.cameras = [camOther];
+				add(comments);
 			}
 
 			Paths.clearUnusedMemory();

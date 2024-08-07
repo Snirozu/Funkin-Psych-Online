@@ -11,6 +11,7 @@ import haxe.crypto.Base64;
 import lime.ui.FileDialog;
 import haxe.Http;
 import haxe.Json;
+import online.NicommentsView.SongComment;
 
 @:unreflective
 class FunkinNetwork {
@@ -139,6 +140,47 @@ class FunkinNetwork {
 	public static function fetchFront():Dynamic {
 		var response = requestAPI({
 			path: "/api/front"
+		});
+
+		if (response == null)
+			return null;
+
+		try {
+			return Json.parse(response.body);
+		}
+		catch (exc) {
+			trace(exc);
+			return null;
+		}
+	}
+
+	public static function fetchSongComments(songId:String):Array<SongComment> {
+		var response = requestAPI({
+			path: "/api/network/song/comments?id=" + songId,
+		});
+
+		if (response == null)
+			return null;
+
+		try {
+			return Json.parse(response.body);
+		}
+		catch (exc) {
+			trace(exc);
+			return null;
+		}
+	}
+
+	public static function postSongComment(songId:String, content:String, at:Float):Array<SongComment> {
+		var response = requestAPI({
+			path: "/api/network/song/comment",
+			headers: ["authorization" => getAuthHeader(), "content-type" => "application/json"],
+			body: Json.stringify({
+				id: songId,
+				content: content,
+				at: at
+			}),
+			post: true
 		});
 
 		if (response == null)

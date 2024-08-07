@@ -764,7 +764,7 @@ class FreeplayState extends MusicBeatState
 		}
 	}
 
-	function filterCharacters(str:String) {
+	public static function filterCharacters(str:String) {
 		var re = ~/[A-Z]|[a-z]|[0-9]/g;
 		var finalStr = "";
 		for (i in 0...str.length) {
