@@ -69,9 +69,6 @@ class PauseSubState extends MusicBeatSubstate
 				menuItemsOG.insert(3 + num, 'Report Replay');
 			}
 		}
-		if (!ClientPrefs.data.disableSongComments && PlayState.instance.replayPlayer != null) {
-			menuItemsOG.insert(menuItemsOG.length - 2, 'Leave a Comment Now');
-		}
 		menuItems = menuItemsOG;
 
 		for (i in 0...Difficulty.list.length) {
