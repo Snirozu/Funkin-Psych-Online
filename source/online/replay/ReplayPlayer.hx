@@ -40,13 +40,20 @@ class ReplayPlayer extends FlxBasic {
 
     var _key:String = null;
     override function update(elapsed:Float) {
+        var shiftMult = FlxG.keys.pressed.SHIFT ? 3 : 1;
         if (state.controls.UI_LEFT) {
-			if (state.playbackRate - elapsed * 0.25 > 0)
-                state.playbackRate -= elapsed * 0.25;
+			if (state.playbackRate - elapsed * 0.25 * shiftMult > 0)
+				state.playbackRate -= elapsed * 0.25 * shiftMult;
+			if (state.playbackRate < 0.01) {
+				state.playbackRate = 0.01;
+			}
 			state.botplayTxt.text = data.player + "'s\nREPLAY\n" + '(${CoolUtil.floorDecimal(state.playbackRate, 2)}x)';
         }
         else if (state.controls.UI_RIGHT) {
-			state.playbackRate += elapsed * 0.25;
+			state.playbackRate += elapsed * 0.25 * shiftMult;
+            if (state.playbackRate > 4) {
+				state.playbackRate = 4;
+            }
 			state.botplayTxt.text = data.player + "'s\nREPLAY\n" + '(${CoolUtil.floorDecimal(state.playbackRate, 2)}x)';
         }
         else if (state.controls.RESET) {
@@ -68,7 +75,7 @@ class ReplayPlayer extends FlxBasic {
 
 			Conductor.judgeSongPosition = events[0][0] + (ClientPrefs.data.noteOffset - data.note_offset);
 
-			if (Conductor.judgeSongPosition - Conductor.songPosition <= -20) {
+			if (Conductor.judgeSongPosition - Conductor.songPosition <= -50) {
 				Conductor.songPosition = events[0][0] + (ClientPrefs.data.noteOffset - data.note_offset);
                 state.resyncVocals(false);
             }
@@ -98,6 +105,31 @@ class ReplayPlayer extends FlxBasic {
         }
 
         super.update(elapsed);
+    }
+
+    public function timeJump(time:Float) {
+		while (events.length > 0 && events[0][0] < time - (ClientPrefs.data.noteOffset - data.note_offset)) {
+			_key = events[0][1];
+
+			if (ReplayRecorder.REGISTER_BINDS.contains(_key)) {
+				if (events[0][2] == 0) {
+					pressedKeys.set(_key, JUST_PRESSED);
+				}
+				else {
+					pressedKeys.set(_key, JUST_RELEASED);
+				}
+			}
+			else if (_key == 'KEY:SHIFT' || _key == 'KEY:CONTROL' || _key == 'KEY:ALT' || _key == 'KEY:SPACE') {
+				if (events[0][2] == 0) {
+					pressedKeys.set(_key, JUST_PRESSED);
+				}
+				else {
+					pressedKeys.set(_key, JUST_RELEASED);
+				}
+			}
+
+			events.shift();
+        }
     }
 
     //haxe json class doesn't do it automatically? cool

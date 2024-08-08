@@ -48,7 +48,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		optionsArray.push(option);
 		#end
 
-		var option:GameplayOption = new GameplayOption('HP Gain Multiplier (Unranked)', 'healthgain', 'float', 1);
+		var option:GameplayOption = new GameplayOption('HP Gain Multiplier', 'healthgain', 'float', 1);
 		option.scrollSpeed = 2.5;
 		option.minValue = 0;
 		option.maxValue = 5;

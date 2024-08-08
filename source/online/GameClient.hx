@@ -25,6 +25,7 @@ class GameClient {
 	public static var isOwner:Bool;
 	public static var address:String;
 	public static var reconnectTries:Int = 0;
+	public static var reconnectToken:String;
 	public static var rpcClientRoomID:String;
 
 	/**
@@ -43,6 +44,7 @@ class GameClient {
 		
 		Thread.run(() -> {
 			client = new Client(address);
+			_pendingMessages = [];
 
 			client.create("room", getOptions(true), GameRoom, (err, room) -> _onJoin(err, room, true, address, onJoin));
 		}, (exc) -> {
@@ -67,6 +69,7 @@ class GameClient {
 
 		Thread.run(() -> {
 			client = new Client(roomAddress);
+			_pendingMessages = [];
 
 			client.joinById(roomID, getOptions(false), GameRoom, (err, room) -> _onJoin(err, room, false, roomAddress, onJoin));
 		}, (exc) -> {
@@ -80,6 +83,7 @@ class GameClient {
 		if (err != null) {
 			Alert.alert("Couldn't connect!", "JOIN ERROR: " + err.code + " - " + err.message);
 			client = null;
+			_pendingMessages = [];
 			onJoin(err);
 			LoadingScreen.toggle(false);
 			if (err.code == 5003)
@@ -91,6 +95,7 @@ class GameClient {
 		LoadingScreen.toggle(false);
 
 		GameClient.room = room;
+		GameClient.reconnectToken = room.reconnectionToken;
 		GameClient.isOwner = isHost;
 		GameClient.address = address;
 		GameClient.rpcClientRoomID = Md5.encode(FlxG.random.int(0, 1000000).hex());
@@ -102,8 +107,6 @@ class GameClient {
 		}
 
 		GameClient.room.onLeave += () -> {
-			trace("Leaving!");
-
 			if (client == null) {
 				leaveRoom();
 			}
@@ -129,22 +132,20 @@ class GameClient {
 	}
 
 	public static function reconnect(?nextTry:Bool = false) {
-		// leaveRoom();
-		// return;
-		//i give up on reconnection stuff, probably a colyseus bug
-		// reconnection token invalid or expired?
-		// i literally give it infinite seconds to reconnect again?
-
 		if (nextTry)
 			reconnectTries--;
 		else {
+			try {
+				room.connection.close();
+			} catch (exc) {}
+			Sys.println("reconnecting");
 			Alert.alert("Reconnecting...");
 			reconnectTries = 15;
 		}
 
 		Thread.run(() -> {
 			try {
-				client.reconnect(room.reconnectionToken, GameRoom, (err, room) -> {
+				client.reconnect(GameClient.reconnectToken, GameRoom, (err, room) -> {
 					if (err != null) {
 						if (reconnectTries <= 0) {
 							Waiter.put(() -> {
@@ -164,6 +165,7 @@ class GameClient {
 						Alert.alert("Reconnected!");
 					});
 					_onJoin(err, room, GameClient.isOwner, GameClient.address);
+					sendPending();
 					reconnectTries = 0;
 				});
 			}
@@ -205,6 +207,8 @@ class GameClient {
 
 	public static function leaveRoom(?reason:String = null) {
 		Waiter.pingServer = null;
+		reconnectTries = 0;
+		_pendingMessages = [];
 
 		if (!isConnected())
 			return;
@@ -258,12 +262,10 @@ class GameClient {
 				FlxG.mouse.visible = false;
 
 				Mods.currentModDirectory = GameClient.room.state.modDir;
-				Difficulty.list = [];
-				for (d in GameClient.room.state.diffList.items)
-					Difficulty.list.push(d);
+				Difficulty.list = CoolUtil.asta(GameClient.room.state.diffList);
+				PlayState.storyDifficulty = GameClient.room.state.diff;
 				PlayState.SONG = Song.loadFromJson(GameClient.room.state.song, GameClient.room.state.folder);
 				PlayState.isStoryMode = false;
-				PlayState.storyDifficulty = GameClient.room.state.diff;
 				GameClient.clearOnMessage();
 				LoadingState.loadAndSwitchState(new PlayState());
 
@@ -282,6 +284,18 @@ class GameClient {
 		#end
 	}
 
+	private static var _pendingMessages:Array<Array<Dynamic>> = [];
+	public static function sendPending() {
+		if (_pendingMessages.length == 0)
+			return;
+
+		Sys.println('resending ' + _pendingMessages.length + " packets");
+		while (_pendingMessages.length > 0) {
+			var msg = _pendingMessages.shift();
+			GameClient.send(msg[0], msg[1]);
+		}
+	}
+
 	public static function send(type:Dynamic, ?message:Null<Dynamic>) {
 		if (GameClient.isConnected() && type != null)
 			Waiter.put(() -> {
@@ -289,7 +303,10 @@ class GameClient {
 					room.send(type, message);
 				}
 				catch (exc) {
-					GameClient.leaveRoom("Lost Server Connection");
+					_pendingMessages.push([type, message]);
+					if (reconnectTries <= 0)
+						reconnect();
+					//trace(exc + " : FAILED TO SEND: " + type + " -> " + message);
 				}
 			});
 	}

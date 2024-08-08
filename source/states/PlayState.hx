@@ -30,6 +30,7 @@ import online.Alert;
 import online.Waiter;
 import online.states.RoomState;
 import online.GameClient;
+import online.NicommentsView;
 import backend.Achievements;
 import backend.Highscore;
 import backend.StageData;
@@ -433,8 +434,9 @@ class PlayState extends MusicBeatState
 	}
 	public var replayRecorder:ReplayRecorder;
 	public var replayPlayer:ReplayPlayer;
+	public var nicomments:NicommentsView;
 	
-	public var songId:String;
+	public var songId:String = null;
 
 	override public function create()
 	{
@@ -537,9 +539,9 @@ class PlayState extends MusicBeatState
 			Conductor.mapBPMChanges(SONG);
 			Conductor.bpm = SONG.bpm;
 
-			songId = FreeplayState.filterCharacters(PlayState.SONG.song) + "-" + 
+			songId = FreeplayState.filterCharacters(PlayState.SONG.song) + "-" +
 				FreeplayState.filterCharacters(Difficulty.getString()) + "-" + 
-				FreeplayState.filterCharacters(Md5.encode(Song.loadRawSong(Highscore.formatSong(PlayState.SONG.song, PlayState.storyDifficulty), PlayState.SONG.song)))
+				Md5.encode(Song.loadRawSong(Highscore.formatSong(PlayState.SONG.song, PlayState.storyDifficulty), PlayState.SONG.song))
 			;
 
 			#if DISCORD_ALLOWED
@@ -1084,10 +1086,10 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-			if (!ClientPrefs.data.disableSongComments && replayPlayer != null) {
-				var comments = new online.NicommentsView(songId);
-				comments.cameras = [camOther];
-				add(comments);
+			if (!ClientPrefs.data.disableSongComments && replayPlayer != null && songId != null) {
+				nicomments = new NicommentsView(songId);
+				nicomments.cameras = [camOther];
+				add(nicomments);
 			}
 
 			Paths.clearUnusedMemory();
@@ -1628,6 +1630,14 @@ class PlayState extends MusicBeatState
 
 	public function clearNotesBefore(time:Float)
 	{
+		if (replayPlayer != null) {
+			replayPlayer.timeJump(time);
+		}
+
+		if (nicomments != null) {
+			nicomments.timeJump(time);
+		}
+
 		var i:Int = unspawnNotes.length - 1;
 		while (i >= 0) {
 			var daNote:Note = unspawnNotes[i];
@@ -2395,7 +2405,7 @@ class PlayState extends MusicBeatState
 		FlxG.watch.addQuick("stepShit", curStep);
 
 		// RESET = Quick Game Over Screen
-		if (!GameClient.isConnected() && !ClientPrefs.data.noReset && controls.RESET && canReset && !inCutscene && startedCountdown && !endingSong && canInput())
+		if (!GameClient.isConnected() && !ClientPrefs.data.noReset && controls.RESET && canReset && !inCutscene && startedCountdown && !endingSong && canInput() && replayData == null)
 		{
 			health = 0;
 			trace("RESET = True");
@@ -2404,7 +2414,7 @@ class PlayState extends MusicBeatState
 
 		if (unspawnNotes[0] != null)
 		{
-			var time:Float = spawnTime * (Conductor.judgePlaybackRate == null || Conductor.judgePlaybackRate < 1 ? playbackRate : Conductor.judgePlaybackRate);
+			var time:Float = spawnTime * (Conductor.judgePlaybackRate == null || playbackRate < Conductor.judgePlaybackRate ? playbackRate : Conductor.judgePlaybackRate);
 			if(songSpeed < 1) time /= songSpeed;
 			if(unspawnNotes[0].multSpeed < 1) time /= unspawnNotes[0].multSpeed;
 
@@ -4192,9 +4202,9 @@ class PlayState extends MusicBeatState
 
 		if(FlxG.sound.music.time >= -ClientPrefs.data.noteOffset)
 		{
-			if (Math.abs(FlxG.sound.music.time - (Conductor.songPosition - Conductor.offset)) > (20 * playbackRate)
-				|| (vocals.length > 0 && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > (20 * playbackRate))
-				|| (opponentVocals.length > 0 && SONG.needsVoices && Math.abs(opponentVocals.time - (Conductor.songPosition - Conductor.offset)) > (20 * playbackRate))
+			if (Math.abs(FlxG.sound.music.time - (Conductor.songPosition - Conductor.offset)) > (50 * playbackRate)
+				|| (vocals.length > 0 && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > (50 * playbackRate))
+				|| (opponentVocals.length > 0 && SONG.needsVoices && Math.abs(opponentVocals.time - (Conductor.songPosition - Conductor.offset)) > (50 * playbackRate))
 			) {
 				resyncVocals();
 			}
@@ -4704,7 +4714,7 @@ class PlayState extends MusicBeatState
 	#end
 
 	function isInvalidScore() {
-		return cpuControlled || controls.moodyBlues != null || healthGain > 1;
+		return cpuControlled || controls.moodyBlues != null;
 	}
 
 	// MULTIPLAYER STUFF HERE
