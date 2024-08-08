@@ -57,16 +57,19 @@ class PauseSubState extends MusicBeatSubstate
 			menuItemsOG.insert(4 + num, 'Toggle Practice Mode');
 			menuItemsOG.insert(5 + num, 'Toggle Botplay');
 		}
+
+		var oof = 0;
+		if (!ClientPrefs.data.disableSongComments && PlayState.instance.songId != null) {
+			menuItemsOG.insert(3, 'Leave a Comment Now');
+			oof++;
+		}
+
 		if (PlayState.replayData != null) {
 			menuItemsOG.remove('Change Difficulty');
-			var num = 0;
-			if (!ClientPrefs.data.disableSongComments) {
-				menuItemsOG.insert(2, 'Leave a Comment Now');
-				num++;
-			}
-			menuItemsOG.insert(2 + num, 'Save Replay');
+			menuItemsOG.insert(2 + oof, 'Skip Time');
+			menuItemsOG.insert(3 + oof, 'Save Replay');
 			if (PlayState.replayID != null) {
-				menuItemsOG.insert(3 + num, 'Report Replay');
+				menuItemsOG.insert(4 + oof, 'Report Replay');
 			}
 		}
 		menuItems = menuItemsOG;

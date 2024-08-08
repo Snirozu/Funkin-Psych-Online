@@ -22,6 +22,12 @@ class NicommentsView extends FlxTypedGroup<Nicomment> {
 			add(text);
 		}
     }
+
+	public function timeJump(time:Float) {
+		while (songComments.length > 0 && songComments[0].at < time - 3000) {
+			songComments.shift();
+		}
+	}
 }
 
 class Nicomment extends FlxText {

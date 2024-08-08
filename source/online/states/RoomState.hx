@@ -83,7 +83,7 @@ class RoomState extends MusicBeatState {
 
 		GameClient.room.onMessage("checkChart", function(message) {
 			Waiter.put(() -> {
-				verifyDownloadMod(false);
+				verifyDownloadMod(false, true);
 			});
 		});
 
@@ -400,7 +400,7 @@ class RoomState extends MusicBeatState {
 		FlxG.mouse.visible = true;
 		FlxG.autoPause = false;
 
-		verifyDownloadMod(false);
+		verifyDownloadMod(false, true);
 
 		GameClient.send("status", "In the Lobby");
 	}
@@ -1003,9 +1003,7 @@ class RoomState extends MusicBeatState {
 		FreeplayState.destroyFreeplayVocals();
 		if (value) {
 			Mods.currentModDirectory = GameClient.room.state.modDir;
-			Difficulty.list = [];
-			for (d in GameClient.room.state.diffList.items)
-				Difficulty.list.push(d);
+			Difficulty.list = CoolUtil.asta(GameClient.room.state.diffList);
 			PlayState.SONG = Song.loadFromJson(GameClient.room.state.song, GameClient.room.state.folder);
 
 			var diff = Difficulty.getString(GameClient.room.state.diff);

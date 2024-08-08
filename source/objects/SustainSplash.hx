@@ -19,8 +19,13 @@ class SustainSplash extends FlxSprite {
   override function update(elapsed) {
     super.update(elapsed);
 
-		if (strumNote != null)
+		if (strumNote != null) {
 			alpha = ClientPrefs.data.splashAlpha - (1 - strumNote.alpha);
+
+			if (animation.curAnim.name == "hold" && strumNote.animation.curAnim.name == "static") {
+        visible = false;
+      }
+    }
   }
 
   public function setupSusSplash(strum:StrumNote, daNote:Note, ?playbackRate:Float = 1):Void {

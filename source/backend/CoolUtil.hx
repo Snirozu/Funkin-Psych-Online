@@ -1,5 +1,6 @@
 package backend;
 
+import io.colyseus.serializer.schema.types.*;
 import externs.WinAPI;
 import flixel.util.FlxSave;
 
@@ -133,5 +134,13 @@ class CoolUtil
 	public static function getWindowTitle():String {
 		@:privateAccess var attributes = lime.app.Application.current.window.__attributes;
 		return Reflect.hasField(attributes, "title") ? attributes.title : "Lime Application";
+	}
+
+	public static function asta<T>(arr:ArraySchema<T>) {
+		var haxArr = [];
+		for (i => thing in arr.items) {
+			haxArr[i] = thing;
+		}
+		return haxArr;
 	}
 }

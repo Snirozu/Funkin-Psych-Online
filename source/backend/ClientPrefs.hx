@@ -6,7 +6,6 @@ import online.GameClient;
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
-import io.colyseus.serializer.schema.types.*;
 
 import states.TitleState;
 
@@ -335,17 +334,17 @@ class ClientPrefs {
 
 		if (player == 0)
 			return [ 
-				asta(GameClient.room.state.player1.arrowColor0),
-				asta(GameClient.room.state.player1.arrowColor1),
-				asta(GameClient.room.state.player1.arrowColor2),
-				asta(GameClient.room.state.player1.arrowColor3),
+				CoolUtil.asta(GameClient.room.state.player1.arrowColor0),
+				CoolUtil.asta(GameClient.room.state.player1.arrowColor1),
+				CoolUtil.asta(GameClient.room.state.player1.arrowColor2),
+				CoolUtil.asta(GameClient.room.state.player1.arrowColor3),
 			];
 		
 		return [
-			asta(GameClient.room.state.player2.arrowColor0),
-			asta(GameClient.room.state.player2.arrowColor1),
-			asta(GameClient.room.state.player2.arrowColor2),
-			asta(GameClient.room.state.player2.arrowColor3),
+			CoolUtil.asta(GameClient.room.state.player2.arrowColor0),
+			CoolUtil.asta(GameClient.room.state.player2.arrowColor1),
+			CoolUtil.asta(GameClient.room.state.player2.arrowColor2),
+			CoolUtil.asta(GameClient.room.state.player2.arrowColor3),
 		];
 	}
 
@@ -355,25 +354,17 @@ class ClientPrefs {
 
 		if (player == 0)
 			return [
-				asta(GameClient.room.state.player1.arrowColorP0),
-				asta(GameClient.room.state.player1.arrowColorP1),
-				asta(GameClient.room.state.player1.arrowColorP2),
-				asta(GameClient.room.state.player1.arrowColorP3),
+				CoolUtil.asta(GameClient.room.state.player1.arrowColorP0),
+				CoolUtil.asta(GameClient.room.state.player1.arrowColorP1),
+				CoolUtil.asta(GameClient.room.state.player1.arrowColorP2),
+				CoolUtil.asta(GameClient.room.state.player1.arrowColorP3),
 			];
 
 		return [
-			asta(GameClient.room.state.player2.arrowColorP0),
-			asta(GameClient.room.state.player2.arrowColorP1),
-			asta(GameClient.room.state.player2.arrowColorP2),
-			asta(GameClient.room.state.player2.arrowColorP3),
+			CoolUtil.asta(GameClient.room.state.player2.arrowColorP0),
+			CoolUtil.asta(GameClient.room.state.player2.arrowColorP1),
+			CoolUtil.asta(GameClient.room.state.player2.arrowColorP2),
+			CoolUtil.asta(GameClient.room.state.player2.arrowColorP3),
 		];
-	}
-
-	static function asta(arr:ArraySchema<Dynamic>) {
-		var haxArr = [0, 0, 0];
-		for (i => thing in arr.items) {
-			haxArr[i] = thing;
-		}
-		return haxArr;
 	}
 }
