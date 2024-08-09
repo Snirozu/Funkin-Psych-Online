@@ -25,7 +25,6 @@ class GameClient {
 	public static var isOwner:Bool;
 	public static var address:String;
 	public static var reconnectTries:Int = 0;
-	public static var reconnectToken:String;
 	public static var rpcClientRoomID:String;
 
 	/**
@@ -95,7 +94,6 @@ class GameClient {
 		LoadingScreen.toggle(false);
 
 		GameClient.room = room;
-		GameClient.reconnectToken = room.reconnectionToken;
 		GameClient.isOwner = isHost;
 		GameClient.address = address;
 		GameClient.rpcClientRoomID = Md5.encode(FlxG.random.int(0, 1000000).hex());
@@ -132,8 +130,10 @@ class GameClient {
 	}
 
 	public static function reconnect(?nextTry:Bool = false) {
-		if (nextTry)
+		if (nextTry) {
 			reconnectTries--;
+			Sys.println("reconnecting (" + reconnectTries + ")");
+		}
 		else {
 			try {
 				room.connection.close();
@@ -145,7 +145,7 @@ class GameClient {
 
 		Thread.run(() -> {
 			try {
-				client.reconnect(GameClient.reconnectToken, GameRoom, (err, room) -> {
+				client.reconnect(room.reconnectionToken, GameRoom, (err, room) -> {
 					if (err != null) {
 						if (reconnectTries <= 0) {
 							Waiter.put(() -> {
