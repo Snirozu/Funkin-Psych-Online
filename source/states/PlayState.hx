@@ -2961,7 +2961,8 @@ class PlayState extends MusicBeatState
 				}
 				catch(e:Dynamic)
 				{
-					addTextToDebug('ERROR ("Set Property" Event) - ' + e.message.substr(0, e.message.indexOf('\n')), FlxColor.RED);
+					if (e.message != null)
+						addTextToDebug('ERROR ("Set Property" Event) - ' + e.message.substr(0, e.message.indexOf('\n')), FlxColor.RED);
 				}
 			
 			case 'Play Sound':
