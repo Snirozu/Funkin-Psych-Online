@@ -124,24 +124,55 @@ class OptionsState extends MusicBeatState {
 			registerOption.screenCenter(X);
 			registerOption.ID = i++;
 
-			var recoverOption:InputOption;
-			items.add(recoverOption = new InputOption("Recover Account", "Recover your account using the Recovery File", null, false));
-			recoverOption.y = registerOption.y + registerOption.height + 50;
-			recoverOption.screenCenter(X);
-			recoverOption.ID = i++;
+			var loginOption:InputOption;
+			items.add(loginOption = new InputOption("Login to the Network",
+				"Input your email address here and wait for your One-Time Login Code!", "me@example.org", true, mail -> {
+					if (FunkinNetwork.requestLogin(mail)) {
+						openSubState(new VerifyCode(code -> {
+							if (FunkinNetwork.requestLogin(mail, code)) {
+								Alert.alert("Successfully logged in!");
+								FlxG.resetState();
+							}
+						}));
+					}
+				}));
+			loginOption.y = registerOption.y + registerOption.height + 50;
+			loginOption.screenCenter(X);
+			loginOption.ID = i++;
+
+			// var recoverOption:InputOption;
+			// items.add(recoverOption = new InputOption("Recover Account", "Recover your account using the Recovery File", null, false));
+			// recoverOption.y = registerOption.y + registerOption.height + 50;
+			// recoverOption.screenCenter(X);
+			// recoverOption.ID = i++;
 		}
 		else {
 			var loginBrowserOption:InputOption;
-			items.add(loginBrowserOption = new InputOption("Login in Browser",
-				"Authenticates you to the network in the browser", null, false));
+			items.add(loginBrowserOption = new InputOption("Login to Browser",
+				"Authenticates you to the network your default web browser", null, false));
 			loginBrowserOption.y = sezOption.y + sezOption.height + 50;
 			loginBrowserOption.screenCenter(X);
 			loginBrowserOption.ID = i++;
 
+			var emailOption:InputOption;
+			items.add(emailOption = new InputOption("Set Email Address",
+				"This is recommended if you don't want to lose your account\nIf you have already set a email address then use the following format:\n<new_mail> from <old_mail>", "me@example.org", true, mail -> {
+					if (FunkinNetwork.setEmail(mail)) {
+						openSubState(new VerifyCode(code -> {
+							if (FunkinNetwork.setEmail(mail, code)) {
+								Alert.alert("Email Successfully Added!");
+							}
+						}));
+					}
+				}));
+			emailOption.y = loginBrowserOption.y + loginBrowserOption.height + 50;
+			emailOption.screenCenter(X);
+			emailOption.ID = i++;
+
 			var logoutOption:InputOption;
 			items.add(logoutOption = new InputOption("Logout of the Network",
 				"Logout of the Psych Online Network", null, false));
-			logoutOption.y = loginBrowserOption.y + loginBrowserOption.height + 50;
+			logoutOption.y = emailOption.y + emailOption.height + 50;
 			logoutOption.screenCenter(X);
 			logoutOption.ID = i++;
 		}
@@ -199,18 +230,12 @@ class OptionsState extends MusicBeatState {
 							ClientPrefs.saveSettings();
 							Alert.alert("Cleared the trusted domains list!", "");
 						case "logout of the network":
-							FunkinNetwork.logout();
-							FlxG.resetState();
-						case "login in browser":
-							FlxG.openURL(FunkinNetwork.client.getURL("/api/network/account/cookie?id=" + ClientPrefs.data.networkAuthID + "&token=" + ClientPrefs.data.networkAuthToken));
-						case "recover account":
-							var fileDialog = new FileDialog();
-							fileDialog.onOpen.add(res -> {
-								var recFile = Std.string(res).split("\n");
-								FunkinNetwork.login(recFile[0], recFile[1]);
+							RequestState.request('Are you sure you want to logout?', '', _ -> {
+								FunkinNetwork.logout();
 								FlxG.resetState();
-							});
-							fileDialog.open('txt', Sys.getCwd(), "Load Recovery File");
+							}, null, true);
+						case "login to browser":
+							FlxG.openURL(FunkinNetwork.client.getURL("/api/network/account/cookie?id=" + ClientPrefs.data.networkAuthID + "&token=" + ClientPrefs.data.networkAuthToken));
 					}
 			}
 		}
