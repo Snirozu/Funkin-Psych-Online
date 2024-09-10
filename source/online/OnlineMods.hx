@@ -453,7 +453,8 @@ class OnlineMods {
 		OnlineMods.saveModURL(modName, modLink);
 
 		Waiter.put(() -> {
-			Alert.alert("Mod Installation Successful!", "Downloaded mod: " + modName + "\nFrom: " + (modLink == null ? "Local Storage" : modLink));
+			if (!PlayState.redditMod)
+				Alert.alert("Mod Installation Successful!", "Downloaded mod: " + modName + "\nFrom: " + (modLink == null ? "Local Storage" : modLink));
 			if (onSuccess != null)
 				onSuccess(modName);
 

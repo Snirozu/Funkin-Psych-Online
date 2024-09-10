@@ -60,6 +60,7 @@ class Main extends Sprite
 	{
 		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
 		Lib.current.addChild(new Main());
+		Lib.current.addChild(new online.sgui.SideUI());
 	}
 
 	public function new()

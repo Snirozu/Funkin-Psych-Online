@@ -1,5 +1,6 @@
 package online.states;
 
+import backend.WeekData;
 import lumod.Lumod;
 import flixel.util.FlxSpriteUtil;
 import flixel.effects.FlxFlicker;
@@ -42,6 +43,17 @@ class ResultsScreen extends MusicBeatState {
 
     override function create() {
         super.create();
+
+		#if MODS_ALLOWED
+		Mods.pushGlobalMods();
+		#end
+
+		WeekData.reloadWeekFiles(false);
+		for (i in 0...WeekData.weeksList.length) {
+			WeekData.setDirectoryFromWeek(WeekData.weeksLoaded.get(WeekData.weeksList[i]));
+		}
+		Mods.loadTopMod();
+		WeekData.setDirectoryFromWeek();
 
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Viewing song results.", null, null, false);
@@ -151,14 +163,16 @@ class ResultsScreen extends MusicBeatState {
 		gainedText.visible = false;
 		add(gainedText);
 
+		#if !DEBUG_RESULTS
 		if (!GameClient.isConnected()) {
 			GameClient.clearOnMessage();
 			FlxG.switchState(() -> new OnlineState());
 			return;
 		}
+		#end
 
-		p1Accuracy = GameClient.getPlayerAccuracyPercent(GameClient.room.state.player1);
-		p2Accuracy = GameClient.getPlayerAccuracyPercent(GameClient.room.state.player2);
+		p1Accuracy = GameClient.getPlayerAccuracyPercent(getPlayer(1));
+		p2Accuracy = GameClient.getPlayerAccuracyPercent(getPlayer(2));
 
 		if (p1Accuracy >= p2Accuracy)
 			winner = 0;
@@ -168,15 +182,15 @@ class ResultsScreen extends MusicBeatState {
 		var winnerPlayer = winner == 0 ? p1 : p2;
 		var loserPlayer = winner == 0 ? p2 : p1;
 		
-		var p1Name = GameClient.room.state.player1.name ?? "(none)";
+		var p1Name = getPlayer(1).name ?? "(none)";
 		if (p1Name.trim() == "")
 			p1Name = "(none)";
-		var p2Name = GameClient.room.state.player2.name ?? "(none)";
+		var p2Name = getPlayer(2).name ?? "(none)";
 		if (p2Name.trim() == "")
 			p2Name = "(none)";
 
-		p1Text.text = '${p1Name}\nAccuracy: ${p1Accuracy}% - ${getCoolRating(GameClient.room.state.player1)}\nMisses: ${GameClient.room.state.player1.misses}\nScore: ${GameClient.room.state.player1.score}';
-		p2Text.text = '${p2Name}\nAccuracy: ${p2Accuracy}% - ${getCoolRating(GameClient.room.state.player2)}\nMisses: ${GameClient.room.state.player2.misses}\nScore: ${GameClient.room.state.player2.score}';
+		p1Text.text = '${p1Name}\nAccuracy: ${p1Accuracy}% - ${getCoolRating(getPlayer(1))}\nMisses: ${getPlayer(1).misses}\nScore: ${getPlayer(1).score}';
+		p2Text.text = '${p2Name}\nAccuracy: ${p2Accuracy}% - ${getCoolRating(getPlayer(2))}\nMisses: ${getPlayer(2).misses}\nScore: ${getPlayer(2).score}';
 
 		p1Text.x = 176;
 		p2Text.x = 702;
@@ -269,16 +283,18 @@ class ResultsScreen extends MusicBeatState {
 
 		});
 
-		GameClient.send("status", "Viewing results");
+		if (GameClient.isConnected()) {
+			GameClient.send("status", "Viewing results");
 
-		GameClient.room.onMessage("charPlay", function(message:Array<Dynamic>) {
-			Waiter.put(() -> {
-				if (message == null || message[0] == null)
-					return;
+			GameClient.room.onMessage("charPlay", function(message:Array<Dynamic>) {
+				Waiter.put(() -> {
+					if (message == null || message[0] == null)
+						return;
 
-				(GameClient.isOwner ? p2 : p1).playAnim(message[0], true);
+					(GameClient.isOwner ? p2 : p1).playAnim(message[0], true);
+				});
 			});
-		});
+		}
     }
 
 	function flickerLoop() {
@@ -316,7 +332,8 @@ class ResultsScreen extends MusicBeatState {
 				if (gainedText.visible)
 					FlxTween.tween(gainedText, {alpha: 0}, 0.2, {ease: FlxEase.quadInOut});
                 new FlxTimer().start(0.5, (t) -> {
-					GameClient.clearOnMessage();
+					if (GameClient.isConnected())
+						GameClient.clearOnMessage();
 					FlxG.switchState(() -> new RoomState());
                 });
             }
@@ -356,12 +373,12 @@ class ResultsScreen extends MusicBeatState {
 				p1.destroy();
 			p1 = null;
 
-			if (FileSystem.exists(Paths.mods(GameClient.room.state.player1.skinMod))) {
-				if (GameClient.room.state.player1.skinMod != null)
-					Mods.currentModDirectory = GameClient.room.state.player1.skinMod;
+			if (FileSystem.exists(Paths.mods(getPlayer(1).skinMod))) {
+				if (getPlayer(1).skinMod != null)
+					Mods.currentModDirectory = getPlayer(1).skinMod;
 
-				if (GameClient.room.state.player1.skinName != null)
-					p1 = new Character(0, 0, GameClient.room.state.player1.skinName);
+				if (getPlayer(1).skinName != null)
+					p1 = new Character(0, 0, getPlayer(1).skinName);
 			}
 
 			if (p1 == null)
@@ -373,12 +390,12 @@ class ResultsScreen extends MusicBeatState {
 				p2.destroy();
 			p2 = null;
 
-			if (FileSystem.exists(Paths.mods(GameClient.room.state.player2.skinMod))) {
-				if (GameClient.room.state.player2.skinMod != null)
-					Mods.currentModDirectory = GameClient.room.state.player2.skinMod;
+			if (FileSystem.exists(Paths.mods(getPlayer(2).skinMod))) {
+				if (getPlayer(2).skinMod != null)
+					Mods.currentModDirectory = getPlayer(2).skinMod;
 
-				if (GameClient.room.state.player2.skinName != null)
-					p2 = new Character(0, 0, GameClient.room.state.player2.skinName + "-player", true);
+				if (getPlayer(2).skinName != null)
+					p2 = new Character(0, 0, getPlayer(2).skinName + "-player", true);
 			}
 
 			if (p2 == null)
@@ -387,5 +404,12 @@ class ResultsScreen extends MusicBeatState {
 		}
 
 		Mods.currentModDirectory = oldModDir;
+	}
+
+	static function getPlayer(num:Int) {
+		if (GameClient.isConnected())
+			return num == 2 ? GameClient.room.state.player2 : GameClient.room.state.player1;
+		else 
+			return num == 2 ? Debug.fakePlayer2 : Debug.fakePlayer1;
 	}
 }

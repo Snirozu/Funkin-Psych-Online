@@ -195,12 +195,12 @@ class FunkinNetwork {
 		}
 	}
 
-	public static function requestAPI(request:HTTPRequest):Null<HTTPResponse> {
+	public static function requestAPI(request:HTTPRequest, ?alertError:Bool = true):Null<HTTPResponse> {
 		var response = client.request(request);
 
 		if (response.isFailed()) {
 			if (response.exception != null) {
-				if (response.exception != "Eof" && response.exception != "EOF")
+				if (alertError && response.exception != "Eof" && response.exception != "EOF")
 					Waiter.put(() -> {
 						Alert.alert("Exception: " + request.path, response.exception + (response.exception.stack != null ? "\n\n" + CallStack.toString(response.exception.stack) : ""));
 					});
@@ -208,7 +208,7 @@ class FunkinNetwork {
 			else if (response.status == 404) {
 				return null;
 			}
-			else {
+			else if (alertError) {
 				Waiter.put(() -> {
 					Alert.alert('HTTP Error ${response.status}: ' + request.path, response.body != null && response.body.ltrim().startsWith("{") ? Json.parse(response.body).error : response.body);
 				});

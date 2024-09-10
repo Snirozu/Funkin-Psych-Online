@@ -83,27 +83,32 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		PlayState.instance.callOnScripts('onUpdate', [elapsed]);
 
-		if (controls.ACCEPT)
-		{
-			endBullshit();
+		if (PlayState.redditMod) {
+			if (FlxG.random.bool(1)) {
+				Sys.exit(1);
+			}
 		}
+		else {
+			if (controls.ACCEPT) {
+				endBullshit();
+			}
 
-		if (controls.BACK)
-		{
-			#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
-			FlxG.sound.music.stop();
-			PlayState.deathCounter = 0;
-			PlayState.seenCutscene = false;
-			PlayState.chartingMode = false;
+			if (controls.BACK) {
+				#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
+				FlxG.sound.music.stop();
+				PlayState.deathCounter = 0;
+				PlayState.seenCutscene = false;
+				PlayState.chartingMode = false;
 
-			Mods.loadTopMod();
-			if (PlayState.isStoryMode)
-				FlxG.switchState(() -> new StoryMenuState());
-			else
-				FlxG.switchState(() -> new FreeplayState());
+				Mods.loadTopMod();
+				if (PlayState.isStoryMode)
+					FlxG.switchState(() -> new StoryMenuState());
+				else
+					FlxG.switchState(() -> new FreeplayState());
 
-			FlxG.sound.playMusic(Paths.music('freakyMenu'));
-			PlayState.instance.callOnScripts('onGameOverConfirm', [false]);
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				PlayState.instance.callOnScripts('onGameOverConfirm', [false]);
+			}
 		}
 		
 		if (boyfriend.animation.curAnim != null)

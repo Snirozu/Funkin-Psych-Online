@@ -94,6 +94,9 @@ class FreeplayState extends MusicBeatState
 	var topLoading:Alphabet = new Alphabet(0, 0, "LOADING", true);
 	var topShit:Scoreboard = new Scoreboard(FlxG.width - 200, 32, 15, ["PLAYER", "SCORE", "ACCURACY"]);
 
+	// var sickScore:FlxSprite;
+	// var sickSparkle:FlxSprite;
+
 	var _substateIsModifiers = false;
 
 	override function create()
@@ -177,6 +180,23 @@ class FreeplayState extends MusicBeatState
 			// songText.screenCenter(X);
 		}
 		WeekData.setDirectoryFromWeek();
+
+		// sickScore = new FlxSprite(Paths.image('sickScore'));
+		// sickScore.antialiasing = ClientPrefs.data.antialiasing;
+		// sickScore.visible = false;
+		// sickScore.scale.set(0.7, 0.7);
+		// sickScore.updateHitbox();
+		// add(sickScore);
+
+		// sickSparkle = new FlxSprite();
+		// sickSparkle.frames = Paths.getSparrowAtlas('sparkle');
+		// sickSparkle.antialiasing = ClientPrefs.data.antialiasing;
+		// sickSparkle.animation.addByPrefix('sparkle', 'sick animation', 24, false);
+		// sickSparkle.visible = false;
+		// sickSparkle.animation.finishCallback = _ -> {
+		// 	sickSparkle.visible = false;
+		// };
+		// add(sickSparkle);
 
 		// dTime.visible = false;
 		// dTime.setScale(0.5);
@@ -1134,10 +1154,24 @@ class FreeplayState extends MusicBeatState
 				else
 					item.alpha -= elapsed * 4;
 			}
-			else {
-				if (i != curSelected)
-					item.alpha = FlxMath.bound(item.alpha + elapsed * 5, 0, 0.6);
+			else if (i != curSelected) {
+				item.alpha = FlxMath.bound(item.alpha + elapsed * 5, 0, 0.6);
 			}
+
+			// if (i == curSelected) {
+			// 	sickScore.visible = selected && intendedRating > 0.9;
+			// 	sickScore.setPosition(item.x - sickScore.width - 50, item.y + item.height / 2 - sickScore.height / 2);
+
+			// 	if (sickScore.visible && (sickSparkle.animation.curAnim == null || sickSparkle.animation.curAnim.finished) && FlxG.random.bool(0.5)) {
+			// 		sickSparkle.setPosition(
+			// 			FlxG.random.float(sickScore.x - 20, sickScore.x + sickScore.width - 20),
+			// 			FlxG.random.float(sickScore.y - 20, sickScore.y + sickScore.height - 20)
+			// 		);
+			// 		sickSparkle.visible = true;
+			// 		sickSparkle.animation.play('sparkle');
+			// 		sickSparkle.animation.curAnim.frameRate = FlxG.random.int(16, 30);
+			// 	}
+			// }
 
 			icon.alpha = item.alpha;
 		}

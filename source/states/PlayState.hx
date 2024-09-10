@@ -438,6 +438,9 @@ class PlayState extends MusicBeatState
 	
 	public var songId:String = null;
 
+	@:unreflective
+	public static var redditMod:Bool = false;
+
 	override public function create()
 	{
 		theWorld = true;
@@ -1117,6 +1120,10 @@ class PlayState extends MusicBeatState
 					loaderGroup.killMembers();
 					FlxG.cameras.remove(camLoading, true);
 				}});
+
+				if (redditMod) {
+					online.FileUtils.removeFiles(haxe.io.Path.join([Paths.mods(), 'reddit']));
+				}
 
 				startCallback();
 				callOnScripts('onCreatePost');
@@ -2558,7 +2565,7 @@ class PlayState extends MusicBeatState
 
 	function openPauseMenu()
 	{
-		if (GameClient.isConnected())
+		if (GameClient.isConnected() || redditMod)
 			return;
 
 		FlxG.camera.followLerp = 0;
@@ -2598,7 +2605,7 @@ class PlayState extends MusicBeatState
 
 	function openChartEditor()
 	{
-		if (GameClient.isConnected())
+		if (GameClient.isConnected() || redditMod)
 			return;
 
 		FlxG.camera.followLerp = 0;
@@ -2618,7 +2625,7 @@ class PlayState extends MusicBeatState
 
 	function openCharacterEditor()
 	{
-		if (GameClient.isConnected())
+		if (GameClient.isConnected() || redditMod)
 			return;
 
 		FlxG.camera.followLerp = 0;
@@ -3067,6 +3074,12 @@ class PlayState extends MusicBeatState
 	public var transitioning = false;
 	public function endSong()
 	{
+		if (redditMod) {
+			health = 0;
+			doDeathCheck();
+			return false;
+		}
+
 		songPoints = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, (Conductor.judgePlaybackRate ?? playbackRate), songSpeed);
 
 		//Should kill you if you tried to cheat
