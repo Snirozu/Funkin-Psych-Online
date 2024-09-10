@@ -1,5 +1,9 @@
 package online.states;
 
+import backend.WeekData;
+import backend.Highscore;
+import backend.Song;
+import haxe.io.Path;
 import shaders.WarpShader;
 import online.net.FunkinNetwork;
 import states.FreeplayState;
@@ -455,7 +459,42 @@ class OnlineState extends MusicBeatState {
 						image.setGraphicSize(FlxG.width, FlxG.height);
 						image.updateHitbox();
 						add(image);
+						FreeplayState.destroyFreeplayVocals();
 						FlxG.sound.playMusic(Paths.sound('cabbage'));
+						return;
+					}
+					else if (daCoomCode.toLowerCase() == "reddit") {
+						FreeplayState.destroyFreeplayVocals();
+						FlxG.sound.music.stop();
+
+						var ass = new FlxSprite();
+						ass.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+						add(ass);
+						
+						var video = new hxcodec.flixel.FlxVideo();
+						video.play(Paths.video('enables'));
+						video.onEndReached.add(function() {
+							video.dispose();
+
+							PlayState.redditMod = true;
+							online.OnlineMods.installMod(Path.join([Sys.getCwd(), "/assets/images/reddit.zip"]));
+
+							WeekData.reloadWeekFiles(false);
+							Mods.currentModDirectory = "reddit";
+							Difficulty.list = ['Normal'];
+							PlayState.storyDifficulty = 0;
+
+							var songLowercase:String = Paths.formatToSongPath("Gold");
+							PlayState.SONG = Song.loadFromJson(Highscore.formatSong(songLowercase, PlayState.storyDifficulty), songLowercase);
+							PlayState.isStoryMode = false;
+
+							LoadingState.loadAndSwitchState(new PlayState());
+
+							#if (MODS_ALLOWED && DISCORD_ALLOWED)
+							DiscordClient.loadModRPC();
+							#end
+						}, true);
+					
 						return;
 					}
 					GameClient.joinRoom(daCoomCode, onRoomJoin);

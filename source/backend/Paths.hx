@@ -102,7 +102,7 @@ class Paths
 		#if !html5 openfl.Assets.cache.clear("songs"); #end
 	}
 
-	static public var currentLevel:String;
+	static public var currentLevel:String = 'week1';
 	static public function setCurrentLevel(name:String)
 	{
 		currentLevel = name.toLowerCase();

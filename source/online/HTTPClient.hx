@@ -12,9 +12,9 @@ import sys.net.Socket;
  * @author snirozu
  */
 class HTTPClient {
-	var hostname(default, null):String;
-	var port(default, null):Int = 80;
-	var ssl(default, null):Bool = false;
+	public var hostname(default, null):String;
+	public var port(default, null):Int = 80;
+	public var ssl(default, null):Bool = false;
 
     /**
      * 
@@ -45,6 +45,9 @@ class HTTPClient {
             if (request.headers != null)
                 for (key => value in request.headers)
 					header += '\r\n$key: $value';
+
+            if (request.path.length > 0 && request.path.charAt(0) != "/")
+                request.path = "/" + request.path;
 
             //connecting to the server
             var socket:Socket;
@@ -161,6 +164,8 @@ class HTTPClient {
     }
 
     public function getURL(path:String) {
+		if (path.length > 0 && path.charAt(0) != "/")
+			path = "/" + path;
 		return (ssl ? "https://" : "http://") + hostname + (port != 80 && port != 443 ? ":" + port : "") + path;
     }
 }
