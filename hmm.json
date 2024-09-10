@@ -57,8 +57,10 @@
     },
     {
       "name": "SScript",
-      "type": "haxelib",
-      "version": "17.0.618"
+      "type": "git",
+      "dir": null,
+      "ref": "main",
+      "url": "https://github.com/MobilePorting/SScript-Psych-Online"
     },
     {
       "name": "discord_rpc",
@@ -112,6 +114,11 @@
       "dir": null,
       "ref": "main",
       "url": "https://github.com/Snirozu/Lumod"
+    },
+    {
+      "name": "actuate",
+      "type": "haxelib",
+      "version": "1.9.0"
     }
   ]
 }
