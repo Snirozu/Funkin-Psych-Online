@@ -20,21 +20,44 @@ class FunkinNetwork {
 	public static var points(default, null):Float = 0;
 	public static var loggedIn:Bool = false;
 
-	public static function login(id:String, secret:String) {
+	public static function requestLogin(email:String, ?code:String) {
 		var response = requestAPI({
-			path: "/api/network/auth/reset",
-			headers: ["authorization" => getAuthHeader(id, secret)],
+			path: "/api/network/auth/login",
+			headers: ["content-type" => "application/json"],
+			body: Json.stringify({
+				email: email,
+				code: code
+			}),
 			post: true
 		});
 
 		if (response == null)
-			return;
+			return false;
 
-		var json = Json.parse(response.body);
-		Waiter.put(() -> {
-			saveCredentials(json);
-			Alert.alert("Successfully logged in!");
+		if (code != null)
+			saveCredentials(Json.parse(response.body));
+
+		return true;
+	}
+
+	public static function setEmail(email:String, ?code:String) {
+		var emailSplit = email.split(' from ');
+
+		var response = requestAPI({
+			path: "/api/network/auth/email/set",
+			headers: ["authorization" => getAuthHeader(), "content-type" => "application/json"],
+			body: Json.stringify({
+				email: emailSplit[0].trim(),
+				old_email: emailSplit[1].trim(),
+				code: code
+			}),
+			post: true
 		});
+
+		if (response == null)
+			return false;
+
+		return true;
 	}
 
 	public static function logout() {
@@ -93,7 +116,7 @@ class FunkinNetwork {
 		ClientPrefs.data.networkAuthID = json.id;
 		ClientPrefs.data.networkAuthToken = json.token;
 		ClientPrefs.saveSettings();
-		new FileReference().save(json.id + "\n" + json.secret, "recovery_token.txt");
+		// new FileReference().save(json.id + "\n" + json.secret, "recovery_token.txt");
 		ping();
 	}
 
