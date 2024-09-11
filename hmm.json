@@ -52,15 +52,17 @@
     },
     {
       "name": "hxCodec",
-      "type": "haxelib",
-      "version": "3.0.2"
+      "type": "git",
+      "dir": null,
+      "ref": "cafc58e9046505ff93fa659339808b53faa5d6f3",
+      "url": "https://github.com/polybiusproxy/hxCodec"
     },
     {
       "name": "SScript",
       "type": "git",
       "dir": null,
       "ref": "main",
-      "url": "https://github.com/MobilePorting/SScript-Psych-Online"
+      "url": "https://github.com/mcagabe19-stuff/SScript-17.0.618"
     },
     {
       "name": "discord_rpc",
@@ -74,7 +76,7 @@
       "type": "git",
       "dir": null,
       "ref": "master",
-      "url": "https://github.com/superpowers04/linc_luajit"
+      "url": "https://github.com/mcagabe19-stuff/linc_luajit-rewriten"
     },
     {
       "name": "colyseus",
