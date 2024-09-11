@@ -463,6 +463,7 @@ class OnlineState extends MusicBeatState {
 						FlxG.sound.playMusic(Paths.sound('cabbage'));
 						return;
 					}
+					#if VIDEOS_ALLOWED
 					else if (daCoomCode.toLowerCase() == "reddit") {
 						FreeplayState.destroyFreeplayVocals();
 						FlxG.sound.music.stop();
@@ -470,6 +471,7 @@ class OnlineState extends MusicBeatState {
 						var ass = new FlxSprite();
 						ass.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 						add(ass);
+						
 						
 						var video = new hxcodec.flixel.FlxVideo();
 						video.play(Paths.video('enables'));
@@ -494,9 +496,9 @@ class OnlineState extends MusicBeatState {
 							DiscordClient.loadModRPC();
 							#end
 						}, true);
-					
 						return;
 					}
+					#end
 					GameClient.joinRoom(daCoomCode, onRoomJoin);
 			}
 		}
