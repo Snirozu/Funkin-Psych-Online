@@ -52,7 +52,7 @@ jobs:
       - name: Compile
         run: haxelib run lime build Project.xml linux --app-version="4.0.0-${{ github.run_id}}"
       - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v4
         with:
           name: linuxBuild
           path: 'export/release/linux/bin'
@@ -88,7 +88,7 @@ jobs:
       - name: Compile
         run: haxelib run lime build windows --app-version="4.0.0-${{ github.run_id}}"
       - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v4
         with:
           name: windowsBuild
           path: export/release/windows/bin
@@ -123,7 +123,7 @@ jobs:
       - name: Compile
         run: haxelib run lime build mac --app-version="4.0.0-${{ github.run_id}}"
       - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v4
         with:
           name: macBuild
           path: export/release/macos/bin
@@ -180,7 +180,7 @@ jobs:
   #     - name: Compile
   #       run: haxelib run lime build Project.xml android -D HXCPP_M64 --app-version="4.0.0-${{ github.run_id}}"
   #     - name: Publish Artifact
-  #       uses: actions/upload-artifact@v2.2.4
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: androidBuild (experimental)
   #         path: 'export/release/android/bin/app/build/outputs/apk'
@@ -216,7 +216,7 @@ jobs:
   #     - name: Compile
   #       run: haxelib run lime build ios --app-version="4.0.0-${{ github.run_id}}"
   #     - name: Publish Artifact
-  #       uses: actions/upload-artifact@v2.2.4
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: iOSBuild (experimental)
   #         path: export/release/ios/build/
