@@ -75,7 +75,7 @@
       "name": "linc_luajit",
       "type": "git",
       "dir": null,
-      "ref": "master",
+      "ref": "main",
       "url": "https://github.com/mcagabe19-stuff/linc_luajit-rewriten"
     },
     {
