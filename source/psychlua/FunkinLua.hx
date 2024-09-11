@@ -198,7 +198,7 @@ class FunkinLua {
 		for (name => func in customFunctions)
 		{
 			if(func != null)
-				Lua_helper.add_callback(lua, name, func);
+				set(name, func);
 		}
 
 		//
@@ -1677,6 +1677,11 @@ class FunkinLua {
 	public function set(variable:String, data:Dynamic) {
 		#if LUA_ALLOWED
 		if(lua == null) {
+			return;
+		}
+
+		if (Reflect.isFunction(data)) {
+			Lua_helper.add_callback(lua, variable, data);
 			return;
 		}
 
