@@ -58,6 +58,14 @@ class Main extends Sprite
 
 	public static function main():Void
 	{
+		if (Path.normalize(Sys.getCwd()) != Path.normalize(lime.system.System.applicationDirectory)) {
+			Lib.application.window.alert("Your path is either not run from the game directory,\nor contains illegal UTF-8 characters!\n\nRun from: "
+				+ Sys.getCwd()
+				+ "\nExpected path: " + lime.system.System.applicationDirectory, 
+			"Invalid Runtime Path!");
+			Sys.exit(1);
+		}
+
 		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
 		Lib.current.addChild(new Main());
 		//TBA
