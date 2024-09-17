@@ -105,6 +105,11 @@ class GameClient {
 		}
 
 		GameClient.room.onLeave += () -> {
+			trace("Left!");
+			if (room?.roomId != null) {
+				trace("Left from room: " + room.roomId);
+			}
+
 			if (client == null) {
 				leaveRoom();
 			}
@@ -304,9 +309,11 @@ class GameClient {
 				}
 				catch (exc) {
 					_pendingMessages.push([type, message]);
-					if (reconnectTries <= 0)
+
+					if (reconnectTries <= 0) {
+						trace(exc + " : FAILED TO SEND: " + type + " -> " + message);
 						reconnect();
-					//trace(exc + " : FAILED TO SEND: " + type + " -> " + message);
+					}
 				}
 			});
 	}

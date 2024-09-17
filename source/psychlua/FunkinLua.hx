@@ -210,147 +210,147 @@ class FunkinLua {
 			return runningScripts;
 		});
 
-		addLocalCallback("sendMessage", function(type:String, message:Dynamic) {
+		addLuaCallback("sendMessage", function(type:String, message:Dynamic) {
 			online.GameClient.send("custom", [type, message]);
 		});
 
-		addLocalCallback("playsAsBF", function() {
+		addLuaCallback("playsAsBF", function() {
 			return PlayState.playsAsBF();
 		});
 
-		addLocalCallback("isRoomOwner", function() {
+		addLuaCallback("isRoomOwner", function() {
 			return GameClient.isOwner;
 		});
 
-		addLocalCallback("hasRoomPerms", function() {
+		addLuaCallback("hasRoomPerms", function() {
 			return GameClient.hasPerms();
 		});
 
-		addLocalCallback("isRoomConnected", function() {
+		addLuaCallback("isRoomConnected", function() {
 			return GameClient.isConnected();
 		});
 
-		addLocalCallback("getStateSong", function() {
+		addLuaCallback("getStateSong", function() {
 			return GameClient.room.state.song;
 		});
 
-		addLocalCallback("getStateFolder", function() {
+		addLuaCallback("getStateFolder", function() {
 			return GameClient.room.state.folder;
 		});
 
-		addLocalCallback("getStateDiff", function() {
+		addLuaCallback("getStateDiff", function() {
 			return GameClient.room.state.diff;
 		});
 
-		addLocalCallback("getStateModDir", function() {
+		addLuaCallback("getStateModDir", function() {
 			return GameClient.room.state.modDir;
 		});
 
-		addLocalCallback("getStateModURL", function() {
+		addLuaCallback("getStateModURL", function() {
 			return GameClient.room.state.modURL;
 		});
 
-		addLocalCallback("getStateIsPrivate", function() {
+		addLuaCallback("getStateIsPrivate", function() {
 			return GameClient.room.state.isPrivate;
 		});
 
-		addLocalCallback("getStateIsStarted", function() {
+		addLuaCallback("getStateIsStarted", function() {
 			return GameClient.room.state.isStarted;
 		});
 
-		addLocalCallback("isSwapSides", function() {
+		addLuaCallback("isSwapSides", function() {
 			return GameClient.room.state.swagSides;
 		});
 
-		addLocalCallback("isAnarchyMode", function() {
+		addLuaCallback("isAnarchyMode", function() {
 			return GameClient.room.state.anarchyMode;
 		});
 
-		addLocalCallback("getPlayerScore", function(player:Int) {
+		addLuaCallback("getPlayerScore", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.score;
 			else
 				return GameClient.room.state.player2.score;
 		});
 
-		addLocalCallback("getPlayerMisses", function(player:Int) {
+		addLuaCallback("getPlayerMisses", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.misses;
 			else
 				return GameClient.room.state.player2.misses;
 		});
 
-		addLocalCallback("getPlayerSicks", function(player:Int) {
+		addLuaCallback("getPlayerSicks", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.sicks;
 			else
 				return GameClient.room.state.player2.sicks;
 		});
 
-		addLocalCallback("getPlayerGoods", function(player:Int) {
+		addLuaCallback("getPlayerGoods", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.goods;
 			else
 				return GameClient.room.state.player2.goods;
 		});
 
-		addLocalCallback("getPlayerBads", function(player:Int) {
+		addLuaCallback("getPlayerBads", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.bads;
 			else
 				return GameClient.room.state.player2.bads;
 		});
 
-		addLocalCallback("getPlayerShits", function(player:Int) {
+		addLuaCallback("getPlayerShits", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.shits;
 			else
 				return GameClient.room.state.player2.shits;
 		});
 
-		addLocalCallback("getPlayerName", function(player:Int) {
+		addLuaCallback("getPlayerName", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.name;
 			else
 				return GameClient.room.state.player2.name;
 		});
 
-		addLocalCallback("getPlayerHasLoaded", function(player:Int) {
+		addLuaCallback("getPlayerHasLoaded", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.hasLoaded;
 			else
 				return GameClient.room.state.player2.hasLoaded;
 		});
 
-		addLocalCallback("getPlayerHasEnded", function(player:Int) {
+		addLuaCallback("getPlayerHasEnded", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.hasEnded;
 			else
 				return GameClient.room.state.player2.hasEnded;
 		});
 
-		addLocalCallback("getPlayerPing", function(player:Int) {
+		addLuaCallback("getPlayerPing", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.ping;
 			else
 				return GameClient.room.state.player2.ping;
 		});
 
-		addLocalCallback("getPlayerSkinMod", function(player:Int) {
+		addLuaCallback("getPlayerSkinMod", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.skinMod;
 			else
 				return GameClient.room.state.player2.skinMod;
 		});
 
-		addLocalCallback("getPlayerSkinName", function(player:Int) {
+		addLuaCallback("getPlayerSkinName", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.skinName;
 			else
 				return GameClient.room.state.player2.skinName;
 		});
 
-		addLocalCallback("getPlayerSkinURL", function(player:Int) {
+		addLuaCallback("getPlayerSkinURL", function(player:Int) {
 			if (player == 1)
 				return GameClient.room.state.player1.skinURL;
 			else
@@ -1832,6 +1832,12 @@ class FunkinLua {
 		#if LUA_ALLOWED
 		callbacks.set(name, myFunction);
 		Lua_helper.add_callback(lua, name, null); //just so that it gets called
+		#end
+	}
+
+	public function addLuaCallback(name:String, myFunction:Dynamic) {
+		#if LUA_ALLOWED
+		Lua_helper.add_callback(lua, name, myFunction); // just so that it gets called
 		#end
 	}
 	
