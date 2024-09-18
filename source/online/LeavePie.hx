@@ -26,6 +26,9 @@ class LeavePie extends FlxTypedSpriteGroup<FlxSprite> {
 		exitTip.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		exitTip.alpha = 0;
 		add(exitTip);
+
+		pieDial.x = FlxG.width / 2 - pieDial.width / 2 - 80;
+		exitTip.x = FlxG.width / 2 - exitTip.width / 2 + 80;
     }
 
     override function update(elapsed) {

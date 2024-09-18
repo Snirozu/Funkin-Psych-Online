@@ -202,6 +202,10 @@ class OnlineState extends MusicBeatState {
 		networkBg.scale.set(networkPlayer.width + 20, networkPlayer.height + 20);
 		networkBg.updateHitbox();
 
+		// slide to the right
+		networkBg.x = FlxG.width - networkBg.width - 20;
+		networkPlayer.x = networkBg.x + 10;
+
 		var frontMessage = new FlxText(0, 0, 500);
 		frontMessage.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		frontMessage.alpha = 0.5;
