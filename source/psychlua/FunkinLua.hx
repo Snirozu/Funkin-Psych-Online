@@ -356,6 +356,20 @@ class FunkinLua {
 			else
 				return GameClient.room.state.player2.skinURL;
 		});
+
+		addLuaCallback("getPlayerAccuracy", function(player:Int) {
+			if (player == 1)
+				return GameClient.getPlayerAccuracyPercent(GameClient.room.state.player1);
+			else
+				return GameClient.getPlayerAccuracyPercent(GameClient.room.state.player2);
+		});
+
+		addLuaCallback("getPlayerRating", function(player:Int) {
+			if (player == 1)
+				return GameClient.getPlayerRating(GameClient.room.state.player1);
+			else
+				return GameClient.getPlayerRating(GameClient.room.state.player2);
+		});
 		
 		addLocalCallback("setOnScripts", function(varName:String, arg:Dynamic, ?ignoreSelf:Bool = false, ?exclusions:Array<String> = null) {
 			if(exclusions == null) exclusions = [];

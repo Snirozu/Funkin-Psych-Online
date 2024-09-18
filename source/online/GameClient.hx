@@ -403,6 +403,21 @@ class GameClient {
 		return CoolUtil.floorDecimal(Math.min(1, Math.max(0, totalNotesHit / totalPlayed)) * 100, 2);
 	}
 
+	public static function getPlayerRating(player:Player) {
+		var ratingFC = 'Clear';
+		if (player.misses < 1) {
+			if (player.bads > 0 || player.shits > 0)
+				ratingFC = 'FC';
+			else if (player.goods > 0)
+				ratingFC = 'GFC';
+			else if (player.sicks > 0)
+				ratingFC = 'SFC';
+		}
+		else if (player.misses < 10)
+			ratingFC = 'SDCB';
+		return ratingFC;
+	}
+
 	public static function getRoomSecret(?forceAddress:Bool = false) {
 		if (forceAddress || GameClient.address != GameClient.serverAddresses[0])
 			return '${GameClient.room.roomId};${GameClient.address}';

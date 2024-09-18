@@ -189,8 +189,8 @@ class ResultsScreen extends MusicBeatState {
 		if (p2Name.trim() == "")
 			p2Name = "(none)";
 
-		p1Text.text = '${p1Name}\nAccuracy: ${p1Accuracy}% - ${getCoolRating(getPlayer(1))}\nMisses: ${getPlayer(1).misses}\nScore: ${getPlayer(1).score}';
-		p2Text.text = '${p2Name}\nAccuracy: ${p2Accuracy}% - ${getCoolRating(getPlayer(2))}\nMisses: ${getPlayer(2).misses}\nScore: ${getPlayer(2).score}';
+		p1Text.text = '${p1Name}\nAccuracy: ${p1Accuracy}% - ${GameClient.getPlayerRating(getPlayer(1))}\nMisses: ${getPlayer(1).misses}\nScore: ${getPlayer(1).score}';
+		p2Text.text = '${p2Name}\nAccuracy: ${p2Accuracy}% - ${GameClient.getPlayerRating(getPlayer(2))}\nMisses: ${getPlayer(2).misses}\nScore: ${getPlayer(2).score}';
 
 		p1Text.x = 176;
 		p2Text.x = 702;
@@ -348,21 +348,6 @@ class ResultsScreen extends MusicBeatState {
 			if (back.animation.curAnim.name != "press")
 				back.animation.play('black');
         }
-    }
-
-    function getCoolRating(player:Player) {
-		var ratingFC = 'Clear';
-		if (player.misses < 1) {
-			if (player.bads > 0 || player.shits > 0)
-				ratingFC = 'FC';
-			else if (player.goods > 0)
-				ratingFC = 'GFC';
-			else if (player.sicks > 0)
-				ratingFC = 'SFC';
-		}
-		else if (player.misses < 10)
-			ratingFC = 'SDCB';
-		return ratingFC;
     }
 
 	function loadCharacter(isP1:Bool, ?enableDownload:Bool = true) {
