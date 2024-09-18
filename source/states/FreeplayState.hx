@@ -518,6 +518,10 @@ class FreeplayState extends MusicBeatState
 					leaderboardTimer.cancel();
 				leaderboardTimer = new FlxTimer().start(0.5, t -> { generateLeaderboard(); });
 			}
+
+			if (FlxG.keys.justPressed.TAB) {
+				FlxG.switchState(() -> new online.states.SkinsState());
+			}
 		}
 		else {
 			if (controls.BACK) {
@@ -811,7 +815,7 @@ class FreeplayState extends MusicBeatState
 					camera.targetOffset.y += 200;
 				}
 				else
-					infoText.text = "Press ACCEPT to select the current Song / Press SPACE to listen to the Song";
+					infoText.text = "Press ACCEPT to select the current Song / Press SPACE to listen to the Song / Press TAB to select your character!";
 
 				if (centerPoint == null)
 					centerPoint = new FlxObject(FlxG.width / 2, FlxG.height / 2);

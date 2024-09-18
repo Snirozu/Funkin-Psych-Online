@@ -1,5 +1,6 @@
 package online.states;
 
+import states.FreeplayState;
 import states.editors.CharacterEditorState;
 import backend.WeekData;
 import haxe.io.Path;
@@ -10,7 +11,7 @@ import objects.Character;
 // this is the most painful class to be made 
 class SkinsState extends MusicBeatState {
     // kill me
-    var characterList:Map<String, Character> = new Map<String, Character>();
+    //var characterList:Map<String, Character> = new Map<String, Character>();
 	var charactersName:Map<Int, String> = new Map<Int, String>();
 	var charactersLength:Int = 0;
     var character:FlxTypedGroup<Character>;
@@ -28,13 +29,71 @@ class SkinsState extends MusicBeatState {
 
 	static var flipped:Bool = false;
 
+	static var backClass:Class<Dynamic>;
+
+	var reloadedState:Bool = false;
+	public function new() {
+		super();
+
+		if (FlxG.state is SkinsState) {
+			reloadedState = true;
+			return;
+		}
+
+		backClass = Type.getClass(FlxG.state);
+	}
+
+	var blackRectangle:FlxSprite;
+
+	public static var music:FlxSound;
+	public static var musicIntro:FlxSound;
+	
+	static var prevConBPM:Float;
+	static var prevConBPMChanges:Array<backend.BPMChangeEvent>;
+	static var prevConTime:Float;
+
+	var staticMan:FlxSprite;
+	var selectTimer:FlxTimer;
+
     override function create() {
+		Paths.clearUnusedMemory();
+		Paths.clearStoredMemory();
+
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Selects their Skin", null, null, false);
 		#end
 
 		Mods.loadTopMod();
 		WeekData.setDirectoryFromWeek();
+		
+		if (!reloadedState) {
+			for (v in [FlxG.sound.music, FreeplayState.vocals, FreeplayState.opponentVocals]) {
+				if (v == null)
+					continue;
+
+				v.pause();
+			}
+
+			prevConBPM = Conductor.bpm;
+			prevConBPMChanges = Conductor.bpmChangeMap;
+			prevConTime = Conductor.songPosition;
+
+			musicIntro = FlxG.sound.play(Paths.music('stayFunky-intro'), 1, false);
+			music = FlxG.sound.play(Paths.music('stayFunky'), 1, true);
+			music.pause();
+			musicIntro.onComplete = () -> {
+				music.play();
+			}
+
+			musicIntro.persist = true;
+			music.persist = true;
+			FlxG.sound.list.add(musicIntro);
+			FlxG.sound.list.add(music);
+
+			Conductor.bpm = 90;
+			Conductor.bpmChangeMap = [];
+			Conductor.songPosition = 0;
+		}
 
 		FlxG.cameras.add(characterCamera = new FlxCamera(), false);
 		FlxG.cameras.add(hud = new FlxCamera(), false);
@@ -42,6 +101,10 @@ class SkinsState extends MusicBeatState {
 		characterCamera.bgColor.alpha = 0;
 		hud.bgColor.alpha = 0;
 		characterCamera.zoom = 0.8;
+
+		blackRectangle = new FlxSprite();
+		blackRectangle.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		blackRectangle.cameras = [hud];
 
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff303030;
@@ -84,11 +147,11 @@ class SkinsState extends MusicBeatState {
 							if (name == null)
 								hardList.push(character);
 
-							characterList.set(character, new Character(0, 0, character, flipped));
+							//characterList.set(character, new Character(0, 0, character, flipped));
 							charactersMod.set(character, name);
 							charactersName.set(i, character);
 
-							characterList.get(character).updateHitbox();
+							//characterList.get(character).updateHitbox();
 
 							if (curCharacter == -1 && isEquiped(name, !flipped ? character + "-player" : character.substring(0, character.length - "-player".length))) {
 								curCharacter = i;
@@ -107,6 +170,17 @@ class SkinsState extends MusicBeatState {
         character = new FlxTypedGroup<Character>();
 		character.cameras = [characterCamera];
         add(character);
+
+		staticMan = new FlxSprite();
+		staticMan.antialiasing = ClientPrefs.data.antialiasing;
+		staticMan.frames = Paths.getSparrowAtlas('randomChill');
+		staticMan.animation.addByPrefix('idle', "LOCKED MAN instance 1", 24);
+		staticMan.animation.play('idle');
+		staticMan.flipX = !flipped;
+		staticMan.updateHitbox();
+		staticMan.screenCenter(XY);
+		staticMan.y += 50;
+		add(staticMan);
 
 		var barUp = new FlxSprite();
 		barUp.makeGraphic(FlxG.width, 100, FlxColor.BLACK);
@@ -167,7 +241,7 @@ class SkinsState extends MusicBeatState {
 		tip1.cameras = [hud];
 		add(tip1);
 
-		var tip2 = new FlxText(-20, 0, FlxG.width, '9 - Flip skin');
+		var tip2 = new FlxText(-20, 0, FlxG.width, 'TAB - Flip skin');
 		tip2.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		tip2.y = tip1.y;
 		tip2.alpha = tip1.alpha;
@@ -184,34 +258,59 @@ class SkinsState extends MusicBeatState {
     }
 
     var acceptSound:FlxSound;
+	var stopUpdates:Bool = false;
+	var leftHoldTime:Float = 0;
+	var rightHoldTime:Float = 0;
 
     override function update(elapsed) {
         super.update(elapsed);
 
+		if (controls.UI_LEFT)
+			leftHoldTime += elapsed;
+		else
+			leftHoldTime = 0;
+
+		if (controls.UI_RIGHT)
+			rightHoldTime += elapsed;
+		else
+			rightHoldTime = 0;
+
+		if (stopUpdates) {
+			return;
+		}
+
+		if (music != null && music.playing) {
+			Conductor.songPosition = music.time;
+		}
+
         if (FlxG.keys.pressed.SHIFT) {
-			if (controls.NOTE_UP) {
-				character.members[0].playAnim("singUP");
-			}
-			if (controls.NOTE_DOWN) {
-				character.members[0].playAnim("singDOWN");
-			}
-			if (controls.NOTE_LEFT) {
-				character.members[0].playAnim("singLEFT");
-			}
-			if (controls.NOTE_RIGHT) {
-				character.members[0].playAnim("singRIGHT");
+			if (character.members[0] != null) {
+				if (controls.NOTE_UP) {
+					character.members[0].playAnim("singUP");
+				}
+				if (controls.NOTE_DOWN) {
+					character.members[0].playAnim("singDOWN");
+				}
+				if (controls.NOTE_LEFT) {
+					character.members[0].playAnim("singLEFT");
+				}
+				if (controls.NOTE_RIGHT) {
+					character.members[0].playAnim("singRIGHT");
+				}
 			}
         }
         else {
 			if (controls.UI_LEFT_P) {
 				setCharacter(-1);
 			}
-			if (controls.UI_RIGHT_P) {
+			else if (controls.UI_RIGHT_P) {
 				setCharacter(1);
 			}
         }
 
         if (controls.BACK) {
+			stopUpdates = true;
+
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			if (GameClient.isConnected()) {
 				if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
@@ -221,7 +320,29 @@ class SkinsState extends MusicBeatState {
 					GameClient.send("setSkin", null);
 				}
 			}
-			FlxG.switchState(() -> GameClient.isConnected() ? new RoomState() : new OptionsState());
+
+			FlxTween.tween(blackRectangle, {alpha: 1}, 0.5, {ease: FlxEase.quadInOut});
+			blackRectangle.alpha = 0;
+			add(blackRectangle);
+
+			var funkySound = music.playing ? music : musicIntro;
+			funkySound.fadeOut(0.5, 0, t -> {
+				funkySound.stop();
+
+				for (v in [FlxG.sound.music, FreeplayState.vocals, FreeplayState.opponentVocals]) {
+					if (v == null)
+						continue;
+
+					v.play();
+					v.fadeIn(0.5, 0, 1);
+				}
+
+				Conductor.bpm = prevConBPM;
+				Conductor.bpmChangeMap = prevConBPMChanges;
+				Conductor.songPosition = prevConTime;
+
+				FlxG.switchState(() -> Type.createInstance(backClass, []));
+			});
         }
 
         if (controls.ACCEPT) {
@@ -247,8 +368,10 @@ class SkinsState extends MusicBeatState {
 				charSelect.alpha = 0.8;
 			}
 			if (acceptSound == null || !acceptSound.playing)
-			    acceptSound = FlxG.sound.play(Paths.sound('confirmMenu'));
-			character.members[0].playAnim("hey");
+				acceptSound = FlxG.sound.play(Paths.sound('CS_confirm'));
+
+			if (character.members[0] != null)
+				character.members[0].playAnim("hey");
         }
 
 		if (FlxG.keys.justPressed.EIGHT) {
@@ -256,7 +379,7 @@ class SkinsState extends MusicBeatState {
 			FlxG.switchState(() -> new CharacterEditorState(charactersName.get(curCharacter), false, true));
 		}
 
-		if (FlxG.keys.justPressed.NINE) {
+		if (FlxG.keys.justPressed.TAB) {
 			flipped = !flipped;
 			LoadingState.loadAndSwitchState(new SkinsState());
 		}
@@ -266,35 +389,70 @@ class SkinsState extends MusicBeatState {
 		}
     }
 
-    function setCharacter(difference:Int) {
+    function setCharacter(difference:Int, ?beatHold:Bool = false) {
+		var prevCharacter = curCharacter;
+
 		curCharacter += difference;
 
 		if (curCharacter >= charactersLength) {
-			curCharacter = charactersLength - 1;
+			curCharacter = beatHold ? 0 : charactersLength - 1;
 		}
 		else if (curCharacter < 0) {
-			curCharacter = 0;
+			curCharacter = beatHold ? charactersLength - 1 : 0;
+		}
+
+		if (difference != 0 && curCharacter == prevCharacter) {
+			return;
+		}
+
+		if (difference != 0) {
+			FlxG.sound.play(Paths.sound('CS_select'));
 		}
 
 		arrowLeft.visible = curCharacter > 0;
 		arrowRight.visible = curCharacter < charactersLength - 1;
 
-        character.clear();
+		if (character.members[0] != null) {
+			character.members[0].destroy();
+		}
+		character.clear();
+
+		staticMan.visible = true;
+
 		if (charactersName.exists(curCharacter)) {
 			var curCharName = charactersName.get(curCharacter);
-			character.add(characterList.get(curCharName));
-			character.members[0].dance();
-			character.members[0].animation.finishCallback = function(name) character.members[0].dance();
 
-			character.members[0].x = 420 + character.members[0].positionArray[0];
-			character.members[0].y = -100 + character.members[0].positionArray[1];
+			if (selectTimer != null)
+				selectTimer.cancel();
+
+			selectTimer = new FlxTimer().start(1, t -> {
+				var curCharName = charactersName.get(curCharacter); // re-define it lol
+
+				if (character.members[0] != null) {
+					character.members[0].destroy();
+				}
+				character.clear();
+
+				staticMan.visible = false;
+
+				// character.add(characterList.get(curCharName));
+
+				Mods.currentModDirectory = charactersMod.get(curCharName);
+				character.add(new Character(0, 0, curCharName, flipped));
+
+				character.members[0].x = 420 + character.members[0].positionArray[0];
+				character.members[0].y = -100 + character.members[0].positionArray[1];
+
+				var hca = character.members[0].healthColorArray;
+				tweenColor(FlxColor.fromRGB(hca[0], hca[1], hca[2]));
+			});
 
 			curCharName = !flipped ? curCharName : curCharName.substring(0, curCharName.length - "-player".length);
 
 			title.text = curCharName == "default" ? "BOYFRIEND" : curCharName;
 			title.x = FlxG.width / 2 - title.width / 2;
 
-			if (isEquiped(charactersMod.get(curCharName), curCharName)) {
+			if (isEquiped(Mods.currentModDirectory, curCharName)) {
 				charSelect.text = 'Selected!';
 				charSelect.alpha = 1;
 			}
@@ -303,8 +461,7 @@ class SkinsState extends MusicBeatState {
 				charSelect.alpha = 0.8;
             }
 
-			var hca = character.members[0].healthColorArray;
-			tweenColor(FlxColor.fromRGB(hca[0], hca[1], hca[2]));
+			tweenColor(FlxColor.fromRGB(150, 150, 150));
         }
     }
 
@@ -334,4 +491,27 @@ class SkinsState extends MusicBeatState {
 		return ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2
 			&& mod == ClientPrefs.data.modSkin[0] && skin == ClientPrefs.data.modSkin[1];
     }
+
+	override function beatHit() {
+		super.beatHit();
+
+		if (character.members[0] != null && character.members[0].animation.curAnim.finished)
+			character.members[0].dance();
+
+		if (staticMan.visible)
+			staticMan.animation.play('idle');
+	}
+
+	override function stepHit() {
+		super.stepHit();
+
+		// thats how you do it ninjamuffin duh
+		if (!FlxG.keys.pressed.SHIFT)
+			if (leftHoldTime > 0.5) {
+				setCharacter(-1, true);
+			}
+			else if (rightHoldTime > 0.5) {
+				setCharacter(1, true);
+			}
+	}
 }
