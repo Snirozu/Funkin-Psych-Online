@@ -527,6 +527,7 @@ class RoomState extends MusicBeatState {
 	var optionShake:FlxTween;
 
 	var elapsedShit = 3.;
+	var lastFocused = false;
     override function update(elapsed:Float) {
 		if (FlxG.keys.justPressed.F12) {
 			trace('reloading lumod');
@@ -536,6 +537,15 @@ class RoomState extends MusicBeatState {
 		
 		if (!GameClient.isConnected())
 			return;
+
+		if (lastFocused != (chatBox.focused && chatBox.typeText.text.length > 0)) {
+			if (!lastFocused) // is now typing
+				GameClient.send("status", "Typing...");
+			else
+				GameClient.send("status", "In the Lobby");
+		}
+
+		lastFocused = chatBox.focused && chatBox.typeText.text.length > 0;
 
 		if (lastSwapped != GameClient.room.state.swagSides) {
 			loadCharacter(true);
