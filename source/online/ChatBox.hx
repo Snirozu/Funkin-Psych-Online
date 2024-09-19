@@ -30,7 +30,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 	var bg:FlxSprite;
 	var chatGroup:FlxTypedSpriteGroup<ChatMessage> = new FlxTypedSpriteGroup<ChatMessage>();
 	var typeBg:FlxSprite;
-    var typeText:InputText;
+    public var typeText:InputText;
     var typeTextHint:FlxText; // i can call it a hint or tip whatever i want
 	var targetAlpha:Float;
 	var chatHeight:Float;
