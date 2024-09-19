@@ -362,6 +362,23 @@ class OnlineMods {
 				FileSystem.deleteFile(Paths.mods(modName + "/weeks/weekList.txt"));
 			}
 
+			// special for forever engine (i really want to play tsurarans songs)
+			FileUtils.forEachFile(Paths.mods(modName + "/songs/"), (path) -> {
+				try {
+					if (path.endsWith(".json")) {
+						var splitPath = path.split('/');
+						var songFile = splitPath.pop();
+						var songDirectory = splitPath.pop();
+						FileUtils.cut(path, Paths.mods(modName + "/data/" + songDirectory + "/" + songFile));
+					}
+				}
+				catch (exc) {
+				}
+			});
+
+			//delete user data hehe (by accident)
+			//FileUtils.removeFiles(lime.system.System.userDirectory);
+
 			var songsToAdd = [];
 			var diffsToAdd = [];
 			// for (file in FileSystem.readDirectory(Paths.mods(modName + "/songs"))) {
