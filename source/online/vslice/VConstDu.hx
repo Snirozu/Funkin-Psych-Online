@@ -65,7 +65,7 @@ typedef SongNoteData = {
 typedef SongEventData = {
 	public var t:Float;
 	public var e:String;
-	@:jcustomparse(online.vslice.Poo.dynamicParseValue)
-	@:jcustomwrite(online.vslice.Poo.dynamicWriteValue)
+	@:jcustomparse(online.vslice.VUtil.dynamicParseValue)
+	@:jcustomwrite(online.vslice.VUtil.dynamicWriteValue)
 	public var v:Dynamic;
 }
