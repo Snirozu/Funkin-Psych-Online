@@ -1799,7 +1799,7 @@ class PlayState extends MusicBeatState
 		vocals.play();
 		opponentVocals.play();
 
-		if(startOnTime > 0) setSongTime(startOnTime - 500);
+		setSongTime(Math.max(0, startOnTime - 500));
 		startOnTime = 0;
 
 		if(paused) {
@@ -2224,28 +2224,27 @@ class PlayState extends MusicBeatState
 		#end
 	}
 
-	public function resyncVocals(?updateConductor = true):Void
+	public function resyncVocals():Void
 	{
 		if(finishTimer != null) return;
 
-		vocals.pause();
-		opponentVocals.pause();
+		trace('resynced vocals at ' + Math.floor(Conductor.songPosition));
 
 		FlxG.sound.music.play();
 		#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
-		if (updateConductor)
-			Conductor.songPosition = FlxG.sound.music.time;
-		if (Conductor.songPosition <= vocals.length)
+		Conductor.songPosition = FlxG.sound.music.time;
+
+		var checkVocals = [vocals, opponentVocals];
+		for (voc in checkVocals)
 		{
-			vocals.time = Conductor.songPosition;
-			#if FLX_PITCH vocals.pitch = playbackRate; #end
+			if (Conductor.songPosition <= vocals.length)
+			{
+				voc.time = Conductor.songPosition;
+				#if FLX_PITCH voc.pitch = playbackRate; #end
+				voc.play();
+			}
+	
 		}
-		if (Conductor.songPosition <= opponentVocals.length) {
-			opponentVocals.time = Conductor.songPosition;
-			#if FLX_PITCH opponentVocals.pitch = playbackRate; #end
-		}
-		vocals.play();
-		opponentVocals.play();
 	}
 
 	public var paused:Bool = false;
@@ -4212,16 +4211,6 @@ class PlayState extends MusicBeatState
 	{
 		if (!isCreated) {
 			return;
-		}
-
-		if(FlxG.sound.music.time >= -ClientPrefs.data.noteOffset)
-		{
-			if (Math.abs(FlxG.sound.music.time - (Conductor.songPosition - Conductor.offset)) > (50 * playbackRate)
-				|| (vocals.length > 0 && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > (50 * playbackRate))
-				|| (opponentVocals.length > 0 && SONG.needsVoices && Math.abs(opponentVocals.time - (Conductor.songPosition - Conductor.offset)) > (50 * playbackRate))
-			) {
-				resyncVocals();
-			}
 		}
 
 		super.stepHit();
