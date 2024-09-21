@@ -1,6 +1,6 @@
 {
 	"songs": [
-		["Cocoa", "parents", [160, 209, 255]],
+		["Cocoa", "parents", [160, 209, 255], true, true],
 		["Eggnog", "parents", [160, 209, 255], true, true],
 		["Winter Horrorland", "monster", [160, 209, 255]]
 	],

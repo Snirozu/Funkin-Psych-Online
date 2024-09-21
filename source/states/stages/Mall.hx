@@ -36,6 +36,8 @@ class Mall extends BaseStage
 		add(bottomBoppers);
 
 		var fgSnow:BGSprite = new BGSprite('christmas/fgSnow', -600, 720);
+		fgSnow.setGraphicSize(Std.int(fgSnow.width * 1.3));
+		fgSnow.updateHitbox();
 		add(fgSnow);
 
 		santa = new BGSprite('christmas/santa', -840, 150, 1, 1, ['santa idle in fear']);
