@@ -6,7 +6,7 @@ import backend.Song.SwagSong;
 import lime.ui.FileDialog;
 import sys.io.File;
 import haxe.Json;
-import online.vslice.Shit;
+import online.vslice.VConstDu;
 
 class VUtil {
     public static function convertVSlice(path:String) {
@@ -99,7 +99,7 @@ class VUtil {
 			events: []
 		};
 
-		var sectionTime = Conductor.calculateCrochet(swagSong.bpm) * 4;
+		var sectionTime = (Conductor.calculateCrochet(swagSong.bpm) * 4);
 
 		var sectionNotes:Array<Array<Dynamic>> = [];
 		var curSection:Float = 0;
@@ -112,6 +112,17 @@ class VUtil {
 					sectionNotes: sectionNotes,
 				});
 				sectionNotes = [];
+
+				//add sections that are empty
+				var appendedSection = curSection;
+				while (appendedSection < calcSection - 1) {
+					appendedSection++;
+					swagSong.notes.push({
+						mustHitSection: true, // changed to a event note
+						sectionNotes: [],
+					});
+				}
+
 				curSection = calcSection;
 			}
 
@@ -132,4 +143,12 @@ class VUtil {
 
 		return Json.stringify({song: swagSong});
     }
+
+	public static function dynamicParseValue(json:hxjsonast.Json, name:String):Dynamic {
+		return hxjsonast.Tools.getValue(json);
+	}
+
+	public static function dynamicWriteValue(value:Dynamic):String {
+		return Json.stringify(value);
+	}
 }
