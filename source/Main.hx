@@ -50,7 +50,7 @@ class Main extends Sprite
 	public static var stage3D:AwayStage;
 	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.7.7";
+	public static final PSYCH_ONLINE_VERSION:String = "0.7.8";
 	public static final CLIENT_PROTOCOL:Float = 3;
 	public static final GIT_COMMIT:String = online.Macros.getGitCommitHash();
 
