@@ -1847,14 +1847,16 @@ class PlayState extends MusicBeatState
 		opponentVocals = new FlxSound();
 		if (songData.needsVoices) {
 			try {
-				var playerVocals = Paths.voices(curSong, (boyfriend.vocalsFile == null || boyfriend.vocalsFile.length < 1) ? 'Player' : boyfriend.vocalsFile, songSuffix);
-				vocals.loadEmbedded(playerVocals != null ? playerVocals : Paths.voices(curSong, null, songSuffix));
+				var playerVocals = Paths.voices(curSong, boyfriend.vocalsFile, songSuffix);
+				if (playerVocals == null) playerVocals = Paths.voices(curSong, 'Player', songSuffix);
+				vocals.loadEmbedded(playerVocals ?? Paths.voices(curSong, null, songSuffix));
 				
-				var oppVocals = Paths.voices(curSong, (dad.vocalsFile == null || dad.vocalsFile.length < 1) ? 'Opponent' : dad.vocalsFile, songSuffix);
+				var oppVocals = Paths.voices(curSong, dad.vocalsFile, songSuffix);
+				if (oppVocals == null) oppVocals = Paths.voices(curSong, 'Opponent', songSuffix);
 				if(oppVocals != null) opponentVocals.loadEmbedded(oppVocals);
 			}
 			catch (exc:Dynamic) {
-				vocals.loadEmbedded(Paths.voices(curSong, null, songSuffix));
+				//vocals.loadEmbedded(Paths.voices(curSong, null, songSuffix));
 			}
 		}
 
