@@ -1,5 +1,6 @@
 package online.states;
 
+import flixel.FlxObject;
 import states.FreeplayState;
 import states.editors.CharacterEditorState;
 import backend.WeekData;
@@ -7,6 +8,7 @@ import haxe.io.Path;
 import sys.FileSystem;
 import flixel.group.FlxGroup;
 import objects.Character;
+import flxanimate.FlxAnimate;
 
 // this is the most painful class to be made 
 class SkinsState extends MusicBeatState {
@@ -55,6 +57,10 @@ class SkinsState extends MusicBeatState {
 	var staticMan:FlxSprite;
 	var selectTimer:FlxTimer;
 
+	var stageCrowd:FlxAnimate;
+	var stageSpeakers:FlxAnimate;
+	var camFollow:FlxObject;
+
     override function create() {
 		Paths.clearUnusedMemory();
 		Paths.clearStoredMemory();
@@ -77,6 +83,11 @@ class SkinsState extends MusicBeatState {
 			prevConBPM = Conductor.bpm;
 			prevConBPMChanges = Conductor.bpmChangeMap;
 			prevConTime = Conductor.songPosition;
+
+			if (musicIntro != null)
+				musicIntro.stop();
+			if (music != null)
+				music.stop();
 
 			musicIntro = FlxG.sound.play(Paths.music('stayFunky-intro'), 1, false);
 			music = FlxG.sound.play(Paths.music('stayFunky'), 1, true);
@@ -102,15 +113,79 @@ class SkinsState extends MusicBeatState {
 		hud.bgColor.alpha = 0;
 		characterCamera.zoom = 0.8;
 
+		camFollow = new FlxObject(FlxG.width / 2, FlxG.height / 2 - 200, 1, 1);
+		
+		camera.follow(camFollow, LOCKON, 0.05);
+		characterCamera.follow(camFollow, LOCKON, 0.05);
+		camera.snapToTarget();
+		characterCamera.snapToTarget();
+
+		camFollow.setPosition(FlxG.width / 2, FlxG.height / 2);
+
 		blackRectangle = new FlxSprite();
 		blackRectangle.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		blackRectangle.cameras = [hud];
 
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff303030;
+		bg.setGraphicSize(Std.int(bg.width * 1.1));
 		bg.screenCenter();
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		add(bg);
+
+		if (!ClientPrefs.data.lowQuality) {
+			var stageBg = new FlxSprite(0, -220).loadGraphic(Paths.image('charSelect/charSelectBG'));
+			stageBg.setGraphicSize(Std.int(stageBg.width * 1.1));
+			stageBg.updateHitbox();
+			stageBg.antialiasing = ClientPrefs.data.antialiasing;
+			stageBg.screenCenter(X);
+			stageBg.scrollFactor.set(0.5, 0.5);
+			add(stageBg);
+
+			stageCrowd = new FlxAnimate(0, 240);
+			Paths.loadAnimateAtlas(stageCrowd, 'charSelect/crowd');
+			stageCrowd.antialiasing = ClientPrefs.data.antialiasing;
+			stageCrowd.anim.addBySymbol('beat', 'crowd', 24, true);
+			stageCrowd.anim.play('beat');
+			stageCrowd.scrollFactor.set(0.7, 0.7);
+			add(stageCrowd);
+
+			var stage = new FlxSprite(0, 390);
+			stage.antialiasing = ClientPrefs.data.antialiasing;
+			stage.frames = Paths.getSparrowAtlas('charSelect/charSelectStage');
+			stage.animation.addByPrefix('idle', "stage full instance 1", 24);
+			stage.animation.play('idle');
+			stage.updateHitbox();
+			stage.screenCenter(X);
+			stage.scrollFactor.set(0.9, 0.9);
+			add(stage);
+
+			var swageLight1 = new FlxSprite(200, 280).loadGraphic(Paths.image('charSelect/charLight'));
+			swageLight1.antialiasing = ClientPrefs.data.antialiasing;
+			swageLight1.scrollFactor.set(0.75, 0.75);
+			add(swageLight1);
+
+			var swageLight2 = new FlxSprite(700, 280).loadGraphic(Paths.image('charSelect/charLight'));
+			swageLight2.antialiasing = ClientPrefs.data.antialiasing;
+			swageLight2.scrollFactor.set(0.75, 0.75);
+			add(swageLight2);
+
+			var stageCurtain = new FlxSprite(0, 0).loadGraphic(Paths.image('charSelect/curtains'));
+			stageCurtain.setGraphicSize(Std.int(stageCurtain.width * 1.05));
+			stageCurtain.updateHitbox();
+			stageCurtain.antialiasing = ClientPrefs.data.antialiasing;
+			stageCurtain.screenCenter(XY);
+			stageCurtain.scrollFactor.set(0.95, 0.1);
+			add(stageCurtain);
+
+			stageSpeakers = new FlxAnimate(-80, 440);
+			Paths.loadAnimateAtlas(stageSpeakers, 'charSelect/charSelectSpeakers');
+			stageSpeakers.antialiasing = ClientPrefs.data.antialiasing;
+			stageSpeakers.anim.addBySymbol('beat', 'Speakers ALL', 24, true);
+			stageSpeakers.anim.play('beat');
+			stageSpeakers.scrollFactor.set(0.95, 0.95);
+			add(stageSpeakers);
+		}
 
         var i = 0;
 
@@ -261,6 +336,7 @@ class SkinsState extends MusicBeatState {
 	var stopUpdates:Bool = false;
 	var leftHoldTime:Float = 0;
 	var rightHoldTime:Float = 0;
+	var leavingState:Bool = false;
 
     override function update(elapsed) {
         super.update(elapsed);
@@ -275,7 +351,10 @@ class SkinsState extends MusicBeatState {
 		else
 			rightHoldTime = 0;
 
+		camFollow.setPosition(FlxG.width / 2, FlxG.height / 2);
+
 		if (stopUpdates) {
+			camFollow.y += !ClientPrefs.data.lowQuality ? 800 : 200;
 			return;
 		}
 
@@ -310,6 +389,8 @@ class SkinsState extends MusicBeatState {
 
         if (controls.BACK) {
 			stopUpdates = true;
+			camera.follow(camFollow, LOCKON, 0.01);
+			characterCamera.follow(camFollow, LOCKON, 0.01);
 
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			if (GameClient.isConnected()) {
@@ -327,7 +408,8 @@ class SkinsState extends MusicBeatState {
 
 			var funkySound = music.playing ? music : musicIntro;
 			funkySound.fadeOut(0.5, 0, t -> {
-				funkySound.stop();
+				musicIntro.stop();
+				music.stop();
 
 				for (v in [FlxG.sound.music, FreeplayState.vocals, FreeplayState.opponentVocals]) {
 					if (v == null)
@@ -387,6 +469,19 @@ class SkinsState extends MusicBeatState {
 		if (FlxG.keys.justPressed.F1) {
 			RequestState.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki#skins", true);
 		}
+
+		if (character.members[0] != null) {
+			switch (character.members[0].animation.curAnim.name) {
+				case 'singRIGHT':
+					camFollow.x += 20;
+				case 'singLEFT':
+					camFollow.x -= 20;
+				case 'singUP':
+					camFollow.y -= 20;
+				case 'singDOWN':
+					camFollow.y += 20;
+			}
+		}
     }
 
     function setCharacter(difference:Int, ?beatHold:Bool = false) {
@@ -438,7 +533,10 @@ class SkinsState extends MusicBeatState {
 				// character.add(characterList.get(curCharName));
 
 				Mods.currentModDirectory = charactersMod.get(curCharName);
-				character.add(new Character(0, 0, curCharName, flipped));
+
+				var daCharacter = new Character(0, 0, curCharName, flipped);
+				daCharacter.scrollFactor.set(1.2, 1.2);
+				character.add(daCharacter);
 
 				character.members[0].x = 420 + character.members[0].positionArray[0];
 				character.members[0].y = -100 + character.members[0].positionArray[1];
@@ -452,7 +550,7 @@ class SkinsState extends MusicBeatState {
 			title.text = curCharName == "default" ? "BOYFRIEND" : curCharName;
 			title.x = FlxG.width / 2 - title.width / 2;
 
-			if (isEquiped(Mods.currentModDirectory, curCharName)) {
+			if (isEquiped(charactersMod.get(curCharName), curCharName)) {
 				charSelect.text = 'Selected!';
 				charSelect.alpha = 1;
 			}
@@ -500,6 +598,9 @@ class SkinsState extends MusicBeatState {
 
 		if (staticMan.visible)
 			staticMan.animation.play('idle');
+
+		if (stageSpeakers != null)
+			stageSpeakers.anim.play('beat');
 	}
 
 	override function stepHit() {

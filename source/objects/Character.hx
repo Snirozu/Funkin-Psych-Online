@@ -152,7 +152,7 @@ class Character extends FlxSprite
 				if(json.healthbar_colors != null && json.healthbar_colors.length > 2)
 					healthColorArray = json.healthbar_colors;
 
-				vocalsFile = json.vocals_file != null ? json.vocals_file : '';
+				vocalsFile = json.vocals_file ?? curCharacter;
 
 				// antialiasing
 				noAntialiasing = (json.no_antialiasing == true);
