@@ -77,7 +77,7 @@ class ReplayPlayer extends FlxBasic {
 
 			if (Conductor.judgeSongPosition - Conductor.songPosition <= -50) {
 				Conductor.songPosition = events[0][0] + (ClientPrefs.data.noteOffset - data.note_offset);
-                state.resyncVocals(false);
+                state.resyncVocals();
             }
 
 			if (ReplayRecorder.REGISTER_BINDS.contains(_key)) {
