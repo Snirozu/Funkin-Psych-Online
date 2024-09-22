@@ -544,7 +544,7 @@ class SkinsState extends MusicBeatState {
 			title.text = curCharName == "default" ? "BOYFRIEND" : curCharName;
 			title.x = FlxG.width / 2 - title.width / 2;
 
-			if (isEquiped(Mods.currentModDirectory, curCharName)) {
+			if (isEquiped(charactersMod.get(curCharName), curCharName)) {
 				charSelect.text = 'Selected!';
 				charSelect.alpha = 1;
 			}
