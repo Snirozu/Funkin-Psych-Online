@@ -520,6 +520,7 @@ class FreeplayState extends MusicBeatState
 			}
 
 			if (FlxG.keys.justPressed.TAB) {
+				persistentUpdate = false;
 				FlxG.switchState(() -> new online.states.SkinsState());
 			}
 		}
