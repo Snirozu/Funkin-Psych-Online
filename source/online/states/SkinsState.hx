@@ -84,6 +84,11 @@ class SkinsState extends MusicBeatState {
 			prevConBPMChanges = Conductor.bpmChangeMap;
 			prevConTime = Conductor.songPosition;
 
+			if (musicIntro != null)
+				musicIntro.stop();
+			if (music != null)
+				music.stop();
+
 			musicIntro = FlxG.sound.play(Paths.music('stayFunky-intro'), 1, false);
 			music = FlxG.sound.play(Paths.music('stayFunky'), 1, true);
 			music.pause();
@@ -403,7 +408,8 @@ class SkinsState extends MusicBeatState {
 
 			var funkySound = music.playing ? music : musicIntro;
 			funkySound.fadeOut(0.5, 0, t -> {
-				funkySound.stop();
+				musicIntro.stop();
+				music.stop();
 
 				for (v in [FlxG.sound.music, FreeplayState.vocals, FreeplayState.opponentVocals]) {
 					if (v == null)
