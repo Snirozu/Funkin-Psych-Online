@@ -777,7 +777,7 @@ class PlayState extends MusicBeatState
 				camPos.y += gf.getGraphicMidpoint().y + gf.cameraPosition[1];
 			}
 
-			if (dad.curCharacter.startsWith('gf')) {
+			if (dad.curCharacter.startsWith('gf') && Paths.formatToSongPath(SONG.song) == 'tutorial') {
 				dad.setPosition(GF_X, GF_Y);
 				if (gf != null)
 					gf.visible = false;
@@ -1358,7 +1358,7 @@ class PlayState extends MusicBeatState
 	}
 
 	function startCharacterPos(char:Character, ?gfCheck:Bool = false) {
-		if(gfCheck && char.curCharacter.startsWith('gf')) { //IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
+		if(gfCheck && char.curCharacter.startsWith('gf') && Paths.formatToSongPath(SONG.song) == 'tutorial') { //IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
 			char.setPosition(GF_X, GF_Y);
 			char.scrollFactor.set(0.95, 0.95);
 			char.danceEveryNumBeats = 2;
@@ -2774,7 +2774,7 @@ class PlayState extends MusicBeatState
 				if(flValue2 == null || flValue2 <= 0) flValue2 = 0.6;
 
 				if(value != 0) {
-					if(dad.curCharacter.startsWith('gf')) { //Tutorial GF is actually Dad! The GF is an imposter!! ding ding ding ding ding ding ding, dindinding, end my suffering
+					if(dad.curCharacter.startsWith('gf') && Paths.formatToSongPath(SONG.song) == 'tutorial') { //Tutorial GF is actually Dad! The GF is an imposter!! ding ding ding ding ding ding ding, dindinding, end my suffering
 						dad.playAnim('cheer', true);
 						dad.specialAnim = true;
 						dad.heyTimer = flValue2;
