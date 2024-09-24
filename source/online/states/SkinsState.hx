@@ -268,14 +268,6 @@ class SkinsState extends MusicBeatState {
 		barDown.cameras = [hud];
 		add(barDown);
 
-		var swagText = new FlxText(10, 10);
-		swagText.text = 'Press F1 for Help!\nF2 to Browse\nVerified Skins';
-		swagText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		swagText.alpha = 0.4;
-		swagText.cameras = [hud];
-		swagText.x = FlxG.width - swagText.width - 10;
-		add(swagText);
-
 		title = new Alphabet(0, 0, "BOYFRIEND", true);
 		title.cameras = [hud];
 		title.y = barUp.height / 2 - title.height / 2;
@@ -309,15 +301,15 @@ class SkinsState extends MusicBeatState {
 		swagText.cameras = [hud];
 		add(swagText);
 
-		var tip1 = new FlxText(20, 0, FlxG.width, '8 - Edit skin');
-		tip1.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		var tip1 = new FlxText(20, 0, FlxG.width, 'TAB - Flip skin\n8 - Edit skin');
+		tip1.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		tip1.y = charSelect.y;
-		tip1.alpha = 0.6;
+		tip1.alpha = 0.5;
 		tip1.cameras = [hud];
 		add(tip1);
 
-		var tip2 = new FlxText(-20, 0, FlxG.width, 'TAB - Flip skin');
-		tip2.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		var tip2 = new FlxText(-20, 0, FlxG.width, 'F1 for Help!\nF2 to Browse Verified Skins');
+		tip2.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		tip2.y = tip1.y;
 		tip2.alpha = tip1.alpha;
 		tip2.cameras = [hud];
