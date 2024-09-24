@@ -1,7 +1,7 @@
 package online;
 
 class Deflection {
-    @:unreflective private var classBlacklist:Array<Class<Dynamic>> = null;
+    @:unreflective private static var classBlacklist:Array<Class<Dynamic>> = null;
 
     public static function resolveClass(clsName:String) {
 		if (classBlacklist == null)
