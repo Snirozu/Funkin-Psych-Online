@@ -269,7 +269,7 @@ class SkinsState extends MusicBeatState {
 		add(barDown);
 
 		var swagText = new FlxText(10, 10);
-		swagText.text = 'Press F1 for Help!';
+		swagText.text = 'Press F1 for Help!\nF2 to Browse\nVerified Skins';
 		swagText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		swagText.alpha = 0.4;
 		swagText.cameras = [hud];
@@ -388,43 +388,7 @@ class SkinsState extends MusicBeatState {
         }
 
         if (controls.BACK) {
-			stopUpdates = true;
-			camera.follow(camFollow, LOCKON, 0.01);
-			characterCamera.follow(camFollow, LOCKON, 0.01);
-
-			FlxG.sound.play(Paths.sound('cancelMenu'));
-			if (GameClient.isConnected()) {
-				if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
-					GameClient.send("setSkin", [ClientPrefs.data.modSkin[0], ClientPrefs.data.modSkin[1], OnlineMods.getModURL(ClientPrefs.data.modSkin[0])]);
-				}
-				else {
-					GameClient.send("setSkin", null);
-				}
-			}
-
-			FlxTween.tween(blackRectangle, {alpha: 1}, 0.5, {ease: FlxEase.quadInOut});
-			blackRectangle.alpha = 0;
-			add(blackRectangle);
-
-			var funkySound = music.playing ? music : musicIntro;
-			funkySound.fadeOut(0.5, 0, t -> {
-				musicIntro.stop();
-				music.stop();
-
-				for (v in [FlxG.sound.music, FreeplayState.vocals, FreeplayState.opponentVocals]) {
-					if (v == null)
-						continue;
-
-					v.play();
-					v.fadeIn(0.5, 0, 1);
-				}
-
-				Conductor.bpm = prevConBPM;
-				Conductor.bpmChangeMap = prevConBPMChanges;
-				Conductor.songPosition = prevConTime;
-
-				FlxG.switchState(() -> Type.createInstance(backClass, []));
-			});
+			switchState(() -> Type.createInstance(backClass, []));
         }
 
         if (controls.ACCEPT) {
@@ -458,7 +422,7 @@ class SkinsState extends MusicBeatState {
 
 		if (FlxG.keys.justPressed.EIGHT) {
 			Mods.currentModDirectory = charactersMod.get(charactersName.get(curCharacter));
-			FlxG.switchState(() -> new CharacterEditorState(charactersName.get(curCharacter), false, true));
+			switchState(() -> new CharacterEditorState(charactersName.get(curCharacter), false, true));
 		}
 
 		if (FlxG.keys.justPressed.TAB) {
@@ -468,6 +432,10 @@ class SkinsState extends MusicBeatState {
 
 		if (FlxG.keys.justPressed.F1) {
 			RequestState.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki#skins", true);
+		}
+
+		if (FlxG.keys.justPressed.F2) {
+			switchState(() -> new BananaDownload('collection:110039'));
 		}
 
 		if (character.members[0] != null) {
@@ -483,6 +451,59 @@ class SkinsState extends MusicBeatState {
 			}
 		}
     }
+
+	function switchState(switchFunction:flixel.util.typeLimit.NextState) {
+		stopUpdates = true;
+		camera.follow(camFollow, LOCKON, 0.01);
+		characterCamera.follow(camFollow, LOCKON, 0.01);
+
+		FlxG.sound.play(Paths.sound('cancelMenu'));
+		if (GameClient.isConnected()) {
+			if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
+				GameClient.send("setSkin", [
+					ClientPrefs.data.modSkin[0],
+					ClientPrefs.data.modSkin[1],
+					OnlineMods.getModURL(ClientPrefs.data.modSkin[0])
+				]);
+			}
+			else {
+				GameClient.send("setSkin", null);
+			}
+		}
+
+		FlxTween.tween(blackRectangle, {alpha: 1}, 0.5, {ease: FlxEase.quadInOut});
+		blackRectangle.alpha = 0;
+		add(blackRectangle);
+
+		var funkySound = music.playing ? music : musicIntro;
+		funkySound.fadeOut(0.5, 0, t -> {
+			musicIntro.stop();
+			music.stop();
+
+			for (v in [FlxG.sound.music, FreeplayState.vocals, FreeplayState.opponentVocals]) {
+				if (v == null)
+					continue;
+
+				v.play();
+				v.fadeIn(0.5, 0, 1);
+			}
+
+			Conductor.bpm = prevConBPM;
+			Conductor.bpmChangeMap = prevConBPMChanges;
+			Conductor.songPosition = prevConTime;
+
+			FlxG.switchState(switchFunction);
+		});
+	}
+
+	override function destroy() {
+		super.destroy();
+
+		if (musicIntro != null)
+			musicIntro.stop();
+		if (music != null)
+			music.stop();
+	}
 
     function setCharacter(difference:Int, ?beatHold:Bool = false) {
 		var prevCharacter = curCharacter;

@@ -31,6 +31,14 @@ class BananaDownload extends MusicBeatState {
 	// 	411524,
 	// 	418767
 	// ];
+
+	var initQuery:String = '';
+
+	public function new(?query:String = '') {
+		super();
+
+		initQuery = query;
+	}
 	
 	override function create() {
 		curSelected = 0;
@@ -89,6 +97,7 @@ class BananaDownload extends MusicBeatState {
 		});
 		searchInput.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		searchInput.setPosition(searchPlaceholder.x, searchPlaceholder.y);
+		searchInput.text = initQuery;
 		add(searchInput);
 
 		pageInfo = new FlxText(0, 0, FlxG.width);
