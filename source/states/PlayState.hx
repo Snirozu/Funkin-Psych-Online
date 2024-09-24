@@ -714,12 +714,12 @@ class PlayState extends MusicBeatState
 						Mods.currentModDirectory = roomDad.skinMod;
 
 					if (roomDad.skinName != null)
-						dad = new Character(0, 0, roomDad.skinName + skinsSuffix, !playsAsBF());
+						dad = new Character(0, 0, roomDad.skinName + skinsSuffix, !playsAsBF(), true);
 				}
 			}
 			else if (!playsAsBF() && ClientPrefs.data.modSkin != null) {
 				Mods.currentModDirectory = ClientPrefs.data.modSkin[0];
-				dad = new Character(0, 0, ClientPrefs.data.modSkin[1] + skinsSuffix, !playsAsBF());
+				dad = new Character(0, 0, ClientPrefs.data.modSkin[1] + skinsSuffix, !playsAsBF(), true);
 			}
 
 			if (dad == null) {
@@ -747,12 +747,12 @@ class PlayState extends MusicBeatState
 						Mods.currentModDirectory = roomBf.skinMod;
 
 					if (roomBf.skinName != null)
-						boyfriend = new Character(0, 0, roomBf.skinName + skinsSuffix + "-player", playsAsBF());
+						boyfriend = new Character(0, 0, roomBf.skinName + skinsSuffix + "-player", playsAsBF(), true);
 				}
 			}
 			else if (playsAsBF() && ClientPrefs.data.modSkin != null) {
 				Mods.currentModDirectory = ClientPrefs.data.modSkin[0];
-				boyfriend = new Character(0, 0, ClientPrefs.data.modSkin[1] + skinsSuffix + "-player", playsAsBF());
+				boyfriend = new Character(0, 0, ClientPrefs.data.modSkin[1] + skinsSuffix + "-player", playsAsBF(), true);
 			}
 
 			if (boyfriend == null) {
@@ -1251,6 +1251,9 @@ class PlayState extends MusicBeatState
 	public function addCharacterToList(newCharacter:String, type:Int) {
 		switch(type) {
 			case 0:
+				if (boyfriend.isSkin)
+					return;
+
 				if(!boyfriendMap.exists(newCharacter)) {
 					var newBoyfriend:Character = new Character(0, 0, newCharacter, true);
 					boyfriendMap.set(newCharacter, newBoyfriend);
@@ -1261,6 +1264,9 @@ class PlayState extends MusicBeatState
 				}
 
 			case 1:
+				if (dad.isSkin)
+					return;
+
 				if(!dadMap.exists(newCharacter)) {
 					var newDad:Character = new Character(0, 0, newCharacter);
 					dadMap.set(newCharacter, newDad);
@@ -2894,6 +2900,9 @@ class PlayState extends MusicBeatState
 
 				switch(charType) {
 					case 0:
+						if (boyfriend.isSkin)
+							return;
+
 						if(boyfriend.curCharacter != value2) {
 							if(!boyfriendMap.exists(value2)) {
 								addCharacterToList(value2, charType);
@@ -2908,6 +2917,9 @@ class PlayState extends MusicBeatState
 						setOnScripts('boyfriendName', boyfriend.curCharacter);
 
 					case 1:
+						if (dad.isSkin)
+							return;
+
 						if(dad.curCharacter != value2) {
 							if(!dadMap.exists(value2)) {
 								addCharacterToList(value2, charType);
