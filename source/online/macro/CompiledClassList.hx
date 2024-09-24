@@ -6,9 +6,6 @@ import haxe.rtti.Meta;
 // from v-slice source code
 //
 
-/**
- * A complement to `ClassMacro`. See `ClassMacro` for more information.
- */
 @:unreflective
 class CompiledClassList
 {

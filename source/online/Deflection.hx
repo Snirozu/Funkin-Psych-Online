@@ -1,5 +1,7 @@
 package online;
 
+import online.macro.CompiledClassList;
+
 class Deflection {
     @:unreflective private static var classBlacklist:Array<Class<Dynamic>> = null;
 
@@ -59,7 +61,7 @@ class Deflection {
 
 		// `polymod.*`
 		// Contains functions which may allow for un-blacklisting other modules.
-		for (cls in ClassMacro.listClassesInPackage('polymod')) {
+		for (cls in CompiledClassList.listClassesInPackage('polymod')) {
 			if (cls == null)
 				continue;
 			classBlacklist.push(cls);
@@ -67,25 +69,25 @@ class Deflection {
 
 		// `sys.*`
 		// Access to system utilities such as the file system.
-		for (cls in ClassMacro.listClassesInPackage('sys')) {
+		for (cls in CompiledClassList.listClassesInPackage('sys')) {
 			if (cls == null)
 				continue;
 			classBlacklist.push(cls);
 		}
 
-		for (cls in ClassMacro.listClassesInPackage('tea')) {
+		for (cls in CompiledClassList.listClassesInPackage('tea')) {
 			if (cls == null)
 				continue;
 			classBlacklist.push(cls);
 		}
 
-		for (cls in ClassMacro.listClassesInPackage('teaBase')) {
+		for (cls in CompiledClassList.listClassesInPackage('teaBase')) {
 			if (cls == null)
 				continue;
 			classBlacklist.push(cls);
 		}
 
-		for (cls in ClassMacro.listClassesInPackage('lumod')) {
+		for (cls in CompiledClassList.listClassesInPackage('lumod')) {
 			if (cls == null)
 				continue;
 			classBlacklist.push(cls);
