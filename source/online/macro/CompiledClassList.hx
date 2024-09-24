@@ -1,6 +1,7 @@
 package online.macro;
 
 import haxe.rtti.Meta;
+import haxe.macro.Context;
 
 //
 // from v-slice source code
@@ -9,6 +10,20 @@ import haxe.rtti.Meta;
 @:unreflective
 class CompiledClassList
 {
+  public static macro function listClassesInPackage(targetPackage:String, includeSubPackages:Bool = true):ExprOf<Iterable<Class<Dynamic>>>
+  {
+    if (!onGenerateCallbackRegistered)
+    {
+      onGenerateCallbackRegistered = true;
+    }
+
+    var request:String = 'package~${targetPackage}~${includeSubPackages ? "recursive" : "nonrecursive"}';
+
+    classListsToGenerate.push(request);
+
+		return macro CompiledClassList.get($v{request});
+  }
+
 	@:unreflective static var classLists:Map<String, List<Class<Dynamic>>>;
 
   /**
@@ -67,23 +82,7 @@ class CompiledClassList
   {
     return cast get(request);
   }
-  
-  public static macro function listClassesInPackage(targetPackage:String, includeSubPackages:Bool = true):ExprOf<Iterable<Class<Dynamic>>>
-  {
-    if (!onGenerateCallbackRegistered)
-    {
-      onGenerateCallbackRegistered = true;
-      Context.onGenerate(onGenerate);
-    }
-
-    var request:String = 'package~${targetPackage}~${includeSubPackages ? "recursive" : "nonrecursive"}';
-
-    classListsToGenerate.push(request);
-
-    return macro get($v{request});
-  }
 
 	static var onGenerateCallbackRegistered:Bool = false;
-	static var classListsRaw:Map<String, Array<String>> = [];
 	static var classListsToGenerate:Array<String> = [];
 }

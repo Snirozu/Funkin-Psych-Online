@@ -178,7 +178,7 @@
 	<haxedef name="HXCPP_CATCH_SEGV" />
 	<haxedef name="HXCPP_DEBUG_LINK" />
 
-	<haxedef name="message.reporting" value="pretty" />
+	<!-- <haxedef name="message.reporting" value="pretty" /> -->
 	<haxedef name='no-deprecation-warnings' />
 
 	<!--Avoid memory leaks with for loops in HScript-->
