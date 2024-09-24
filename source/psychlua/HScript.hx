@@ -138,7 +138,7 @@ class HScript extends SScript
 				if(libPackage.length > 0)
 					str = libPackage + '.';
 
-				set(libName, Type.resolveClass(str + libName));
+				set(libName, Deflection.resolveClass(str + libName));
 			}
 			catch (e:Dynamic) {
 				var msg:String = e.message.substr(0, e.message.indexOf('\n'));
@@ -265,7 +265,7 @@ class HScript extends SScript
 			else if(libName == null)
 				libName = '';
 
-			var c = Type.resolveClass(str + libName);
+			var c = Deflection.resolveClass(str + libName);
 
 			#if HSCRIPT_ALLOWED
 			if (c != null)

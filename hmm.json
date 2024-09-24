@@ -112,10 +112,8 @@
     },
     {
       "name": "lumod",
-      "type": "git",
-      "dir": null,
-      "ref": "main",
-      "url": "https://github.com/Snirozu/Lumod"
+      "type": "haxelib",
+      "version": "1.0.0"
     },
     {
       "name": "actuate",

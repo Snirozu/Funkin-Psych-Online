@@ -115,6 +115,7 @@ class Main extends Sprite
 		Lumod.get_scriptsRootPath = () -> {
 			return Lumod.scriptsRootPath = Paths.mods(Mods.currentModDirectory + "/lumod");
 		}
+		Lumod.classResolver = Deflection.resolveClass;
 
 		#if hl
 		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
