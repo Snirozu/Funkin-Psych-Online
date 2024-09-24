@@ -3179,7 +3179,7 @@ class ChartingState extends MusicBeatState
 			"song": _song
 		};
 
-		var data:String = haxe.Json.stringify(json, "\t");
+		var data:String = haxe.Json.stringify(json);
 
 		if ((data != null) && (data.length > 0))
 		{
@@ -3206,7 +3206,7 @@ class ChartingState extends MusicBeatState
 			"song": eventsSong
 		}
 
-		var data:String = haxe.Json.stringify(json, "\t");
+		var data:String = haxe.Json.stringify(json);
 
 		if ((data != null) && (data.length > 0))
 		{
