@@ -50,7 +50,7 @@ class ReflectionFunctions
 			variable = online.Wrapper.wrapperClassField(classVar, variable);
 			classVar = online.Wrapper.wrapperClass(classVar);
 			
-			var myClass:Dynamic = Type.resolveClass(classVar);
+			var myClass:Dynamic = Deflection.resolveClass(classVar);
 			if(myClass == null)
 			{
 				FunkinLua.luaTrace('getPropertyFromClass: Class $classVar not found', false, false, FlxColor.RED);
@@ -71,7 +71,7 @@ class ReflectionFunctions
 			variable = online.Wrapper.wrapperClassField(classVar, variable);
 			classVar = online.Wrapper.wrapperClass(classVar);
 
-			var myClass:Dynamic = Type.resolveClass(classVar);
+			var myClass:Dynamic = Deflection.resolveClass(classVar);
 			if(myClass == null)
 			{
 				FunkinLua.luaTrace('getPropertyFromClass: Class $classVar not found', false, false, FlxColor.RED);
@@ -158,7 +158,7 @@ class ReflectionFunctions
 			
 		});
 		Lua_helper.add_callback(lua, "callMethodFromClass", function(className:String, funcToRun:String, ?args:Array<Dynamic> = null) {
-			return callMethodFromObject(Type.resolveClass(className), funcToRun, args);
+			return callMethodFromObject(Deflection.resolveClass(className), funcToRun, args);
 		});
 
 		Lua_helper.add_callback(lua, "createInstance", function(variableToSave:String, className:String, ?args:Array<Dynamic> = null) {
@@ -166,7 +166,7 @@ class ReflectionFunctions
 			if(!PlayState.instance.variables.exists(variableToSave))
 			{
 				if(args == null) args = [];
-				var myType:Dynamic = Type.resolveClass(className);
+				var myType:Dynamic = Deflection.resolveClass(className);
 		
 				if(myType == null)
 				{
