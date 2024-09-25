@@ -191,6 +191,8 @@
 
 	<haxeflag name="-dce no" />
 
+	<haxedef name="message.reporting" value="pretty" />
+
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
