@@ -10,8 +10,6 @@ import haxe.Http;
 import sys.io.File;
 import sys.FileSystem;
 import online.states.OnlineState;
-//import io.colyseus.error.HttpException; 0.15.3 doesn't work
-import io.colyseus.error.MatchMakeError;
 import lime.app.Application;
 import io.colyseus.events.EventHandler;
 import states.MainMenuState;
@@ -78,7 +76,7 @@ class GameClient {
 		});
     }
 
-	private static function _onJoin(err:MatchMakeError, room:Room<GameRoom>, isHost:Bool, address:String, ?onJoin:(err:Dynamic)->Void) {
+	private static function _onJoin(err:Error, room:Room<GameRoom>, isHost:Bool, address:String, ?onJoin:(err:Dynamic)->Void) {
 		if (err != null) {
 			Alert.alert("Couldn't connect!", "JOIN ERROR: " + err.code + " - " + err.message);
 			client = null;
@@ -355,7 +353,7 @@ class GameClient {
 		return copyAddress;
 	}
 
-	public static function getAvailableRooms(address:String, result:(MatchMakeError, Array<RoomAvailable>) -> Void) {
+	public static function getAvailableRooms(address:String, result:(Error, Array<RoomAvailable>) -> Void) {
 		Thread.run(() -> {
 			new Client(address).getAvailableRooms("room", result);
 		});
