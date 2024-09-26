@@ -418,6 +418,7 @@ class PlayState extends MusicBeatState
 	public var noteDensity:Float;
 
 	var stageData:StageFile;
+	var stageModDir:String;
 	var oldModDir:String;
 	var showTime:Bool;
 	var camPos:FlxPoint;
@@ -577,15 +578,28 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
-			if (SONG.stage == null || SONG.stage.length < 1) {
-				SONG.stage = StageData.vanillaSongStage(songName);
+			oldModDir = Mods.currentModDirectory;
+
+			var swagStage = SONG.stage;
+			if (GameClient.isConnected() && GameClient.room.state.stageName != '') {
+				swagStage = GameClient.room.state.stageName;
+				if (GameClient.room.state.stageMod != '')
+					Mods.currentModDirectory = stageModDir = GameClient.room.state.stageMod;
 			}
-			curStage = SONG.stage;
+
+			if (swagStage == null || swagStage.length < 1) {
+				swagStage = StageData.vanillaSongStage(songName);
+			}
+			curStage = swagStage;
 
 			stageData = StageData.getStageFile(curStage);
 			if (stageData == null) { // Stage couldn't be found, create a dummy stage for preventing a crash
 				stageData = StageData.dummy();
 			}
+
+			Mods.currentModDirectory = oldModDir;
+
+			Paths.setCurrentLevel(stageData.directory);
 
 			defaultCamZoom = stageData.defaultZoom;
 
@@ -678,15 +692,25 @@ class PlayState extends MusicBeatState
 		// STAGE SCRIPTS
 		#if LUA_ALLOWED
 		preloadTasks.push(() -> {
+			oldModDir = Mods.currentModDirectory;
+			
+			Mods.currentModDirectory = stageModDir;
 			if (startLuasNamed('stages/' + curStage + '.lua'))
 				stageExists = true;
+
+			Mods.currentModDirectory = oldModDir;
 		});
 		#end
 
 		#if HSCRIPT_ALLOWED
 		preloadTasks.push(() -> {
+			oldModDir = Mods.currentModDirectory;
+
+			Mods.currentModDirectory = stageModDir;
 			if (startHScriptsNamed('stages/' + curStage + '.hx'))
 				stageExists = true;
+
+			Mods.currentModDirectory = oldModDir;
 		});
 		#end
 

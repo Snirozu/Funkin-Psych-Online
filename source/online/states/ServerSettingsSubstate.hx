@@ -17,6 +17,7 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
     //options
 	var skinSelect:Option;
 	var gameOptions:Option;
+	var stageSelect:Option;
 	var publicRoom:Option;
 	var anarchyMode:Option;
 	var swapSides:Option;
@@ -101,6 +102,16 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 			FlxG.state.openSubState(new GameplayChangersSubstate());
 		}, null, 0, 80 * i, false, true));
 		modifers.ID = i++;
+
+		items.add(stageSelect = new Option("Select Stage", "Currently Selected: " + (GameClient.room.state.stageName == "" ? '(default)' : GameClient.room.state.stageName), () -> {
+			if (GameClient.hasPerms()) {
+				close();
+				FlxG.state.openSubState(new StageSelect());
+			}
+		}, (elapsed) -> {
+			stageSelect.alpha = GameClient.hasPerms() ? 1 : 0.8;
+		}, 0, 80 * i, false, true));
+		stageSelect.ID = i++;
 
 		items.add(skinSelect = new Option("Select Skin", "Select your skin here!", () -> {
 			GameClient.clearOnMessage();

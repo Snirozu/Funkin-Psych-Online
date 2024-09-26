@@ -24,6 +24,15 @@ class Room extends Schema {
 	public var diffList:ArraySchema<String> = new ArraySchema<String>();
 
 	@:type("string")
+	public var stageName: String = "";
+
+	@:type("string")
+	public var stageMod:String = "";
+
+	@:type("string")
+	public var stageURL:String = "";
+
+	@:type("string")
 	public var modDir: String = "";
 
 	@:type("string")

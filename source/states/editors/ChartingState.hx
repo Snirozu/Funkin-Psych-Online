@@ -545,41 +545,7 @@ class ChartingState extends MusicBeatState
 		player2DropDown.selectedLabel = _song.player2;
 		blockPressWhileScrolling.push(player2DropDown);
 
-		#if MODS_ALLOWED
-		var directories:Array<String> = [Paths.mods('stages/'), Paths.mods(Mods.currentModDirectory + '/stages/'), Paths.getPreloadPath('stages/')];
-		for(mod in Mods.getGlobalMods())
-			directories.push(Paths.mods(mod + '/stages/'));
-		#else
-		var directories:Array<String> = [Paths.getPreloadPath('stages/')];
-		#end
-
-		var stageFile:Array<String> = Mods.mergeAllTextsNamed('data/stageList.txt', Paths.getPreloadPath());
-		var stages:Array<String> = [];
-		for (stage in stageFile) {
-			if(stage.trim().length > 0) {
-				stages.push(stage);
-			}
-			tempArray.push(stage);
-		}
-		#if MODS_ALLOWED
-		for (i in 0...directories.length) {
-			var directory:String = directories[i];
-			if(FileSystem.exists(directory)) {
-				for (file in FileSystem.readDirectory(directory)) {
-					var path = haxe.io.Path.join([directory, file]);
-					if (!FileSystem.isDirectory(path) && file.endsWith('.json')) {
-						var stageToCheck:String = file.substr(0, file.length - 5);
-						if(stageToCheck.trim().length > 0 && !tempArray.contains(stageToCheck)) {
-							tempArray.push(stageToCheck);
-							stages.push(stageToCheck);
-						}
-					}
-				}
-			}
-		}
-		#end
-
-		if(stages.length < 1) stages.push('stage');
+		var stages:Array<String> = Mods.listStages()[0];
 
 		stageDropDown = new FlxScrollableDropDownMenu(player1DropDown.x + 140, player1DropDown.y, FlxScrollableDropDownMenu.makeStrIdLabelArray(stages, true), function(character:String)
 		{
