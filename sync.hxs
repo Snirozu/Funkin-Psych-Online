@@ -1,3 +1,6 @@
+import flixel.text.FlxText;
+import online.GameClient;
+
 // for quick patches, hooking into classes
 // this can be locally tested with sync.hxs in the game directory
 
@@ -6,7 +9,14 @@ function init() { // initializes the game
 }
 
 function switchState(state) { // game state gets switched
-
+    if (typeof(state) == "online.states.OnlineState") {
+        var warning = new FlxText(0, 170);
+		warning.setFormat("VCR OSD Mono", 20, 0xFFFF0000, "center", state.playersOnline.borderStyle, 0xFF000000);
+		warning.alpha = 1;
+        warning.text = "IMPORTANT: PLEASE SET A EMAIL FOR YOUR NETWORK ACCOUNT UNTIL THIS SUNDAY!\nOTHERWISE IT WILL BE DELETED";
+        warning.screenCenter(0x01);
+		state.add(warning);
+    }
 }
 
 function openSubState(substate) { // game substate gets opened
