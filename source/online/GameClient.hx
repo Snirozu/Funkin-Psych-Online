@@ -17,6 +17,8 @@ import online.schema.Room as GameRoom;
 import io.colyseus.Client;
 import io.colyseus.Room;
 
+typedef Error = #if (colyseus < "0.15.3") io.colyseus.error.MatchMakeError #else io.colyseus.error.HttpException #end;
+
 class GameClient {
     public static var client:Client;
 	public static var room:Room<GameRoom>;
