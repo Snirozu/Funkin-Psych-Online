@@ -13,7 +13,7 @@ function switchState(state) { // game state gets switched
         var warning = new FlxText(0, 170);
 		warning.setFormat("VCR OSD Mono", 20, 0xFFFF0000, "center", state.playersOnline.borderStyle, 0xFF000000);
 		warning.alpha = 1;
-        warning.text = "IMPORTANT: PLEASE SET A EMAIL FOR YOUR NETWORK ACCOUNT UNTIL THIS SUNDAY!\nOTHERWISE IT WILL BE DELETED";
+        warning.text = "IMPORTANT: PLEASE SET A EMAIL FOR YOUR NETWORK ACCOUNT (IF YOU HAVEN'T)\nUNTIL THIS SUNDAY OTHERWISE IT WILL BE DELETED";
         warning.screenCenter(0x01);
 		state.add(warning);
     }

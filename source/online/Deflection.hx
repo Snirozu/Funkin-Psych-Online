@@ -3,7 +3,7 @@ package online;
 import online.macro.CompiledClassList;
 
 class Deflection {
-    @:unreflective private static var classBlacklist:Array<Class<Dynamic>> = null;
+    @:unreflective public static var classBlacklist:Array<Class<Dynamic>> = null;
 
     public static function resolveClass(clsName:String) {
 		if (classBlacklist == null)
@@ -11,8 +11,10 @@ class Deflection {
 
 		var cls = Type.resolveClass(clsName);
 
-		if (classBlacklist.contains(cls))
+		if (classBlacklist.contains(cls)) {
+			PlayState.instance.addTextToDebug(clsName + ' is not accessible!', FlxColor.RED);
             return null;
+		}
 
 		return cls;
     }

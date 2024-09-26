@@ -62,6 +62,8 @@ class HScript extends SScript
 		#if HSCRIPT_ALLOWED
 		super.preset();
 
+		notAllowedClasses = Deflection.classBlacklist.copy();
+
 		// Some very commonly used classes
 		set('FlxG', flixel.FlxG);
 		set('FlxSprite', flixel.FlxSprite);
