@@ -18,6 +18,7 @@ import backend.WeekData;
 import backend.Song;
 import haxe.crypto.Md5;
 import states.FreeplayState;
+import openfl.utils.Assets as OpenFlAssets;
 
 @:build(lumod.LuaScriptClass.build())
 class RoomState extends MusicBeatState {
@@ -84,6 +85,12 @@ class RoomState extends MusicBeatState {
 		GameClient.room.onMessage("checkChart", function(message) {
 			Waiter.put(() -> {
 				verifyDownloadMod(false, true);
+			});
+		});
+
+		GameClient.room.onMessage("checkStage", function(message) {
+			Waiter.put(() -> {
+				checkStage();
 			});
 		});
 
@@ -250,7 +257,7 @@ class RoomState extends MusicBeatState {
 		chatBox = new ChatBox(camHUD, (cmd, args) -> {
 			switch (cmd) {
 				case "help":
-					ChatBox.addMessage("> Room Commands: /pa, /results");
+					ChatBox.addMessage("> Room Commands: /pa, /results, /restage");
 					return true;
 				case "pa":
 					if (args[0] != null && args[0].trim() != "")
@@ -264,6 +271,9 @@ class RoomState extends MusicBeatState {
 					return true;
 				case "results":
 					FlxG.switchState(() -> new ResultsScreen());
+					return true;
+				case "restage":
+					checkStage();
 					return true;
 				default:
 					return false;
@@ -401,8 +411,34 @@ class RoomState extends MusicBeatState {
 		FlxG.autoPause = false;
 
 		verifyDownloadMod(false, true);
+		checkStage();
 
 		GameClient.send("status", "In the Lobby");
+	}
+
+	var hasStage:Bool = false;
+	function checkStage() {
+		if (GameClient.room.state.stageName == "") {
+			hasStage = true;
+			return;
+		}
+
+		if (FileSystem.exists(Paths.mods('${GameClient.room.state.stageMod}/stages/${GameClient.room.state.stageName}.json')) ||
+			OpenFlAssets.exists(Paths.getPath('stages/${GameClient.room.state.stageName}.json'), TEXT)) {
+			hasStage = true;
+			return;
+		}
+
+		if (GameClient.room.state.stageURL != null) {
+			hasStage = false;
+
+			OnlineMods.downloadMod(GameClient.room.state.stageURL, false, (_) -> {
+				if (destroyed)
+					return;
+
+				checkStage();
+			});
+		}
 	}
 
 	function loadCharacter(isP1:Bool, ?enableDownload:Bool = false, ?manualDownload:Bool = false) {
@@ -710,7 +746,14 @@ class RoomState extends MusicBeatState {
 							}
 						}
 						else if (selfPlayer.hasSong) {
-							GameClient.send("startGame");
+							checkStage();
+
+							if (!hasStage) {
+								Alert.alert("You don't have the current stage!");
+							}
+							else {
+								GameClient.send("startGame");
+							}
 						}
 						else {
 							if (GameClient.room.state.song == "") {
@@ -866,8 +909,13 @@ class RoomState extends MusicBeatState {
 			return;
 
 		var selfPlayer:Player = getSelfPlayer();
+		
+		var daModName = GameClient.room.state.modDir ?? "";
+		if (daModName.length > 30) {
+			daModName = daModName.substr(0, 30) + "...";
+		}
 
-		if (GameClient.room.state.modDir == "" || GameClient.room.state.song == "") {
+		if (daModName == "" || GameClient.room.state.song == "") {
 			verifyMod.text = "No chosen mod.";
 		}
 		else if (selfPlayer.hasSong) {
@@ -875,9 +923,9 @@ class RoomState extends MusicBeatState {
 		}
 		else {
 			if (GameClient.room.state.modURL == null || GameClient.room.state.modURL == "")
-				verifyMod.text = "No mod named: " + GameClient.room.state.modDir + " (Unknown; Host didn't specify mod's URL)";
+				verifyMod.text = "No mod named: " + daModName + " (Unknown; Host didn't specify mod's URL)";
 			else 
-				verifyMod.text = "No mod named: " + GameClient.room.state.modDir + " (Download/Verify it here!)";
+				verifyMod.text = "No mod named: " + daModName + " (Download/Verify it here!)";
 		}
 
 		verifyMod.x = songNameBg.x + songNameBg.width - verifyMod.width;
