@@ -198,10 +198,16 @@ class OptionsState extends MusicBeatState {
 			emailOption.y = loginBrowserOption.y + loginBrowserOption.height + 50;
 			emailOption.screenCenter(X);
 			emailOption.ID = i++;
+			
+			var deleteOption:InputOption;
+			items.add(deleteOption = new InputOption("Delete Network Account", "Bye!"));
+			deleteOption.y = emailOption.y + emailOption.height + 50;
+			deleteOption.screenCenter(X);
+			deleteOption.ID = i++;
 
 			var logoutOption:InputOption;
 			items.add(logoutOption = new InputOption("Logout of the Network", "Logout of the Psych Online Network"));
-			logoutOption.y = emailOption.y + emailOption.height + 50;
+			logoutOption.y = deleteOption.y + deleteOption.height + 50;
 			logoutOption.screenCenter(X);
 			logoutOption.ID = i++;
 		}
@@ -264,6 +270,14 @@ class OptionsState extends MusicBeatState {
 							ClientPrefs.data.trustedSources = ["https://gamebanana.com/"];
 							ClientPrefs.saveSettings();
 							Alert.alert("Cleared the trusted domains list!", "");
+						case "delete network account":
+							if (FunkinNetwork.deleteAccount()) {
+								openSubState(new VerifyCode(code -> {
+									if (FunkinNetwork.deleteAccount()) {
+										Alert.alert("Account Deleted");
+									}
+								}));
+							}
 						case "logout of the network":
 							RequestState.request('Are you sure you want to logout?', '', _ -> {
 								FunkinNetwork.logout();
