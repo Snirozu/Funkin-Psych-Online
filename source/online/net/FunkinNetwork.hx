@@ -44,7 +44,7 @@ class FunkinNetwork {
 		var emailSplit = email.trim().split(' from ');
 
 		var response = requestAPI({
-			path: "/api/network/auth/email/set",
+			path: "/api/network/account/email/set",
 			headers: ["authorization" => getAuthHeader(), "content-type" => "application/json"],
 			body: Json.stringify({
 				email: emailSplit[0].trim(),
@@ -57,6 +57,19 @@ class FunkinNetwork {
 		if (response == null)
 			return false;
 
+		return true;
+	}
+
+	public static function deleteAccount() {
+		var response = requestAPI({
+			path: "/api/network/account/delete",
+			headers: ["authorization" => getAuthHeader()],
+		});
+
+		if (response == null)
+			return false;
+
+		logout();
 		return true;
 	}
 
