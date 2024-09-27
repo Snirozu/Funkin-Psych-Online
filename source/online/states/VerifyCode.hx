@@ -29,6 +29,12 @@ class VerifyCode extends MusicBeatSubstate {
 
 		cameras = [coolCam];
 
+		var bg = new FlxSprite();
+		bg.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		bg.alpha = 0.7;
+		bg.scrollFactor.set(0, 0);
+		add(bg);
+
 		var title = new FlxText(0, 0, FlxG.width, 'A Verification Code has been sent to your email box!\nEnter it here after you receive it!');
 		title.setFormat("VCR OSD Mono", 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		title.y = FlxG.height / 2 - title.height / 2 - 150;
@@ -36,7 +42,7 @@ class VerifyCode extends MusicBeatSubstate {
 		add(title);
 
 		input = new InputText(0, 0, FlxG.width, text -> {
-			onEnter(text.trim());
+			onEnter(text.trim().toUpperCase());
 			close();
 		});
 		input.setFormat("VCR OSD Mono", 30, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);

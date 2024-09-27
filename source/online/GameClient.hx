@@ -344,8 +344,8 @@ class GameClient {
 		return serverAddress;
 	}
 
-	public static function addressToUrl(address:String) {
-		var copyAddress = address;
+	public static function addressToUrl(address:Null<String>) {
+		var copyAddress = address ?? GameClient.serverAddress;
 		if (copyAddress.startsWith("wss://")) {
 			copyAddress = "https://" + copyAddress.substr("wss://".length);
 		}

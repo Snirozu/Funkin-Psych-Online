@@ -303,15 +303,15 @@ class FreeplayState extends MusicBeatState
 		infoText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
 		infoText.scrollFactor.set();
 		add(infoText);
-		
-		changeSelection();
-		updateSelectSelection();
-		updateTexts();
 
 		if (GameClient.isConnected()) {
 			add(chatBox = new ChatBox(camera));
 			GameClient.send("status", "Choosing a Song");
 		}
+		
+		changeSelection();
+		updateSelectSelection();
+		updateTexts();
 
 		super.create();
 	}
@@ -519,7 +519,7 @@ class FreeplayState extends MusicBeatState
 				leaderboardTimer = new FlxTimer().start(0.5, t -> { generateLeaderboard(); });
 			}
 
-			if (FlxG.keys.justPressed.TAB) {
+			if (chatBox == null && FlxG.keys.justPressed.TAB) {
 				persistentUpdate = false;
 				FlxG.switchState(() -> new online.states.SkinsState());
 			}
@@ -815,8 +815,11 @@ class FreeplayState extends MusicBeatState
 					infoText.text = "Press ACCEPT to enter the Song / Use your Arrow Keys to change the Difficulty";
 					camera.targetOffset.y += 200;
 				}
-				else
-					infoText.text = "Press ACCEPT to select the current Song / Press SPACE to listen to the Song / Press TAB to select your character!";
+				else {
+					infoText.text = "Press ACCEPT to select the current Song / Press SPACE to listen to the Song";
+					if (chatBox == null)
+						infoText.text += ' / Press TAB to select your character!';	
+				}
 
 				if (centerPoint == null)
 					centerPoint = new FlxObject(FlxG.width / 2, FlxG.height / 2);

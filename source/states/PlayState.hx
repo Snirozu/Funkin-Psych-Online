@@ -717,7 +717,7 @@ class PlayState extends MusicBeatState
 		preloadTasks.push(() -> {
 			oldModDir = Mods.currentModDirectory;
 
-			if (!stageData.hide_girlfriend)
+			if (!stageData.hide_girlfriend && !(GameClient.isConnected() && GameClient.room.state.hideGF))
 			{
 				if(SONG.gfVersion == null || SONG.gfVersion.length < 1) SONG.gfVersion = 'gf'; //Fix for the Chart Editor
 				gf = new Character(0, 0, SONG.gfVersion);

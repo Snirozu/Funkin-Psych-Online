@@ -27,8 +27,8 @@ class LeavePie extends FlxTypedSpriteGroup<FlxSprite> {
 		exitTip.alpha = 0;
 		add(exitTip);
 
-		pieDial.x = FlxG.width / 2 - pieDial.width / 2 - 80;
-		exitTip.x = FlxG.width / 2 - exitTip.width / 2 + 80;
+		pieDial.x = FlxG.width - pieDial.width - 10;
+		exitTip.x = pieDial.x - exitTip.width - 10;
     }
 
     override function update(elapsed) {

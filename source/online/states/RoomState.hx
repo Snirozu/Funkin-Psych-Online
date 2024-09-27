@@ -919,7 +919,7 @@ class RoomState extends MusicBeatState {
 			verifyMod.text = "No chosen mod.";
 		}
 		else if (selfPlayer.hasSong) {
-			verifyMod.text = "Mod: " + GameClient.room.state.modDir;
+			verifyMod.text = "Mod: " + daModName;
 		}
 		else {
 			if (GameClient.room.state.modURL == null || GameClient.room.state.modURL == "")

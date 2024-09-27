@@ -41,7 +41,7 @@ class FunkinNetwork {
 	}
 
 	public static function setEmail(email:String, ?code:String) {
-		var emailSplit = email.split(' from ');
+		var emailSplit = email.trim().split(' from ');
 
 		var response = requestAPI({
 			path: "/api/network/auth/email/set",
@@ -91,24 +91,25 @@ class FunkinNetwork {
 		return loggedIn = true;
 	}
 
-	public static function register(username:String):Void {
+	public static function requestRegister(username:String, email:String, ?code:String) {
 		var response = requestAPI({
 			path: "/api/network/auth/register",
 			headers: ["content-type" => "application/json"],
 			body: Json.stringify({
-				username: username
+				username: username,
+				email: email,
+				code: code
 			}),
 			post: true
 		});
 
 		if (response == null)
-			return;
+			return false;
 
-		var json = Json.parse(response.body);
-		Waiter.put(() -> {
-			saveCredentials(json);
-			Alert.alert("Successfully registered!");
-		});
+		if (code != null)
+			saveCredentials(Json.parse(response.body));
+
+		return true;
 	}
 
 	static function saveCredentials(json:Dynamic) {

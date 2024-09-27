@@ -34,12 +34,12 @@ class OptionsState extends MusicBeatState {
 		var i = 0;
 
 		var nicknameOption:InputOption;
-		items.add(nicknameOption = new InputOption("Nickname", "Set your nickname here!", "Boyfriend", true, text -> {
-			curOption.input.text = curOption.input.text.trim().substr(0, 14);
-			ClientPrefs.setNickname(curOption.input.text);
+		items.add(nicknameOption = new InputOption("Nickname", "Set your nickname here!", ["Boyfriend"], (text, _) -> {
+			curOption.inputs[0].text = curOption.inputs[0].text.trim().substr(0, 14);
+			ClientPrefs.setNickname(curOption.inputs[0].text);
 			ClientPrefs.saveSettings();
 		}));
-		nicknameOption.input.text = ClientPrefs.getNickname();
+		nicknameOption.inputs[0].text = ClientPrefs.getNickname();
 		nicknameOption.y = 50;
 		nicknameOption.screenCenter(X);
 		nicknameOption.ID = i++;
@@ -53,8 +53,17 @@ class OptionsState extends MusicBeatState {
 					appendText += "\n" + address;
 			}
 		}
-		items.add(serverOption = new InputOption("Server Address", "Set to empty if you want to use the default server\nLocal Address: 'ws://localhost:2567'" + appendText, GameClient.serverAddresses[0], text -> {
-			GameClient.serverAddress = curOption.input.text;
+		items.add(serverOption = new InputOption("Server Address", "Set to empty if you want to use the default server\nLocal Address: 'localhost'" + appendText, [GameClient.serverAddresses[0]], (text, _) -> {
+			curOption.inputs[0].text = curOption.inputs[0].text.trim();
+
+			if (curOption.inputs[0].text.length > 0 && !(curOption.inputs[0].text.startsWith('wss://') || curOption.inputs[0].text.startsWith('ws://')))
+				curOption.inputs[0].text = 'ws://' + curOption.inputs[0].text;
+
+			if (curOption.inputs[0].text == "ws://localhost") {
+				curOption.inputs[0].text += ":2567";
+			}
+
+			GameClient.serverAddress = curOption.inputs[0].text;
 			try {
 				online.net.FunkinNetwork.ping();
 			}
@@ -62,7 +71,7 @@ class OptionsState extends MusicBeatState {
 				trace(exc);
 			}
 		}));
-		serverOption.input.text = GameClient.serverAddress;
+		serverOption.inputs[0].text = GameClient.serverAddress;
 		serverOption.y = nicknameOption.y + nicknameOption.height + 50;
 		serverOption.screenCenter(X);
 		serverOption.ID = i++;
@@ -79,26 +88,26 @@ class OptionsState extends MusicBeatState {
 		// titleOption.ID = i++;
 
 		var skinsOption:InputOption;
-		items.add(skinsOption = new InputOption("Skin", "Choose your skin here!", null, false));
+		items.add(skinsOption = new InputOption("Skin", "Choose your skin here!"));
 		skinsOption.y = serverOption.y + serverOption.height + 50;
 		skinsOption.screenCenter(X);
 		skinsOption.ID = i++;
 
 		var modsOption:InputOption;
-		items.add(modsOption = new InputOption("Setup Mods", "Set the URL's of your mods here!", null, false));
+		items.add(modsOption = new InputOption("Setup Mods", "Set the URL's of your mods here!"));
 		modsOption.y = skinsOption.y + skinsOption.height + 50;
 		modsOption.screenCenter(X);
 		modsOption.ID = i++;
 
 		var trustedOption:InputOption;
-		items.add(trustedOption = new InputOption("Clear Trusted Domains", "Clear the list of all trusted domains!", null, false));
+		items.add(trustedOption = new InputOption("Clear Trusted Domains", "Clear the list of all trusted domains!"));
 		trustedOption.y = modsOption.y + modsOption.height + 50;
 		trustedOption.screenCenter(X);
 		trustedOption.ID = i++;
 
 		var sezOption:InputOption;
 		items.add(sezOption = new InputOption("Leave a Global Message",
-			"Leave a message for others to see in the Online Menu!", "Message", true, message -> {
+			"Leave a message for others to see in the Online Menu!", ["Message"], (message, _) -> {
 				if (FunkinNetwork.postFrontMessage(message))
 					FlxG.switchState(() -> new OnlineState());
 		}));
@@ -116,9 +125,37 @@ class OptionsState extends MusicBeatState {
 
 			var registerOption:InputOption;
 			items.add(registerOption = new InputOption("Register to the Network",
-				"Join the Psych Online Network\nSubmit your song replays to the leaderboard system!", "Username", true, username -> {
-					FunkinNetwork.register(username);
-					FlxG.resetState();
+				"Join the Psych Online Network and submit your song replays\nto the leaderboards!", ["Username", "Email"], (text, input) -> {
+					if (input == 0) {
+						registerOption.inputs[0].hasFocus = false;
+						registerOption.inputs[1].hasFocus = true;
+						inputWait = true;
+						return;
+					}
+
+					registerOption.inputs[0].text = registerOption.inputs[0].text.trim();
+					registerOption.inputs[1].text = registerOption.inputs[1].text.trim();
+
+					if (registerOption.inputs[0].text.length <= 0) {
+						Alert.alert('No username set!');
+						return;
+					}
+
+					if (registerOption.inputs[1].text.length <= 0) {
+						registerOption.inputs[0].hasFocus = false;
+						registerOption.inputs[1].hasFocus = true;
+						inputWait = true;
+						return;
+					}
+
+					if (FunkinNetwork.requestRegister(registerOption.inputs[0].text, registerOption.inputs[1].text)) {
+						openSubState(new VerifyCode(code -> {
+							if (FunkinNetwork.requestRegister(registerOption.inputs[0].text, registerOption.inputs[1].text, code)) {
+								Alert.alert("Successfully registered!");
+								FlxG.resetState();
+							}
+						}));
+					}
 				}));
 			registerOption.y = sezOption.y + sezOption.height + 50;
 			registerOption.screenCenter(X);
@@ -126,7 +163,7 @@ class OptionsState extends MusicBeatState {
 
 			var loginOption:InputOption;
 			items.add(loginOption = new InputOption("Login to the Network",
-				"Input your email address here and wait for your One-Time Login Code!", "me@example.org", true, mail -> {
+				"Input your email address here and wait for your One-Time Login Code!", ["me@example.org"], (mail, _) -> {
 					if (FunkinNetwork.requestLogin(mail)) {
 						openSubState(new VerifyCode(code -> {
 							if (FunkinNetwork.requestLogin(mail, code)) {
@@ -139,24 +176,17 @@ class OptionsState extends MusicBeatState {
 			loginOption.y = registerOption.y + registerOption.height + 50;
 			loginOption.screenCenter(X);
 			loginOption.ID = i++;
-
-			// var recoverOption:InputOption;
-			// items.add(recoverOption = new InputOption("Recover Account", "Recover your account using the Recovery File", null, false));
-			// recoverOption.y = registerOption.y + registerOption.height + 50;
-			// recoverOption.screenCenter(X);
-			// recoverOption.ID = i++;
 		}
 		else {
 			var loginBrowserOption:InputOption;
-			items.add(loginBrowserOption = new InputOption("Login to Browser",
-				"Authenticates you to the network your default web browser", null, false));
+			items.add(loginBrowserOption = new InputOption("Login to Browser", "Authenticates you to the network your default web browser"));
 			loginBrowserOption.y = sezOption.y + sezOption.height + 50;
 			loginBrowserOption.screenCenter(X);
 			loginBrowserOption.ID = i++;
 
 			var emailOption:InputOption;
 			items.add(emailOption = new InputOption("Set Email Address",
-				"This is recommended if you don't want to lose your account\nIf you have already set a email address then use the following format:\n<new_mail> from <old_mail>", "me@example.org", true, mail -> {
+				"Use the following format:\n<new_mail> from <old_mail>", ["me@example.org"], (mail, _) -> {
 					if (FunkinNetwork.setEmail(mail)) {
 						openSubState(new VerifyCode(code -> {
 							if (FunkinNetwork.setEmail(mail, code)) {
@@ -170,8 +200,7 @@ class OptionsState extends MusicBeatState {
 			emailOption.ID = i++;
 
 			var logoutOption:InputOption;
-			items.add(logoutOption = new InputOption("Logout of the Network",
-				"Logout of the Psych Online Network", null, false));
+			items.add(logoutOption = new InputOption("Logout of the Network", "Logout of the Psych Online Network"));
 			logoutOption.y = emailOption.y + emailOption.height + 50;
 			logoutOption.screenCenter(X);
 			logoutOption.ID = i++;
@@ -217,8 +246,14 @@ class OptionsState extends MusicBeatState {
 
 		if (!inputWait) {
 			if ((controls.ACCEPT || FlxG.mouse.justPressed) && curOption != null) {
-				if (curOption.isInput)
-					curOption.input.hasFocus = true;
+				if (curOption.isInput) {
+					if (FlxG.mouse.justPressed)
+						for (i => input in curOption.inputs)
+							input.hasFocus = FlxG.mouse.overlaps(curOption.inputBgs[i], camera);
+					else
+						for (i => input in curOption.inputs)
+							input.hasFocus = i == 0;
+				}
 				else
 					switch (curOption.id) {
 						case "skin":
@@ -242,9 +277,15 @@ class OptionsState extends MusicBeatState {
 
 		inputWait = false;
 		for (item in items) {
-			if (item?.input?.hasFocus ?? false) {
-				curSelected = item.ID;
-				inputWait = true;
+			if (item?.inputs == null)
+				continue;
+
+			for (input in item.inputs) {
+				if (input.hasFocus) {
+					curSelected = item.ID;
+					inputWait = true;
+					return;
+				}
 			}
 		}
     }
@@ -273,12 +314,14 @@ class OptionsState extends MusicBeatState {
 			item.borderline.visible = item == curOption;
 			item.alpha = inputWait ? 0.5 : 0.6;
 			if (item.isInput)
-				item.input.alpha = 0.5;
+				for (input in item.inputs)
+					input.alpha = 0.5;
         }
         if (curOption != null) {
 			curOption.alpha = 1;
 			if (curOption.isInput)
-				curOption.input.alpha = inputWait ? 1 : 0.7;
+				for (input in curOption.inputs)
+					input.alpha = inputWait ? 1 : 0.7;
 		}
     }
 
@@ -296,18 +339,19 @@ class InputOption extends FlxSpriteGroup {
 	public var borderline:FlxSprite;
 	public var text:FlxText;
 	public var descText:FlxText;
-	var inputBg:FlxSprite;
-	var inputPlaceholder:FlxText;
-	public var input:InputText;
+
+	public var inputBgs:Array<FlxSprite> = [];
+	var inputPhs:Array<FlxText> = [];
+	public var inputs:Array<InputText> = [];
 
 	public var id:String;
 	public var isInput:Bool;
 
-    public function new(title:String, description:String, ?placeholder:String = "...", ?isInput:Bool = true, ?onEnter:(text:String)->Void) {
+    public function new(title:String, description:String, ?inputList:Array<String>, ?onEnter:(text:String, input:Int)->Void) {
         super();
 
 		id = title.toLowerCase();
-		this.isInput = isInput;
+		this.isInput = inputList != null;
 
 		box = new FlxSprite();
 		box.setPosition(-5, -10);
@@ -325,25 +369,35 @@ class InputOption extends FlxSpriteGroup {
 		add(descText);
 
 		if (isInput) {
-			inputBg = new FlxSprite();
-			inputBg.makeGraphic(700, 50, FlxColor.BLACK);
-			inputBg.x = text.x;
-			inputBg.y = descText.y + descText.textField.textHeight + 10;
-			inputBg.alpha = 0.6;
-			add(inputBg);
+			for (i => placeholder in inputList) {
+				var inputBg = new FlxSprite();
+				inputBg.makeGraphic(700, 50, FlxColor.BLACK);
+				inputBg.x = text.x;
+				inputBg.y = descText.y + descText.textField.textHeight + 10;
+				inputBg.alpha = 0.6;
+				add(inputBg);
 
-			inputPlaceholder = new FlxText();
-			inputPlaceholder.text = placeholder;
-			inputPlaceholder.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-			inputPlaceholder.alpha = 0.5;
-			inputPlaceholder.x = inputBg.x + 20;
-			inputPlaceholder.y = inputBg.y + inputBg.height / 2 - inputPlaceholder.height / 2;
-			add(inputPlaceholder);
+				var inputPlaceholder = new FlxText();
+				inputPlaceholder.text = placeholder;
+				inputPlaceholder.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+				inputPlaceholder.alpha = 0.5;
+				inputPlaceholder.x = inputBg.x + 20;
+				inputPlaceholder.y = inputBg.y + inputBg.height / 2 - inputPlaceholder.height / 2;
+				add(inputPlaceholder);
 
-			input = new InputText(0, 0, inputBg.width - 20, onEnter);
-			input.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-			input.setPosition(inputPlaceholder.x, inputPlaceholder.y);
-			add(input);
+				var input = new InputText(0, 0, inputBg.width - 20, (text) -> onEnter(text, i));
+				input.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+				input.setPosition(inputPlaceholder.x, inputPlaceholder.y);
+				add(input);
+
+				inputBg.y += i * 50;
+				inputPlaceholder.y += i * 50;
+				input.y += i * 50;
+
+				inputBgs.push(inputBg);
+				inputPhs.push(inputPlaceholder);
+				inputs.push(input);
+			}
 		}
 
 		var width = Std.int(width) + 10;
@@ -365,7 +419,8 @@ class InputOption extends FlxSpriteGroup {
 		super.update(elapsed);
 
 		if (isInput)
-			inputPlaceholder.visible = input.text == "";
+			for (i => input in inputs)
+				inputPhs[i].visible = input.text == "";
 
 		//targetScale = alpha == 1 ? 1.02 : 1;
 		//scale.set(FlxMath.lerp(scale.x, targetScale, elapsed * 10), FlxMath.lerp(scale.y, targetScale, elapsed * 10));
