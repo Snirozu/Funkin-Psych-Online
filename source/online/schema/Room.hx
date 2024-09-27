@@ -64,4 +64,7 @@ class Room extends Schema {
 
 	@:type("boolean")
 	public var permitModifiers:Bool = false;
+	
+	@:type("boolean")
+	public var hideGF:Bool = false;
 }

@@ -234,7 +234,7 @@ class ResultsScreen extends MusicBeatState {
 		spotlight.alpha = 0.375;
 		spotlight.blend = ADD;
 		spotlight.visible = false;
-		spotlight.x = winnerPlayer.getMidpoint().x - spotlight.width / 2;
+		spotlight.x = (winner == 0 ? p1Bg: p2Bg).getGraphicMidpoint().x - spotlight.width / 2;
 		add(spotlight);
 
 		chatBox = new ChatBox(camera);
@@ -368,7 +368,6 @@ class ResultsScreen extends MusicBeatState {
 
 			if (p1 == null)
 				p1 = new Character(0, 0, "default");
-			p1.updateHitbox();
 		}
 		else {
 			if (p2 != null)
@@ -385,7 +384,6 @@ class ResultsScreen extends MusicBeatState {
 
 			if (p2 == null)
 				p2 = new Character(/*770*/ 0, 0, "default-player", true);
-			p2.updateHitbox();
 		}
 
 		Mods.currentModDirectory = oldModDir;

@@ -45,6 +45,7 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 		bg = new FlxSprite();
 		bg.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0.7;
+		bg.scrollFactor.set(0, 0);
 		add(bg);
 
 		items = new FlxTypedSpriteGroup<Option>(40, 40);
@@ -96,6 +97,18 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 		}, 0, 80 * i, GameClient.room.state.permitModifiers));
 		unlockModifiers.ID = i++;
 
+		var hideGF:Option;
+		items.add(hideGF = new Option("Hide Girlfriend", "This will hide GF from the stage.", () -> {
+			if (GameClient.hasPerms()) {
+				GameClient.send("toggleGF");
+			}
+		}, (elapsed) -> {
+			hideGF.alpha = GameClient.hasPerms() ? 1 : 0.8;
+
+			hideGF.checked = GameClient.room.state.hideGF;
+		}, 0, 80 * i, GameClient.room.state.hideGF));
+		hideGF.ID = i++;
+
 		var modifers:Option;
 		items.add(modifers = new Option("Game Modifiers", "Select room's gameplay modifiers here!", () -> {
 			close();
@@ -128,6 +141,10 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 		gameOptions.ID = i++;
 
 		add(items);
+
+		var lastItem = items.members[items.length - 1];
+
+		coolCam.setScrollBounds(FlxG.width, FlxG.width, 0, lastItem.y + lastItem.height + 40 > FlxG.height ? lastItem.y + lastItem.height + 40 : FlxG.height);
 
 		GameClient.send("status", "In the Room Settings");
 	}
@@ -185,6 +202,7 @@ class ServerSettingsSubstate extends MusicBeatSubstate {
 			}
 
 			if (option.ID == curSelectedID) {
+				coolCam.follow(option, null, 0.1);
 				option.text.alpha = 1;
 
                 if (controls.ACCEPT) {

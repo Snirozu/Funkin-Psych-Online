@@ -140,12 +140,12 @@ class StageSelect extends MusicBeatSubstate {
     override function stepHit() {
         super.stepHit();
 
-        if (holdUp > 1) {
+        if (holdUp > 0.5) {
             curSelected -= FlxG.keys.pressed.SHIFT ? 3 : 1;
             updateSelection();
         }
 
-        if (holdDown > 1) {
+        if (holdDown > 0.5) {
             curSelected += FlxG.keys.pressed.SHIFT ? 3 : 1;
             updateSelection();
         }
