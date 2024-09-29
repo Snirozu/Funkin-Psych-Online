@@ -61,6 +61,14 @@ class Deflection {
 		// Can load native processes on the host operating system.
 		classBlacklist.push(openfl.desktop.NativeProcess);
 
+		// `online.net` classes can access the network without player knowing
+		classBlacklist.push(online.net.Auth);
+		classBlacklist.push(online.net.FunkinNetwork);
+		classBlacklist.push(online.net.Leaderboard);
+
+		// FileUtils accesses files duh
+		classBlacklist.push(online.FileUtils);
+
 		// `polymod.*`
 		// Contains functions which may allow for un-blacklisting other modules.
 		for (cls in CompiledClassList.listClassesInPackage('polymod')) {

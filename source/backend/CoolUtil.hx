@@ -23,6 +23,7 @@ class CoolUtil
 	inline public static function capitalize(text:String)
 		return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase();
 
+	@:unreflective
 	inline public static function coolTextFile(path:String):Array<String>
 	{
 		var daList:String = null;
@@ -107,6 +108,7 @@ class CoolUtil
 		return dumbArray;
 	}
 
+	@:unreflective
 	inline public static function browserLoad(site:String) {
 		#if linux
 		Sys.command('/usr/bin/xdg-open', [site]);

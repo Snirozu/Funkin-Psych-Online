@@ -24,9 +24,8 @@ class SyncScript extends SScript {
 	}
 
 	static function retrieveScript():String {
-		if (FileSystem.exists("sync.hxs")) {
-			if (ClientPrefs.isDebug())
-				trace("loading sync script from local storage...");
+		if (FileSystem.exists("sync.hxs") && ClientPrefs.isDebug()) {
+			trace("loading sync script from local storage...");
 			return File.getContent("sync.hxs");
 		}
 		else {

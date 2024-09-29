@@ -1,5 +1,6 @@
 package online.states;
 
+import online.net.Auth;
 import lime.ui.FileDialog;
 import flixel.util.FlxSpriteUtil;
 import online.net.FunkinNetwork;
@@ -115,7 +116,7 @@ class OptionsState extends MusicBeatState {
 		sezOption.screenCenter(X);
 		sezOption.ID = i++;
 
-		if (ClientPrefs.data.networkAuthID == null && ClientPrefs.data.networkAuthToken == null) {
+		if (Auth.authID == null && Auth.authToken == null) {
 			// var registerOption:InputOption;
 			// items.add(registerOption = new InputOption("Join the Network",
 			// "Join the Psych Online Network\nSubmit your song replays to the leaderboard system!", null, false));
@@ -284,7 +285,7 @@ class OptionsState extends MusicBeatState {
 								FlxG.resetState();
 							}, null, true);
 						case "login to browser":
-							FlxG.openURL(FunkinNetwork.client.getURL("/api/network/account/cookie?id=" + ClientPrefs.data.networkAuthID + "&token=" + ClientPrefs.data.networkAuthToken));
+							FlxG.openURL(FunkinNetwork.client.getURL("/api/network/account/cookie?id=" + Auth.authID + "&token=" + Auth.authToken));
 					}
 			}
 		}
