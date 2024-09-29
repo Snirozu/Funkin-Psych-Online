@@ -20,7 +20,6 @@ class Auth {
 
     public static function load() {
 		savePath = lime.system.System.applicationStorageDirectory + 'peo_auth.json';
-        trace(savePath);
 
 		if (!FileSystem.exists(savePath)) {
 			if (!FileSystem.exists(Path.directory(savePath)))
@@ -51,11 +50,9 @@ class Auth {
     public static function save(id:String, token:String) {
 		saveData.id = authID = id;
 		saveData.token = authToken = token;
-		trace(saveData);
     }
 
 	public static function saveClose() {
-        trace(saveData);
 		File.saveContent(savePath, Json.stringify(saveData));
         Sys.exit(1);
 	}
