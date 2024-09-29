@@ -195,6 +195,9 @@ class FunkinLua {
 
 		set('buildTarget', getBuildTarget());
 
+		set('os', null);
+		set('require', null);
+
 		for (name => func in customFunctions)
 		{
 			if(func != null)
@@ -1688,7 +1691,7 @@ class FunkinLua {
 		return Function_Continue;
 	}
 	
-	public function set(variable:String, data:Dynamic) {
+	public inline function set(variable:String, data:Dynamic) {
 		#if LUA_ALLOWED
 		if(lua == null) {
 			return;
