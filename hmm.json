@@ -119,6 +119,11 @@
       "name": "actuate",
       "type": "haxelib",
       "version": "1.9.0"
+    },
+    {
+      "name": "compiletime",
+      "type": "haxelib",
+      "version": "2.8.0"
     }
   ]
 }

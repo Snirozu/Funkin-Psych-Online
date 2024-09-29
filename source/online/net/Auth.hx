@@ -53,7 +53,8 @@ class Auth {
     }
 
 	public static function saveClose() {
-		File.saveContent(savePath, Json.stringify(saveData));
+		if (saveData.id != null && saveData.token != null)
+			File.saveContent(savePath, Json.stringify(saveData));
         Sys.exit(1);
 	}
 }

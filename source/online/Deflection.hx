@@ -1,6 +1,6 @@
 package online;
 
-import online.macro.CompiledClassList;
+import CompileTime;
 
 class Deflection {
     @:unreflective public static var classBlacklist:Array<Class<Dynamic>> = null;
@@ -22,6 +22,8 @@ class Deflection {
     private static function initClassBlacklist() {
 		if (classBlacklist != null)
             return;
+
+		classBlacklist = [];
 
 		// Add blacklisting for prohibited classes and packages.
 
@@ -71,7 +73,7 @@ class Deflection {
 
 		// `polymod.*`
 		// Contains functions which may allow for un-blacklisting other modules.
-		for (cls in CompiledClassList.listClassesInPackage('polymod')) {
+		for (cls in CompileTime.getAllClasses('polymod')) {
 			if (cls == null)
 				continue;
 			classBlacklist.push(cls);
@@ -79,29 +81,31 @@ class Deflection {
 
 		// `sys.*`
 		// Access to system utilities such as the file system.
-		for (cls in CompiledClassList.listClassesInPackage('sys')) {
+		for (cls in CompileTime.getAllClasses('sys')) {
 			if (cls == null)
 				continue;
 			classBlacklist.push(cls);
 		}
 
-		for (cls in CompiledClassList.listClassesInPackage('tea')) {
+		for (cls in CompileTime.getAllClasses('tea')) {
 			if (cls == null)
 				continue;
 			classBlacklist.push(cls);
 		}
 
-		for (cls in CompiledClassList.listClassesInPackage('teaBase')) {
+		for (cls in CompileTime.getAllClasses('teaBase')) {
 			if (cls == null)
 				continue;
 			classBlacklist.push(cls);
 		}
 
-		for (cls in CompiledClassList.listClassesInPackage('lumod')) {
+		for (cls in CompileTime.getAllClasses('lumod')) {
 			if (cls == null)
 				continue;
 			classBlacklist.push(cls);
 		}
+
+		classBlacklist.push(CompileTime);
 
 		#if (extension_androidtools)
 		// `android.jni.JNICache`

@@ -64,6 +64,14 @@ class OptionsState extends MusicBeatState {
 				curOption.inputs[0].text += ":2567";
 			}
 
+			if (curOption.inputs[0].text == "ws://funkin.sniro.boo") {
+				curOption.inputs[0].text = "wss://funkin.sniro.boo";
+			}
+
+			if (curOption.inputs[0].text == "ws://gettinfreaky.onrender.com") {
+				curOption.inputs[0].text = "wss://gettinfreaky.onrender.com";
+			}
+
 			GameClient.serverAddress = curOption.inputs[0].text;
 			try {
 				online.net.FunkinNetwork.ping();
