@@ -78,8 +78,6 @@ class SaveVariables {
 	public var unlockFramerate:Bool = false;
 	public var debugMode:Bool = false;
 	public var disableReplays:Bool = false;
-	public var networkAuthID:String = null;
-	public var networkAuthToken:String = null;
 	public var disableSubmiting:Bool = false;
 	public var showNoteTiming:Bool = false;
 	public var disableAutoDownloads:Bool = false;

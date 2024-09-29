@@ -50,7 +50,7 @@ class Main extends Sprite
 	public static var stage3D:AwayStage;
 	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.7.9";
+	public static final PSYCH_ONLINE_VERSION:String = "0.8.0";
 	public static final CLIENT_PROTOCOL:Float = 4;
 	public static final GIT_COMMIT:String = online.Macros.getGitCommitHash();
 
@@ -217,6 +217,7 @@ class Main extends Sprite
 			#end
 			online.Downloader.cancelAll();
 			online.Downloader.checkDeleteDlDir();
+			online.net.Auth.saveClose();
 		});
 
 		Lib.application.window.onDropFile.add(path -> {
@@ -296,6 +297,7 @@ class Main extends Sprite
 		#else
 		Application.current.window.alert(alertMsg, "Uncaught Exception!");
 		#end
+		online.net.Auth.saveClose();
 		Sys.exit(1);
 	}
 }

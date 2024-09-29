@@ -1,5 +1,7 @@
 package online.net;
 
+import haxe.io.BytesOutput;
+import openfl.display.BitmapData;
 import haxe.io.Error;
 import haxe.io.Eof;
 import online.HTTPClient.HTTPResponse;
@@ -45,7 +47,7 @@ class FunkinNetwork {
 
 		var response = requestAPI({
 			path: "/api/network/account/email/set",
-			headers: ["authorization" => getAuthHeader(), "content-type" => "application/json"],
+			headers: ["authorization" => Auth.getAuthHeader(), "content-type" => "application/json"],
 			body: Json.stringify({
 				email: emailSplit[0].trim(),
 				old_email: emailSplit[1].trim(),
@@ -63,7 +65,7 @@ class FunkinNetwork {
 	public static function deleteAccount() {
 		var response = requestAPI({
 			path: "/api/network/account/delete",
-			headers: ["authorization" => getAuthHeader()],
+			headers: ["authorization" => Auth.getAuthHeader()],
 		});
 
 		if (response == null)
@@ -74,25 +76,19 @@ class FunkinNetwork {
 	}
 
 	public static function logout() {
-		ClientPrefs.data.networkAuthID = null;
-		ClientPrefs.data.networkAuthToken = null;
-		ClientPrefs.saveSettings();
+		Auth.save(null, null);
 		loggedIn = false;
 		nickname = null;
 		points = 0;
 	}
 
-	public static function getAuthHeader(?authID:String, ?authToken:String) {
-		return "Basic " + Base64.encode(Bytes.ofString((authID ?? ClientPrefs.data.networkAuthID) + ":" + (authToken ?? ClientPrefs.data.networkAuthToken)));
-	}
-
 	public static function ping():Bool {
-		if (ClientPrefs.data.networkAuthID == null || ClientPrefs.data.networkAuthToken == null)
+		if (Auth.authID == null || Auth.authToken == null)
 			return loggedIn = false;
 
 		var response = requestAPI({
 			path: "/api/network/account/me",
-			headers: ["authorization" => getAuthHeader()]
+			headers: ["authorization" => Auth.getAuthHeader()]
 		});
 
 		if (response == null)
@@ -127,9 +123,7 @@ class FunkinNetwork {
 
 	static function saveCredentials(json:Dynamic) {
 		trace("Saving credentials");
-		ClientPrefs.data.networkAuthID = json.id;
-		ClientPrefs.data.networkAuthToken = json.token;
-		ClientPrefs.saveSettings();
+		Auth.save(json.id, json.token);
 		// new FileReference().save(json.id + "\n" + json.secret, "recovery_token.txt");
 		ping();
 	}
@@ -145,7 +139,7 @@ class FunkinNetwork {
 	public static function updateName(name:String):String {
 		var response = requestAPI({
 			path: "/api/network/account/rename",
-			headers: ["authorization" => getAuthHeader(), "content-type" => "application/json"],
+			headers: ["authorization" => Auth.getAuthHeader(), "content-type" => "application/json"],
 			body: Json.stringify({
 				username: name
 			}),
@@ -161,7 +155,7 @@ class FunkinNetwork {
 	public static function postFrontMessage(message:String):Bool {
 		var response = requestAPI({
 			path: "/api/network/sez",
-			headers: ["authorization" => getAuthHeader(), "content-type" => "application/json"],
+			headers: ["authorization" => Auth.getAuthHeader(), "content-type" => "application/json"],
 			body: Json.stringify({
 				message: message
 			}),
@@ -211,7 +205,7 @@ class FunkinNetwork {
 	public static function postSongComment(songId:String, content:String, at:Float):Array<SongComment> {
 		var response = requestAPI({
 			path: "/api/network/song/comment",
-			headers: ["authorization" => getAuthHeader(), "content-type" => "application/json"],
+			headers: ["authorization" => Auth.getAuthHeader(), "content-type" => "application/json"],
 			body: Json.stringify({
 				id: songId,
 				content: content,
@@ -225,6 +219,48 @@ class FunkinNetwork {
 
 		try {
 			return Json.parse(response.body);
+		}
+		catch (exc) {
+			trace(exc);
+			return null;
+		}
+	}
+
+	public static function fetchUserInfo(user:String):String {
+		var response = requestAPI({
+			path: "/api/network/user/info?name=" + user
+		});
+
+		if (response == null)
+			return null;
+
+		try {
+			return Json.parse(response.body);
+		}
+		catch (exc) {
+			trace(exc);
+			return null;
+		}
+	}
+
+	public static var cacheAvatar:Map<String, BitmapData> = [];
+	public static function getUserAvatar(user:String):BitmapData {
+		if (cacheAvatar.exists(user))
+			return cacheAvatar.get(user);
+
+		var output = new BytesOutput();
+		var avatarResponse = FunkinNetwork.requestAPI({
+			path: 'api/avatar/' + Base64.encode(Bytes.ofString(user)),
+			bodyOutput: output
+		});
+
+		if (avatarResponse == null)
+			return null;
+
+		try {
+			var bitmap = BitmapData.fromBytes(output.getBytes());
+			cacheAvatar.set(user, bitmap);
+			return bitmap;
 		}
 		catch (exc) {
 			trace(exc);

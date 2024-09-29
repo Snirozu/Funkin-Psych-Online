@@ -1,5 +1,6 @@
 package online;
 
+import online.net.Auth;
 import online.net.FunkinNetwork;
 import states.OutdatedState;
 import haxe.crypto.Md5;
@@ -192,9 +193,9 @@ class GameClient {
 			"arrowRGBP" => ClientPrefs.data.arrowRGBPixel,
 		];
 
-		if (ClientPrefs.data.networkAuthID != null && ClientPrefs.data.networkAuthToken != null) {
-			options.set("networkId", ClientPrefs.data.networkAuthID);
-			options.set("networkToken", ClientPrefs.data.networkAuthToken);
+		if (Auth.authID != null && Auth.authToken != null) {
+			options.set("networkId", Auth.authID);
+			options.set("networkToken", Auth.authToken);
 		}
 
 		if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {

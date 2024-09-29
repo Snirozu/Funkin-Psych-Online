@@ -1,0 +1,67 @@
+package online.net;
+
+import haxe.io.Bytes;
+import haxe.crypto.Base64;
+import haxe.io.Path;
+import haxe.Json;
+import sys.FileSystem;
+import sys.io.File;
+
+@:unreflective
+class Auth {
+	public static var authID:String = null;
+	public static var authToken:String = null;
+    private static var savePath:String;
+	private static var saveData:AuthData;
+
+	public static function getAuthHeader(?authID:String, ?authToken:String) {
+		return "Basic " + Base64.encode(Bytes.ofString((authID ?? Auth.authID) + ":" + (authToken ?? Auth.authToken)));
+	}
+
+    public static function load() {
+		savePath = lime.system.System.applicationStorageDirectory + 'peo_auth.json';
+        trace(savePath);
+
+		if (!FileSystem.exists(savePath)) {
+			if (!FileSystem.exists(Path.directory(savePath)))
+				FileSystem.createDirectory(Path.directory(savePath));
+
+			File.saveContent(savePath, Json.stringify({
+                id: null,
+                token: null
+            }));
+        }
+
+		saveData = Json.parse(File.getContent(savePath));
+        FileSystem.deleteFile(savePath);
+
+		authID = saveData.id;
+		authToken = saveData.token;
+        
+        // move from old save data
+		if (authID == null && authToken == null && FlxG.save.data.networkAuthID != null && FlxG.save.data.networkAuthToken != null) {
+            trace("moved credentials from the old save data!");
+			save(FlxG.save.data.networkAuthID, FlxG.save.data.networkAuthToken);
+			FlxG.save.data.networkAuthID = null;
+			FlxG.save.data.networkAuthToken = null;
+			FlxG.save.flush();
+        }
+    }
+
+    public static function save(id:String, token:String) {
+		saveData.id = authID = id;
+		saveData.token = authToken = token;
+		trace(saveData);
+    }
+
+	public static function saveClose() {
+        trace(saveData);
+		File.saveContent(savePath, Json.stringify(saveData));
+        Sys.exit(1);
+	}
+}
+
+typedef AuthData = {
+	var id:String;
+	var token:String;
+} 
