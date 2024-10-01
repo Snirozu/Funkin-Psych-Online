@@ -4194,7 +4194,7 @@ class PlayState extends MusicBeatState
 	public function spawnHoldSplash(note:Note) {
 		var end:Note = note.isSustainNote ? note.parent.tail[note.parent.tail.length - 1] : note.tail[note.tail.length - 1];
 		var splash:SustainSplash = grpHoldSplashes.recycle(SustainSplash);
-		splash.setupSusSplash(strumLineNotes.members[note.noteData + (note.mustPress ? 4 : 0)], note, playbackRate);
+		splash.setupSusSplash(getPlayerStrums().members[note.noteData], note, playbackRate);
 		grpHoldSplashes.add(end.extraData['holdSplash'] = splash);
 	}
 

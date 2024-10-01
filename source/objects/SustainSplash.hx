@@ -6,9 +6,18 @@ class SustainSplash extends FlxSprite {
   public static var frameRate:Int;
 	public var strumNote:StrumNote;
 
+	public static var defaultNoteHoldSplash(default, never):String = 'noteSplashes/holdSplashes/holdSplash';
+
   public function new():Void {
     super();
-    frames = Paths.getSparrowAtlas('noteSplashes/holdSplashes/holdSplash');
+
+		var skin:String = defaultNoteHoldSplash + getSplashSkinPostfix();
+		frames = Paths.getSparrowAtlas(skin);
+		if (frames == null) {
+			skin = defaultNoteHoldSplash;
+			frames = Paths.getSparrowAtlas(skin);
+		}
+
     animation.addByPrefix('hold', 'hold', 24, true);
     animation.addByPrefix('end', 'end', 24, false);
     animation.play('hold', true, false, 0);
@@ -52,7 +61,7 @@ class SustainSplash extends FlxSprite {
     offset.set(PlayState.isPixelStage ? 112.5 : 106.25, 100);
 
     new FlxTimer().start(timeThingy, (idk:FlxTimer) -> {
-      if (tailEnd.mustPress && !(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled) && ClientPrefs.data.splashAlpha != 0) {
+			if (PlayState.isPlayerNote(tailEnd) && !(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled) && ClientPrefs.data.splashAlpha != 0) {
 				alpha = ClientPrefs.data.splashAlpha - (1 - strumNote.alpha);
         animation.play('end', true, false, 0);
         animation.curAnim.looped = false;
@@ -67,5 +76,13 @@ class SustainSplash extends FlxSprite {
     });
 
   }
+
+  public static function getSplashSkinPostfix()
+	{
+		var skin:String = '';
+		if(ClientPrefs.data.splashSkin != ClientPrefs.defaultData.splashSkin)
+			skin = '-' + ClientPrefs.data.splashSkin.trim().toLowerCase().replace(' ', '_');
+		return skin;
+	}
 
 }
