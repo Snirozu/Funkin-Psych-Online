@@ -25,7 +25,7 @@ class GameClient {
 	public static var room:Room<GameRoom>;
 	public static var isOwner:Bool;
 	public static var address:String;
-	public static var reconnectTries:Int = 0;
+	public static var reconnecting:Bool = false;
 	public static var rpcClientRoomID:String;
 
 	/**
@@ -80,7 +80,9 @@ class GameClient {
     }
 
 	private static function _onJoin(err:Error, room:Room<GameRoom>, isHost:Bool, address:String, ?onJoin:(err:Dynamic)->Void) {
+		reconnecting = false;
 		if (err != null) {
+			trace(err.code + " - " + err.message);
 			Alert.alert("Couldn't connect!", "JOIN ERROR: " + err.code + " - " + err.message);
 			client = null;
 			_pendingMessages = [];
@@ -136,51 +138,30 @@ class GameClient {
 	}
 
 	public static function reconnect(?nextTry:Bool = false) {
-		if (nextTry) {
-			reconnectTries--;
-			Sys.println("reconnecting (" + reconnectTries + ")");
-		}
-		else {
-			try {
-				room.connection.close();
-			} catch (exc) {}
-			Sys.println("reconnecting");
-			Alert.alert("Reconnecting...");
-			reconnectTries = 15;
-		}
+		if (reconnecting)
+			return;
+
+		reconnecting = true;
+		Sys.println("reconnecting with token: " + room.reconnectionToken);
+		Alert.alert("Reconnecting...");
 
 		Thread.run(() -> {
-			try {
-				client.reconnect(room.reconnectionToken, GameRoom, (err, room) -> {
-					if (err != null) {
-						if (reconnectTries <= 0) {
-							Waiter.put(() -> {
-								Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + err.code + " - " + err.message);
-							});
-							leaveRoom();
-						}
-						else {
-							Waiter.put(() -> {
-								new FlxTimer().start(0.5, t -> reconnect(true));
-							});
-						}
-						return;
-					}
-
+			client.reconnect(room.reconnectionToken, GameRoom, (err, newRoom) -> {
+				if (err != null) {
+					trace(err.code + " - " + err.message);
 					Waiter.put(() -> {
-						Alert.alert("Reconnected!");
+						Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + err.code + " - " + err.message);
 					});
-					_onJoin(err, room, GameClient.isOwner, GameClient.address);
-					sendPending();
-					reconnectTries = 0;
-				});
-			}
-			catch (exc) {
-				trace(exc);
+					leaveRoom();
+					return;
+				}
+
+				_onJoin(err, newRoom, GameClient.isOwner, GameClient.address);
+				sendPending();
 				Waiter.put(() -> {
-					new FlxTimer().start(0.5, t -> reconnect(true));
+					Alert.alert("Reconnected!");
 				});
-			}
+			});
 		});
 	}
 
@@ -213,7 +194,7 @@ class GameClient {
 
 	public static function leaveRoom(?reason:String = null) {
 		Waiter.pingServer = null;
-		reconnectTries = 0;
+		reconnecting = false;
 		_pendingMessages = [];
 
 		if (!isConnected())
@@ -233,7 +214,7 @@ class GameClient {
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
 			if (GameClient.room?.connection != null) {
-				GameClient.room.connection.close();
+				GameClient.room.leave(true);
 				GameClient.room.teardown();
             }
 
@@ -311,7 +292,7 @@ class GameClient {
 				catch (exc) {
 					_pendingMessages.push([type, message]);
 
-					if (reconnectTries <= 0) {
+					if (!reconnecting) {
 						trace(exc + " : FAILED TO SEND: " + type + " -> " + message);
 						reconnect();
 					}

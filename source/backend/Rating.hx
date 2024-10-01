@@ -21,7 +21,15 @@ class Rating
 		var window:String = name + 'Window';
 		try
 		{
-			this.hitWindow = Reflect.field(ClientPrefs.data, window);
+			switch (window) {
+				case "sickWindow": 
+					this.hitWindow = 45;
+				case "goodWindow":
+					this.hitWindow = 90;
+				case "badWindow":
+					this.hitWindow = 135;
+			}
+			//this.hitWindow = Reflect.field(ClientPrefs.data, window);
 		}
 		catch(e) FlxG.log.error(e);
 	}

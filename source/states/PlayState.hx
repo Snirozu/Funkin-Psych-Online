@@ -599,9 +599,7 @@ class PlayState extends MusicBeatState
 			}
 
 			Mods.currentModDirectory = oldModDir;
-
-			trace(Paths.currentLevel);
-			//Paths.setCurrentLevel(stageData.directory);
+			Paths.setCurrentLevel(stageData.directory);
 
 			defaultCamZoom = stageData.defaultZoom;
 
@@ -2322,7 +2320,7 @@ class PlayState extends MusicBeatState
 
 		#if LOCAL
 		if (FlxG.keys.justPressed.F9 && GameClient.isConnected()) {
-			GameClient.room.connection.close();
+			GameClient.room.leave(false);
 		}
 		#end
 
