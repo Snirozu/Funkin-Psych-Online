@@ -449,7 +449,7 @@ class Paths
 			if (ClientPrefs.isDebug())
 				Sys.println('Paths.returnSound(): SOUND NOT FOUND: $key');
 			return null;
-		#end
+		}
 		localTrackedAssets.push(gottenPath);
 		return currentTrackedSounds.get(gottenPath);
 	}
