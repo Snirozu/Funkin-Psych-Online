@@ -565,6 +565,10 @@ class RoomState extends MusicBeatState {
 	var elapsedShit = 3.;
 	var lastFocused = false;
     override function update(elapsed:Float) {
+		if (FlxG.keys.justPressed.F11) {
+			GameClient.reconnect();
+		}
+
 		if (FlxG.keys.justPressed.F12) {
 			trace('reloading lumod');
 			Lumod.cache.scripts.clear();
