@@ -82,6 +82,19 @@ class RoomState extends MusicBeatState {
 
 		instance = this;
 
+		registerMessages();
+
+		playMusic((GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).hasSong);
+		(GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).listen("hasSong", (value:Bool, prev) -> {
+			Waiter.put(() -> {
+				playMusic(value);
+			});
+		});
+	}
+
+	function registerMessages() {
+		GameClient.initStateListeners(this, this.registerMessages);
+
 		GameClient.room.onMessage("checkChart", function(message) {
 			Waiter.put(() -> {
 				verifyDownloadMod(false, true);
@@ -94,21 +107,16 @@ class RoomState extends MusicBeatState {
 			});
 		});
 
-		playMusic((GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).hasSong);
-		(GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).listen("hasSong", (value:Bool, prev) -> {
-			Waiter.put(() -> {
-				playMusic(value);
-			});
-		});
-
 		GameClient.room.state.player1.listen("skinName", (value, prev) -> {
-			if (value == prev) return;
+			if (value == prev)
+				return;
 			Waiter.put(() -> {
 				loadCharacter(true, true);
 			});
 		});
 		GameClient.room.state.player2.listen("skinName", (value, prev) -> {
-			if (value == prev) return;
+			if (value == prev)
+				return;
 			Waiter.put(() -> {
 				loadCharacter(false, true);
 			});

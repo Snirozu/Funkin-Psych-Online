@@ -1,5 +1,6 @@
 package online;
 
+import flixel.FlxState;
 import online.net.Auth;
 import online.net.FunkinNetwork;
 import states.OutdatedState;
@@ -108,10 +109,10 @@ class GameClient {
 		}
 
 		GameClient.room.onLeave += () -> {
-			trace("Left!");
-			if (room?.roomId != null) {
-				trace("Left from room: " + room.roomId);
-			}
+			if (room?.roomId != null)
+				trace("Left/Kicked from room: " + room.roomId);
+			else
+				trace("Left/Kicked from unknown room!");
 
 			if (client == null) {
 				leaveRoom();
@@ -137,13 +138,19 @@ class GameClient {
 		//}
 	}
 
-	public static function reconnect(?nextTry:Bool = false) {
+	public static function reconnect() {
 		if (reconnecting)
 			return;
-
 		reconnecting = true;
-		Sys.println("reconnecting with token: " + room.reconnectionToken);
+
+		trace("Reconnecting with Token: " + room.reconnectionToken);
 		Alert.alert("Reconnecting...");
+
+		try {
+			GameClient.room.teardown();
+			GameClient.room.leave(false);
+		}
+		catch (exc) {}
 
 		Thread.run(() -> {
 			client.reconnect(room.reconnectionToken, GameRoom, (err, newRoom) -> {
@@ -157,6 +164,8 @@ class GameClient {
 				}
 
 				_onJoin(err, newRoom, GameClient.isOwner, GameClient.address);
+				if (addListeners != null)
+					addListeners();
 				sendPending();
 				Waiter.put(() -> {
 					Alert.alert("Reconnected!");
@@ -205,7 +214,7 @@ class GameClient {
         Waiter.put(() -> {
 			if (reason != null)
 				Alert.alert("Disconnected!", reason.trim() != "" ? reason : null);
-			Sys.println("leaving the room");
+			trace("Leaving the Room, Reason: " + reason);
 
 			FlxG.autoPause = ClientPrefs.data.autoPause;
 
@@ -213,10 +222,13 @@ class GameClient {
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
-			if (GameClient.room?.connection != null) {
-				GameClient.room.leave(true);
-				GameClient.room.teardown();
-            }
+			try {
+				if (GameClient.room?.connection != null) {
+					GameClient.room.teardown();
+					GameClient.room.leave(true);
+				}
+			}
+			catch (exc) {}
 
 			GameClient.room = null;
 			GameClient.isOwner = false;
@@ -228,13 +240,30 @@ class GameClient {
 	}
 
     public static function isConnected() {
-		return client != null;
+		return client != null || reconnecting;
     }
+
+	public static function initStateListeners(state:FlxState, listenersCallback:Void->Void) {
+		addListenersState = state;
+		addListeners = listenersCallback;
+	}
+	private static var addListenersState:FlxState;
+	private static var addListeners(default, null):Void->Void;
+
+	private static var hasStateCallback:Bool = false;
 
 	@:access(io.colyseus.Room.onMessageHandlers)
 	public static function clearOnMessage() {
 		if (!GameClient.isConnected() || GameClient.room?.onMessageHandlers == null)
 			return;
+
+		if (!hasStateCallback) {
+			hasStateCallback = true;
+			FlxG.signals.postStateSwitch.add(() -> {
+				if (addListenersState != FlxG.state)
+					addListeners = null;
+			});
+		}
 
 		GameClient.room.onMessageHandlers.clear();
 		
