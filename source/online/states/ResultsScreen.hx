@@ -283,6 +283,12 @@ class ResultsScreen extends MusicBeatState {
 
 		});
 
+		registerMessages();
+    }
+
+	function registerMessages() {
+		GameClient.initStateListeners(this, this.registerMessages);
+
 		if (GameClient.isConnected()) {
 			GameClient.send("status", "Viewing results");
 
@@ -295,7 +301,7 @@ class ResultsScreen extends MusicBeatState {
 				});
 			});
 		}
-    }
+	}
 
 	function flickerLoop() {
 		FlxFlicker.flicker(spotlight, 0.2, 0.05, true);

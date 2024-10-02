@@ -2318,11 +2318,9 @@ class PlayState extends MusicBeatState
 			addHealth(2);
 		}
 
-		#if LOCAL
-		if (FlxG.keys.justPressed.F9 && GameClient.isConnected()) {
-			GameClient.room.leave(false);
+		if (FlxG.keys.justPressed.F11 && GameClient.isConnected()) {
+			GameClient.reconnect();
 		}
-		#end
 
 		if (controls.TAUNT && canInput()) {
 			getPlayer().playAnim('taunt', true);
@@ -2331,10 +2329,11 @@ class PlayState extends MusicBeatState
 		}
 
 		if (GameClient.isConnected()) {
-			//if player 2 left then go back to lobby
-			if (GameClient.room.state.player2.name == "") {
-				endSong();
-			}
+			//if player 2 left then go back to lobby // nvm, unreliable on reconnects
+			// if (!GameClient.reconnecting && GameClient.room.state.player2.name == "") {
+			// 	trace("No one is playing, leaving...");
+			// 	endSong();
+			// }
 
 			if (canStart && !isReady && controls.ACCEPT && canInput()) {
 				isReady = true;
@@ -4194,7 +4193,7 @@ class PlayState extends MusicBeatState
 	public function spawnHoldSplash(note:Note) {
 		var end:Note = note.isSustainNote ? note.parent.tail[note.parent.tail.length - 1] : note.tail[note.tail.length - 1];
 		var splash:SustainSplash = grpHoldSplashes.recycle(SustainSplash);
-		splash.setupSusSplash(strumLineNotes.members[note.noteData + (note.mustPress ? 4 : 0)], note, playbackRate);
+		splash.setupSusSplash(getPlayerStrums().members[note.noteData], note, playbackRate);
 		grpHoldSplashes.add(end.extraData['holdSplash'] = splash);
 	}
 
@@ -4860,6 +4859,8 @@ class PlayState extends MusicBeatState
 	}
 
 	function registerMessages() {
+		GameClient.initStateListeners(this, this.registerMessages);
+
 		if (!GameClient.isConnected())
 			return;
 
