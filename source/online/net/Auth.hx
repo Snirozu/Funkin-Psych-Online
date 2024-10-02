@@ -32,14 +32,14 @@ class Auth {
         }
 
 		saveData = Json.parse(File.getContent(savePath));
-        FileSystem.deleteFile(savePath);
+        //FileSystem.deleteFile(savePath); // maybe not a good idea?
 
 		authID = saveData.id;
 		authToken = saveData.token;
         
         // move from old save data
 		if (authID == null && authToken == null && FlxG.save.data.networkAuthID != null && FlxG.save.data.networkAuthToken != null) {
-            trace("moved credentials from the old save data!");
+            trace("Moved credentials from the old save data!");
 			save(FlxG.save.data.networkAuthID, FlxG.save.data.networkAuthToken);
 			FlxG.save.data.networkAuthID = null;
 			FlxG.save.data.networkAuthToken = null;
@@ -53,8 +53,16 @@ class Auth {
     }
 
 	public static function saveClose() {
-		if (saveData.id != null && saveData.token != null)
+		if (saveData.id == null || saveData.token == null) {
+			saveData = {
+				id: authID,
+				token: authToken,
+			}
+		}
+		if (saveData.id != null && saveData.token != null) {
 			File.saveContent(savePath, Json.stringify(saveData));
+			trace("Saved Auth Credentials...");
+		}
         Sys.exit(1);
 	}
 }

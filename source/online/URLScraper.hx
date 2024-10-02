@@ -1,7 +1,6 @@
 package online;
 
 import htmlparser.HtmlDocument;
-import haxe.Http;
 
 class URLScraper {
     public static function downloadFromGDrive(url:String, ?onSuccess:String->Void) {
@@ -11,29 +10,27 @@ class URLScraper {
 
 	public static function downloadFromMediaFire(url:String, ?onSuccess:String->Void) {
 		Thread.run(() -> {
-			var http = new Http(url);
+			var response = HTTPClient.requestURL(url);
 
-			http.onData = function(data:String) {
+			if (response.isFailed()) {
 				Waiter.put(() -> {
-                    var doc = new HtmlDocument(data, true);
-					var titles = doc.find("#downloadButton");
-					if (titles[0] == null) {
-						Waiter.put(() -> {
-							Alert.alert("Download failed!", "Can't get the download link for this MediaFire file!");
-						});
-						return;
-					}
-					OnlineMods.startDownloadMod(url, titles[0].getAttribute("href"), null, onSuccess, [], url);
+					Alert.alert("Download failed!", "Couldn't connect to MediaFire!\n" + 'Status: ${response.status}\n${response.body}');
 				});
+				return;
 			}
 
-			http.onError = function(error) {
-				Waiter.put(() -> {
-                    Alert.alert("Download failed!", "Can't get the download for this MediaFire file!");
-				});
-			}
+			var doc = new HtmlDocument(response.body, true);
+			var titles = doc.find("#downloadButton");
 
-			http.request();
+			Waiter.put(() -> {
+				if (titles[0] == null) {
+					Waiter.put(() -> {
+						Alert.alert("Download failed!", "Can't get the download link for this MediaFire file!");
+					});
+					return;
+				}
+				OnlineMods.startDownloadMod(url, titles[0].getAttribute("href"), null, onSuccess, [], url);
+			});
 		});
 	}
 
