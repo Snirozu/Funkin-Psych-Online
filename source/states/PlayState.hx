@@ -2319,7 +2319,7 @@ class PlayState extends MusicBeatState
 		}
 
 		if (FlxG.keys.justPressed.F11 && GameClient.isConnected()) {
-			GameClient.reconnect();
+			GameClient.reconnect(5); //delay the reconnection for 5 seconds (for testing)
 		}
 
 		if (controls.TAUNT && canInput()) {

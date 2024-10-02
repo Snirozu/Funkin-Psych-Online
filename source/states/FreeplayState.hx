@@ -1127,36 +1127,29 @@ class FreeplayState extends MusicBeatState
 
 			if (selected) {
 				if (i == curSelected) {
-					item.x = FlxMath.lerp(item.x, FlxG.width / 2 - item.width / 2 - icon.width / 2, FlxG.elapsed * 5);
+					item.x = FlxMath.lerp(item.x, FlxG.width / 2 - item.width / 2, FlxG.elapsed * 5);
 
 					var daCenter = item.x + item.width / 2;
 
-					diffSelect.x = daCenter - diffSelect.width / 2 + icon.width / 2;
-					diffSelect.offset.x = icon.width / 2;
-					diffSelect.y = item.y + 55;
+					diffSelect.x = daCenter - diffSelect.width / 2;
+					diffSelect.y = item.y + 70;
 
-					modifiersSelect.x = daCenter - modifiersSelect.width / 2 + icon.width / 2;
-					modifiersSelect.offset.x = icon.width / 2;
+					modifiersSelect.x = daCenter - modifiersSelect.width / 2;
 					modifiersSelect.y = item.y + item.height + 50;
 
-					replaysSelect.x = daCenter - replaysSelect.width / 2 + icon.width / 2;
-					replaysSelect.offset.x = icon.width / 2;
+					replaysSelect.x = daCenter - replaysSelect.width / 2;
 					replaysSelect.y = modifiersSelect.y + modifiersSelect.height;
 
-					resetSelect.x = daCenter - resetSelect.width / 2 + icon.width / 2;
-					resetSelect.offset.x = icon.width / 2;
+					resetSelect.x = daCenter - resetSelect.width / 2;
 					resetSelect.y = replaysSelect.y + replaysSelect.height;
 
-					topTitle.x = daCenter - topTitle.width / 2 + icon.width / 2;
-					topTitle.offset.x = icon.width / 2;
+					topTitle.x = daCenter - topTitle.width / 2;
 					topTitle.y = resetSelect.y + resetSelect.height + 50;
 
-					topShit.x = daCenter - topShit.width / 2 + icon.width / 2;
-					topShit.offset.x = icon.width / 2;
+					topShit.x = daCenter - topShit.width / 2;
 					topShit.y = topTitle.y + topTitle.height + 30;
 
-					topLoading.x = daCenter - topLoading.width / 2 + icon.width / 2;
-					topLoading.offset.x = icon.width / 2;
+					topLoading.x = daCenter - topLoading.width / 2;
 					topLoading.y = topTitle.y + 50;
 				}
 				else
