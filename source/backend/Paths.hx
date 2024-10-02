@@ -428,6 +428,8 @@ class Paths
 					Sys.println('Paths.returnSound(): SOUND NOT FOUND: $key');
 				return null;
 			}
+			localTrackedAssets.push(key);
+			return currentTrackedSounds.get(file);
 		}
 		#end
 		// I hate this so god damn much
