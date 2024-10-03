@@ -23,15 +23,55 @@ class HTTPClient {
     public function new(host:String, ?isSSL:Null<Bool>) {
         // URL parsing
         var protocolAHost = host.split("://");
+
 		ssl = protocolAHost.length > 1 && protocolAHost[0] == "https";
         if (ssl) port = 443;
+
 		var hostAPort = protocolAHost[protocolAHost.length - 1].split(":");
 		hostname = hostAPort[0];
+
 		if (hostAPort[1] != null)
 			port = Std.parseInt(hostAPort[1]);
 
 		if (isSSL != null)
 		    ssl = isSSL;
+    }
+
+	public static function requestURL(url:String, ?requestOptions:HTTPURLRequest) {
+        var url = url;
+        var ssl:Null<Bool> = null;
+        if (url.startsWith("https://")) {
+            ssl = true;
+            url = url.substr("https://".length);
+        }
+		else if (url.startsWith("http://")) {
+			url = url.substr("http://".length);
+        }
+
+		var host = "";
+		var port = ssl ?? false ? 443 : 80;
+
+		var portIndex = url.indexOf(':');
+		var pathIndex = url.indexOf('/');
+		if (portIndex != -1 && portIndex < pathIndex) {
+			host = url.substr(0, portIndex);
+
+			var portStr = url.substr(portIndex + 1, pathIndex - portIndex - 1);
+			port = Std.parseInt(portStr);
+        }
+        else {
+			host = url.substr(0, pathIndex);
+        }
+
+		var path = url.substr(pathIndex);
+
+		return new HTTPClient(host + ":" + port, ssl).request({
+            path: path,
+			post: requestOptions?.post,
+			headers: requestOptions?.headers,
+			body: requestOptions?.body,
+			bodyOutput: requestOptions?.bodyOutput
+        });
     }
 
 	public function request(request:HTTPRequest):HTTPResponse {
@@ -85,6 +125,7 @@ class HTTPClient {
 			var buffer:Bytes = Bytes.alloc(1024);
             var _bytesWritten:Int = 1;
             var receivedContent:Float = 0;
+			var _lastLine = '';
             
             if (request.bodyOutput != null)
 				if (bodySize > 0) {
@@ -95,8 +136,8 @@ class HTTPClient {
                             receivedContent += _bytesWritten;
                         }
                         catch (e:Dynamic) {
-                            if (e is Eof || e == Error.Blocked) {
-                                // Eof and Blocked will be ignored
+                            if (e == Error.Blocked) {
+                                // Blocked will be ignored
                                 continue;
                             }
                             request.bodyOutput.close();
@@ -105,15 +146,16 @@ class HTTPClient {
                     }
                 }
                 else {
-					while (_bytesWritten > 0) {
+					//while (_bytesWritten > 0) {
+					while (_lastLine != '0') {
 						try {
-                            _bytesWritten = Std.parseInt('0x' + socket.input.readLine());
+							_bytesWritten = Std.parseInt('0x' + (_lastLine = socket.input.readLine()));
                             request.bodyOutput.writeBytes(socket.input.read(_bytesWritten), 0, _bytesWritten);
                             receivedContent += _bytesWritten;
                         }
                         catch (e:Dynamic) {
-							if (e is Eof || e == Error.Blocked) {
-								// Eof and Blocked will be ignored
+							if (e == Error.Blocked) {
+								// Blocked will be ignored
 								continue;
 							}
 							throw e;
@@ -130,8 +172,8 @@ class HTTPClient {
 							receivedContent += _bytesWritten;
 						}
 						catch (e:Dynamic) {
-							if (e is Eof || e == Error.Blocked) {
-								// Eof and Blocked will be ignored
+							if (e == Error.Blocked) {
+								// Blocked will be ignored
 								continue;
 							}
 							throw e;
@@ -139,15 +181,16 @@ class HTTPClient {
 					}
                 }
                 else {
-					while (_bytesWritten > 0) {
+					// while (_bytesWritten > 0) {
+					while (_lastLine != '0') {
 						try {
-                            _bytesWritten = Std.parseInt('0x' + socket.input.readLine());
+							_bytesWritten = Std.parseInt('0x' + (_lastLine = socket.input.readLine()));
                             response.body += socket.input.readString(_bytesWritten, UTF8);
                             receivedContent += _bytesWritten;
                         }
                         catch (e:Dynamic) {
-							if (e is Eof || e == Error.Blocked) {
-								// Eof and Blocked will be ignored
+							if (e == Error.Blocked) {
+								// Blocked will be ignored
 								continue;
 							}
 							throw e;
@@ -157,7 +200,8 @@ class HTTPClient {
             }
         }
         catch (exc) {
-			response.exception = exc;
+            if (!(exc is Eof))
+			    response.exception = exc;
         }
 
         return response;
@@ -168,6 +212,13 @@ class HTTPClient {
 			path = "/" + path;
 		return (ssl ? "https://" : "http://") + hostname + (port != 80 && port != 443 ? ":" + port : "") + path;
     }
+}
+
+typedef HTTPURLRequest = {
+	@:optional var post:Bool;
+	@:optional var headers:Map<String, String>;
+	@:optional var body:String;
+	@:optional var bodyOutput:Output;
 }
 
 typedef HTTPRequest = {

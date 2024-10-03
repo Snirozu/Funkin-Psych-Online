@@ -67,7 +67,12 @@ class FunkinLua {
 	public function new(scriptName:String) {
 		#if LUA_ALLOWED
 		lua = LuaL.newstate();
+
+		//load default lua libs
 		LuaL.openlibs(lua);
+		//ignore other libs (thanks vortex)
+		set('os', null);
+		set('require', null);
 
 		//trace('Lua version: ' + Lua.version());
 		//trace("LuaJIT version: " + Lua.versionJIT());

@@ -240,6 +240,8 @@ class Downloader {
 		
 		var buffer:Bytes = Bytes.alloc(1024);
 		var _bytesWritten:Int = 1;
+		var _lastLine = '';
+
 		isDownloading = true;
 		if (contentLength > 0) {
 			while (gotContent < contentLength && !cancelRequested) {
@@ -258,9 +260,10 @@ class Downloader {
 			}
 		}
 		else {
-			while (_bytesWritten > 0) {
+			//while (_bytesWritten > 0) {
+			while (_lastLine != '0') {
 				try {
-					_bytesWritten = Std.parseInt('0x' + socket.input.readLine());
+					_bytesWritten = Std.parseInt('0x' + (_lastLine = socket.input.readLine()));
 					file.writeBytes(socket.input.read(_bytesWritten), 0, _bytesWritten);
 					gotContent += _bytesWritten;
 				}

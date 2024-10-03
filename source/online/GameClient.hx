@@ -138,7 +138,7 @@ class GameClient {
 		//}
 	}
 
-	public static function reconnect() {
+	public static function reconnect(?debugReconnectDelay:Float = 0) {
 		if (reconnecting)
 			return;
 		reconnecting = true;
@@ -153,6 +153,8 @@ class GameClient {
 		catch (exc) {}
 
 		Thread.run(() -> {
+			if (debugReconnectDelay > 0)
+				Sys.sleep(debugReconnectDelay);
 			client.reconnect(room.reconnectionToken, GameRoom, (err, newRoom) -> {
 				if (err != null) {
 					trace(err.code + " - " + err.message);
