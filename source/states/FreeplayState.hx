@@ -773,7 +773,7 @@ class FreeplayState extends MusicBeatState
 					
 					topShit.setRow(i, [
 						(i + 1 + curPage * 15) + ". " + top[i].player,
-						top[i].score + " - " + top[i].points + "FP",
+						FlxStringUtil.formatMoney(top[i].score, false) + " - " + top[i].points + "FP",
 						top[i].accuracy + "%" + (top[i].misses == 0 ? " - FC" : "")
 					], coolColor);
 				}

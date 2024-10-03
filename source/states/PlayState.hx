@@ -380,6 +380,8 @@ class PlayState extends MusicBeatState
 	var chatBox:ChatBox;
 	var leavePie:LeavePie;
 
+	static var swingMode:Bool = false;
+
 	function canInput() {
 		if (chatBox != null && chatBox.focused) {
 			return false;
@@ -1725,13 +1727,13 @@ class PlayState extends MusicBeatState
 
 		if (GameClient.isConnected()) {
 			scoreTextObject.text = (GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).name
-				+ '\nScore: ' + songScore
+				+ '\nScore: ' + FlxStringUtil.formatMoney(songScore, false)
 				+ '\nMisses: ' + songMisses
 				+ '\nRating: ' + str
 				+ "\nPing: " + (GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).ping;
 		}
 		else {
-			scoreTextObject.text = 'Score: ' + songScore + ' | Misses: ' + songMisses + ' | Rating: ' + str;
+			scoreTextObject.text = 'Score: ' + FlxStringUtil.formatMoney(songScore, false) + ' | Misses: ' + songMisses + ' | Rating: ' + str;
 		}
 
 		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, (Conductor.judgePlaybackRate ?? playbackRate), songSpeed);
@@ -2295,6 +2297,10 @@ class PlayState extends MusicBeatState
 
 			super.update(elapsed);
 			return;
+		}
+
+		if (FlxG.keys.justPressed.F6) {
+			swingMode = !swingMode;
 		}
 
 		if (FlxG.keys.justPressed.F7) {
@@ -4260,6 +4266,10 @@ class PlayState extends MusicBeatState
 		}
 
 		super.stepHit();
+		
+		if (!GameClient.isConnected() && swingMode && (curStep % 4 == 3)) { // here in the funkin crew we call that a functional audio resyncing algorithm
+			setSongTime(Conductor.songPosition + Conductor.calculateCrochet(Conductor.bpm) / 4);
+		}
 
 		if(curStep == lastStepHit) {
 			return;
@@ -5108,7 +5118,7 @@ class PlayState extends MusicBeatState
 
 		(!playsAsBF() ? scoreTxtP2 : scoreTxtP1).text = 
 			//op.sicks + " " + op.goods + " " + op.bads + " " + op.shits + " " + op.misses
-			op.name + '\nScore: ' + op.score + '\nMisses: ' + op.misses + '\nRating: ' + str + "\nPing: " + op.ping
+			op.name + '\nScore: ' + FlxStringUtil.formatMoney(op.score, false) + '\nMisses: ' + op.misses + '\nRating: ' + str + "\nPing: " + op.ping
 		;
 
 		callOnScripts('onUpdateScoreOpponent', miss);
