@@ -1,5 +1,6 @@
 package online.states;
 
+import flixel.util.FlxStringUtil;
 import backend.WeekData;
 import lumod.Lumod;
 import flixel.util.FlxSpriteUtil;
@@ -189,8 +190,8 @@ class ResultsScreen extends MusicBeatState {
 		if (p2Name.trim() == "")
 			p2Name = "(none)";
 
-		p1Text.text = '${p1Name}\nAccuracy: ${p1Accuracy}% - ${GameClient.getPlayerRating(getPlayer(1))}\nMisses: ${getPlayer(1).misses}\nScore: ${getPlayer(1).score}';
-		p2Text.text = '${p2Name}\nAccuracy: ${p2Accuracy}% - ${GameClient.getPlayerRating(getPlayer(2))}\nMisses: ${getPlayer(2).misses}\nScore: ${getPlayer(2).score}';
+		p1Text.text = '${p1Name}\nAccuracy: ${p1Accuracy}% - ${GameClient.getPlayerRating(getPlayer(1))}\nMisses: ${getPlayer(1).misses}\nScore: ${FlxStringUtil.formatMoney(getPlayer(1).score, false)}';
+		p2Text.text = '${p2Name}\nAccuracy: ${p2Accuracy}% - ${GameClient.getPlayerRating(getPlayer(2))}\nMisses: ${getPlayer(2).misses}\nScore: ${FlxStringUtil.formatMoney(getPlayer(2).score, false)}';
 
 		p1Text.x = 176;
 		p2Text.x = 702;
@@ -234,7 +235,7 @@ class ResultsScreen extends MusicBeatState {
 		spotlight.alpha = 0.375;
 		spotlight.blend = ADD;
 		spotlight.visible = false;
-		spotlight.x = (winner == 0 ? p1Bg: p2Bg).getGraphicMidpoint().x - spotlight.width / 2;
+		spotlight.x = winner == 0 ? 70 : 630;
 		add(spotlight);
 
 		chatBox = new ChatBox(camera);

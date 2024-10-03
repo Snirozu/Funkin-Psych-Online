@@ -45,6 +45,8 @@ class BananaDownload extends MusicBeatState {
 		
 		super.create();
 
+		FlxG.mouse.visible = true;
+
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Browsing mods on GameBanana.", null, null, false);
 		#end
