@@ -135,10 +135,14 @@ class Character extends FlxSprite {
 				else
 					frames = AtlasFrameMaker.construct(imageFile);
 
-				for (i in split) {
-					if(!imageFile.contains(i))
-						imageFile += ',$i';
-					cast(frames, FlxAtlasFrames).addAtlas(Paths.getAtlas(i));
+				if (frames != null) {
+					for (i in split) {
+						if (!imageFile.contains(i))
+							imageFile += ',$i';
+						var daAtlas = Paths.getAtlas(i);
+						if (daAtlas != null)
+							cast(frames, FlxAtlasFrames).addAtlas(daAtlas);
+					}
 				}
 
 				if (json.scale != 1) {
