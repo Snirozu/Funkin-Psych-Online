@@ -75,6 +75,7 @@ class Character extends FlxSprite {
 	public var healthColorArray:Array<Int> = [255, 0, 0];
 
 	public var isSkin:Bool = false;
+	public var loadFailed:Bool = false;
 
 	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
 
@@ -104,6 +105,7 @@ class Character extends FlxSprite {
 				if (!Assets.exists(path))
 				#end
 				{
+					loadFailed = true;
 					path = Paths.getPreloadPath('characters/' + DEFAULT_CHARACTER +
 						'.json'); // If a character couldn't be found, change him to BF just to prevent a crash
 				}
