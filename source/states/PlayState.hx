@@ -748,7 +748,7 @@ class PlayState extends MusicBeatState
 				dad = new Character(0, 0, ClientPrefs.data.modSkin[1] + skinsSuffix, !playsAsBF(), true);
 			}
 
-			if (dad == null) {
+			if (dad == null || dad.loadFailed) {
 				Mods.currentModDirectory = oldModDir;
 				dad = new Character(0, 0, SONG.player2, !playsAsBF());
 			}
@@ -781,7 +781,7 @@ class PlayState extends MusicBeatState
 				boyfriend = new Character(0, 0, ClientPrefs.data.modSkin[1] + skinsSuffix + "-player", playsAsBF(), true);
 			}
 
-			if (boyfriend == null) {
+			if (boyfriend == null || boyfriend.loadFailed) {
 				Mods.currentModDirectory = oldModDir;
 				boyfriend = new Character(0, 0, SONG.player1, playsAsBF());
 			}
@@ -3932,8 +3932,8 @@ class PlayState extends MusicBeatState
 		});
 
 		final end:Note = daNote.isSustainNote ? daNote.parent.tail[daNote.parent.tail.length - 1] : daNote.tail[daNote.tail.length - 1];
-		if (end != null && end.extraData['holdSplash'] != null) {
-			end.extraData['holdSplash'].visible = false;
+		if (end != null && end.noteHoldSplash != null) {
+			end.noteHoldSplash.kill();
 		}
 		
 		noteMissCommon(daNote.noteData, daNote);
@@ -4181,29 +4181,28 @@ class PlayState extends MusicBeatState
 	}
 
 	public function spawnHoldSplashOnNote(note:Note) {
-		if (!note.isSustainNote && note.tail.length != 0 && note.tail[note.tail.length - 1].extraData['holdSplash'] == null) {
-			spawnHoldSplash(note);
-		} else if (note.isSustainNote) {
-			final end:Note = StringTools.endsWith(note.animation.curAnim.name, 'end') ? note : note.parent.tail[note.parent.tail.length - 1];
-			if (end != null) {
-				var leSplash:SustainSplash = end.extraData['holdSplash'];
-				if (leSplash == null && !end.parent.wasGoodHit) {
-					spawnHoldSplash(end);
-				} else if (leSplash != null) {
-					leSplash.visible = true;
-				}
-			}
+		if (ClientPrefs.data.holdSplashAlpha <= 0)
+			return;
+
+		if (note != null) {
+			var strum:StrumNote = (note.mustPress ? playerStrums : opponentStrums).members[note.noteData];
+
+			if(strum != null && note.tail.length != 0)
+				spawnHoldSplash(note);
 		}
 	}
 
 	public function spawnHoldSplash(note:Note) {
 		var end:Note = note.isSustainNote ? note.parent.tail[note.parent.tail.length - 1] : note.tail[note.tail.length - 1];
 		var splash:SustainSplash = grpHoldSplashes.recycle(SustainSplash);
-		splash.setupSusSplash(getPlayerStrums().members[note.noteData], note, playbackRate);
-		grpHoldSplashes.add(end.extraData['holdSplash'] = splash);
+		splash.setupSusSplash((note.mustPress ? playerStrums : opponentStrums).members[note.noteData], note, playbackRate);
+		grpHoldSplashes.add(end.noteHoldSplash = splash);
 	}
 
 	public function spawnNoteSplashOnNote(note:Note) {
+		if (ClientPrefs.data.splashAlpha <= 0)
+			return;
+
 		if(note != null) {
 			var strum:StrumNote = getPlayerStrums().members[note.noteData];
 			if(strum != null)

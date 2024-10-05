@@ -6,6 +6,8 @@ class SustainSplash extends FlxSprite {
   public static var frameRate:Int;
 	public var strumNote:StrumNote;
 
+	var timer:FlxTimer;
+
 	public static var defaultNoteHoldSplash(default, never):String = 'noteSplashes/holdSplashes/holdSplash';
 
   public function new():Void {
@@ -20,19 +22,16 @@ class SustainSplash extends FlxSprite {
 
     animation.addByPrefix('hold', 'hold', 24, true);
     animation.addByPrefix('end', 'end', 24, false);
-    animation.play('hold', true, false, 0);
-    animation.curAnim.frameRate = frameRate;
-    animation.curAnim.looped = true;
   }
 
   override function update(elapsed) {
     super.update(elapsed);
 
 		if (strumNote != null) {
-			alpha = ClientPrefs.data.splashAlpha - (1 - strumNote.alpha);
+      alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
 
 			if (animation.curAnim.name == "hold" && strumNote.animation.curAnim.name == "static") {
-        visible = false;
+				kill();
       }
     }
   }
@@ -45,6 +44,10 @@ class SustainSplash extends FlxSprite {
 
     var tailEnd:Note = !daNote.isSustainNote ? daNote.tail[daNote.tail.length - 1] : daNote.parent.tail[daNote.parent.tail.length - 1];
 
+		animation.play('hold', true, false, 0);
+		animation.curAnim.frameRate = frameRate;
+		animation.curAnim.looped = true;
+
     clipRect = new flixel.math.FlxRect(0, !PlayState.isPixelStage ? 0 : -210, frameWidth, frameHeight);
 
     if (daNote.shader != null) {
@@ -56,24 +59,28 @@ class SustainSplash extends FlxSprite {
     }
 
 		strumNote = strum;
-		alpha = ClientPrefs.data.splashAlpha - (1 - strumNote.alpha);
+		alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
     setPosition(strum.x, strum.y);
     offset.set(PlayState.isPixelStage ? 112.5 : 106.25, 100);
 
-    new FlxTimer().start(timeThingy, (idk:FlxTimer) -> {
-			if (PlayState.isPlayerNote(tailEnd) && !(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled) && ClientPrefs.data.splashAlpha != 0) {
-				alpha = ClientPrefs.data.splashAlpha - (1 - strumNote.alpha);
-        animation.play('end', true, false, 0);
-        animation.curAnim.looped = false;
-        animation.curAnim.frameRate = 24;
-        clipRect = null;
-        animation.finishCallback = (idkEither:Dynamic) -> {
-          visible = false;
+		if (timer != null)
+			timer.cancel();
+
+		if (PlayState.isPlayerNote(tailEnd) && ClientPrefs.data.holdSplashAlpha != 0)
+      timer = new FlxTimer().start(timeThingy, (idk:FlxTimer) -> {
+        if (!(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled)) {
+					alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
+          animation.play('end', true, false, 0);
+          animation.curAnim.looped = false;
+          animation.curAnim.frameRate = 24;
+          clipRect = null;
+          animation.finishCallback = (idkEither:Dynamic) -> {
+            kill();
+          }
+          return;
         }
-        return;
-      }
-      visible = false;
-    });
+        kill();
+      });
 
   }
 
