@@ -154,10 +154,22 @@ class ReflectionFunctions
 		});
 		
 		Lua_helper.add_callback(lua, "callMethod", function(funcToRun:String, ?args:Array<Dynamic> = null) {
+			for(string in ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http']){ //Block some packages
+				if(funcToRun.toLowerCase().contains(string)){
+					trace("blacklisted keyword detected: " + string);
+					return null;
+				}
+			}
 			return callMethodFromObject(PlayState.instance, funcToRun, args);
 			
 		});
 		Lua_helper.add_callback(lua, "callMethodFromClass", function(className:String, funcToRun:String, ?args:Array<Dynamic> = null) {
+			for(string in ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http']){ //Block some packages
+				if(className.toLowerCase().contains(string) || funcToRun.toLowerCase().contains(string)){
+					trace("blacklisted keyword detected: " + string);
+					return null;
+				}
+			}
 			return callMethodFromObject(Deflection.resolveClass(className), funcToRun, args);
 		});
 

@@ -175,9 +175,15 @@ class HScript extends SScript
 		#end
 	}
 
+
 	public function executeCode(?funcToRun:String = null, ?funcArgs:Array<Dynamic> = null):TeaCall
 	{
-		if (funcToRun == null) return null;
+		for(string in ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http']){ //Block some packages
+			if(funcToRun.toLowerCase().contains(string) || funcToRun == null){
+				trace("blacklisted keyword detected: " + string);
+				return null;
+			}
+		}
 
 		if(!exists(funcToRun)) {
 			#if LUA_ALLOWED
@@ -245,6 +251,12 @@ class HScript extends SScript
 		
 		funk.addLocalCallback("runHaxeFunction", function(funcToRun:String, ?funcArgs:Array<Dynamic> = null) {
 			#if HSCRIPT_ALLOWED
+			for(string in ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http']){ //Block some packages
+				if(funcToRun.toLowerCase().contains(string)){
+					trace("blacklisted keyword detected: " + string);
+					return null;
+				}
+			}
 			var callValue = funk.hscript.executeFunction(funcToRun, funcArgs);
 			if (!callValue.succeeded)
 			{
@@ -261,6 +273,12 @@ class HScript extends SScript
 		});
 		// This function is unnecessary because import already exists in SScript as a native feature
 		funk.addLocalCallback("addHaxeLibrary", function(libName:String, ?libPackage:String = '') {
+			for(string in ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http']){ //Block some packages
+				if(libName.toLowerCase().contains(string) || libPackage.toLowerCase().contains(string)){
+					trace("blacklisted keyword detected: " + string);
+					return;
+				}
+			}
 			var str:String = '';
 			if(libPackage.length > 0)
 				str = libPackage + '.';
