@@ -1,5 +1,6 @@
 package states;
 
+import flixel.tweens.misc.ShakeTween;
 import online.replay.ReplayPlayer;
 import online.replay.ReplayRecorder.ReplayData;
 import json2object.JsonParser;
@@ -246,32 +247,68 @@ class FreeplayState extends MusicBeatState
 
 		setDiffVisibility(true);
 
-		gainedText = new FlxText(0, 0, 0, '+ ${gainedPoints}FP');
-		if (gainedPoints < 0) {
-			var aasss = '${gainedPoints}'.split('');
-			aasss.insert(1, ' ');
-			gainedText.text = aasss.join('') + "FP";
+		gainedText = new FlxText(0, 0, 0, '+ 0FP');
+		// dead ass forgot about abs lmao
+		// if (gainedPoints < 0) {
+		// 	var aasss = '${gainedPoints}'.split(''); 
+		// 	aasss.insert(1, ' ');
+		// 	gainedText.text = aasss.join('') + "FP";
+		// }
+		var shakeTimer:ShakeTween = null;
+		var swagFP = null;
+		var endFP = gainedPoints;
+		if (gainedPoints != 0) {
+			FlxG.sound.music.fadeOut(0.5, 0.2);
+
+			FlxTween.num(0, endFP, 1 + (Math.abs(endFP) * 0.02), {
+				onComplete: (_) -> {
+					if (endFP > 0) {
+						FlxG.sound.play(Paths.sound('fap'));
+
+						if (ClientPrefs.data.flashing)
+							FlxFlicker.flicker(gainedText, 1, 0.03, true);
+					}
+
+					if (shakeTimer != null)
+						shakeTimer.cancel();
+
+					new FlxTimer().start(5, (t) -> {
+						FlxTween.tween(gainedText, {x: gainedText.x, y: FlxG.height, alpha: 0, angle: swagFP < 0 ? 90 : 0}, 1, {ease: FlxEase.quartOut});
+					});
+
+					FlxG.sound.music.fadeIn(3, 0.2, 1);
+				},
+				startDelay: 1,
+				ease: FlxEase.quadOut
+			}, (v) -> {
+				if (swagFP == Math.floor(v))
+					return;
+
+				swagFP = Math.floor(v);
+
+				if (swagFP < 0) {
+					gainedText.text = '- ${Math.abs(swagFP)}FP';
+					var sound = FlxG.sound.play(Paths.sound('scrollMenu'), 0.2);
+					sound.pitch = 1 - Math.abs(swagFP) * 0.01;
+				}
+				else {
+					gainedText.text = '+ ${swagFP}FP';
+					var sound = FlxG.sound.play(Paths.sound('scrollMenu'), 0.2);
+					sound.pitch = 1 + Math.abs(swagFP) * 0.01;
+				}
+
+				if (shakeTimer != null)
+					shakeTimer.cancel();
+				shakeTimer = FlxTween.shake(gainedText, FlxMath.bound(swagFP * 0.002, 0, 0.05), 1);
+				
+				gainedText.setPosition(FlxG.width - gainedText.width - 50, FlxG.height - gainedText.height - 50);
+			});
 		}
 		gainedText.setFormat(null, 40, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		gainedText.setPosition(FlxG.width - gainedText.width - 50, FlxG.height - gainedText.height - 50);
-		gainedText.visible = false;
+		gainedText.visible = gainedPoints != 0;
 		gainedText.scrollFactor.set();
 		add(gainedText);
-
-		if (gainedPoints != 0) {
-			gainedText.visible = true;
-			if (gainedPoints > 0) {
-				FlxG.sound.play(Paths.sound('fap'));
-				if (ClientPrefs.data.flashing)
-					FlxFlicker.flicker(gainedText, 1, 0.03, true);
-			}
-
-			var prevGained = gainedPoints; 
-
-			new FlxTimer().start(5, (t) -> {
-				FlxTween.tween(gainedText, {x: gainedText.x, y: FlxG.height, alpha: 0, angle: prevGained < 0 ? 90 : 0}, 1, {ease: FlxEase.quartOut});
-			});
-		}
 
 		gainedPoints = 0;
 

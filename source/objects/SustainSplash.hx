@@ -13,6 +13,8 @@ class SustainSplash extends FlxSprite {
   public function new():Void {
     super();
 
+		x = -50000;
+
 		var skin:String = defaultNoteHoldSplash + getSplashSkinPostfix();
 		frames = Paths.getSparrowAtlas(skin);
 		if (frames == null) {
@@ -28,9 +30,12 @@ class SustainSplash extends FlxSprite {
     super.update(elapsed);
 
 		if (strumNote != null) {
+			setPosition(strumNote.x, strumNote.y);
+			visible = strumNote.visible;
       alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
 
 			if (animation.curAnim.name == "hold" && strumNote.animation.curAnim.name == "static") {
+        x = -50000;
 				kill();
       }
     }
@@ -60,7 +65,6 @@ class SustainSplash extends FlxSprite {
 
 		strumNote = strum;
 		alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
-    setPosition(strum.x, strum.y);
     offset.set(PlayState.isPixelStage ? 112.5 : 106.25, 100);
 
 		if (timer != null)
@@ -68,7 +72,7 @@ class SustainSplash extends FlxSprite {
 
 		if (PlayState.isPlayerNote(tailEnd) && ClientPrefs.data.holdSplashAlpha != 0)
       timer = new FlxTimer().start(timeThingy, (idk:FlxTimer) -> {
-        if (!(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled)) {
+				if (!(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled)) {
 					alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
           animation.play('end', true, false, 0);
           animation.curAnim.looped = false;

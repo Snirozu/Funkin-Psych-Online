@@ -133,6 +133,7 @@ class Downloader {
 		while (!cancelRequested) {
 			tries++;
 
+			alert.newStatus = "Connecting to the server..";
 			try {
 				socket.connect(new Host(urlFormat.domain), urlFormat.port);
 
@@ -146,9 +147,7 @@ class Downloader {
 				httpStatus = httpStatus.substr(httpStatus.indexOf(" ")).ltrim();
 
 				if (httpStatus == null || httpStatus.startsWith("4") || httpStatus.startsWith("5")) {
-					Waiter.put(() -> {
-						Alert.alert('Server Error - $httpStatus', 'Retrying ($tries)...');
-					});
+					alert.newStatus = 'Server Error: $httpStatus (Retry #$tries)...';
 					continue;
 				}
 
@@ -157,7 +156,9 @@ class Downloader {
 				break;
 			}
 			catch (exc) {
-				if (tries >= 30) {
+				alert.newStatus = 'Failed to connect! (Retry #${tries})\n${exc.message}';
+
+				if (tries >= 10) {
 					trace(id + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
 					Waiter.put(() -> {
 						Alert.alert('Couldn\'t connect to the server after multiple tries!', '${urlFormat.domain + urlFormat.path}' + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
@@ -168,7 +169,7 @@ class Downloader {
 
 				if (ClientPrefs.isDebug())
 					Sys.println("DHX: Retrying...");
-				Sys.sleep(1);
+				Sys.sleep(5);
 			}
 		}
 
@@ -177,6 +178,7 @@ class Downloader {
 			return;
 		}
 
+		alert.newStatus = "Reading server response headers...";
 		var gotHeaders:Map<String, String> = new Map<String, String>();
 		while (!cancelRequested) {
 			var readLine:String = socket.input.readLine();
@@ -186,6 +188,8 @@ class Downloader {
 			var splitHeader = readLine.split(": ");
 			gotHeaders.set(splitHeader[0].toLowerCase(), splitHeader[1]);
 		}
+
+		alert.newStatus = "Parsing server response headers...";
 
 		if (ClientPrefs.isDebug())
 			Sys.println("DHX: Parsed response headers!");
