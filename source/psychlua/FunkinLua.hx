@@ -200,9 +200,6 @@ class FunkinLua {
 
 		set('buildTarget', getBuildTarget());
 
-		set('os', null);
-		set('require', null);
-
 		for (name => func in customFunctions)
 		{
 			if(func != null)

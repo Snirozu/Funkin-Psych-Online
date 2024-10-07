@@ -82,6 +82,8 @@ class DownloadAlerts extends Sprite {
 				alert.setStatus("Installing...");
 			else if (downloader.isDownloading)
 				alert.updateProgress(downloader.gotContent, downloader.contentLength);
+			else
+				alert.setStatus(alert.newStatus);
 
 			prevAlert = alert;
 			i++;
@@ -97,6 +99,8 @@ class DownloadAlert extends Sprite {
 
 	public var cancelBg:Bitmap;
 	public var cancelText:TextField;
+
+	public var newStatus:String = 'Initializing the Download...';
 
     public function new(id:String) {
         super();
@@ -139,7 +143,7 @@ class DownloadAlert extends Sprite {
 		cancelText.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 13, 0xFFFFFFFF);
 		addChild(cancelText);
 
-		setStatus("Initializing the download...");
+		setStatus(newStatus);
     }
 
     public function updateProgress(loaded:Float, total:Float) {
@@ -162,7 +166,7 @@ class DownloadAlert extends Sprite {
     }
 
 	public function setStatus(string:String) {
-		if (text == null)
+		if (text == null || string == text.text)
 			return;
 
 		bar.visible = false;

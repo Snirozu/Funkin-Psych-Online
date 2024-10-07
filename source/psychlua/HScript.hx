@@ -180,7 +180,7 @@ class HScript extends SScript
 	{
 		for(string in ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http']){ //Block some packages
 			if(funcToRun.toLowerCase().contains(string) || funcToRun == null){
-				trace("blacklisted keyword detected: " + string);
+				FunkinLua.luaTrace("Blacklisted keyword detected in: " + funcToRun, false, false, FlxColor.RED);
 				return null;
 			}
 		}
@@ -253,7 +253,7 @@ class HScript extends SScript
 			#if HSCRIPT_ALLOWED
 			for(string in ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http']){ //Block some packages
 				if(funcToRun.toLowerCase().contains(string)){
-					trace("blacklisted keyword detected: " + string);
+					FunkinLua.luaTrace("Blacklisted keyword detected in: " + funcToRun, false, false, FlxColor.RED);
 					return null;
 				}
 			}
@@ -275,7 +275,7 @@ class HScript extends SScript
 		funk.addLocalCallback("addHaxeLibrary", function(libName:String, ?libPackage:String = '') {
 			for(string in ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http']){ //Block some packages
 				if(libName.toLowerCase().contains(string) || libPackage.toLowerCase().contains(string)){
-					trace("blacklisted keyword detected: " + string);
+					FunkinLua.luaTrace("Blacklisted keyword detected in CL: " + libName + (libPackage != null ? " PKG: " + libPackage : ""), false, false, FlxColor.RED);
 					return;
 				}
 			}
