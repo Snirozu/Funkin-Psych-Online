@@ -3987,7 +3987,10 @@ class PlayState extends MusicBeatState
 
 		// play character anims
 		var char:Character = getPlayer();
-		if((note != null && note.gfNote) || (SONG.notes[curSection] != null && SONG.notes[curSection].gfSection)) char = gf;
+		if ((SONG.notes[curSection] != null && (SONG.notes[curSection].mustHitSection ? playsAsBF() : !playsAsBF()) && SONG.notes[curSection].gfSection)
+			|| (note != null && note.gfNote)) {
+				char = gf;
+		}
 		
 		if(char != null /*&& char.hasMissAnimations*/)
 		{
