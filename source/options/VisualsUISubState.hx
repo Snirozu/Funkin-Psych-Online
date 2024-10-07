@@ -82,6 +82,17 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.decimals = 1;
 		addOption(option);
 
+		var option:Option = new Option('Trail Note Opacity',
+			'How much transparent should the Note Trail be.',
+			'holdAlpha',
+			'percent');
+		option.scrollSpeed = 1.3;
+		option.minValue = 0.5;
+		option.maxValue = 1;
+		option.changeValue = 0.1;
+		option.decimals = 1;
+		addOption(option);
+
 		var option:Option = new Option('Hide HUD',
 			'If checked, hides most HUD elements.',
 			'hideHud',
