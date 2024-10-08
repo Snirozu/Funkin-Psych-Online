@@ -2451,7 +2451,7 @@ class PlayState extends MusicBeatState
 			if(secondsTotal < 0) secondsTotal = 0;
 
 			if(ClientPrefs.data.timeBarType != 'Song Name')
-				timeTxt.text = FlxStringUtil.formatTime(secondsTotal, false);
+				timeTxt.text = FlxStringUtil.formatTime(secondsTotal / playbackRate, false);
 		}
 
 		if (camZooming)
@@ -4649,7 +4649,7 @@ class PlayState extends MusicBeatState
 			else if (sicks > 0) ratingFC = 'SFC';
 		}
 		else if (songMisses < 10)
-			ratingFC = 'SDCB';
+			ratingFC = 'SDCB'; // what the fuck is SDCB
 	}
 
 	#if ACHIEVEMENTS_ALLOWED
