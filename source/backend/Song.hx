@@ -33,6 +33,9 @@ typedef SwagSong =
 
 	@:optional var arrowSkin:String;
 	@:optional var splashSkin:String;
+
+	//MOD SPECIFIC
+	@:optional var mania:Int;
 }
 
 class Song
