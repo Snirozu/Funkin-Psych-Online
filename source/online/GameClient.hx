@@ -1,13 +1,13 @@
 package online;
 
 import flixel.FlxState;
-import online.net.Auth;
-import online.net.FunkinNetwork;
+import online.network.Auth;
+import online.network.FunkinNetwork;
 import states.OutdatedState;
 import haxe.crypto.Md5;
 import backend.Song;
 import backend.Rating;
-import online.schema.Player;
+import online.backend.schema.Player;
 import haxe.Http;
 import sys.io.File;
 import sys.FileSystem;
@@ -15,7 +15,7 @@ import online.states.OnlineState;
 import lime.app.Application;
 import io.colyseus.events.EventHandler;
 import states.MainMenuState;
-import online.schema.Room as GameRoom;
+import online.backend.schema.Room as GameRoom;
 import io.colyseus.Client;
 import io.colyseus.Room;
 

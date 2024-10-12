@@ -5,8 +5,8 @@ import online.replay.ReplayPlayer;
 import online.replay.ReplayRecorder.ReplayData;
 import json2object.JsonParser;
 import flixel.effects.FlxFlicker;
-import online.Scoreboard;
-import online.net.Leaderboard;
+import online.objects.Scoreboard;
+import online.network.Leaderboard;
 import flixel.FlxObject;
 import flixel.math.FlxPoint;
 import flixel.addons.effects.chainable.FlxEffectSprite;
@@ -17,9 +17,9 @@ import haxe.io.Path;
 import haxe.Json;
 import haxe.io.Bytes;
 import lime.ui.FileDialog;
-import online.ChatBox;
-import online.Alert;
-import online.Waiter;
+import online.objects.ChatBox;
+import online.gui.Alert;
+import online.backend.Waiter;
 import haxe.crypto.Md5;
 import online.states.RoomState;
 import online.GameClient;
@@ -602,7 +602,7 @@ class FreeplayState extends MusicBeatState
 									curDifficulty,
 									Md5.encode(Song.loadRawSong(poop, songLowercase)),
 									Mods.currentModDirectory,
-									online.OnlineMods.getModURL(Mods.currentModDirectory),
+									online.mods.OnlineMods.getModURL(Mods.currentModDirectory),
 									Difficulty.list
 								]);
 							}

@@ -6,7 +6,7 @@ import backend.StageData;
 import objects.Character;
 import objects.HealthBar;
 import flixel.addons.display.shapes.FlxShapeCircle;
-import online.states.ServerSettingsSubstate.Option as SwagOption;
+import online.substates.RoomSettingsSubstate.Option as SwagOption;
 
 import states.stages.StageWeek1 as BackgroundStage;
 

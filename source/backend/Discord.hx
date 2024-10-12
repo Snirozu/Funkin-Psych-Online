@@ -1,7 +1,7 @@
 package backend;
 
 import online.states.RoomState;
-import online.Waiter;
+import online.backend.Waiter;
 import haxe.crypto.Md5;
 import online.GameClient;
 import Sys.sleep;
@@ -124,7 +124,7 @@ class DiscordClient
 	public static function initialize()
 	{
 		
-		online.Thread.run(() -> {
+		online.backend.Thread.run(() -> {
 			new DiscordClient();
 		});
 		trace("Discord Client initialized");

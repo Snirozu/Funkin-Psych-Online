@@ -1,6 +1,6 @@
 package substates;
 
-import online.Waiter;
+import online.backend.Waiter;
 import online.GameClient;
 import objects.AttachedText;
 import objects.CheckboxThingie;

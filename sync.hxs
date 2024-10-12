@@ -8,9 +8,7 @@ function init() { // initializes the game
 }
 
 function switchState(state) { // game state gets switched
-    if (typeof(state) == "states.PlayState") {
-        state.stageModDir = Mods.currentModDirectory;
-    }
+    
 }
 
 function openSubState(substate) { // game substate gets opened
