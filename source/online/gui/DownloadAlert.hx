@@ -65,7 +65,7 @@ class DownloadAlerts extends Sprite {
 			alert.text.x = alert.bg.x + 10;
 			alert.text.y = alert.bg.y;
 
-			alert.bar.y = alert.bg.y + alert.bg.height - 10;
+			alert.bar.y = alert.bg.y + alert.bg.height - 15;
 			alert.bar.x = alert.bg.x + 10;
 
 			alert.cancelText.width = alert.cancelText.textWidth;
@@ -110,7 +110,7 @@ class DownloadAlert extends Sprite {
 		DownloadAlerts.instances.push(this);
 		DownloadAlerts.instance.addChild(this);
 
-		bg = new Bitmap(new BitmapData(600, 70, true, 0xFF000000));
+		bg = new Bitmap(new BitmapData(600, 40, true, 0xFF000000));
 		bg.alpha = 0.6;
         addChild(bg);
 
@@ -124,10 +124,10 @@ class DownloadAlert extends Sprite {
 		addChild(text);
 
 		text.y = 5;
-		text.wordWrap = true;
+		text.wordWrap = false;
 		text.width = bg.width - text.y * 2;
 
-		bar.y = bg.y + bg.height - 10;
+		bar.y = bg.y + bg.height - 15;
 		text.x = 10;
 		bar.x = 10;
 
@@ -150,16 +150,21 @@ class DownloadAlert extends Sprite {
 		if (text == null)
 			return;
 
+		var idCut = id.substr(id.length - 30);
+		if (id.length > 30) {
+			idCut += "...";
+		}
+
 		if (total < 0 || loaded > total) {
 			bar.visible = false;
 			bar.scaleX = 1;
 			total = 1;
-			text.text = 'Downloading $id: ${prettyBytes(loaded)} of ?MB';
+			text.text = 'Downloading $idCut: ${prettyBytes(loaded)} of ?MB';
 			return;
 		}
 		
 		bar.visible = true;
-		text.text = 'Downloading $id: ${prettyBytes(loaded)} of ${prettyBytes(total)}';
+		text.text = 'Downloading $idCut: ${prettyBytes(loaded)} of ${prettyBytes(total)}';
 
 		bar.scaleX = (bg.width - 20) * (loaded / total);
 		// bar.x = bg.x + bg.width / 2 - bar.width / 2;
