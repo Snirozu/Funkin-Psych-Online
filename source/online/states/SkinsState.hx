@@ -10,10 +10,7 @@ import flixel.group.FlxGroup;
 import objects.Character;
 import flxanimate.FlxAnimate;
 
-// this is the most painful class to be made 
 class SkinsState extends MusicBeatState {
-    // kill me
-    //var characterList:Map<String, Character> = new Map<String, Character>();
 	var charactersName:Map<Int, String> = new Map<Int, String>();
 	var charactersLength:Int = 0;
     var character:FlxTypedGroup<Character>;
@@ -425,11 +422,11 @@ class SkinsState extends MusicBeatState {
 		}
 
 		if (FlxG.keys.justPressed.F1) {
-			RequestState.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki#skins", true);
+			RequestSubstate.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki#skins", true);
 		}
 
 		if (FlxG.keys.justPressed.F2) {
-			switchState(() -> new BananaDownload('collection:110039'));
+			switchState(() -> new DownloaderState('collection:110039'));
 		}
 
 		if (character.members[0] != null) {

@@ -1,8 +1,8 @@
 package substates;
 
-import online.states.PostCommentSub;
+import online.substates.PostCommentSubstate;
 import sys.io.File;
-import online.net.Leaderboard;
+import online.network.Leaderboard;
 import haxe.Json;
 import backend.WeekData;
 import backend.Highscore;
@@ -15,8 +15,8 @@ import flixel.util.FlxStringUtil;
 import states.StoryMenuState;
 import states.FreeplayState;
 import options.OptionsState;
-import online.Alert;
-import online.FileUtils;
+import online.gui.Alert;
+import online.util.FileUtils;
 
 class PauseSubState extends MusicBeatSubstate
 {
@@ -304,7 +304,7 @@ class PauseSubState extends MusicBeatSubstate
 					persistentUpdate = false;
 					persistentDraw = true;
 					PlayState.instance.paused = true;
-					PlayState.instance.openSubState(new PostCommentSub());
+					PlayState.instance.openSubState(new PostCommentSubstate());
 				case 'Options':
 					PlayState.instance.paused = true; // For lua
 					PlayState.instance.vocals.volume = 0;

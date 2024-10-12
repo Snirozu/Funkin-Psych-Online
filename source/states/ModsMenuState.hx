@@ -1,9 +1,9 @@
 package states;
 
-import online.Alert;
-import online.LoadingScreen;
-import online.OnlineMods;
-import online.FileUtils;
+import online.gui.Alert;
+import online.gui.LoadingScreen;
+import online.mods.OnlineMods;
+import online.util.FileUtils;
 import haxe.io.Path;
 import backend.WeekData;
 import backend.Mods;

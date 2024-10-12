@@ -146,12 +146,16 @@ class MainMenuState extends MusicBeatState
 		Achievements.loadAchievements();
 		var leDate = Date.now();
 		if (leDate.getDay() == 5 && leDate.getHours() >= 18) {
+			online.backend.DateEvent.isFridayNight = true;
 			var achieveID:Int = Achievements.getAchievementIndex('friday_night_play');
 			if(!Achievements.isAchievementUnlocked(Achievements.achievementsStuff[achieveID][2])) { //It's a friday night. WEEEEEEEEEEEEEEEEEE
 				Achievements.achievementsMap.set(Achievements.achievementsStuff[achieveID][2], true);
 				giveAchievement();
 				ClientPrefs.saveSettings();
 			}
+		}
+		if (leDate.getMonth() == 9) {
+			online.backend.DateEvent.isHalloween = true;
 		}
 		#end
 

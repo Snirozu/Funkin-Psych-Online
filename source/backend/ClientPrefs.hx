@@ -1,7 +1,7 @@
 package backend;
 
 import options.NotesSubState;
-import online.net.FunkinNetwork;
+import online.network.FunkinNetwork;
 import online.GameClient;
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
