@@ -152,7 +152,7 @@ class DownloadAlert extends Sprite {
 
 		var idCut = id.substr(id.length - 30);
 		if (id.length > 30) {
-			idCut += "...";
+			idCut = "..." + idCut;
 		}
 
 		if (total < 0 || loaded > total) {
