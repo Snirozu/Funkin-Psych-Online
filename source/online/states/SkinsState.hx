@@ -368,11 +368,12 @@ class SkinsState extends MusicBeatState {
 				continue;
 			}
 			if(!alpha.isMenuItem){
-				alpha.isMenuItem.y = diff * 10;
+				alpha.y = diff * 10;
 			}
 			alpha.visible = alpha.active = alpha.isMenuItem = true;
 			icon.visible = icon.active = true;
 			alpha.targetY = diff;
+			alpha.alpha = (diff==0 ? 1 : 0.8);
 
 		}
 	}
