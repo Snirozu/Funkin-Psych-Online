@@ -10,10 +10,10 @@ package states;
 // "function eventEarlyTrigger" - Used for making your event start a few MILLISECONDS earlier
 // "function triggerEvent" - Called when the song hits your event's timestamp, this is probably what you were looking for
 
-import online.states.PostCommentSub;
+import online.substates.PostCommentSubstate;
 import haxe.crypto.Md5;
-import online.net.FunkinNetwork;
-import online.InputText;
+import online.network.FunkinNetwork;
+import online.objects.InputText;
 import online.replay.ReplayRecorder.ReplayData;
 import online.replay.*;
 import openfl.geom.Point;
@@ -23,14 +23,14 @@ import flixel.util.FlxSpriteUtil;
 import flixel.group.FlxGroup;
 import flixel.addons.util.FlxAsyncLoop;
 import flixel.effects.FlxFlicker;
-import online.LeavePie;
-import online.ChatBox;
-import online.LoadingScreen;
-import online.Alert;
-import online.Waiter;
+import online.objects.LeavePie;
+import online.objects.ChatBox;
+import online.gui.LoadingScreen;
+import online.gui.Alert;
+import online.backend.Waiter;
 import online.states.RoomState;
 import online.GameClient;
-import online.NicommentsView;
+import online.objects.NicommentsView;
 import backend.Achievements;
 import backend.Highscore;
 import backend.StageData;
@@ -1139,7 +1139,7 @@ class PlayState extends MusicBeatState
 				generateStrums();
 		});
 
-		var loaderGroup = new online.LoadingSprite(preloadTasks.length, camLoading);
+		var loaderGroup = new online.objects.LoadingSprite(preloadTasks.length, camLoading);
 		add(loaderGroup);
 		
 		asyncLoop = new FlxAsyncLoop(preloadTasks.length, () -> {
@@ -1156,7 +1156,7 @@ class PlayState extends MusicBeatState
 				}});
 
 				if (redditMod) {
-					online.FileUtils.removeFiles(haxe.io.Path.join([Paths.mods(), 'reddit']));
+					online.util.FileUtils.removeFiles(haxe.io.Path.join([Paths.mods(), 'reddit']));
 				}
 
 				startCallback();
@@ -3220,7 +3220,7 @@ class PlayState extends MusicBeatState
 			if (!isInvalidScore() && finishingSong) {
 				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent);
 				var offlinePoints = online.FunkinPoints.save(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate, songSpeed);
-				if (!online.net.FunkinNetwork.loggedIn)
+				if (!online.network.FunkinNetwork.loggedIn)
 					gainedPoints = offlinePoints;
 				if (replayRecorder != null)
 					gainedPoints = replayRecorder.save();
@@ -3235,17 +3235,17 @@ class PlayState extends MusicBeatState
 			}
 
 			if (!GameClient.isConnected() && replayPlayer != null) {
-				online.Alert.alert("Calculated Points from Replay", "+" + songPoints);
+				online.gui.Alert.alert("Calculated Points from Replay", "+" + songPoints);
 			}
 
 			if (GameClient.isConnected()) {
 				Lib.application.window.resizable = true;
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
-				if (isInvalidScore()) online.Alert.alert("Calculated Points", "+" + songPoints);
+				if (isInvalidScore()) online.gui.Alert.alert("Calculated Points", "+" + songPoints);
 				GameClient.clearOnMessage();
-				online.states.ResultsScreen.gainedPoints = gainedPoints;
+				online.states.ResultsState.gainedPoints = gainedPoints;
 				if (!skipResults)
-					FlxG.switchState(() -> new online.states.ResultsScreen());
+					FlxG.switchState(() -> new online.states.ResultsState());
 				else
 					FlxG.switchState(() -> new online.states.RoomState());
 			}

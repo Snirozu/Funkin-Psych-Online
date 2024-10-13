@@ -1,7 +1,7 @@
 package online.replay;
 
 import states.FreeplayState;
-import online.net.Leaderboard;
+import online.network.Leaderboard;
 import haxe.crypto.Md5;
 import backend.Song;
 import backend.Highscore;

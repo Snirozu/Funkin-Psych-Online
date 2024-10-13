@@ -16,7 +16,7 @@ class ReflectionFunctions
 	{
 		var lua:State = funk.lua;
 		Lua_helper.add_callback(lua, "getProperty", function(variable:String, ?allowMaps:Bool = false) {
-			variable = online.Wrapper.wrapperField(variable);
+			variable = online.backend.Wrapper.wrapperField(variable);
 
 			var split:Array<String> = variable.split('.');
 			if(split.length > 1)
@@ -24,7 +24,7 @@ class ReflectionFunctions
 			return LuaUtils.getVarInArray(LuaUtils.getTargetInstance(), variable, allowMaps);
 		});
 		Lua_helper.add_callback(lua, "setProperty", function(variable:String, value:Dynamic, allowMaps:Bool = false) {
-			variable = online.Wrapper.wrapperField(variable);
+			variable = online.backend.Wrapper.wrapperField(variable);
 
 			var split:Array<String> = variable.split('.');
 			if(split.length > 1) {
@@ -47,8 +47,8 @@ class ReflectionFunctions
 				}
 			}
 
-			variable = online.Wrapper.wrapperClassField(classVar, variable);
-			classVar = online.Wrapper.wrapperClass(classVar);
+			variable = online.backend.Wrapper.wrapperClassField(classVar, variable);
+			classVar = online.backend.Wrapper.wrapperClass(classVar);
 			
 			var myClass:Dynamic = Deflection.resolveClass(classVar);
 			if(myClass == null)
@@ -68,8 +68,8 @@ class ReflectionFunctions
 			return LuaUtils.getVarInArray(myClass, variable, allowMaps);
 		});
 		Lua_helper.add_callback(lua, "setPropertyFromClass", function(classVar:String, variable:String, value:Dynamic, ?allowMaps:Bool = false) {
-			variable = online.Wrapper.wrapperClassField(classVar, variable);
-			classVar = online.Wrapper.wrapperClass(classVar);
+			variable = online.backend.Wrapper.wrapperClassField(classVar, variable);
+			classVar = online.backend.Wrapper.wrapperClass(classVar);
 
 			var myClass:Dynamic = Deflection.resolveClass(classVar);
 			if(myClass == null)
@@ -154,7 +154,7 @@ class ReflectionFunctions
 		});
 		
 		Lua_helper.add_callback(lua, "callMethod", function(funcToRun:String, ?args:Array<Dynamic> = null) {
-			for(string in ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http']){ //Block some packages
+			for (string in online.backend.Deflection.luaClassBlacklist){ //Block some packages
 				if(funcToRun.toLowerCase().contains(string)){
 					trace("blacklisted keyword detected: " + string);
 					return null;
@@ -164,7 +164,7 @@ class ReflectionFunctions
 			
 		});
 		Lua_helper.add_callback(lua, "callMethodFromClass", function(className:String, funcToRun:String, ?args:Array<Dynamic> = null) {
-			for(string in ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http']){ //Block some packages
+			for (string in online.backend.Deflection.luaClassBlacklist){ //Block some packages
 				if(className.toLowerCase().contains(string) || funcToRun.toLowerCase().contains(string)){
 					trace("blacklisted keyword detected: " + string);
 					return null;

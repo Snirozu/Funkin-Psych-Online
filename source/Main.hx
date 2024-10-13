@@ -52,7 +52,7 @@ class Main extends Sprite
 
 	public static final PSYCH_ONLINE_VERSION:String = "0.8.3";
 	public static final CLIENT_PROTOCOL:Float = 4;
-	public static final GIT_COMMIT:String = online.Macros.getGitCommitHash();
+	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
@@ -191,19 +191,19 @@ class Main extends Sprite
 		#else
 		online.GameClient.serverAddresses.push("ws://localhost:2567");
 		#end
-		online.net.FunkinNetwork.client = new online.HTTPClient(online.GameClient.addressToUrl(online.GameClient.serverAddress));
+		online.network.FunkinNetwork.client = new online.util.HTTPClient(online.GameClient.addressToUrl(online.GameClient.serverAddress));
 
-		online.Downloader.checkDeleteDlDir();
+		online.mods.Downloader.checkDeleteDlDir();
 
-		addChild(new online.LoadingScreen());
-		addChild(new online.Alert());
-		addChild(new online.DownloadAlert.DownloadAlerts());
+		addChild(new online.gui.LoadingScreen());
+		addChild(new online.gui.Alert());
+		addChild(new online.gui.DownloadAlert.DownloadAlerts());
 
-		FlxG.plugins.add(new online.Waiter());
+		FlxG.plugins.add(new online.backend.Waiter());
 
-		online.Thread.repeat(() -> {
+		online.backend.Thread.repeat(() -> {
 			try {
-				online.net.FunkinNetwork.ping();
+				online.network.FunkinNetwork.ping();
 			}
 			catch (exc) {
 				trace(exc);
@@ -215,9 +215,9 @@ class Main extends Sprite
 			#if DISCORD_ALLOWED
 			DiscordClient.shutdown();
 			#end
-			online.Downloader.cancelAll();
-			online.Downloader.checkDeleteDlDir();
-			online.net.Auth.saveClose();
+			online.mods.Downloader.cancelAll();
+			online.mods.Downloader.checkDeleteDlDir();
+			online.network.Auth.saveClose();
 		});
 
 		Lib.application.window.onDropFile.add(path -> {
@@ -225,28 +225,28 @@ class Main extends Sprite
 				return;
 
 			if (path.endsWith(".json") && (path.contains("-chart") || path.contains("-metadata"))) {
-				online.vslice.VUtil.convertVSlice(path);
+				online.util.vslice.VUtil.convertVSlice(path);
 			}
 			else {
-				online.Thread.run(() -> {
-					online.LoadingScreen.toggle(true);
-					online.OnlineMods.installMod(path);
-					online.LoadingScreen.toggle(false);
+				online.backend.Thread.run(() -> {
+					online.gui.LoadingScreen.toggle(true);
+					online.mods.OnlineMods.installMod(path);
+					online.gui.LoadingScreen.toggle(false);
 				});
 			}
 		});
 		
 		#if HSCRIPT_ALLOWED
 		FlxG.signals.postStateSwitch.add(() -> {
-			online.SyncScript.dispatch("switchState", [FlxG.state]);
+			online.backend.SyncScript.dispatch("switchState", [FlxG.state]);
 
 			FlxG.state.subStateOpened.add(substate -> {
-				online.SyncScript.dispatch("openSubState", [substate]);
+				online.backend.SyncScript.dispatch("openSubState", [substate]);
 			});
 		});
 
-		online.SyncScript.resyncScript(false, () -> {
-			online.SyncScript.dispatch("init");
+		online.backend.SyncScript.resyncScript(false, () -> {
+			online.backend.SyncScript.dispatch("init");
 		});
 		#end
 	}
@@ -297,7 +297,7 @@ class Main extends Sprite
 		#else
 		Application.current.window.alert(alertMsg, "Uncaught Exception!");
 		#end
-		online.net.Auth.saveClose();
+		online.network.Auth.saveClose();
 		Sys.exit(1);
 	}
 }

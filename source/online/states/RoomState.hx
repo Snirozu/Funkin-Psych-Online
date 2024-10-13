@@ -1,5 +1,6 @@
 package online.states;
 
+import states.stages.Spooky;
 import lumod.Lumod;
 import flixel.util.FlxAxes;
 import flixel.addons.display.FlxPieDial;
@@ -12,7 +13,7 @@ import flixel.FlxObject;
 import flixel.util.FlxSpriteUtil;
 import objects.Character;
 import lime.system.Clipboard;
-import online.schema.Player;
+import online.backend.schema.Player;
 import backend.Rating;
 import backend.WeekData;
 import backend.Song;
@@ -21,6 +22,7 @@ import states.FreeplayState;
 import openfl.utils.Assets as OpenFlAssets;
 
 @:build(lumod.LuaScriptClass.build())
+@:publicFields
 class RoomState extends MusicBeatState {
 	//this shit is messy
 	var player1Text:FlxText;
@@ -55,7 +57,7 @@ class RoomState extends MusicBeatState {
 	var itemTip:FlxText;
 	var itemTipBg:FlxSprite;
 
-	var stage:Philly;
+	var stage:BaseStage;
 
 	var cum:FlxCamera = new FlxCamera();
 	var camHUD:FlxCamera = new FlxCamera();
@@ -205,30 +207,38 @@ class RoomState extends MusicBeatState {
 		groupHUD.cameras = [camHUD];
 
 		// STAGE
-		Paths.setCurrentLevel("week3");
 
-		stage = new Philly();
-		stage.cameras = [cum];
-		@:privateAccess {
-			stage.phillyTrain.sound.volume = 0;
+		if (online.backend.DateEvent.isHalloween) {
+			Paths.setCurrentLevel("week2");
+			stage = new Spooky();
+			untyped stage.room = this;
+		} 
+		else {
+			Paths.setCurrentLevel("week3");
+			stage = new Philly();
+			untyped @:privateAccess {
+				stage.phillyTrain.sound.volume = 0;
 
-			if (!ClientPrefs.data.lowQuality) {
-				stage.bg.setGraphicSize(Std.int(stage.bg.width * 1));
-				stage.bg.updateHitbox();
+				if (!ClientPrefs.data.lowQuality) {
+					stage.bg.setGraphicSize(Std.int(stage.bg.width * 1));
+					stage.bg.updateHitbox();
 
-				stage.bg.x -= 80;
-				stage.bg.y -= 50;
+					stage.bg.x -= 80;
+					stage.bg.y -= 50;
+				}
+				stage.city.setGraphicSize(Std.int(stage.city.width * 1.1));
+				stage.city.updateHitbox();
+				stage.phillyWindow.setGraphicSize(Std.int(stage.phillyWindow.width * 1.1));
+				stage.phillyWindow.updateHitbox();
+
+				stage.city.x -= 80;
+				stage.phillyWindow.x -= 80;
+				stage.city.y -= 20;
+				stage.phillyWindow.y -= 20;
 			}
-			stage.city.setGraphicSize(Std.int(stage.city.width * 1.1));
-			stage.city.updateHitbox();
-			stage.phillyWindow.setGraphicSize(Std.int(stage.phillyWindow.width * 1.1));
-			stage.phillyWindow.updateHitbox();
-
-			stage.city.x -= 80;
-			stage.phillyWindow.x -= 80;
-			stage.city.y -= 20;
-			stage.phillyWindow.y -= 20;
 		}
+		
+		stage.cameras = [cum];
 		add(stage);
 
 		cum.scroll.set(100, 130);
@@ -278,7 +288,7 @@ class RoomState extends MusicBeatState {
 					}
 					return true;
 				case "results":
-					FlxG.switchState(() -> new ResultsScreen());
+					FlxG.switchState(() -> new ResultsState());
 					return true;
 				case "restage":
 					checkStage();
@@ -420,6 +430,9 @@ class RoomState extends MusicBeatState {
 
 		verifyDownloadMod(false, true);
 		checkStage();
+
+		if (stage != null)
+			stage.createPost();
 
 		GameClient.send("status", "In the Lobby");
 	}
@@ -729,7 +742,7 @@ class RoomState extends MusicBeatState {
 				}
 
 				if (FlxG.keys.justPressed.SHIFT) {
-					openSubState(new ServerSettingsSubstate());
+					openSubState(new RoomSettingsSubstate());
 				}
 			}
 			
@@ -739,7 +752,7 @@ class RoomState extends MusicBeatState {
 			if ((!FlxG.keys.pressed.ALT && controls.ACCEPT) || FlxG.mouse.justPressed) {
 				switch (curSelected) {
 					case 0:
-						openSubState(new ServerSettingsSubstate());
+						openSubState(new RoomSettingsSubstate());
 					case 1:
 						chatBox.focused = true;
 					case 2:
@@ -814,13 +827,13 @@ class RoomState extends MusicBeatState {
 					case 5:
 						if (verifyDownloadMod(true)) {
 							GameClient.clearOnMessage();
-							FlxG.switchState(() -> new BananaDownload());
+							FlxG.switchState(() -> new DownloaderState());
 						}
 				}
 			}
 			else if (FlxG.mouse.justPressedRight) {
 				if (curSelected == 5)
-					FlxG.switchState(() -> new BananaDownload());
+					FlxG.switchState(() -> new DownloaderState());
 			}
 		}
 
@@ -1138,13 +1151,9 @@ class RoomState extends MusicBeatState {
 	}
 
 	override function beatHit() {
-		super.beatHit();
-
-		#if (PSYCH_VER < "0.7")
-		stage.beatHit(curBeat);
-		#end
-
 		danceLogic(p1, true);
 		danceLogic(p2, true);
+		
+		super.beatHit();
 	}
 }

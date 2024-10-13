@@ -85,7 +85,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		if (PlayState.redditMod) {
 			if (FlxG.random.bool(1)) {
-				online.net.Auth.saveClose();
+				online.network.Auth.saveClose();
 				Sys.exit(1);
 			}
 		}

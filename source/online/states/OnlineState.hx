@@ -5,7 +5,7 @@ import backend.Highscore;
 import backend.Song;
 import haxe.io.Path;
 import shaders.WarpShader;
-import online.net.FunkinNetwork;
+import online.network.FunkinNetwork;
 import states.FreeplayState;
 import lime.system.Clipboard;
 import haxe.Json;
@@ -293,18 +293,18 @@ class OnlineState extends MusicBeatState {
 					case "find":
 						disableInput = true;
 						// FlxG.openURL(GameClient.serverAddress + "/rooms");
-						FlxG.switchState(() -> new FindRoom());
+						FlxG.switchState(() -> new FindRoomState());
 					case "host":
 						disableInput = true;
 						GameClient.createRoom(GameClient.serverAddress, onRoomJoin);
 					case "options":
 						disableInput = true;
-						FlxG.switchState(() -> new OptionsState());
+						FlxG.switchState(() -> new OnlineOptionsState());
 					case "leaderboard":
-						openSubState(new PTopSubState());
+						openSubState(new TopPlayerSubstate());
 					case "mod downloader":
 						disableInput = true;
-						FlxG.switchState(() -> new BananaDownload());
+						FlxG.switchState(() -> new DownloaderState());
 				}
 			}
 
@@ -333,7 +333,7 @@ class OnlineState extends MusicBeatState {
 					itemDesc.screenCenter(X);
 
 					if (FlxG.mouse.justPressed) {
-						RequestState.requestURL("https://discord.gg/juHypjWuNc", true);
+						RequestSubstate.requestURL("https://discord.gg/juHypjWuNc", true);
 					}
 				}
 				else {
@@ -350,7 +350,7 @@ class OnlineState extends MusicBeatState {
 					itemDesc.screenCenter(X);
 
 					if (FlxG.mouse.justPressed) {
-						RequestState.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki", true);
+						RequestSubstate.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki", true);
 					}
 				}
 				else {
@@ -483,7 +483,7 @@ class OnlineState extends MusicBeatState {
 							video.dispose();
 
 							PlayState.redditMod = true;
-							online.OnlineMods.installMod(Path.join([Sys.getCwd(), "/assets/images/reddit.zip"]));
+							online.mods.OnlineMods.installMod(Path.join([Sys.getCwd(), "/assets/images/reddit.zip"]));
 
 							WeekData.reloadWeekFiles(false);
 							Mods.currentModDirectory = "reddit";

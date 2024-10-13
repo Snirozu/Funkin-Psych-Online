@@ -1,6 +1,6 @@
 package online;
 
-@:build(online.Macros.getSetForwarder())
+@:build(online.backend.Macros.getSetForwarder())
 class FunkinPoints {
 	@:forwardField(FlxG.save.data.funkinPointsv2, 0)
 	public static var funkinPoints(get, set):Float;
