@@ -29,7 +29,7 @@ class SkinsState extends MusicBeatState {
 	var arrowLeft:Alphabet;
 	var arrowRight:Alphabet;
 
-	static var flipped:Bool = false;
+	var flipped:Bool = false;
 
 	static var backClass:Class<Dynamic>;
 
@@ -56,10 +56,70 @@ class SkinsState extends MusicBeatState {
 
 	var staticMan:FlxSprite;
 	var selectTimer:FlxTimer;
+	var changeCharacterTimer:FlxTimer;
 
 	var stageCrowd:FlxAnimate;
 	var stageSpeakers:FlxAnimate;
 	var camFollow:FlxObject;
+
+	function loadCharacterList(){
+		charactersName = new Map<Int, String>();
+		charactersLength = 0;
+	    charactersMod = new Map<String, String>();
+
+		var oldModDir = Mods.currentModDirectory;
+
+		// var defaultName = !flipped ? "default" : "default-player";
+		// characterList.set(defaultName, new Character(0, 0, defaultName, flipped));
+		// charactersMod.set(defaultName, null);
+		// charactersName.set(i, defaultName);
+        // i++;
+
+		var hardList = [];
+        var i = 0;
+
+		for (name in [null].concat(Mods.parseList().enabled)) {
+			var characters:String;
+			if (name == null) {
+				Mods.loadTopMod();
+				characters = 'assets/characters/';
+			}
+			else {
+				Mods.currentModDirectory = name;
+				characters = Paths.mods(name + '/characters/');
+			}
+			if (FileSystem.exists(characters)) {
+				for (file in FileSystem.readDirectory(characters)) {
+					var path = Path.join([characters, file]);
+					if (sys.FileSystem.isDirectory(path) || !file.endsWith('.json') || file.endsWith('-player.json')) continue;
+					var character:String = file.substr(0, file.length - 5);
+					if (hardList.contains(character)) {
+                        continue;
+                    }
+
+					if (!FileSystem.exists(Path.join([characters, character + "-player.json"]))) continue;
+					if (name == null)
+						hardList.push(character);
+
+					charactersMod.set(character, name);
+					trace(character);
+					charactersName.set(i, character);
+
+
+					if (curCharacter == -1 && isEquiped(name, character)) {
+						curCharacter = i;
+					}
+
+					i++;
+                        
+                    
+                }
+            }
+        }
+		charactersLength = i;
+
+		Mods.currentModDirectory = oldModDir;
+	}
 
     override function create() {
 		Paths.clearUnusedMemory();
@@ -187,64 +247,12 @@ class SkinsState extends MusicBeatState {
 			add(stageSpeakers);
 		}
 
-        var i = 0;
-
-		var oldModDir = Mods.currentModDirectory;
-
-		// var defaultName = !flipped ? "default" : "default-player";
-		// characterList.set(defaultName, new Character(0, 0, defaultName, flipped));
-		// charactersMod.set(defaultName, null);
-		// charactersName.set(i, defaultName);
-        // i++;
-
-		var hardList = [];
-
-		for (name in [null].concat(Mods.parseList().enabled)) {
-			var characters:String;
-			if (name == null) {
-				Mods.loadTopMod();
-				characters = 'assets/characters/';
-			}
-			else {
-				Mods.currentModDirectory = name;
-				characters = Paths.mods(name + '/characters/');
-			}
-			if (FileSystem.exists(characters)) {
-				for (file in FileSystem.readDirectory(characters)) {
-					var path = Path.join([characters, file]);
-					if (!sys.FileSystem.isDirectory(path) && file.endsWith('.json')) {
-						var character:String = file.substr(0, file.length - 5);
-						if (!flipped ? character.endsWith("-player") : !character.endsWith("-player")) {
-                            continue;
-                        }
-
-						if (!hardList.contains(character) && FileSystem.exists(Path.join([characters, (!flipped ? character + "-player" : character.substring(0, character.length - "-player".length)) + ".json"]))) {
-							if (name == null)
-								hardList.push(character);
-
-							//characterList.set(character, new Character(0, 0, character, flipped));
-							charactersMod.set(character, name);
-							charactersName.set(i, character);
-
-							//characterList.get(character).updateHitbox();
-
-							if (curCharacter == -1 && isEquiped(name, !flipped ? character + "-player" : character.substring(0, character.length - "-player".length))) {
-								curCharacter = i;
-							}
-
-							i++;
-                        }
-                    }
-                }
-            }
-        }
-		charactersLength = i;
-
-		Mods.currentModDirectory = oldModDir;
 
         character = new FlxTypedGroup<Character>();
 		character.cameras = [characterCamera];
         add(character);
+
+        loadCharacterList();
 
 		staticMan = new FlxSprite();
 		staticMan.antialiasing = ClientPrefs.data.antialiasing;
@@ -256,6 +264,7 @@ class SkinsState extends MusicBeatState {
 		staticMan.screenCenter(XY);
 		staticMan.y += 50;
 		add(staticMan);
+
 
 		var barUp = new FlxSprite();
 		barUp.makeGraphic(FlxG.width, 100, FlxColor.BLACK);
@@ -420,8 +429,11 @@ class SkinsState extends MusicBeatState {
 
 		if (FlxG.keys.justPressed.TAB) {
 			flipped = !flipped;
-			skipStaticDestroy = true;
-			LoadingState.loadAndSwitchState(new SkinsState());
+			staticMan.flipX = !flipped;
+			FlxG.sound.play(Paths.sound('CS_select'));
+			setCharacter(0);
+			// skipStaticDestroy = true;
+			// LoadingState.loadAndSwitchState(new SkinsState());
 		}
 
 		if (FlxG.keys.justPressed.F1) {
@@ -537,33 +549,37 @@ class SkinsState extends MusicBeatState {
 
 			if (selectTimer != null)
 				selectTimer.cancel();
+			if (changeCharacterTimer != null)
+				changeCharacterTimer.cancel();
 
-			selectTimer = new FlxTimer().start(1, t -> {
+			changeCharacterTimer = new FlxTimer().start(0.25, t -> {
+				Mods.currentModDirectory = charactersMod.get(curCharName);
 				var curCharName = charactersName.get(curCharacter); // re-define it lol
 
 				if (character.members[0] != null) {
 					character.members[0].destroy();
 				}
 				character.clear();
-
-				staticMan.visible = false;
-
-				// character.add(characterList.get(curCharName));
-
-				Mods.currentModDirectory = charactersMod.get(curCharName);
-
-				var daCharacter = new Character(0, 0, curCharName, flipped);
+				var daCharacter = new Character(0, 0, curCharName + (flipped ? "-player" : ""), flipped);
 				daCharacter.scrollFactor.set(1.2, 1.2);
+				daCharacter.visible = false;
 				character.add(daCharacter);
 
 				character.members[0].x = 420 + character.members[0].positionArray[0];
 				character.members[0].y = -100 + character.members[0].positionArray[1];
 
+			});
+			selectTimer = new FlxTimer().start(1, t -> {
+				character.members[0].visible = true;
+
+				staticMan.visible = false;
+
+				// character.add(characterList.get(curCharName));
+
+
 				var hca = character.members[0].healthColorArray;
 				tweenColor(FlxColor.fromRGB(hca[0], hca[1], hca[2]));
 			});
-
-			curCharName = !flipped ? curCharName : curCharName.substring(0, curCharName.length - "-player".length);
 
 			title.text = curCharName == "default" ? "BOYFRIEND" : curCharName;
 			title.x = FlxG.width / 2 - title.width / 2;
@@ -594,11 +610,10 @@ class SkinsState extends MusicBeatState {
 	}
 
     function isEquiped(mod:String, skin:String) {
-		if (skin.endsWith("-player"))
-			skin = skin.substring(0, skin.length - "-player".length);
+
 
 		if (skin.endsWith("-pixel"))
-			skin = skin.substring(0, skin.length - "-pixel".length);
+			skin = skin.substring(0, skin.length - 6);
 
 		if (skin == "default" && ClientPrefs.data.modSkin == null) {
             return true;
@@ -614,8 +629,7 @@ class SkinsState extends MusicBeatState {
 		if (character.members[0] != null && character.members[0].animation.curAnim.finished)
 			character.members[0].dance();
 
-		if (staticMan.visible)
-			staticMan.animation.play('idle');
+		staticMan.animation.play('idle');
 
 		if (stageSpeakers != null)
 			stageSpeakers.anim.play('beat');
