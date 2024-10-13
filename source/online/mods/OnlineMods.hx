@@ -155,8 +155,8 @@ class OnlineMods {
 		}
 
 		if (isRar) {
-			var rarFailed = false;
 			#if RAR_SUPPORTED
+			var rarFailed = false;
 			UnRAR.openArchive({
 				openPath: fileName,
 				mode: LIST,
@@ -171,14 +171,16 @@ class OnlineMods {
 					return file;
 				}
 			});
+			if (rarFailed) {
+				return;
+			}
 			#else
 			Waiter.put(() -> {
 				Alert.alert("RAR is not supported on this platform!");
 			});
+			return;
 			#end
-			if (rarFailed) {
-				return;
-			}
+
 		}
 		else {
 			var file = File.read(fileName, true);
@@ -284,7 +286,7 @@ class OnlineMods {
 			}
 		}
 
-		if ((gbMod != null ? gbMod.rootCategory == "Skins" : false) && !FileSystem.exists(Paths.mods(modName + '/pack.json'))) {
+		if (gbMod != null && gbMod.rootCategory == "Skins" && !FileSystem.exists(Paths.mods(modName + '/pack.json'))) {
 			var isLegacy = false;
 			if (FileSystem.exists(Paths.mods(modName + '/images/BOYFRIEND.png'))) {
 				Sys.println("Legacy mod detected! (Converting)");

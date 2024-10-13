@@ -101,7 +101,6 @@ class SkinsState extends MusicBeatState {
 					charactersMod.set(character, name);
 					charactersName.set(i, character);
 
-
 					if (curCharacter == -1 && isEquiped(name, character)) {
 						curCharacter = i;
 					}
@@ -112,6 +111,7 @@ class SkinsState extends MusicBeatState {
 				}
 			}
 		}
+
 		charactersLength = i;
 
 		Mods.currentModDirectory = oldModDir;
@@ -306,7 +306,7 @@ class SkinsState extends MusicBeatState {
 		swagText.cameras = [hud];
 		add(swagText);
 
-		var tip1 = new FlxText(20, 0, FlxG.width, 'SHIFT-TAB - Show skins as list\nTAB - Flip skin\n8 - Edit skin');
+		var tip1 = new FlxText(20, 0, FlxG.width, 'TAB - Flip skin\n8 - Edit skin\n1 - Show skins as list');
 		tip1.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		tip1.y = charSelect.y;
 		tip1.alpha = 0.5;
@@ -335,8 +335,10 @@ class SkinsState extends MusicBeatState {
 		else if (controls.UI_RIGHT_P || controls.UI_DOWN_P) {
 			listChangeSel(FlxG.keys.pressed.SHIFT ? -5 : -1);
 		}
-
-		if (controls.BACK || controls.ACCEPT || (FlxG.keys.justPressed.TAB && !FlxG.keys.pressed.SHIFT)) {
+		if(FlxG.mouse.wheel != 0){
+			listChangeSel(FlxG.mouse.wheel);
+		}
+		if (FlxG.mouse.justPressed || controls.BACK || controls.ACCEPT || FlxG.keys.justPressed.ONE || FlxG.keys.justPressed.TAB) {
 			blackRectangle.alpha = 0;
 			remove(blackRectangle);
 			FlxG.sound.play(Paths.sound('CS_select'));
@@ -357,7 +359,7 @@ class SkinsState extends MusicBeatState {
 	function listChangeSel(diff:Int = 0){
 		curCharacter += diff;
 		if(curCharacter >= charAlphaList.members.length) curCharacter -= charAlphaList.members.length;
-		if(curCharacter < 0) curCharacter += (charAlphaList.members.length - 1);
+		if(curCharacter < 0) curCharacter += (charAlphaList.members.length);
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 		for(i => alpha in charAlphaList.members){
 			var icon = charIconList.members[i];
@@ -367,18 +369,19 @@ class SkinsState extends MusicBeatState {
 				icon.visible = icon.active = false;
 				continue;
 			}
-			if(!alpha.isMenuItem){
-				alpha.y = diff * 10;
-			}
-			alpha.visible = alpha.active = alpha.isMenuItem = true;
-			icon.visible = icon.active = true;
 			alpha.targetY = diff;
 			alpha.alpha = (diff==0 ? 1 : 0.8);
+			icon.visible = icon.active = true;
+			if(!alpha.visible){
+				alpha.snapToPosition();
+			}
+			alpha.visible = alpha.active = alpha.isMenuItem = true;
 
 		}
 	}
 	function goToList(){
 		inList = true;
+		arrowLeft.visible = arrowRight.visible = false;
 		FlxTween.tween(blackRectangle, {alpha: 0.4}, 0.2, {ease: FlxEase.quadInOut});
 		blackRectangle.alpha = 0;
 		add(blackRectangle);
@@ -507,6 +510,9 @@ class SkinsState extends MusicBeatState {
 			switchState(() -> new CharacterEditorState(charactersName.get(curCharacter), false, true));
 		}
 
+		if (FlxG.keys.justPressed.ONE) {
+			goToList();
+		}
 		if (FlxG.keys.justPressed.TAB) {
 			if(FlxG.keys.pressed.SHIFT){
 				goToList();
