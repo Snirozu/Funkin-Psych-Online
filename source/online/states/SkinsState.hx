@@ -31,12 +31,10 @@ class SkinsState extends MusicBeatState {
 
 	static var backClass:Class<Dynamic>;
 
-	var reloadedState:Bool = false;
 	public function new() {
 		super();
 
 		if (FlxG.state is SkinsState) {
-			reloadedState = true;
 			return;
 		}
 
@@ -45,8 +43,8 @@ class SkinsState extends MusicBeatState {
 
 	var blackRectangle:FlxSprite;
 
-	public static var music:FlxSound;
-	public static var musicIntro:FlxSound;
+	var music:FlxSound;
+	var musicIntro:FlxSound;
 	
 	static var prevConBPM:Float;
 	static var prevConBPMChanges:Array<backend.BPMChangeEvent>;
@@ -128,39 +126,38 @@ class SkinsState extends MusicBeatState {
 		Mods.loadTopMod();
 		WeekData.setDirectoryFromWeek();
 		
-		if (!reloadedState) {
-			for (v in [FlxG.sound.music, FreeplayState.vocals, FreeplayState.opponentVocals]) {
-				if (v == null)
-					continue;
+		for (v in [FlxG.sound.music, FreeplayState.vocals, FreeplayState.opponentVocals]) {
+			if (v == null)
+				continue;
 
-				v.pause();
-			}
-
-			prevConBPM = Conductor.bpm;
-			prevConBPMChanges = Conductor.bpmChangeMap;
-			prevConTime = Conductor.songPosition;
-
-			if (musicIntro != null)
-				musicIntro.stop();
-			if (music != null)
-				music.stop();
-
-			musicIntro = FlxG.sound.play(Paths.music('stayFunky-intro'), 1, false);
-			music = FlxG.sound.play(Paths.music('stayFunky'), 1, true);
-			music.pause();
-			musicIntro.onComplete = () -> {
-				music.play();
-			}
-
-			musicIntro.persist = true;
-			music.persist = true;
-			FlxG.sound.list.add(musicIntro);
-			FlxG.sound.list.add(music);
-
-			Conductor.bpm = 90;
-			Conductor.bpmChangeMap = [];
-			Conductor.songPosition = 0;
+			v.pause();
 		}
+
+		prevConBPM = Conductor.bpm;
+		prevConBPMChanges = Conductor.bpmChangeMap;
+		prevConTime = Conductor.songPosition;
+
+		if (musicIntro != null)
+			musicIntro.stop();
+		if (music != null)
+			music.stop();
+
+		musicIntro = FlxG.sound.play(Paths.music('stayFunky-intro'), 1, false);
+		music = FlxG.sound.play(Paths.music('stayFunky'), 1, true);
+		music.pause();
+		musicIntro.onComplete = () -> {
+			music.play();
+		}
+
+		musicIntro.persist = true;
+		music.persist = true;
+		FlxG.sound.list.add(musicIntro);
+		FlxG.sound.list.add(music);
+
+		Conductor.bpm = 90;
+		Conductor.bpmChangeMap = [];
+		Conductor.songPosition = 0;
+		
 
 		FlxG.cameras.add(characterCamera = new FlxCamera(), false);
 		FlxG.cameras.add(hud = new FlxCamera(), false);
