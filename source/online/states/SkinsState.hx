@@ -9,13 +9,14 @@ import sys.FileSystem;
 import flixel.group.FlxGroup;
 import objects.Character;
 import flxanimate.FlxAnimate;
+import objects.HealthIcon;
 
 class SkinsState extends MusicBeatState {
 	var charactersName:Map<Int, String> = new Map<Int, String>();
 	var charactersLength:Int = 0;
-    var character:FlxTypedGroup<Character>;
-    static var curCharacter:Int = -1;
-    var charactersMod:Map<String, String> = new Map<String, String>();
+	var character:FlxTypedGroup<Character>;
+	var curCharacter:Int = -1;
+	var charactersMod:Map<String, String> = new Map<String, String>();
 	var characterCamera:FlxCamera;
 
 	var hud:FlxCamera;
@@ -59,21 +60,20 @@ class SkinsState extends MusicBeatState {
 	var stageSpeakers:FlxAnimate;
 	var camFollow:FlxObject;
 
+	var inList:Bool = false;
+	var charAlphaList:FlxTypedGroup<Alphabet>;
+	var charIconList:FlxTypedGroup<HealthIcon>;
+
+
 	function loadCharacterList(){
 		charactersName = new Map<Int, String>();
 		charactersLength = 0;
-	    charactersMod = new Map<String, String>();
+		charactersMod = new Map<String, String>();
 
 		var oldModDir = Mods.currentModDirectory;
 
-		// var defaultName = !flipped ? "default" : "default-player";
-		// characterList.set(defaultName, new Character(0, 0, defaultName, flipped));
-		// charactersMod.set(defaultName, null);
-		// charactersName.set(i, defaultName);
-        // i++;
-
 		var hardList = [];
-        var i = 0;
+		var i = 0;
 
 		for (name in [null].concat(Mods.parseList().enabled)) {
 			var characters:String;
@@ -91,15 +91,14 @@ class SkinsState extends MusicBeatState {
 					if (sys.FileSystem.isDirectory(path) || !file.endsWith('.json') || file.endsWith('-player.json')) continue;
 					var character:String = file.substr(0, file.length - 5);
 					if (hardList.contains(character)) {
-                        continue;
-                    }
+						continue;
+					}
 
 					if (!FileSystem.exists(Path.join([characters, character + "-player.json"]))) continue;
 					if (name == null)
 						hardList.push(character);
 
 					charactersMod.set(character, name);
-					trace(character);
 					charactersName.set(i, character);
 
 
@@ -108,17 +107,17 @@ class SkinsState extends MusicBeatState {
 					}
 
 					i++;
-                        
-                    
-                }
-            }
-        }
+						
+					
+				}
+			}
+		}
 		charactersLength = i;
 
 		Mods.currentModDirectory = oldModDir;
 	}
 
-    override function create() {
+	override function create() {
 		Paths.clearUnusedMemory();
 		Paths.clearStoredMemory();
 
@@ -245,11 +244,11 @@ class SkinsState extends MusicBeatState {
 		}
 
 
-        character = new FlxTypedGroup<Character>();
+		character = new FlxTypedGroup<Character>();
 		character.cameras = [characterCamera];
-        add(character);
+		add(character);
 
-        loadCharacterList();
+		loadCharacterList();
 
 		staticMan = new FlxSprite();
 		staticMan.antialiasing = ClientPrefs.data.antialiasing;
@@ -307,7 +306,7 @@ class SkinsState extends MusicBeatState {
 		swagText.cameras = [hud];
 		add(swagText);
 
-		var tip1 = new FlxText(20, 0, FlxG.width, 'TAB - Flip skin\n8 - Edit skin');
+		var tip1 = new FlxText(20, 0, FlxG.width, 'SHIFT-TAB - Show skins as list\nTAB - Flip skin\n8 - Edit skin');
 		tip1.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		tip1.y = charSelect.y;
 		tip1.alpha = 0.5;
@@ -328,17 +327,102 @@ class SkinsState extends MusicBeatState {
 		CustomFadeTransition.nextCamera = hud; // wat
 
 		GameClient.send("status", "Selects their skin");
-    }
+	}
+	function listUpdate(){
+		if (controls.UI_LEFT_P || controls.UI_UP_P) {
+			listChangeSel(FlxG.keys.pressed.SHIFT ? 5 : 1);
+		}
+		else if (controls.UI_RIGHT_P || controls.UI_DOWN_P) {
+			listChangeSel(FlxG.keys.pressed.SHIFT ? -5 : -1);
+		}
 
-    var acceptSound:FlxSound;
+		if (controls.BACK || controls.ACCEPT || (FlxG.keys.justPressed.TAB && !FlxG.keys.pressed.SHIFT)) {
+			blackRectangle.alpha = 0;
+			remove(blackRectangle);
+			FlxG.sound.play(Paths.sound('CS_select'));
+			inList = false;
+			if(charAlphaList != null){
+				for(i => alpha in charAlphaList.members){
+					charIconList.members[i].destroy();
+					alpha.destroy();
+				}
+				charAlphaList.destroy();
+				charIconList.destroy();
+				charAlphaList = null;
+				charIconList = null;
+			}
+			setCharacter(0);
+		}
+	}
+	function listChangeSel(diff:Int = 0){
+		curCharacter += diff;
+		if(curCharacter >= charAlphaList.members.length) curCharacter -= charAlphaList.members.length;
+		if(curCharacter < 0) curCharacter += (charAlphaList.members.length - 1);
+		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		for(i => alpha in charAlphaList.members){
+			var icon = charIconList.members[i];
+			var diff = curCharacter-i;
+			if(diff > 5 || diff < -5){
+				alpha.visible = alpha.active = alpha.isMenuItem = false;
+				icon.visible = icon.active = false;
+				continue;
+			}
+			if(!alpha.isMenuItem){
+				alpha.isMenuItem.y = diff * 10;
+			}
+			alpha.visible = alpha.active = alpha.isMenuItem = true;
+			icon.visible = icon.active = true;
+			alpha.targetY = diff;
+
+		}
+	}
+	function goToList(){
+		inList = true;
+		FlxTween.tween(blackRectangle, {alpha: 0.4}, 0.2, {ease: FlxEase.quadInOut});
+		blackRectangle.alpha = 0;
+		add(blackRectangle);
+
+		// character.members[0].visible = false;
+		// staticMan.visible = true;
+		charAlphaList = new FlxTypedGroup<Alphabet>();
+		charIconList = new FlxTypedGroup<HealthIcon>();
+		add(charAlphaList);
+		add(charIconList);
+		for (i in 0...charactersLength){
+			var name = charactersName.get(i);
+			// Didn't steal from freeplaystate nahhhhhh
+			var songText:Alphabet = new Alphabet(90, 320, name, true);
+			songText.targetY = i;
+			charAlphaList.add(songText);
+
+			songText.scaleX = Math.min(1, 980 / songText.width);
+			songText.snapToPosition();
+
+			Mods.currentModDirectory = charactersMod[name];
+			var icon:HealthIcon = new HealthIcon(name);
+			icon.sprTracker = songText;
+
+			songText.visible = songText.active = songText.isMenuItem = false;
+			icon.visible = icon.active = false;
+			icon.scrollFactor.set(1, 1);
+
+			charIconList.add(icon);
+		}
+		listChangeSel(0);
+		charAlphaList.cameras = [hud];
+		charIconList.cameras = [hud];
+
+	}
+
+	var acceptSound:FlxSound;
 	var stopUpdates:Bool = false;
 	var leftHoldTime:Float = 0;
 	var rightHoldTime:Float = 0;
 	var leavingState:Bool = false;
 	var skipStaticDestroy:Bool = false;
 
-    override function update(elapsed) {
-        super.update(elapsed);
+	override function update(elapsed) {
+		super.update(elapsed);
 
 		if (controls.UI_LEFT)
 			leftHoldTime += elapsed;
@@ -360,8 +444,11 @@ class SkinsState extends MusicBeatState {
 		if (music != null && music.playing) {
 			Conductor.songPosition = music.time;
 		}
-
-        if (FlxG.keys.pressed.SHIFT) {
+		if (inList){
+			listUpdate();
+			return;
+		}
+		if (FlxG.keys.pressed.SHIFT) {
 			if (character.members[0] != null) {
 				if (controls.NOTE_UP) {
 					character.members[0].playAnim("singUP");
@@ -376,39 +463,34 @@ class SkinsState extends MusicBeatState {
 					character.members[0].playAnim("singRIGHT");
 				}
 			}
-        }
-        else {
+		}
+		else {
 			if (controls.UI_LEFT_P) {
 				setCharacter(-1);
 			}
 			else if (controls.UI_RIGHT_P) {
 				setCharacter(1);
 			}
-        }
+		}
 
-        if (controls.BACK) {
+		if (controls.BACK) {
 			switchState(() -> Type.createInstance(backClass, []));
-        }
+		}
 
-        if (controls.ACCEPT) {
+		if (controls.ACCEPT) {
 			var charName = charactersName.get(curCharacter);
-			if (charName.endsWith("-player"))
-				charName = charName.substring(0, charName.length - "-player".length);
 			
 			if (charName.endsWith("-pixel"))
 				charName = charName.substring(0, charName.length - "-pixel".length);
 
-			if (charName == "default")
-				ClientPrefs.data.modSkin = null;
-            else
-				ClientPrefs.data.modSkin = [charactersMod.get(charactersName.get(curCharacter)), charName];
-            ClientPrefs.saveSettings();
-            
+			
+			ClientPrefs.data.modSkin = (charName == "default") ? null : [charactersMod.get(charactersName.get(curCharacter)), charName];
+			ClientPrefs.saveSettings();
+			
 			if (isEquiped(charactersMod.get(charactersName.get(curCharacter)), charName)) {
 				charSelect.text = 'Selected!';
 				charSelect.alpha = 1;
-			}
-			else {
+			} else {
 				charSelect.text = 'Press ACCEPT to select!';
 				charSelect.alpha = 0.8;
 			}
@@ -417,7 +499,7 @@ class SkinsState extends MusicBeatState {
 
 			if (character.members[0] != null)
 				character.members[0].playAnim("hey");
-        }
+		}
 
 		if (FlxG.keys.justPressed.EIGHT) {
 			Mods.currentModDirectory = charactersMod.get(charactersName.get(curCharacter));
@@ -425,12 +507,14 @@ class SkinsState extends MusicBeatState {
 		}
 
 		if (FlxG.keys.justPressed.TAB) {
-			flipped = !flipped;
-			staticMan.flipX = !flipped;
-			FlxG.sound.play(Paths.sound('CS_select'));
-			setCharacter(0);
-			// skipStaticDestroy = true;
-			// LoadingState.loadAndSwitchState(new SkinsState());
+			if(FlxG.keys.pressed.SHIFT){
+				goToList();
+			}else{
+				flipped = !flipped;
+				staticMan.flipX = !flipped;
+				FlxG.sound.play(Paths.sound('CS_select'));
+				setCharacter(0);
+			}
 		}
 
 		if (FlxG.keys.justPressed.F1) {
@@ -453,7 +537,7 @@ class SkinsState extends MusicBeatState {
 					camFollow.y += 20;
 			}
 		}
-    }
+	}
 
 	function switchState(switchFunction:flixel.util.typeLimit.NextState) {
 		stopUpdates = true;
@@ -511,7 +595,7 @@ class SkinsState extends MusicBeatState {
 			music.stop();
 	}
 
-    function setCharacter(difference:Int, ?beatHold:Bool = false) {
+	function setCharacter(difference:Int, ?beatHold:Bool = false) {
 		var prevCharacter = curCharacter;
 
 		curCharacter += difference;
@@ -585,14 +669,14 @@ class SkinsState extends MusicBeatState {
 				charSelect.text = 'Selected!';
 				charSelect.alpha = 1;
 			}
-            else {
+			else {
 				charSelect.text = 'Press ACCEPT to select!';
 				charSelect.alpha = 0.8;
-            }
+			}
 
 			tweenColor(FlxColor.fromRGB(150, 150, 150));
-        }
-    }
+		}
+	}
 
 	var colorTween:FlxTween;
 	function tweenColor(color:FlxColor) {
@@ -606,19 +690,19 @@ class SkinsState extends MusicBeatState {
 		});
 	}
 
-    function isEquiped(mod:String, skin:String) {
+	function isEquiped(mod:String, skin:String) {
 
 
 		if (skin.endsWith("-pixel"))
 			skin = skin.substring(0, skin.length - 6);
 
 		if (skin == "default" && ClientPrefs.data.modSkin == null) {
-            return true;
-        }
+			return true;
+		}
 
 		return ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2
 			&& mod == ClientPrefs.data.modSkin[0] && skin == ClientPrefs.data.modSkin[1];
-    }
+	}
 
 	override function beatHit() {
 		super.beatHit();
