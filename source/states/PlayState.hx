@@ -231,7 +231,13 @@ class PlayState extends MusicBeatState
 		}
 		return _health = v;
 	}
-	public var combo:Int = 0;
+
+	public var maxCombo:Float = 0;
+	function set_combo(v:Int):Int {
+		maxCombo = Math.max(maxCombo, v);
+		return combo = v;
+	}
+	public var combo(default, set):Int = 0;
 
 	public var healthBar:HealthBar;
 	public var timeBar:HealthBar;
@@ -282,8 +288,9 @@ class PlayState extends MusicBeatState
 	public var songScore(default, set):Int = 0;
 	function set_songScore(v) {
 		_tempDiff = v - songScore;
-		_tempDiff *= 1 + (playbackRate - 1) * 0.1;
-		_tempDiff *= 1 + (songSpeed - PlayState.SONG.speed) * 0.1;
+		//_tempDiff *= 1 + (playbackRate - 1) * 0.1;
+		//_tempDiff *= 1 + (songSpeed - PlayState.SONG.speed) * 0.1;
+		_tempDiff *= 1 + Math.max(0, combo - 1) * 0.001;
 		return songScore += Math.floor(_tempDiff);
 	}
 	public var songHits:Int = 0;
@@ -424,7 +431,7 @@ class PlayState extends MusicBeatState
 	}
 	var waitReadySpr:Alphabet;
 
-	public var noteDensity:Float;
+	public var denseNotes:Float = 0;
 
 	var stageData:StageFile;
 	var stageModDir:String;
@@ -1744,7 +1751,7 @@ class PlayState extends MusicBeatState
 			scoreTextObject.text = 'Score: ' + FlxStringUtil.formatMoney(songScore, false) + ' | Misses: ' + songMisses + ' | Rating: ' + str;
 		}
 
-		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, (Conductor.judgePlaybackRate ?? playbackRate), songSpeed);
+		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo, (Conductor.judgePlaybackRate ?? playbackRate));
 		if (points != songPoints) {
 			songPoints = points;
 			resetRPC(true);
@@ -1930,8 +1937,6 @@ class PlayState extends MusicBeatState
 					makeEvent(event, i);
 		}
 
-		var densSum:Float = 0;
-		var densTotal:Float = 0;
 		var densLast:Float = -1;
 		for (section in noteData)
 		{
@@ -1973,9 +1978,8 @@ class PlayState extends MusicBeatState
 				}
 
 				if (songNotes[2] <= 0 && playsAsBF() ? gottaHitNote : !gottaHitNote) {
-					if (densLast != -1 && songNotes[0] - densLast > 1 && songNotes[0] - densLast <= 500) {
-						densSum += songNotes[0] - densLast;
-						densTotal++;
+					if (densLast != -1 && songNotes[0] - densLast > 1 && songNotes[0] - densLast <= 100) {
+						denseNotes += (100 - (songNotes[0] - densLast)) * 0.0001;
 					}
 					densLast = songNotes[0];
 				}
@@ -2069,10 +2073,6 @@ class PlayState extends MusicBeatState
 				makeEvent(event, i);
 
 		unspawnNotes.sort(sortByTime);
-		if (densTotal == 0)
-			noteDensity = 500;
-		else
-			noteDensity = densSum / densTotal;
 		generatedMusic = true;
 	}
 
@@ -3163,7 +3163,7 @@ class PlayState extends MusicBeatState
 			return false;
 		}
 
-		songPoints = online.FunkinPoints.calcFP(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, (Conductor.judgePlaybackRate ?? playbackRate), songSpeed);
+		songPoints = online.FunkinPoints.calcFP(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo, (Conductor.judgePlaybackRate ?? playbackRate));
 
 		//Should kill you if you tried to cheat
 		if(!startingSong) {
@@ -3219,7 +3219,7 @@ class PlayState extends MusicBeatState
 			if(Math.isNaN(percent)) percent = 0;
 			if (!isInvalidScore() && finishingSong) {
 				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent);
-				var offlinePoints = online.FunkinPoints.save(ratingPercent, songMisses, noteDensity, totalNotesHit, combo, playbackRate, songSpeed);
+				var offlinePoints = online.FunkinPoints.save(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo, playbackRate);
 				if (!online.network.FunkinNetwork.loggedIn)
 					gainedPoints = offlinePoints;
 				if (replayRecorder != null)
@@ -3307,6 +3307,8 @@ class PlayState extends MusicBeatState
 					CustomFadeTransition.nextCamera = null;
 				}
 				FreeplayState.gainedPoints = gainedPoints;
+				if (ClientPrefs.isDebug() && FreeplayState.gainedPoints == 0)
+					FreeplayState.gainedPoints = songPoints;
 				FlxG.switchState(() -> new FreeplayState());
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				changedDifficulty = false;

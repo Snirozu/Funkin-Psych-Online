@@ -45,7 +45,7 @@ class CreditsState extends MusicBeatState
 
 		var defaultList:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
 			['Psych Online'],
-			['Snirozu', 'snirozu', 'Developer', 'https://twitter.com/snirozu', '32a852'],
+			['Snirozu', 'snirozu', 'Developer', 'https://bsky.app/profile/sniro.boo', 'FFCC33'],
 			[''],
 			['Contributors'],
 			['Magniill', 'notmagniill', 'Remade the Online button sprite!', 'https://twitter.com/magniill', '910000'],
