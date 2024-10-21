@@ -1979,7 +1979,7 @@ class PlayState extends MusicBeatState
 
 				if (songNotes[2] <= 0 && playsAsBF() ? gottaHitNote : !gottaHitNote) {
 					if (densLast != -1 && songNotes[0] - densLast > 1 && songNotes[0] - densLast <= 100) {
-						denseNotes += (100 - (songNotes[0] - densLast)) * 0.00005;
+						denseNotes += (100 - (songNotes[0] - densLast)) * 0.0001;
 					}
 					densLast = songNotes[0];
 				}
