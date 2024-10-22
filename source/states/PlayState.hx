@@ -1979,7 +1979,7 @@ class PlayState extends MusicBeatState
 
 				if (songNotes[2] <= 0 && playsAsBF() ? gottaHitNote : !gottaHitNote) {
 					if (densLast != -1 && songNotes[0] - densLast > 1 && songNotes[0] - densLast <= 150) {
-						denseNotes += (150 - (songNotes[0] - densLast)) * 0.00005;
+						denseNotes += (150 - (songNotes[0] - densLast)) * 0.00005 / (1 + denseNotes);
 					}
 					densLast = songNotes[0];
 				}
@@ -2068,6 +2068,8 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
+		if (ClientPrefs.isDebug())
+			trace("note density score: " + denseNotes);
 		for (event in songData.events) //Event Notes
 			for (i in 0...event[1].length)
 				makeEvent(event, i);
