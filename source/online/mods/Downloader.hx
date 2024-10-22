@@ -98,18 +98,16 @@ class Downloader {
 		"application/gzip",
 		"application/x-gtar",
 		"application/octet-stream", // unknown files
+		#if RAR_SUPPORTED
 		"application/vnd.rar",
 		"application/x-rar-compressed",
 		"application/x-rar",
+		#end
 	];
 
 	public static function isMediaTypeAllowed(file:String) {
 		file = file.trim();
-		for (item in allowedMediaTypes) {
-			if (file == item)
-				return true;
-		}
-		return false;
+		return allowedMediaTypes.contains(file);
 	}
 
 	private function startDownload(url:String, ?requestHeaders:Map<String, String>) {
