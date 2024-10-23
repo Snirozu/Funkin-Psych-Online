@@ -13,8 +13,6 @@ class FunkinPoints {
 		var fp:Float = Math.max(1, 1 + denseNotes) * (notesHit / 100);
 		fp *= 1 + maxCombo / 1000; // depends on player's note streak
 		fp *= accuracy / (1 + misses * 0.25); // depends on player's note accuracy
-		if (playbackRate < 1)
-			fp *= playbackRate;
 		return Math.ffloor(fp);
     }
 
