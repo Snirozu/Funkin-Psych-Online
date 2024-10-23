@@ -1978,8 +1978,9 @@ class PlayState extends MusicBeatState
 				}
 
 				if (songNotes[2] <= 0 && playsAsBF() ? gottaHitNote : !gottaHitNote) {
-					if (densLast != -1 && songNotes[0] - densLast > 1 && songNotes[0] - densLast <= 150) {
-						denseNotes += (150 - (songNotes[0] - densLast)) * 0.00005 / (1 + denseNotes);
+					var lastNoteDiff = (songNotes[0] - densLast) / playbackRate;
+					if (densLast != -1 && lastNoteDiff > 1 && lastNoteDiff <= 150) {
+						denseNotes += (150 - (lastNoteDiff)) * 0.00005 / (1 + denseNotes);
 					}
 					densLast = songNotes[0];
 				}

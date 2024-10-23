@@ -177,6 +177,18 @@ class RoomState extends MusicBeatState {
 				oppHold = message;
 			});
 		});
+
+		GameClient.room.state.gameplaySettings.onChange((o, n) -> {
+			FreeplayState.updateFreeplayMusicPitch();
+		});
+	}
+
+	override function destroy() {
+		super.destroy();
+		
+		@:privateAccess
+		if (GameClient.isConnected())
+			GameClient.room.state.gameplaySettings._callbacks.clear();
 	}
 
 	var waitingForPlayer1Skin = false;

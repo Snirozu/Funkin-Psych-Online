@@ -16,69 +16,11 @@ class HTTPClient {
 	public var port(default, null):Int = 80;
 	public var ssl(default, null):Bool = false;
 
-    /**
-     * 
-     * @param host Host Name that you want to connect to
-     */
-    public function new(host:String, ?isSSL:Null<Bool>) {
-        // URL parsing
-        var protocolAHost = host.split("://");
-
-		ssl = protocolAHost.length > 1 && protocolAHost[0] == "https";
-        if (ssl) port = 443;
-
-		var hostAPort = protocolAHost[protocolAHost.length - 1].split(":");
-		hostname = hostAPort[0];
-
-		if (hostAPort[1] != null)
-			port = Std.parseInt(hostAPort[1]);
-
-		if (isSSL != null)
-		    ssl = isSSL;
-    }
-
-	public static function requestURL(url:String, ?requestOptions:HTTPURLRequest) {
-        var url = url;
-        var ssl:Null<Bool> = null;
-        if (url.startsWith("https://")) {
-            ssl = true;
-            url = url.substr("https://".length);
-        }
-		else if (url.startsWith("http://")) {
-			url = url.substr("http://".length);
-        }
-
-		var host = "";
-		var port = ssl ?? false ? 443 : 80;
-
-		var portIndex = url.indexOf(':');
-		var pathIndex = url.indexOf('/');
-		if (portIndex != -1 && portIndex < pathIndex) {
-			host = url.substr(0, portIndex);
-
-			var portStr = url.substr(portIndex + 1, pathIndex - portIndex - 1);
-			port = Std.parseInt(portStr);
-        }
-        else {
-			host = url.substr(0, pathIndex);
-        }
-
-		var path = url.substr(pathIndex);
-
-		return new HTTPClient(host + ":" + port, ssl).request({
-            path: path,
-			post: requestOptions?.post,
-			headers: requestOptions?.headers,
-			body: requestOptions?.body,
-			bodyOutput: requestOptions?.bodyOutput
-        });
-    }
-
 	public function request(request:HTTPRequest):HTTPResponse {
 		var response:HTTPResponse = new HTTPResponse();
         try {
             var header:String = "";
-			header += '\r\nHost: ${hostname}:${port}';
+			header += '\r\nHost: ${hostname}' + (port != 80 && port != 443 ? ':${port}' : '');
 			header += '\r\nUser-Agent: haxe';
 			if (request.body != null)
 				header += '\r\nContent-Length: ' + Bytes.ofString(request.body).length;
@@ -206,6 +148,65 @@ class HTTPClient {
 
         return response;
     }
+
+	/**
+	 * 
+	 * @param host Host Name that you want to connect to
+	 */
+	public function new(host:String, ?isSSL:Null<Bool>) {
+		// URL parsing
+		var protocolAHost = host.split("://");
+
+		ssl = protocolAHost.length > 1 && protocolAHost[0] == "https";
+		if (ssl)
+			port = 443;
+
+		var hostAPort = protocolAHost[protocolAHost.length - 1].split(":");
+		hostname = hostAPort[0];
+
+		if (hostAPort[1] != null)
+			port = Std.parseInt(hostAPort[1]);
+
+		if (isSSL != null)
+			ssl = isSSL;
+	}
+
+	public static function requestURL(url:String, ?requestOptions:HTTPURLRequest) {
+		var url = url;
+		var ssl:Null<Bool> = null;
+		if (url.startsWith("https://")) {
+			ssl = true;
+			url = url.substr("https://".length);
+		}
+		else if (url.startsWith("http://")) {
+			url = url.substr("http://".length);
+		}
+
+		var host = "";
+		var port = ssl ?? false ? 443 : 80;
+
+		var portIndex = url.indexOf(':');
+		var pathIndex = url.indexOf('/');
+		if (portIndex != -1 && portIndex < pathIndex) {
+			host = url.substr(0, portIndex);
+
+			var portStr = url.substr(portIndex + 1, pathIndex - portIndex - 1);
+			port = Std.parseInt(portStr);
+		}
+		else {
+			host = url.substr(0, pathIndex);
+		}
+
+		var path = url.substr(pathIndex);
+
+		return new HTTPClient(host + ":" + port, ssl).request({
+			path: path,
+			post: requestOptions?.post,
+			headers: requestOptions?.headers,
+			body: requestOptions?.body,
+			bodyOutput: requestOptions?.bodyOutput
+		});
+	}
 
     public function getURL(path:String) {
 		if (path.length > 0 && path.charAt(0) != "/")

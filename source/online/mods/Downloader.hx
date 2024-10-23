@@ -98,9 +98,11 @@ class Downloader {
 		"application/gzip",
 		"application/x-gtar",
 		"application/octet-stream", // unknown files
+		#if RAR_SUPPORTED
 		"application/vnd.rar",
 		"application/x-rar-compressed",
 		"application/x-rar",
+		#end
 	];
 
 	public static function isMediaTypeAllowed(file:String) {
@@ -117,7 +119,7 @@ class Downloader {
 
 		var urlFormat = URLScraper.getURLFormat(url);
 		var headers:String = "";
-		headers += '\nHost: ${urlFormat.domain}:${urlFormat.port}';
+		headers += '\nHost: ${urlFormat.domain}' + (urlFormat.port != 80 && urlFormat.port != 443 ? ':${urlFormat.port}' : '');
 		headers += '\nUser-Agent: haxe';
 		if (requestHeaders != null) {
 			for (key => value in requestHeaders) {

@@ -980,6 +980,7 @@ class FreeplayState extends MusicBeatState
 					v.looped = true;
 					v.volume = 0.7;
 				}
+				updateFreeplayMusicPitch();
 				instPlaying = curSelected;
 				trackPlaying = track;
 				listening = true;
@@ -1021,6 +1022,13 @@ class FreeplayState extends MusicBeatState
 		}
 		vocals = null;
 		opponentVocals = null;
+	}
+
+	public static function updateFreeplayMusicPitch() {
+		for (v in [FlxG.sound.music, vocals, opponentVocals]) {
+			if (v == null) continue;
+			v.pitch = ClientPrefs.getGameplaySetting('songspeed');
+		}
 	}
 
 	function changeDiff(change:Int = 0)
