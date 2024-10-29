@@ -1940,6 +1940,8 @@ class PlayState extends MusicBeatState
 		var tension:Float = 0;
 		var tenseCombo:Float = 0;
 		var densLastStrumTime:Float = -1;
+		var densNotes:Float = 0;
+		var densNotesCount:Float = 0;
 		for (section in noteData)
 		{
 			for (songNotes in section.sectionNotes)
@@ -1990,12 +1992,14 @@ class PlayState extends MusicBeatState
 								tenseCombo++;
 								tension += 150 - noteDiff;
 							}
-							denseNotes += (150 - noteDiff) / 15000 / (1 + denseNotes);
+							densNotesCount++;
+							densNotes += (150 - noteDiff) / 30;
 						}
 						
 						if (noteDiff > 150 || !keepCombo) {
 							if (tenseCombo > 0) {
-								denseNotes += tension / tenseCombo * tenseCombo / 10000 * (1 + Math.max(0, tension / tenseCombo - 60) / 50);
+								densNotesCount++;
+								densNotes += tension / tenseCombo * tenseCombo / 25 * (1 + Math.max(0, tension / tenseCombo - 60) / 50);
 							}
 							tenseCombo = 0;
 							tension = 0;
@@ -2089,6 +2093,7 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
+		denseNotes = densNotes / densNotesCount;
 		if (ClientPrefs.isDebug())
 			trace("note density score: " + denseNotes);
 		for (event in songData.events) //Event Notes
