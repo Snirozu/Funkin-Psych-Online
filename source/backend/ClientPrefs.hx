@@ -211,8 +211,8 @@ class ClientPrefs {
 		#end
 
 		if (ClientPrefs.data.unlockFramerate) {
-			FlxG.updateFramerate = 999;
-			FlxG.drawFramerate = 999;
+			FlxG.updateFramerate = 1000;
+			FlxG.drawFramerate = 1000;
 		} else if(data.framerate > FlxG.drawFramerate) {
 			FlxG.updateFramerate = data.framerate;
 			FlxG.drawFramerate = data.framerate;

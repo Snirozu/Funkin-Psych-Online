@@ -621,14 +621,6 @@ class FreeplayState extends MusicBeatState
 
 				listenToSong();
 			}
-			else if (controls.UI_LEFT_P) {
-				changeDiff(-1);
-				_updateSongLastDifficulty();
-			}
-			else if (controls.UI_RIGHT_P) {
-				changeDiff(1);
-				_updateSongLastDifficulty();
-			}
 			else if (controls.ACCEPT)
 			{
 				if (curSelected == -1) {
@@ -1149,6 +1141,9 @@ class FreeplayState extends MusicBeatState
 			curDifficulty = Difficulty.list.length-1;
 		if (curDifficulty >= Difficulty.list.length)
 			curDifficulty = 0;
+
+		if (songs[curSelected] == null)
+			return;
 
 		#if !switch
 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);

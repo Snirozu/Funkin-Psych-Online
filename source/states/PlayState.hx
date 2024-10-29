@@ -1937,7 +1937,9 @@ class PlayState extends MusicBeatState
 					makeEvent(event, i);
 		}
 
-		var densLast:Float = -1;
+		var tension:Float = 0;
+		var tenseCombo:Float = 0;
+		var densLastStrumTime:Float = -1;
 		for (section in noteData)
 		{
 			for (songNotes in section.sectionNotes)
@@ -1978,11 +1980,29 @@ class PlayState extends MusicBeatState
 				}
 
 				if (songNotes[2] <= 0 && playsAsBF() ? gottaHitNote : !gottaHitNote) {
-					var lastNoteDiff = (songNotes[0] - densLast) / playbackRate;
-					if (densLast != -1 && lastNoteDiff > 1 && lastNoteDiff <= 150) {
-						denseNotes += (150 - (lastNoteDiff)) * 0.00005 / (1 + denseNotes);
+					var noteDiff = (daStrumTime - densLastStrumTime) / playbackRate;
+
+					if (densLastStrumTime != -1 && noteDiff > 10) {
+						var keepCombo = tenseCombo < 2 || 150 - noteDiff <= tension / tenseCombo + 10;
+
+						if (noteDiff <= 150) {
+							if (keepCombo) {
+								tenseCombo++;
+								tension += 150 - noteDiff;
+							}
+							denseNotes += (150 - noteDiff) / 15000 / (1 + denseNotes);
+						}
+						
+						if (noteDiff > 150 || !keepCombo) {
+							if (tenseCombo > 0) {
+								denseNotes += tension / tenseCombo * tenseCombo / 10000 * (1 + Math.max(0, tension / tenseCombo - 60) / 50);
+							}
+							tenseCombo = 0;
+							tension = 0;
+						}
 					}
-					densLast = songNotes[0];
+
+					densLastStrumTime = daStrumTime;
 				}
 
 				var oldNote:Note;
