@@ -19,7 +19,11 @@ class MainTab extends TabSprite {
 	static var messages:Array<TextField> = [];
 	var msgSprite:Sprite;
 
-	override function create() {
+	var chatInputPlaceholder:TextField;
+
+	public function new(tabWidth:Float) {
+		super(tabWidth);
+
 		msgSprite = new Sprite();
 		addChild(msgSprite);
 
@@ -53,7 +57,7 @@ class MainTab extends TabSprite {
 		chatInput.type = INPUT;
 		chatInput.width = Std.int(widthTab);
 
-		var chatInputPlaceholder:TextField = new TextField();
+		chatInputPlaceholder = new TextField();
 		chatInputPlaceholder.defaultTextFormat = TabSprite.getDefaultFormat();
 		chatInputPlaceholder.text = "(Click here to chat)";
 		chatInputPlaceholder.selectable = false;
@@ -67,7 +71,9 @@ class MainTab extends TabSprite {
 		addChild(chatBg);
 		addChild(chatInputPlaceholder);
 		addChild(chatInput);
+	}
 
+	override function create() {
 		chatInput.addEventListener(Event.CHANGE, _ -> {
 			chatInputPlaceholder.visible = chatInput.text.length <= 0;
 		});

@@ -1089,7 +1089,7 @@ class RoomState extends MusicBeatState {
 
 		box.desc.applyMarkup(
             "Points: " + player.points + "\n" +
-			(player.verified && box.profileData != null ? "Avg. Accuracy: " + FlxMath.roundDecimal(((box.profileData?.avgAccuracy ?? 0) * 100), 2) + "%\n" : "") +
+			(player.verified && box.profileData != null ? "Avg. Accuracy: " + FlxMath.roundDecimal((box.profileData.avgAccuracy * 100), 2) + "%\n" : "") +
 			"Ping: <p>" + player.ping + "ms<p>\n\n" +
 			player.status + "\n" +
 			(!player.isReady ? "NOT " : "") + "READY" +
