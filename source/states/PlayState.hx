@@ -1942,7 +1942,9 @@ class PlayState extends MusicBeatState
 		var densLastStrumTime:Float = -1;
 		var densNotes:Float = 0;
 		var densNotesCount:Float = 0;
-		var _densNotesBonus:Float = 0;
+		var densNotesBonus:Float = 0;
+		var csc = 125; //Conductor.stepCrochet * 1.5;
+		trace('step crochet: ' + csc);
 		for (section in noteData)
 		{
 			for (songNotes in section.sectionNotes)
@@ -1986,22 +1988,21 @@ class PlayState extends MusicBeatState
 					var noteDiff = (daStrumTime - densLastStrumTime) / playbackRate;
 
 					if (densLastStrumTime != -1 && noteDiff > 10) {
-						var keepCombo = tenseCombo < 2 || Math.pow(150 - noteDiff, 2) <= tension / tenseCombo + 10;
+						var keepCombo = tenseCombo < 2 || csc - noteDiff + 10 >= tension / tenseCombo;
 
-						if (noteDiff <= 150) {
+						if (noteDiff <= csc) {
 							if (keepCombo) {
 								tenseCombo++;
-								tension += Math.pow(150 - noteDiff, 2);
+								tension += csc - noteDiff;
 							}
 							densNotesCount++;
-							densNotes += (150 - noteDiff) / 50;
+							densNotes += (csc - noteDiff) / csc;
 						}
 						
-						if (noteDiff > 150 || !keepCombo) {
+						if (noteDiff > csc || !keepCombo) {
 							if (tenseCombo > 0 && tension > 0) {
-								var temp = tension / tenseCombo * tenseCombo / 500;
-								_densNotesBonus += temp;
-								densNotes += temp;
+								var temp = tension / (csc * 5) * Math.pow(tenseCombo, 1.15);
+								densNotesBonus += temp;
 								if (ClientPrefs.isDebug())
 									trace(temp, tenseCombo);
 							}
@@ -2097,9 +2098,9 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
-		denseNotes = densNotesCount == 0 ? 0 : densNotes / 1000;
+		denseNotes = densNotesCount == 0 ? 0 : (densNotes + densNotesBonus) / 1000;
 		trace(' + predensity: ' + densNotes);
-		trace(' + bonus: ' + _densNotesBonus);
+		trace(' + bonus: ' + densNotesBonus);
 		trace("note density score: " + denseNotes);
 		for (event in songData.events) //Event Notes
 			for (i in 0...event[1].length)
@@ -2388,16 +2389,6 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
-		if (!GameClient.isConnected() && !finishingSong && elapsed >= 0.1 && Conductor.songPosition > lastLagPos) {
-			setSongTime(Conductor.songPosition - 3000);
-			lastLagPos = Conductor.songPosition;
-			Alert.alert("Mod Lag Detected (-3s)");
-		}
-
-		if (!GameClient.isConnected() && FlxG.keys.justPressed.F6) {
-			swingMode = !swingMode;
-		}
-
 		if (FlxG.keys.justPressed.F7) {
 			ClientPrefs.data.showFP = !ClientPrefs.data.showFP;
 			ClientPrefs.saveSettings();
@@ -2409,15 +2400,49 @@ class PlayState extends MusicBeatState
 			ClientPrefs.saveSettings();
 			Alert.alert("Replay Submiting: " + (ClientPrefs.data.disableSubmiting ? "OFF" : "ON"));
 		}
+		
+		if (!GameClient.isConnected()) {
+			if (!finishingSong && elapsed >= 0.1 && Conductor.songPosition > lastLagPos) {
+				setSongTime(Conductor.songPosition - 3000);
+				lastLagPos = Conductor.songPosition;
+				Alert.alert("Mod Lag Detected (-3s)");
+			}
 
-		if (!GameClient.isConnected() && FlxG.keys.justPressed.F8 && replayPlayer == null) {
-			opponentMode = !opponentMode;
-			remove(replayRecorder);
-			replayRecorder.destroy();
-			songScore = 0;
-			boyfriend.isPlayer = !boyfriend.isPlayer;
-			dad.isPlayer = !dad.isPlayer;
-			addHealth(2);
+			if (FlxG.keys.justPressed.F6) {
+				swingMode = !swingMode;
+			}
+
+			if (FlxG.keys.justPressed.F8 && replayPlayer == null) {
+				opponentMode = !opponentMode;
+				remove(replayRecorder);
+				replayRecorder.destroy();
+				songScore = 0;
+				boyfriend.isPlayer = !boyfriend.isPlayer;
+				dad.isPlayer = !dad.isPlayer;
+				addHealth(2);
+			}
+
+			if (cpuControlled) {
+				var shiftMult = FlxG.keys.pressed.SHIFT ? 3 : 1;
+				if (controls.UI_LEFT) {
+					if (playbackRate - elapsed * 0.25 * shiftMult > 0)
+						playbackRate -= elapsed * 0.25 * shiftMult;
+					if (playbackRate < 0.01) {
+						playbackRate = 0.01;
+					}
+					botplayTxt.text = "BOTPLAY\n" + '(${CoolUtil.floorDecimal(playbackRate, 2)}x)';
+				}
+				else if (controls.UI_RIGHT) {
+					playbackRate += elapsed * 0.25 * shiftMult;
+					if (playbackRate > 8) {
+						playbackRate = 8;
+					}
+					botplayTxt.text = "BOTPLAY\n" + '(${CoolUtil.floorDecimal(playbackRate, 2)}x)';
+				}
+				else if (controls.RESET) {
+					playbackRate = 1;
+				}
+			}
 		}
 
 		if (FlxG.keys.justPressed.F11 && GameClient.isConnected()) {
@@ -2553,7 +2578,7 @@ class PlayState extends MusicBeatState
 		FlxG.watch.addQuick("stepShit", curStep);
 
 		// RESET = Quick Game Over Screen
-		if (!GameClient.isConnected() && !ClientPrefs.data.noReset && controls.RESET && canReset && !inCutscene && startedCountdown && !endingSong && canInput() && replayData == null)
+		if (!GameClient.isConnected() && !ClientPrefs.data.noReset && controls.RESET && canReset && !inCutscene && startedCountdown && !endingSong && canInput() && replayData == null && !cpuControlled)
 		{
 			health = 0;
 			trace("RESET = True");
