@@ -116,6 +116,7 @@ class ClientPrefs {
 		'pause'			=> [ENTER, ESCAPE],
 		'reset'			=> [R],
 		'taunt'			=> [SPACE],
+		'sidebar'		=> [GRAVEACCENT],
 		
 		'volume_mute'	=> [ZERO],
 		'volume_up'		=> [NUMPADPLUS, PLUS],
@@ -139,7 +140,8 @@ class ClientPrefs {
 		'back'			=> [B],
 		'pause'			=> [START],
 		'reset'			=> [BACK],
-		'taunt'			=> [A]
+		'taunt'			=> [A],
+		'sidebar'		=> []
 	];
 	public static var defaultKeys:Map<String, Array<FlxKey>> = null;
 	public static var defaultButtons:Map<String, Array<FlxGamepadInputID>> = null;

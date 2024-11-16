@@ -36,7 +36,7 @@ class SideUI extends Sprite {
 		x = -width;
 
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, (e:KeyboardEvent) -> {
-			if (e.keyCode == 192 && stage.focus == null) {
+			if (checkKey(e.keyCode, ClientPrefs.keyBinds.get('sidebar')) && stage.focus == null) {
 				if (FunkinNetwork.loggedIn) {
 					active = !active;
 					return;
@@ -103,6 +103,14 @@ class SideUI extends Sprite {
 			});
 		}
 		return active = show;
+	}
+	
+	public static function checkKey(key:Int, keys:Array<Int>):Bool {
+		for (k in keys) {
+			if (key == k)
+				return true;
+		}
+		return false;
 	}
 }
 

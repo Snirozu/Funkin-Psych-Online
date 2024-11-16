@@ -51,8 +51,8 @@ class ReplayPlayer extends FlxBasic {
         }
         else if (state.controls.UI_RIGHT) {
 			state.playbackRate += elapsed * 0.25 * shiftMult;
-            if (state.playbackRate > 4) {
-				state.playbackRate = 4;
+            if (state.playbackRate > 6) {
+				state.playbackRate = 6;
             }
 			state.botplayTxt.text = data.player + "'s\nREPLAY\n" + '(${CoolUtil.floorDecimal(state.playbackRate, 2)}x)';
         }
