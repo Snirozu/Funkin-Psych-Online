@@ -1,5 +1,6 @@
 package online.objects;
 
+import online.util.ShitUtil;
 import online.substates.RequestSubstate;
 import flixel.math.FlxRect;
 import openfl.events.KeyboardEvent;
@@ -36,19 +37,19 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 	var chatHeight:Float;
 	var onCommand:(String, Array<String>) -> Bool;
 
-	static var lastMessages:Array<String> = [];
+	static var lastMessages:Array<Dynamic> = [];
 
 	var initMessage:String = "See /help for the list of commands!";
 
-	public static function addMessage(message:String) {
+	public static function addMessage(raw:Dynamic) {
 		if (instance == null) {
-			lastMessages.push(message);
+			lastMessages.push(raw);
 			return;
 		}
 
 		instance.targetAlpha = 5;
 
-		var chat = new ChatMessage(instance.bg.width, message);
+		var chat = new ChatMessage(instance.bg.width, ShitUtil.parseLog(raw));
 		instance.chatGroup.insert(0, chat);
 
 		if (instance.chatGroup.length >= 22) {
@@ -254,22 +255,22 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 class ChatMessage extends FlxText {
 	public var link:String = null;
 
-	public function new(fieldWidth:Float = 0, message:String) {
-		super(0, 0, fieldWidth, message);
-		setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+	public function new(fieldWidth:Float = 0, msg:LogData) {
+		super(0, 0, fieldWidth, msg.content);
+		setFormat("VCR OSD Mono", 16, msg.hue != null ? FlxColor.fromHSL(msg.hue, 0.7, 0.7) : FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 
-		var _split = message.split("");
+		var _split = msg.content.split("");
 		var i = -1;
 		var str = "";
 		var formatBeg = null;
 		var formatEnd = null;
-		while (++i < message.length) {
+		while (++i < msg.content.length) {
 			if (this.link == null && str.startsWith("https://")) {
 				if (_split[i].trim() == "") {
 					this.link = str;
 					formatEnd = i;
 				}
-				else if (i == message.length - 1) {
+				else if (i == msg.content.length - 1) {
 					this.link = str + _split[i].trim();
 					formatEnd = i + 1;
 				}

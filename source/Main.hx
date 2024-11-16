@@ -50,8 +50,8 @@ class Main extends Sprite
 	public static var stage3D:AwayStage;
 	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.8.3";
-	public static final CLIENT_PROTOCOL:Float = 4;
+	public static final PSYCH_ONLINE_VERSION:String = "0.9.0";
+	public static final CLIENT_PROTOCOL:Float = 5;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
@@ -69,7 +69,7 @@ class Main extends Sprite
 		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
 		Lib.current.addChild(new Main());
 		//TBA
-		//Lib.current.addChild(new online.sgui.SideUI());
+		Lib.current.addChild(new online.gui.sidebar.SideUI());
 	}
 
 	public function new()
@@ -191,7 +191,7 @@ class Main extends Sprite
 		#else
 		online.GameClient.serverAddresses.push("ws://localhost:2567");
 		#end
-		online.network.FunkinNetwork.client = new online.util.HTTPClient(online.GameClient.addressToUrl(online.GameClient.serverAddress));
+		online.network.FunkinNetwork.client = new online.util.HTTPClient(online.GameClient.addressToUrl());
 
 		online.mods.Downloader.checkDeleteDlDir();
 

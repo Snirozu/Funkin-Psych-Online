@@ -1,16 +1,19 @@
 package online.gui.sidebar;
 
+import online.network.FunkinNetwork;
 import flixel.FlxG;
 import flixel.util.FlxColor;
 import openfl.Lib;
 
 class SideUI extends Sprite {
-	public var shown(default, set):Bool;
+	public static var instance:SideUI;
+
+	public var active(default, set):Bool;
 	public var cursor:Bitmap;
 
 	var _wasMouseShown:Bool = false;
 
-	var curTab:TabSprite = null;
+	public var curTab:TabSprite = null;
 
 	public function new() {
 		super();
@@ -32,37 +35,51 @@ class SideUI extends Sprite {
 		alpha = 0;
 		x = -width;
 
-
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, (e:KeyboardEvent) -> {
-			if (e.keyCode == 192) {
-				shown = !shown;
+			if (e.keyCode == 192 && stage.focus == null) {
+				if (FunkinNetwork.loggedIn) {
+					active = !active;
+					return;
+				}
+				else {
+					Waiter.put(() -> {
+						Alert.alert("Forbidden!", "Sidebar is only accessible for\npeople that are logged to the network!");
+					});
+				}
 			}
 			
-			if (shown)
+			if (active)
 				curTab.keyDown(e);
 		});
 		stage.addEventListener(MouseEvent.MOUSE_MOVE, (e:MouseEvent) -> {
 			cursor.x = e.stageX;
 			cursor.y = e.stageY;
 
-			if (shown)
+			if (active)
 				curTab.mouseMove(e);
 		});
 		stage.addEventListener(MouseEvent.MOUSE_DOWN, (e:MouseEvent) -> {
-			if (e.localX >= width)
-				shown = false;
+			if (e.localX >= (curTab?.widthTab ?? width))
+				active = false;
 
-			if (shown)
+			if (active)
 				curTab.mouseDown(e);
+		});
+		stage.addEventListener(MouseEvent.MOUSE_WHEEL, (e:MouseEvent) -> {
+			if (active)
+				curTab.mouseWheel(e);
 		});
 
 		curTab = new MainTab(bitmap.width);
+
+		instance = this;
 	}
 
-	function set_shown(show:Bool) {
-		if (show == shown)
-			return shown;
+	function set_active(show:Bool) {
+		if (show == active)
+			return active;
 
+		stage.focus = null;
 		Actuate.stop(this);
 
 		FlxG.mouse.enabled = !show;
@@ -71,6 +88,7 @@ class SideUI extends Sprite {
 
 		if (show) {
 			addChild(curTab);
+			curTab.onShow();
 			_wasMouseShown = FlxG.mouse.visible;
 			FlxG.mouse.visible = false;
 
@@ -81,9 +99,10 @@ class SideUI extends Sprite {
 
 			Actuate.tween(this, 1, {alpha: 0, x: -width}).onComplete(() -> {
 				removeChild(curTab);
+				curTab.onHide();
 			});
 		}
-		return shown = show;
+		return active = show;
 	}
 }
 

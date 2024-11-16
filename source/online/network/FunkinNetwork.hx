@@ -2,8 +2,6 @@ package online.network;
 
 import haxe.io.BytesOutput;
 import openfl.display.BitmapData;
-import haxe.io.Error;
-import haxe.io.Eof;
 import online.util.HTTPClient.HTTPResponse;
 import online.util.HTTPClient.HTTPRequest;
 import haxe.CallStack;
@@ -20,6 +18,8 @@ class FunkinNetwork {
 	public static var client:HTTPClient = null;
 	public static var nickname(default, null):String = null;
 	public static var points(default, null):Float = 0;
+	public static var avgAccuracy(default, null):Float = 0;
+	public static var profileHue(default, null):Float = 0;
 	public static var loggedIn:Bool = false;
 
 	public static function requestLogin(email:String, ?code:String) {
@@ -88,8 +88,8 @@ class FunkinNetwork {
 
 		var response = requestAPI({
 			path: "/api/network/account/me",
-			headers: ["authorization" => Auth.getAuthHeader()]
-		});
+			headers: ["authorization" => Auth.getAuthHeader()],
+		}, false);
 
 		if (response == null)
 			return loggedIn = false;
@@ -97,6 +97,8 @@ class FunkinNetwork {
 		var json = Json.parse(response.body);
 		nickname = json.name;
 		points = json.points;
+		avgAccuracy = json.avgAccuracy;
+		profileHue = json.profileHue;
 		return loggedIn = true;
 	}
 
@@ -171,7 +173,7 @@ class FunkinNetwork {
 	public static function fetchFront():Dynamic {
 		var response = requestAPI({
 			path: "/api/front"
-		});
+		}, false);
 
 		if (response == null)
 			return null;
@@ -226,7 +228,10 @@ class FunkinNetwork {
 		}
 	}
 
-	public static function fetchUserInfo(user:String):String {
+	public static function fetchUserInfo(user:String):Dynamic {
+		if (user == null)
+			return null;
+
 		var response = requestAPI({
 			path: "/api/network/user/info?name=" + user
 		});
@@ -243,10 +248,10 @@ class FunkinNetwork {
 		}
 	}
 
-	public static var cacheAvatar:Map<String, BitmapData> = [];
+	public static var cacheAvatar:Map<String, Bytes> = [];
 	public static function getUserAvatar(user:String):BitmapData {
 		if (cacheAvatar.exists(user))
-			return cacheAvatar.get(user);
+			return BitmapData.fromBytes(cacheAvatar.get(user));
 
 		var output = new BytesOutput();
 		var avatarResponse = FunkinNetwork.requestAPI({
@@ -258,9 +263,9 @@ class FunkinNetwork {
 			return null;
 
 		try {
-			var bitmap = BitmapData.fromBytes(output.getBytes());
-			cacheAvatar.set(user, bitmap);
-			return bitmap;
+			var bytes = output.getBytes();
+			cacheAvatar.set(user, bytes);
+			return BitmapData.fromBytes(bytes);
 		}
 		catch (exc) {
 			trace(exc);
@@ -273,9 +278,9 @@ class FunkinNetwork {
 
 		if (response.isFailed()) {
 			if (response.exception != null) {
-				if (alertError && response.exception != "Eof" && response.exception != "EOF")
+				if (alertError)
 					Waiter.put(() -> {
-						Alert.alert("Exception: " + request.path, response.exception + (response.exception.stack != null ? "\n\n" + CallStack.toString(response.exception.stack) : ""));
+						Alert.alert("Exception: " + request.path, ShitUtil.readableError(response.exception) + (response.exception.stack != null ? "\n\n" + CallStack.toString(response.exception.stack) : ""));
 					});
 			}
 			else if (response.status == 404) {
@@ -283,7 +288,7 @@ class FunkinNetwork {
 			}
 			else if (alertError) {
 				Waiter.put(() -> {
-					Alert.alert('HTTP Error ${response.status}: ' + request.path, response.body != null && response.body.ltrim().startsWith("{") ? Json.parse(response.body).error : response.body);
+					Alert.alert('HTTP Error ${ShitUtil.prettyStatus(response.status)}: ' + request.path, response.body != null && response.body.ltrim().startsWith("{") ? Json.parse(response.body).error : response.body);
 				});
 			}
 			return null;

@@ -60,7 +60,7 @@ class OnlineMods {
 				Waiter.put(() -> {
 					LoadingScreen.toggle(false);
 					if (err != null) {
-						Alert.alert("Failed to download!", "For mod: " + url + "\n" + err);
+						Alert.alert("Failed to download!", "For mod: " + url + "\n" + ShitUtil.readableError(err));
 						return;
 					}
 

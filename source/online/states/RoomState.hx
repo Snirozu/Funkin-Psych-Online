@@ -25,10 +25,13 @@ import openfl.utils.Assets as OpenFlAssets;
 @:publicFields
 class RoomState extends MusicBeatState {
 	//this shit is messy
-	var player1Text:FlxText;
-	var player1Bg:FlxSprite;
-	var player2Text:FlxText;
-	var player2Bg:FlxSprite;
+	// var player1Text:FlxText;
+	// var player1Bg:FlxSprite;
+	// var player2Text:FlxText;
+	// var player2Bg:FlxSprite;
+	var playerBox1:ProfileBox;
+	var playerBox2:ProfileBox;
+	var isDuo:Bool = false;
 
 	var verifyMod:FlxText;
 	var verifyModBg:FlxSprite;
@@ -227,27 +230,26 @@ class RoomState extends MusicBeatState {
 		} 
 		else {
 			Paths.setCurrentLevel("week3");
-			stage = new Philly();
-			untyped @:privateAccess {
-				stage.phillyTrain.sound.volume = 0;
+			var pStage = new Philly();
+			stage = pStage;
+			pStage.phillyTrain.sound.volume = 0;
 
-				if (!ClientPrefs.data.lowQuality) {
-					stage.bg.setGraphicSize(Std.int(stage.bg.width * 1));
-					stage.bg.updateHitbox();
+			if (!ClientPrefs.data.lowQuality) {
+				pStage.bg.setGraphicSize(Std.int(pStage.bg.width * 1));
+				pStage.bg.updateHitbox();
 
-					stage.bg.x -= 80;
-					stage.bg.y -= 50;
-				}
-				stage.city.setGraphicSize(Std.int(stage.city.width * 1.1));
-				stage.city.updateHitbox();
-				stage.phillyWindow.setGraphicSize(Std.int(stage.phillyWindow.width * 1.1));
-				stage.phillyWindow.updateHitbox();
-
-				stage.city.x -= 80;
-				stage.phillyWindow.x -= 80;
-				stage.city.y -= 20;
-				stage.phillyWindow.y -= 20;
+				pStage.bg.x -= 80;
+				pStage.bg.y -= 50;
 			}
+			pStage.city.setGraphicSize(Std.int(pStage.city.width * 1.1));
+			pStage.city.updateHitbox();
+			pStage.phillyWindow.setGraphicSize(Std.int(pStage.phillyWindow.width * 1.1));
+			pStage.phillyWindow.updateHitbox();
+
+			pStage.city.x -= 80;
+			pStage.phillyWindow.x -= 80;
+			pStage.city.y -= 20;
+			pStage.phillyWindow.y -= 20;
 		}
 		
 		stage.cameras = [cum];
@@ -264,25 +266,39 @@ class RoomState extends MusicBeatState {
 
 		// POST STAGE
 
-		player1Text = new FlxText(0, 100, 0, "PLAYER 1");
-		player1Text.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		// player1Text = new FlxText(0, 100, 0, "PLAYER 1");
+		// player1Text.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 
-		player1Bg = new FlxSprite(-1000);
-		player1Bg.makeGraphic(1, 1, 0xA4000000);
-		player1Bg.updateHitbox();
-		player1Bg.y = player1Text.y - 30;
-		groupHUD.add(player1Bg);
-		groupHUD.add(player1Text);
+		// player1Bg = new FlxSprite(-1000);
+		// player1Bg.makeGraphic(1, 1, 0xA4000000);
+		// player1Bg.updateHitbox();
+		// player1Bg.y = player1Text.y - 30;
+		// groupHUD.add(player1Bg);
+		// groupHUD.add(player1Text);
 
-		player2Text = new FlxText(0, 100, 0, "PLAYER 2");
-		player2Text.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		// player2Text = new FlxText(0, 100, 0, "PLAYER 2");
+		// player2Text.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 
-		player2Bg = new FlxSprite(-1000);
-		player2Bg.makeGraphic(1, 1, 0xA4000000);
-		player2Bg.updateHitbox();
-		player2Bg.y = player2Text.y - 30;
-		groupHUD.add(player2Bg);
-		groupHUD.add(player2Text);
+		// player2Bg = new FlxSprite(-1000);
+		// player2Bg.makeGraphic(1, 1, 0xA4000000);
+		// player2Bg.updateHitbox();
+		// player2Bg.y = player2Text.y - 30;
+		// groupHUD.add(player2Bg);
+		// groupHUD.add(player2Text);
+
+		for (i in 1...3) {
+			var box = new ProfileBox(null, false, 50, 2);
+			if (i == 1)
+				playerBox1 = box;
+			else
+				playerBox2 = box;
+			box.autoUpdateThings = false;
+			box.autoCardHeight = true;
+			box.text.text = "PLAYER" + i;
+			box.setPosition(0, 70);
+			box.camera = camHUD;
+			groupHUD.add(box);
+		}
 
 		chatBox = new ChatBox(camHUD, (cmd, args) -> {
 			switch (cmd) {
@@ -548,18 +564,14 @@ class RoomState extends MusicBeatState {
 
 	var rightSide:Character;
 	var leftSide:Character;
-	var rightSideText:FlxText;
-	var leftSideText:FlxText;
-	var rightSideTextBG:FlxSprite;
-	var leftSideTextBG:FlxSprite;
+	var rightSideBox:ProfileBox;
+	var leftSideBox:ProfileBox;
 
 	function positionCharacters() {
 		rightSide = GameClient.room.state.swagSides ? p1 : p2;
 		leftSide = GameClient.room.state.swagSides ? p2 : p1;
-		rightSideText = GameClient.room.state.swagSides ? player1Text : player2Text;
-		leftSideText = GameClient.room.state.swagSides ? player2Text : player1Text;
-		rightSideTextBG = GameClient.room.state.swagSides ? player1Bg : player2Bg;
-		leftSideTextBG = GameClient.room.state.swagSides ? player2Bg : player1Bg;
+		rightSideBox = GameClient.room.state.swagSides ? playerBox1 : playerBox2;
+		leftSideBox = GameClient.room.state.swagSides ? playerBox2 : playerBox1;
 
 		if (rightSide != null) {
 			rightSide.x = 600 + rightSide.positionArray[0];
@@ -571,14 +583,12 @@ class RoomState extends MusicBeatState {
 			leftSide.y = 120 + leftSide.positionArray[1];
 		}
 
-		if (leftSideText != null) {
-			leftSideText.x = 250 - leftSideText.width / 2;
-			leftSideTextBG.x = 250 - leftSideTextBG.width / 2;
+		if (leftSideBox != null) {
+			leftSideBox.x = 250 - leftSideBox.width / 2;
 		}
 
-		if (rightSideText != null) {
-			rightSideText.x = 700 - rightSideText.width / 2;
-			rightSideTextBG.x = 700 - rightSideTextBG.width / 2;
+		if (rightSideBox != null) {
+			rightSideBox.x = 700 - leftSideBox.width / 2;
 		}
 	}
 
@@ -776,7 +786,7 @@ class RoomState extends MusicBeatState {
 								GameClient.send("verifyChart", Md5.encode(Song.loadRawSong(GameClient.room.state.song, GameClient.room.state.folder)));
 							}
 							catch (exc) {
-								Alert.alert("Caught an exception!", exc.toString());
+								Alert.alert("Caught an exception!", ShitUtil.readableError(exc));
 								if (optionShake != null)
 									optionShake.cancel();
 								optionShake = FlxTween.shake(playIcon, 0.05, 0.3, FlxAxes.X);
@@ -980,25 +990,28 @@ class RoomState extends MusicBeatState {
 		songNameBg.updateHitbox();
 		songNameBg.x = songName.x;
 
-		setPlayerText(player1Text, GameClient.room.state.player1, waitingForPlayer1Skin);
+		setPlayerText(playerBox1, GameClient.room.state.player1, waitingForPlayer1Skin);
 
 		if (GameClient.room.state.player2 != null && GameClient.room.state.player2.name != "") {
-			player2Text.alpha = 1;
 			p2.colorTransform.redOffset = 0;
 			p2.colorTransform.greenOffset = 0;
 			p2.colorTransform.blueOffset = 0;
-			p2.alpha = 1;
 			dlSkinTxt.visible = waitingForPlayer2Skin;
 			if (waitingForPlayer2Skin)
 				dlSkinTxt.setPosition(p2.x + p2.width / 2 - dlSkinTxt.width / 2, p2.y + p2.height / 2 - dlSkinTxt.height / 2);
-			setPlayerText(player2Text, GameClient.room.state.player2, waitingForPlayer2Skin);
+			setPlayerText(playerBox2, GameClient.room.state.player2, waitingForPlayer2Skin);
         }
         else {
 			if (p2.curCharacter != "default-player")
 				loadCharacter(false);
-			player2Text.clearFormats();
-			player2Text.text = "WAITING FOR\nOPPONENT";
-			player2Text.alpha = 0.8;
+			playerBox2.text.clearFormats();
+			playerBox2.text.text = "WAITING FOR\nOPPONENT";
+			playerBox2.desc.text = "";
+			if (playerBox2 != null && playerBox2.user != null) {
+				playerBox2.cardHeight = 50;
+				playerBox2.updateData(null, false);
+			}
+			playerBox2.updatePositions();
 			p2.colorTransform.redOffset = -255;
 			p2.colorTransform.greenOffset = -255;
 			p2.colorTransform.blueOffset = -255;
@@ -1024,12 +1037,6 @@ class RoomState extends MusicBeatState {
 			p2.colorTransform.blueOffset = -255;
 			p2.alpha = 0.5;
 		}
-
-		player1Bg.scale.set(FlxMath.bound(player1Text.width, 300), player1Text.height + 60);
-		player1Bg.updateHitbox();
-
-		player2Bg.scale.set(FlxMath.bound(player2Text.width, 300), player2Text.height + 60);
-		player2Bg.updateHitbox();
 
 		positionCharacters();
 
@@ -1061,7 +1068,7 @@ class RoomState extends MusicBeatState {
 	var yellowMarker:FlxTextFormatMarkerPair;
 	var pingMarker:FlxTextFormatMarkerPair;
 
-	function setPlayerText(text:FlxText, player:Player, noSkin:Bool) {
+	function setPlayerText(box:ProfileBox, player:Player, noSkin:Bool) {
 		if (yellowMarker == null)
 			yellowMarker = new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.YELLOW), "<y>");
 		if (pingMarker == null)
@@ -1072,15 +1079,24 @@ class RoomState extends MusicBeatState {
 
 		yellowMarker = new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.YELLOW), "<y>");
 
-		text.applyMarkup(
-			(player.verified ? '<y>${player.name}<y>' : player.name) + "\n\n" +
-            "Statistics\n" +
+		if (box.user != player.name) {
+			box.updateData(player.name, player.verified);
+		}
+
+		box.text.applyMarkup(
+			(player.verified ? '<y>${player.name}<y>' : player.name)
+		, [yellowMarker]);
+
+		box.desc.applyMarkup(
             "Points: " + player.points + "\n" +
+			(player.verified && box.profileData != null ? "Avg. Accuracy: " + FlxMath.roundDecimal(((box.profileData?.avgAccuracy ?? 0) * 100), 2) + "%\n" : "") +
 			"Ping: <p>" + player.ping + "ms<p>\n\n" +
 			player.status + "\n" +
 			(!player.isReady ? "NOT " : "") + "READY" +
 			(noSkin ? "\n(Unloaded Skin)" : "")
-		, [yellowMarker, pingMarker]);
+		, [pingMarker]);
+
+		box.updatePositions();
 	}
 
 	function changeSelection(diffe:Int) {

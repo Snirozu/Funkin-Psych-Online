@@ -39,4 +39,18 @@ class Thread {
 			}
 		});
     }
+
+	public static function safeCatch(task:Void->Void, ?onException:Exception->Void) {
+		try {
+			task();
+		}
+		catch (exc:Dynamic) {
+			Waiter.put(() -> {
+				if (onException != null)
+					onException(exc);
+				else
+					throw exc;
+			});
+		}
+	}
 }

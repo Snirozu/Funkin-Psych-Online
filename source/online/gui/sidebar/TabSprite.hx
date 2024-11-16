@@ -15,7 +15,7 @@ class TabSprite extends Sprite {
 			addEventListener(Event.ADDED_TO_STAGE, _init);
 	}
 
-	public function getDefaultFormat() {
+	public static inline function getDefaultFormat() {
 		return new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 15, 0xFFFFFFFF);
 	}
 
@@ -29,9 +29,11 @@ class TabSprite extends Sprite {
 	}
 	function create():Void {}
 	function init():Void {}
+	function onShow():Void {}
+	function onHide():Void {}
 
 	function keyDown(event:KeyboardEvent):Void {}
 	function mouseDown(e:MouseEvent):Void {}
-
 	function mouseMove(e:MouseEvent):Void {}
+	function mouseWheel(e:MouseEvent):Void {}
 }

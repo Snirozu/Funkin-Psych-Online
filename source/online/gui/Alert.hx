@@ -46,7 +46,7 @@ class Alert extends Sprite {
 		text.x = Lib.application.window.width / 2 - text.textWidth / 2;
         text.y = bg.scaleY / 2 - text.textHeight / 2;
 
-		_targetAlpha = 5;
+		_targetAlpha = Math.min(2 + text.length * 0.05, 20);
     }
 
     override function __enterFrame(delta) {

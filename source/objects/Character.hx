@@ -38,6 +38,7 @@ typedef AnimArray = {
 	var loop:Bool;
 	var indices:Array<Int>;
 	var offsets:Array<Int>;
+	@:optional var sound:String;
 }
 
 class Character extends FlxSprite {
@@ -76,6 +77,9 @@ class Character extends FlxSprite {
 
 	public var isSkin:Bool = false;
 	public var loadFailed:Bool = false;
+
+	public var animSounds:Map<String, openfl.media.Sound> = new Map<String, openfl.media.Sound>();
+	public var sound:FlxSound;
 
 	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
 
@@ -126,7 +130,6 @@ class Character extends FlxSprite {
 				var split:Array<String> = json.image.split(',');
 				imageFile = split[0];
 
-
 				#if MODS_ALLOWED
 				var modAnimToFind:String = Paths.modFolders('images/' + imageFile + '/Animation.json');
 				var animToFind:String = Paths.getPath('images/' + imageFile + '/Animation.json', TEXT);
@@ -142,10 +145,10 @@ class Character extends FlxSprite {
 					frames = AtlasFrameMaker.construct(imageFile);
 
 				if (frames != null) {
-					for (i in split) {
-						if (!imageFile.contains(i))
-							imageFile += ',$i';
-						var daAtlas = Paths.getAtlas(i);
+					for (imgFile in split) {
+						if (!imageFile.contains(imgFile))
+							imageFile += ',$imgFile';
+						var daAtlas = Paths.getAtlas(imgFile);
 						if (daAtlas != null)
 							cast(frames, FlxAtlasFrames).addAtlas(daAtlas);
 					}
@@ -193,6 +196,12 @@ class Character extends FlxSprite {
 
 						if (anim.offsets != null && anim.offsets.length > 1) {
 							addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
+						}
+
+						if (anim.sound != null) {
+							var sound = Paths.sound(anim.sound);
+							if (sound != null)
+								animSounds.set(animAnim, sound);
 						}
 					}
 				}
@@ -332,8 +341,7 @@ class Character extends FlxSprite {
 			specialAnim = true;
 			heyTimer = 1;
 		}
-		@:privateAccess
-		if (animation._animations.get(AnimName) == null) {
+		if (!animExists(AnimName)) {
 			if (AnimName.endsWith("-alt")) {
 				AnimName = AnimName.substring(0, AnimName.length - "-alt".length);
 			}
@@ -349,11 +357,11 @@ class Character extends FlxSprite {
 				AnimName = "hey";
 			}
 
-			if (AnimName == "hey" && curCharacter.startsWith("tankman") && animation._animations.get(AnimName) == null) {
+			if (AnimName == "hey" && curCharacter.startsWith("tankman") && !animExists(AnimName)) {
 				AnimName = "singUP-alt";
 			}
 
-			if (animation._animations.get(AnimName) == null) {
+			if (!animExists(AnimName)) {
 				if (AnimName == "hey") {
 					specialAnim = false;
 					heyTimer = 0;
@@ -362,6 +370,19 @@ class Character extends FlxSprite {
 			}
 		}
 
+		if (animSounds.exists(AnimName)) {
+			if (sound != null) {
+				sound.stop();
+				sound.destroy();
+				sound = null;
+			}
+
+			sound = FlxG.sound.play(animSounds.get(AnimName));
+			sound.onComplete = () -> {
+				sound.destroy();
+				sound = null;
+			};
+		}
 		animation.play(AnimName, Force, Reversed, Frame);
 
 		var daOffset = animOffsets.get(AnimName);
@@ -383,6 +404,10 @@ class Character extends FlxSprite {
 				danced = !danced;
 			}
 		}
+	}
+
+	public function animExists(AnimName:String) {
+		return @:privateAccess animation._animations.get(AnimName) != null;
 	}
 
 	function loadMappedAnims():Void {
@@ -429,5 +454,15 @@ class Character extends FlxSprite {
 
 	public function quickAnimAdd(name:String, anim:String) {
 		animation.addByPrefix(name, anim, 24, false);
+	}
+
+	override public function destroy() {
+		super.destroy();
+
+		if (sound != null) {
+			sound.stop();
+			sound.destroy();
+			sound = null;
+		}
 	}
 }

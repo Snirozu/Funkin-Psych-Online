@@ -3,11 +3,9 @@ package online.states;
 import flixel.util.FlxStringUtil;
 import backend.WeekData;
 import lumod.Lumod;
-import flixel.util.FlxSpriteUtil;
 import flixel.effects.FlxFlicker;
 import sys.FileSystem;
 import objects.Character;
-import online.backend.schema.Player;
 
 @:build(lumod.LuaScriptClass.build())
 class ResultsState extends MusicBeatState {
@@ -90,10 +88,21 @@ class ResultsState extends MusicBeatState {
 		p2.y = p2.positionArray[1] - 50;
 		add(p2);
 
-		p1.dance();
-		p1.animation.finish();
-		p2.dance();
-		p2.animation.finish();
+		if (p1.animExists('resultsIdle')) {
+			p1.playAnim('resultsIdle');
+		}
+		else {
+			p1.dance();
+			p1.animation.finish();
+		}
+
+		if (p2.animExists('resultsIdle')) {
+			p2.playAnim('resultsIdle');
+		}
+		else {
+			p2.dance();
+			p2.animation.finish();
+		}
 
 		var p1Bg = new FlxSprite();
 		p1Bg.makeGraphic(1, 1, FlxColor.BLACK);
@@ -250,8 +259,33 @@ class ResultsState extends MusicBeatState {
 
 		new FlxTimer().start(2, (t) -> {
 
-			winnerPlayer.playAnim("hey");
-			loserPlayer.playAnim("hurt");
+			if (winnerPlayer.animExists('win')) {
+				winnerPlayer.playAnim("win");
+				
+				if (winnerPlayer.animExists('winLoop')) {
+					winnerPlayer.animation.finishCallback = n -> {
+						winnerPlayer.animation.finishCallback = null;
+						winnerPlayer.playAnim("winLoop");
+					};
+				}
+			}
+			else {
+				winnerPlayer.playAnim("hey");
+			}
+
+			if (loserPlayer.animExists('lose')) {
+				loserPlayer.playAnim("lose");
+
+				if (loserPlayer.animExists('loseLoop')) {
+					loserPlayer.animation.finishCallback = n -> {
+						loserPlayer.animation.finishCallback = null;
+						loserPlayer.playAnim("loseLoop");
+					};
+				}
+			}
+			else {
+				loserPlayer.playAnim("hurt");
+			}
 
 			FlxTween.tween(p1Text, {alpha: 1}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
 			FlxTween.tween(p2Text, {alpha: 1}, 1, {ease: FlxEase.quartInOut, startDelay: 1});

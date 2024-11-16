@@ -465,8 +465,10 @@ class PlayState extends MusicBeatState
 		Conductor.judgeSongPosition = null;
 		Conductor.judgePlaybackRate = null;
 
-		if (GameClient.isConnected())
+		if (GameClient.isConnected()) {
 			Lib.application.window.resizable = false;
+			swingMode = false;
+		}
 
 		Paths.clearStoredMemory();
 
@@ -842,7 +844,7 @@ class PlayState extends MusicBeatState
 			Conductor.songPosition = -5000 / Conductor.songPosition;
 			showTime = (ClientPrefs.data.timeBarType != 'Disabled');
 			timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 19, 400, "", 32);
-			timeTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			timeTxt.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', !isPixelStage ? 32 : 28, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			timeTxt.scrollFactor.set();
 			timeTxt.alpha = 0;
 			timeTxt.borderSize = 2;
@@ -935,7 +937,7 @@ class PlayState extends MusicBeatState
 
 		preloadTasks.push(() -> {
 			scoreTxt = new FlxText(0, healthBar.y + 40, FlxG.width, "", 20);
-			scoreTxt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			scoreTxt.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', !isPixelStage ? 20 : 18, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			scoreTxt.scrollFactor.set();
 			scoreTxt.borderSize = 1.25;
 			scoreTxt.visible = !ClientPrefs.data.hideHud;
@@ -947,7 +949,7 @@ class PlayState extends MusicBeatState
 				scoreTxt.visible = false;
 
 				scoreTxtP1 = new FlxText(0, healthBar.y + 40, FlxG.width, "?", 20);
-				scoreTxtP1.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+				scoreTxtP1.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', !isPixelStage ? 18 : 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 				scoreTxtP1.scrollFactor.set();
 				scoreTxtP1.borderSize = 1.25;
 				scoreTxtP1.visible = !ClientPrefs.data.hideHud;
@@ -957,7 +959,7 @@ class PlayState extends MusicBeatState
 
 			preloadTasks.push(() -> {
 				scoreTxtP2 = new FlxText(0, healthBar.y + 40, FlxG.width, "?", 20);
-				scoreTxtP2.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+				scoreTxtP2.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', !isPixelStage ? 18 : 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 				scoreTxtP2.scrollFactor.set();
 				scoreTxtP2.borderSize = 1.25;
 				scoreTxtP2.visible = !ClientPrefs.data.hideHud;
@@ -1725,8 +1727,6 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	static var showFP:Bool = false;
-
 	public function updateScore(miss:Bool = false, ?skipRest:Bool = false)
 	{
 		var scoreTextObject = scoreTxt;
@@ -1751,7 +1751,7 @@ class PlayState extends MusicBeatState
 			scoreTextObject.text = 'Score: ' + FlxStringUtil.formatMoney(songScore, false) + ' | Misses: ' + songMisses + ' | Rating: ' + str;
 		}
 
-		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo, (Conductor.judgePlaybackRate ?? playbackRate));
+		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo);
 		if (points != songPoints) {
 			songPoints = points;
 			resetRPC(true);
@@ -1759,7 +1759,7 @@ class PlayState extends MusicBeatState
 		songPoints = points;
 
 		if (skipRest) {
-			if (showFP)
+			if (ClientPrefs.data.showFP)
 				scoreTextObject.text += ' | FP: ' + songPoints;
 			return;
 		}
@@ -1783,7 +1783,7 @@ class PlayState extends MusicBeatState
 			});
 		}
 		callOnScripts('onUpdateScore', [miss]);
-		if (showFP)
+		if (ClientPrefs.data.showFP)
 			scoreTextObject.text += ' | FP: ' + songPoints;
 	}
 
@@ -1942,6 +1942,7 @@ class PlayState extends MusicBeatState
 		var densLastStrumTime:Float = -1;
 		var densNotes:Float = 0;
 		var densNotesCount:Float = 0;
+		var _densNotesBonus:Float = 0;
 		for (section in noteData)
 		{
 			for (songNotes in section.sectionNotes)
@@ -1985,21 +1986,24 @@ class PlayState extends MusicBeatState
 					var noteDiff = (daStrumTime - densLastStrumTime) / playbackRate;
 
 					if (densLastStrumTime != -1 && noteDiff > 10) {
-						var keepCombo = tenseCombo < 2 || 150 - noteDiff <= tension / tenseCombo + 10;
+						var keepCombo = tenseCombo < 2 || Math.pow(150 - noteDiff, 2) <= tension / tenseCombo + 10;
 
 						if (noteDiff <= 150) {
 							if (keepCombo) {
 								tenseCombo++;
-								tension += 150 - noteDiff;
+								tension += Math.pow(150 - noteDiff, 2);
 							}
 							densNotesCount++;
-							densNotes += (150 - noteDiff) / 30;
+							densNotes += (150 - noteDiff) / 50;
 						}
 						
 						if (noteDiff > 150 || !keepCombo) {
-							if (tenseCombo > 0) {
-								densNotesCount++;
-								densNotes += tension / tenseCombo * tenseCombo / 25 * (1 + Math.max(0, tension / tenseCombo - 60) / 50);
+							if (tenseCombo > 0 && tension > 0) {
+								var temp = tension / tenseCombo * tenseCombo / 500;
+								_densNotesBonus += temp;
+								densNotes += temp;
+								if (ClientPrefs.isDebug())
+									trace(temp, tenseCombo);
 							}
 							tenseCombo = 0;
 							tension = 0;
@@ -2093,9 +2097,10 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
-		denseNotes = densNotes / densNotesCount;
-		if (ClientPrefs.isDebug())
-			trace("note density score: " + denseNotes);
+		denseNotes = densNotesCount == 0 ? 0 : densNotes / 1000;
+		trace(' + predensity: ' + densNotes);
+		trace(' + bonus: ' + _densNotesBonus);
+		trace("note density score: " + denseNotes);
 		for (event in songData.events) //Event Notes
 			for (i in 0...event[1].length)
 				makeEvent(event, i);
@@ -2341,12 +2346,36 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	public var paused:Bool = false;
+	public var paused(default, set):Bool = false;
+	function set_paused(v) {
+		for (group in [boyfriendGroup, dadGroup, gfGroup]) {
+			if (group == null)
+				continue;
+
+			for (character in group) {
+				if (!(character is Character))
+					continue;
+
+				var char:Character = cast(character);
+
+				if (char.sound == null)
+					continue;
+
+				if (v)
+					char.sound.pause();
+				else
+					char.sound.resume();
+			}
+		}
+		return paused = v;
+	}
 	public var canReset:Bool = true;
 	var startedCountdown:Bool = false;
 	public var canPause:Bool = true;
 
 	public var disableForceShow:Bool = false;
+
+	var lastLagPos:Float = 0;
 
 	override public function update(elapsed:Float)
 	{
@@ -2359,12 +2388,19 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
-		if (FlxG.keys.justPressed.F6) {
+		if (!GameClient.isConnected() && !finishingSong && elapsed >= 0.1 && Conductor.songPosition > lastLagPos) {
+			setSongTime(Conductor.songPosition - 3000);
+			lastLagPos = Conductor.songPosition;
+			Alert.alert("Mod Lag Detected (-3s)");
+		}
+
+		if (!GameClient.isConnected() && FlxG.keys.justPressed.F6) {
 			swingMode = !swingMode;
 		}
 
 		if (FlxG.keys.justPressed.F7) {
-			showFP = !showFP;
+			ClientPrefs.data.showFP = !ClientPrefs.data.showFP;
+			ClientPrefs.saveSettings();
 			updateScore();
 		}
 
@@ -3191,7 +3227,7 @@ class PlayState extends MusicBeatState
 			return false;
 		}
 
-		songPoints = online.FunkinPoints.calcFP(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo, (Conductor.judgePlaybackRate ?? playbackRate));
+		songPoints = online.FunkinPoints.calcFP(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo);
 
 		//Should kill you if you tried to cheat
 		if(!startingSong) {
@@ -3247,7 +3283,7 @@ class PlayState extends MusicBeatState
 			if(Math.isNaN(percent)) percent = 0;
 			if (!isInvalidScore() && finishingSong) {
 				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent);
-				var offlinePoints = online.FunkinPoints.save(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo, playbackRate);
+				var offlinePoints = online.FunkinPoints.save(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo);
 				if (!online.network.FunkinNetwork.loggedIn)
 					gainedPoints = offlinePoints;
 				if (replayRecorder != null)
@@ -3579,8 +3615,10 @@ class PlayState extends MusicBeatState
 				songGoods++;
 			case "bad":
 				songBads++;
+				combo = 0;
 			case "shit":
 				songShits++;
+				combo = 0;
 		}
 
 		if(!note.ratingDisabled)
@@ -4008,12 +4046,14 @@ class PlayState extends MusicBeatState
 		if(ClientPrefs.getGhostTapping()) return; //fuck it
 
 		noteMissCommon(direction);
-		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 		callOnScripts('noteMissPress', [direction]);
 	}
 
 	function noteMissCommon(direction:Int, note:Note = null)
 	{
+		// am i the only one that kinda hears the rayman 3 selection sound there
+		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), 0.3);
+
 		// score and data
 		var subtract:Float = 0.05;
 		if(note != null) subtract = note.missHealth;
@@ -4987,9 +5027,9 @@ class PlayState extends MusicBeatState
 			});
 		});
 
-		GameClient.room.onMessage("log", function(message:String) {
+		GameClient.room.onMessage("log", function(message) {
 			Waiter.put(() -> {
-				Alert.alert("New message", message);
+				Alert.alert("New message", online.util.ShitUtil.parseLog(message).content);
 			});
 		});
 
