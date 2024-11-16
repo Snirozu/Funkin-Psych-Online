@@ -1,7 +1,7 @@
 package online.util;
 
 import haxe.io.Error;
-import haxe.io.Eof;
+// import haxe.io.Eof; avoid using that, unreliable
 import haxe.io.Bytes;
 import haxe.io.Output;
 import sys.net.Host;
@@ -15,6 +15,7 @@ class HTTPClient {
 	public var hostname(default, null):String;
 	public var port(default, null):Int = 80;
 	public var ssl(default, null):Bool = false;
+	//requests:Array<String>
 
 	public function request(request:HTTPRequest):HTTPResponse {
 		var response:HTTPResponse = new HTTPResponse();
@@ -36,11 +37,48 @@ class HTTPClient {
             socket = ssl ? new sys.ssl.Socket() : new Socket();
             socket.setTimeout(5);
             socket.setBlocking(true);
-            socket.connect(new Host(hostname), port);
-			socket.write('${request.post ? "POST" : "GET"} ${request.path} HTTP/1.1${header}\r\n\r\n${request.body != null ? request.body : ""}');
+			while (true) {
+				try {
+					socket.connect(new Host(hostname), port);
+					break;
+				}
+				catch (e:Dynamic) {
+					if (e == Error.Blocked) {
+						// Blocked will be ignored
+						continue;
+					}
+					throw e;
+				}
+			}
+			//another one
+			while (true) {
+				try {
+					socket.write('${request.post ? "POST" : "GET"} ${request.path} HTTP/1.1${header}\r\n\r\n${request.body != null ? request.body : ""}');
+					break;
+				}
+				catch (e:Dynamic) {
+					if (e == Error.Blocked) {
+						// Blocked will be ignored
+						continue;
+					}
+					throw e;
+				}
+			}
 
             //read response status
-            var status:Array<String> = socket.input.readLine().split(" ");
+            var status:Array<String> = null;
+			while (status == null) {
+				try {
+					status = socket.input.readLine().split(" ");
+				}
+				catch (e:Dynamic) {
+					if (e == Error.Blocked) {
+						// Blocked will be ignored
+						continue;
+					}
+					throw e;
+				}
+			}
 			status.shift();
 			response.status = Std.parseInt(status.shift());
             response.body = status.join(" ");
@@ -48,11 +86,24 @@ class HTTPClient {
             //read response headers
             response.headers = new Map<String, String>();
             while (true) {
-                var readLine:String = socket.input.readLine();
-                if (readLine.trim() == "")
-                    break;
-                var splitHeader = readLine.split(": ");
-                response.headers.set(splitHeader[0].toLowerCase(), splitHeader[1]);
+				try {
+					var readLine:String = socket.input.readLine();
+					if (readLine.trim() == "")
+						break;
+					var splitHeader = readLine.split(": ");
+					response.headers.set(splitHeader[0].toLowerCase(), splitHeader[1]);
+				}
+				catch (e:Dynamic) {
+					if (e == Error.Blocked) {
+						// Blocked will be ignored
+						continue;
+					}
+					if (isEOF(e)) {
+						// End of Request (early?) (previous ones will catch eof because http status header is required for http servers)
+						break;
+					}
+					throw e;
+				}
             }
 
             //forward to another location if it's specified
@@ -83,6 +134,10 @@ class HTTPClient {
                                 continue;
                             }
                             request.bodyOutput.close();
+							if (isEOF(e)) {
+								// End of Request
+								break;
+							}
                             throw e;
                         }
                     }
@@ -99,6 +154,10 @@ class HTTPClient {
 							if (e == Error.Blocked) {
 								// Blocked will be ignored
 								continue;
+							}
+							if (isEOF(e)) {
+								// End of Request
+								break;
 							}
 							throw e;
 						}
@@ -118,6 +177,10 @@ class HTTPClient {
 								// Blocked will be ignored
 								continue;
 							}
+							if (isEOF(e)) {
+								// End of Request
+								break;
+							}
 							throw e;
 						}
 					}
@@ -135,6 +198,10 @@ class HTTPClient {
 								// Blocked will be ignored
 								continue;
 							}
+							if (isEOF(e)) {
+								// End of Request
+								break;
+							}
 							throw e;
 						}
 					}
@@ -142,8 +209,11 @@ class HTTPClient {
             }
         }
         catch (exc) {
-            if (!(exc is Eof))
-			    response.exception = exc;
+			if (exc != null) {
+				trace(request);
+				trace(ShitUtil.prettyError(exc));
+			}
+			response.exception = exc;
         }
 
         return response;
@@ -213,6 +283,10 @@ class HTTPClient {
 			path = "/" + path;
 		return (ssl ? "https://" : "http://") + hostname + (port != 80 && port != 443 ? ":" + port : "") + path;
     }
+
+	public static inline function isEOF(exc:Dynamic) {
+		return Std.string(exc).toLowerCase() == "eof";
+	}
 }
 
 typedef HTTPURLRequest = {

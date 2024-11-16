@@ -197,7 +197,7 @@ class CharacterEditorState extends MusicBeatState {
 		UI_characterbox = new FlxUITabMenu(null, tabs, true);
 		UI_characterbox.cameras = [camMenu];
 
-		UI_characterbox.resize(350, 250);
+		UI_characterbox.resize(350, 300);
 		UI_characterbox.x = UI_box.x - 100;
 		UI_characterbox.y = UI_box.y + UI_box.height;
 		UI_characterbox.scrollFactor.set();
@@ -620,6 +620,7 @@ class CharacterEditorState extends MusicBeatState {
 	var animationInputText:FlxUIInputText;
 	var animationNameInputText:FlxUIInputText;
 	var animationIndicesInputText:FlxUIInputText;
+	var animationSoundInputText:FlxUIInputText;
 	var animationNameFramerate:FlxUINumericStepper;
 	var animationLoopCheckBox:FlxUICheckBox;
 
@@ -630,6 +631,7 @@ class CharacterEditorState extends MusicBeatState {
 		animationInputText = new FlxUIInputText(15, 85, 80, '', 8);
 		animationNameInputText = new FlxUIInputText(animationInputText.x, animationInputText.y + 35, 150, '', 8);
 		animationIndicesInputText = new FlxUIInputText(animationNameInputText.x, animationNameInputText.y + 40, 250, '', 8);
+		animationSoundInputText = new FlxUIInputText(animationIndicesInputText.x, animationIndicesInputText.y + 40, 150, '', 8); 
 		animationNameFramerate = new FlxUINumericStepper(animationInputText.x + 170, animationInputText.y, 1, 24, 0, 240, 0);
 		animationLoopCheckBox = new FlxUICheckBox(animationNameInputText.x + 170, animationNameInputText.y - 1, null, null, "Should it Loop?", 100);
 
@@ -641,6 +643,7 @@ class CharacterEditorState extends MusicBeatState {
 				animationNameInputText.text = anim.name;
 				animationLoopCheckBox.checked = anim.loop;
 				animationNameFramerate.value = anim.fps;
+				animationSoundInputText.text = anim.sound ?? "";
 
 				var indicesStr:String = anim.indices.toString();
 				animationIndicesInputText.text = indicesStr.substr(1, indicesStr.length - 2);
@@ -658,7 +661,7 @@ class CharacterEditorState extends MusicBeatState {
 				}
 		});
 
-		var addUpdateButton:FlxButton = new FlxButton(70, animationIndicesInputText.y + 30, "Add/Update", function() {
+		var addUpdateButton:FlxButton = new FlxButton(70, animationSoundInputText.y + 30, "Add/Update", function() {
 			var indices:Array<Int> = [];
 			var indicesStr:Array<String> = animationIndicesInputText.text.trim().split(',');
 			if (indicesStr.length > 1) {
@@ -694,6 +697,10 @@ class CharacterEditorState extends MusicBeatState {
 				indices: indices,
 				offsets: lastOffsets
 			};
+			if (animationSoundInputText.text.length > 0) {
+				newAnim.sound = animationSoundInputText.text;
+			}
+
 			if (indices != null && indices.length > 0) {
 				char.animation.addByIndices(newAnim.anim, newAnim.name, newAnim.indices, "", newAnim.fps, newAnim.loop);
 			}
@@ -730,7 +737,7 @@ class CharacterEditorState extends MusicBeatState {
 			trace('Added/Updated animation: ' + animationInputText.text);
 		});
 
-		var removeButton:FlxButton = new FlxButton(180, animationIndicesInputText.y + 30, "Remove", function() {
+		var removeButton:FlxButton = new FlxButton(180, addUpdateButton.y, "Remove", function() {
 			for (anim in char.animationsArray) {
 				if (animationInputText.text == anim.anim) {
 					var resetAnim:Bool = false;
@@ -762,10 +769,12 @@ class CharacterEditorState extends MusicBeatState {
 		tab_group.add(new FlxText(animationNameFramerate.x, animationNameFramerate.y - 18, 0, 'Framerate:'));
 		tab_group.add(new FlxText(animationNameInputText.x, animationNameInputText.y - 18, 0, 'Animation on .XML/.TXT file:'));
 		tab_group.add(new FlxText(animationIndicesInputText.x, animationIndicesInputText.y - 18, 0, 'ADVANCED - Animation Indices:'));
+		tab_group.add(new FlxText(animationSoundInputText.x, animationSoundInputText.y - 18, 0, 'Animation Sound:'));
 
 		tab_group.add(animationInputText);
 		tab_group.add(animationNameInputText);
 		tab_group.add(animationIndicesInputText);
+		tab_group.add(animationSoundInputText);
 		tab_group.add(animationNameFramerate);
 		tab_group.add(animationLoopCheckBox);
 		tab_group.add(addUpdateButton);
@@ -1126,7 +1135,8 @@ class CharacterEditorState extends MusicBeatState {
 			imageInputText,
 			healthIconInputText,
 			animationNameInputText,
-			animationIndicesInputText
+			animationIndicesInputText,
+			animationSoundInputText
 		];
 		for (i in 0...inputTexts.length) {
 			if (inputTexts[i].hasFocus) {

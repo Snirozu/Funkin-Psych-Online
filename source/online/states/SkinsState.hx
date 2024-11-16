@@ -56,6 +56,7 @@ class SkinsState extends MusicBeatState {
 
 	var stageCrowd:FlxAnimate;
 	var stageSpeakers:FlxAnimate;
+	var defaultGirlfriend:FlxAnimate;
 	var camFollow:FlxObject;
 	// static var introPlayed:Bool = false;
 
@@ -187,6 +188,14 @@ class SkinsState extends MusicBeatState {
 			stageSpeakers.anim.play('beat');
 			stageSpeakers.scrollFactor.set(0.95, 0.95);
 			add(stageSpeakers);
+
+			defaultGirlfriend = new FlxAnimate(-80, 440);
+			Paths.loadAnimateAtlas(defaultGirlfriend, 'charSelect/gfChill');
+			defaultGirlfriend.antialiasing = ClientPrefs.data.antialiasing;
+			defaultGirlfriend.anim.addBySymbol('beat', 'GIRLFRIEND CS', 24, true);
+			defaultGirlfriend.anim.play('beat');
+			defaultGirlfriend.scrollFactor.set(0.95, 0.95);
+			add(defaultGirlfriend);
 		}
 
         var i = 0;

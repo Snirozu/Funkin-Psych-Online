@@ -4,7 +4,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 {
 	public function new()
 	{
-		title = 'Gameplay Settings';
+		title = 'Gameplay';
 		rpcTitle = 'Gameplay Settings Menu'; //for Discord Rich Presence
 
 		//I'd suggest using "Downscroll" as an example for making your own option since it is the simplest here
@@ -109,13 +109,6 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		addOption(option);
 
-		var option:Option = new Option('Max FPS', //Name
-			"If checked, the FPS limit will be set to 1000.\nThis setting makes the input timing more accurate, but in cost of minor graphical issues.", //Description
-			'unlockFramerate',
-			'bool');
-		option.onChange = onChangeFramerate;
-		addOption(option);
-
 		var option:Option = new Option('Disable Note Modchart',
 			'If checked, strum notes will no longer move or change their opacity to invisible.',
 			'disableStrumMovement',
@@ -135,27 +128,6 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		super();
-	}
-
-	function onChangeFramerate()
-	{
-		if (ClientPrefs.data.unlockFramerate) {
-			FlxG.updateFramerate = 1000;
-			FlxG.drawFramerate = 1000;
-			return;
-		}
-
-
-		if(ClientPrefs.data.framerate > FlxG.drawFramerate)
-		{
-			FlxG.updateFramerate = ClientPrefs.data.framerate;
-			FlxG.drawFramerate = ClientPrefs.data.framerate;
-		}
-		else
-		{
-			FlxG.drawFramerate = ClientPrefs.data.framerate;
-			FlxG.updateFramerate = ClientPrefs.data.framerate;
-		}
 	}
 
 	function onChangeHitsoundVolume()

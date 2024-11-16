@@ -14,7 +14,7 @@ class URLScraper {
 
 			if (response.isFailed()) {
 				Waiter.put(() -> {
-					Alert.alert("Download failed!", "Couldn't connect to MediaFire!\n" + 'Status: ${response.status}\n${response.body}');
+					Alert.alert("Download failed!", "Couldn't connect to MediaFire!\n" + 'Status: ${ShitUtil.prettyStatus(response.status)}\n${response.body}');
 				});
 				return;
 			}

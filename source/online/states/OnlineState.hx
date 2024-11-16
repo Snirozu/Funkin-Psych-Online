@@ -25,8 +25,8 @@ class OnlineState extends MusicBeatState {
 		"MOD DOWNLOADER"
     ];
 
-	var networkPlayer:FlxText;
-	var networkBg:FlxSprite;
+	// var networkPlayer:FlxText;
+	// var networkBg:FlxSprite;
 	var itemDesc:FlxText;
 	var playersOnline:FlxText;
 
@@ -185,32 +185,37 @@ class OnlineState extends MusicBeatState {
 		availableRooms.screenCenter(X);
 		add(availableRooms);
 
-		networkBg = new FlxSprite(20, 20);
-		networkBg.makeGraphic(1, 1, FlxColor.BLACK);
-		networkBg.alpha = 0.6;
-		add(networkBg);
+		// networkBg = new FlxSprite(20, 20);
+		// networkBg.makeGraphic(1, 1, FlxColor.BLACK);
+		// networkBg.alpha = 0.6;
+		// add(networkBg);
 
-		networkPlayer = new FlxText(30, 30);
-		networkPlayer.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		networkPlayer.alpha = 0.5;
-		networkPlayer.text = FunkinNetwork.loggedIn ? "Logged in as " + FunkinNetwork.nickname : "Not logged in";
-		if (FunkinNetwork.loggedIn) {
-			networkPlayer.text += "\nPoints:" + FunkinNetwork.points;
-		}
-		add(networkPlayer);
+		// networkPlayer = new FlxText(30, 30);
+		// networkPlayer.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		// networkPlayer.alpha = 0.5;
+		// networkPlayer.text = FunkinNetwork.loggedIn ? "Logged in as " + FunkinNetwork.nickname : "Not logged in";
+		// if (FunkinNetwork.loggedIn) {
+		// 	networkPlayer.text += "\nPoints:" + FunkinNetwork.points;
+		// }
+		// add(networkPlayer);
 
-		networkBg.scale.set(networkPlayer.width + 20, networkPlayer.height + 20);
-		networkBg.updateHitbox();
+		// networkBg.scale.set(networkPlayer.width + 20, networkPlayer.height + 20);
+		// networkBg.updateHitbox();
 
-		// slide to the right
-		networkBg.x = FlxG.width - networkBg.width - 20;
-		networkPlayer.x = networkBg.x + 10;
+		// // slide to the right
+		// networkBg.x = FlxG.width - networkBg.width - 20;
+		// networkPlayer.x = networkBg.x + 10;
 
 		var frontMessage = new FlxText(0, 0, 500);
 		frontMessage.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		frontMessage.alpha = 0.5;
 		frontMessage.x = FlxG.width - frontMessage.fieldWidth - 50;
 		add(frontMessage);
+
+		FunkinNetwork.ping();
+		var profileBox = new ProfileBox(FunkinNetwork.nickname, true);
+		profileBox.setPosition(FlxG.width - profileBox.width - 20, 20);
+		add(profileBox);
 		
 		changeSelection(0);
 
@@ -219,8 +224,9 @@ class OnlineState extends MusicBeatState {
 			Waiter.put(() -> {
 				if (data == null) {
 					playersOnline.text = "NETWORK OFFLINE";
-					networkPlayer.visible = false;
-					networkBg.visible = false;
+					profileBox.visible = false;
+					// networkPlayer.visible = false;
+					// networkBg.visible = false;
 				}
 				else {
 					playersOnline.text = 'Players Online: ' + data.online;

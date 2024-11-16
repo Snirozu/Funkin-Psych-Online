@@ -3,6 +3,7 @@ package states.stages;
 import states.stages.objects.*;
 import objects.Character;
 
+@:publicFields
 class Philly extends BaseStage
 {
 	var bg:BGSprite;

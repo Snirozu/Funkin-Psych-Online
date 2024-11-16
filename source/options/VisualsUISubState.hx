@@ -168,12 +168,6 @@ class VisualsUISubState extends BaseOptionsMenu
 		addOption(option);
 		#end
 
-		var option:Option = new Option('Combo Stacking',
-			"If unchecked, Ratings and Combo won't stack, saving on System Memory and making them easier to read",
-			'comboStacking',
-			'bool');
-		addOption(option);
-
 		var option:Option = new Option('Debug Mode',
 			"If checked, enables debug warnings etc.",
 			'debugMode',
@@ -195,6 +189,12 @@ class VisualsUISubState extends BaseOptionsMenu
 		var option:Option = new Option('Disable Song Comments',
 			'Disables song comments on the replay viewer',
 			'disableSongComments',
+			'bool');
+		addOption(option);
+
+		var option:Option = new Option('Show Funkin Points Counter',
+			'If checked, the current FP count will be shown in the score text, can be toggled in-game with F7',
+			'showFP',
 			'bool');
 		addOption(option);
 

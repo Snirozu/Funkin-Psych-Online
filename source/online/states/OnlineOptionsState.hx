@@ -15,6 +15,14 @@ class OnlineOptionsState extends MusicBeatState {
 
 	var camFollow:FlxObject;
 
+	var scrollToRegister:Bool = false;
+	
+	public function new(?scrollToRegister:Bool = false) {
+		super();
+
+		this.scrollToRegister = scrollToRegister;
+	}
+
     override function create() {
         super.create();
 
@@ -34,6 +42,10 @@ class OnlineOptionsState extends MusicBeatState {
 
 		var i = 0;
 
+		var section = new FlxText(0, 0, FlxG.width, "General");
+		section.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(section);
+
 		var nicknameOption:InputOption;
 		items.add(nicknameOption = new InputOption("Nickname", "Set your nickname here!", ["Boyfriend"], (text, _) -> {
 			curOption.inputs[0].text = curOption.inputs[0].text.trim().substr(0, 14);
@@ -41,7 +53,7 @@ class OnlineOptionsState extends MusicBeatState {
 			ClientPrefs.saveSettings();
 		}));
 		nicknameOption.inputs[0].text = ClientPrefs.getNickname();
-		nicknameOption.y = 50;
+		nicknameOption.y = 100;
 		nicknameOption.screenCenter(X);
 		nicknameOption.ID = i++;
 
@@ -56,6 +68,10 @@ class OnlineOptionsState extends MusicBeatState {
 		}
 		items.add(serverOption = new InputOption("Server Address", "Set to empty if you want to use the default server\nLocal Address: 'localhost'" + appendText, [GameClient.serverAddresses[0]], (text, _) -> {
 			curOption.inputs[0].text = curOption.inputs[0].text.trim();
+			
+			if (curOption.inputs[0].text == "2567" || curOption.inputs[0].text == "0" || curOption.inputs[0].text == "local") {
+				curOption.inputs[0].text = "localhost";
+			}
 
 			if (curOption.inputs[0].text.length > 0 && !(curOption.inputs[0].text.startsWith('wss://') || curOption.inputs[0].text.startsWith('ws://')))
 				curOption.inputs[0].text = 'ws://' + curOption.inputs[0].text;
@@ -114,17 +130,11 @@ class OnlineOptionsState extends MusicBeatState {
 		trustedOption.screenCenter(X);
 		trustedOption.ID = i++;
 
-		var sezOption:InputOption;
-		items.add(sezOption = new InputOption("Leave a Global Message",
-			"Leave a message for others to see in the Online Menu!", ["Message"], (message, _) -> {
-				if (FunkinNetwork.postFrontMessage(message))
-					FlxG.switchState(() -> new OnlineState());
-		}));
-		sezOption.y = trustedOption.y + trustedOption.height + 50;
-		sezOption.screenCenter(X);
-		sezOption.ID = i++;
-
 		if (Auth.authID == null && Auth.authToken == null) {
+			var section = new FlxText(0, trustedOption.y + trustedOption.height + 100, FlxG.width, "Account");
+			section.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			add(section);
+
 			// var registerOption:InputOption;
 			// items.add(registerOption = new InputOption("Join the Network",
 			// "Join the Psych Online Network\nSubmit your song replays to the leaderboard system!", null, false));
@@ -166,9 +176,12 @@ class OnlineOptionsState extends MusicBeatState {
 						}));
 					}
 				}));
-			registerOption.y = sezOption.y + sezOption.height + 50;
+			registerOption.y = section.y + 100;
 			registerOption.screenCenter(X);
 			registerOption.ID = i++;
+			if (scrollToRegister) {
+				curSelected = registerOption.ID;
+			}
 
 			var loginOption:InputOption;
 			items.add(loginOption = new InputOption("Login to the Network",
@@ -187,15 +200,35 @@ class OnlineOptionsState extends MusicBeatState {
 			loginOption.ID = i++;
 		}
 		else {
+			var sezOption:InputOption;
+			items.add(sezOption = new InputOption("Leave a Global Message", "Leave a message for others to see in the Online Menu!", ["Message"],
+				(message, _) -> {
+					if (FunkinNetwork.postFrontMessage(message))
+						FlxG.switchState(() -> new OnlineState());
+				}));
+			sezOption.y = trustedOption.y + trustedOption.height + 50;
+			sezOption.screenCenter(X);
+			sezOption.ID = i++;
+
+			var sidebarOption:InputOption;
+			items.add(sidebarOption = new InputOption("Open Sidebar", "Open the Network Sidebar, if you aren't able to.\n(Press ` (Tilde) to open it at any time!)"));
+			sidebarOption.y = sezOption.y + sezOption.height + 50;
+			sidebarOption.screenCenter(X);
+			sidebarOption.ID = i++;
+
+			var section = new FlxText(0, sidebarOption.y + sidebarOption.height + 100, FlxG.width, "Account");
+			section.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			add(section);
+
 			var loginBrowserOption:InputOption;
-			items.add(loginBrowserOption = new InputOption("Login to Browser", "Authenticates you to the network your default web browser"));
-			loginBrowserOption.y = sezOption.y + sezOption.height + 50;
+			items.add(loginBrowserOption = new InputOption("Login to Browser", "Authenticates you to the network in your default web browser"));
+			loginBrowserOption.y = section.y + 100;
 			loginBrowserOption.screenCenter(X);
 			loginBrowserOption.ID = i++;
 
 			var emailOption:InputOption;
-			items.add(emailOption = new InputOption("Set Email Address",
-				"Use the following format:\n<new_mail> from <old_mail>", ["me@example.org"], (mail, _) -> {
+			items.add(emailOption = new InputOption("Change Email Address",
+				"Use the following format:\n<new_mail> from <old_mail>", ["new@example.org from old@example.org"], (mail, _) -> {
 					if (FunkinNetwork.setEmail(mail)) {
 						openSubState(new VerifyCodeSubstate(code -> {
 							if (FunkinNetwork.setEmail(mail, code)) {
@@ -219,6 +252,9 @@ class OnlineOptionsState extends MusicBeatState {
 			logoutOption.y = deleteOption.y + deleteOption.height + 50;
 			logoutOption.screenCenter(X);
 			logoutOption.ID = i++;
+			if (scrollToRegister) {
+				curSelected = logoutOption.ID;
+			}
 		}
 
 		add(items);
@@ -280,13 +316,15 @@ class OnlineOptionsState extends MusicBeatState {
 							ClientPrefs.saveSettings();
 							Alert.alert("Cleared the trusted domains list!", "");
 						case "delete network account":
-							if (FunkinNetwork.deleteAccount()) {
-								openSubState(new VerifyCodeSubstate(code -> {
-									if (FunkinNetwork.deleteAccount()) {
-										Alert.alert("Account Deleted");
-									}
-								}));
-							}
+							RequestSubstate.request('Are you sure you want to delete your account?\n(This action is irreversible!)', '', _ -> {
+								if (FunkinNetwork.deleteAccount()) {
+									openSubState(new VerifyCodeSubstate(code -> {
+										if (FunkinNetwork.deleteAccount()) {
+											Alert.alert("Account Deleted");
+										}
+									}));
+								}
+							}, null, true);
 						case "logout of the network":
 							RequestSubstate.request('Are you sure you want to logout?', '', _ -> {
 								FunkinNetwork.logout();
@@ -294,6 +332,8 @@ class OnlineOptionsState extends MusicBeatState {
 							}, null, true);
 						case "login to browser":
 							FlxG.openURL(FunkinNetwork.client.getURL("/api/network/account/cookie?id=" + Auth.authID + "&token=" + Auth.authToken));
+						case "open sidebar":
+							online.gui.sidebar.SideUI.instance.active = true;
 					}
 			}
 		}

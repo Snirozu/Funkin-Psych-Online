@@ -108,8 +108,8 @@ class TitleState extends MusicBeatState
 				updateVersion = data.split('\n')[0].trim();
 				var curVersion:String = Main.PSYCH_ONLINE_VERSION.trim();
 				trace('version online: ' + updateVersion + ', your version: ' + curVersion);
-				if(updateVersion != curVersion) {
-					trace('versions arent matching!');
+				if(Std.parseFloat(updateVersion.replace('.', '')) > Std.parseFloat(curVersion.replace('.', ''))) {
+					trace('update version is newer!');
 					mustUpdate = true;
 					//offlineMode = true;
 				}
