@@ -257,7 +257,7 @@ class ChatMessage extends FlxText {
 
 	public function new(fieldWidth:Float = 0, msg:LogData) {
 		super(0, 0, fieldWidth, msg.content);
-		setFormat("VCR OSD Mono", 16, msg.hue != null ? FlxColor.fromHSL(msg.hue, 0.7, 0.7) : FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		setFormat("VCR OSD Mono", 16, msg.hue != null ? FlxColor.fromHSL(msg.hue, 0.8, 0.6) : FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 
 		var _split = msg.content.split("");
 		var i = -1;
