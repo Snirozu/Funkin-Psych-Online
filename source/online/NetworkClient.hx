@@ -13,7 +13,7 @@ class NetworkClient {
     public static var connecting:Bool = false;
 
 	public static function connect() {
-		if (connecting)
+		if (connecting || NetworkClient.room != null)
             return;
 
 		connecting = true;
@@ -53,6 +53,12 @@ class NetworkClient {
 		room.onMessage("log", function(message) {
 			Waiter.put(() -> {
 				MainTab.addMessage(message);
+			});
+		});
+
+		room.onMessage("notification", function(message) {
+			Waiter.put(() -> {
+				Alert.alert(message);
 			});
 		});
 

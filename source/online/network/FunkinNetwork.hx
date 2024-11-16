@@ -99,7 +99,9 @@ class FunkinNetwork {
 		points = json.points;
 		avgAccuracy = json.avgAccuracy;
 		profileHue = json.profileHue;
-		return loggedIn = true;
+		loggedIn = true;
+		NetworkClient.connect();
+		return loggedIn;
 	}
 
 	public static function requestRegister(username:String, email:String, ?code:String) {
