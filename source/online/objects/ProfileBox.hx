@@ -19,9 +19,12 @@ class ProfileBox extends FlxSpriteGroup {
 	public var desc:FlxText;
 	
 	public var autoUpdateThings:Bool = true;
+	public var sizeAdd:Int = 0;
 
 	public function new(leUser:String, leVerified:Bool, ?leCardHeight:Int = 100, ?sizeAdd:Int = 0) {
         super();
+
+		this.sizeAdd = sizeAdd;
 
         bg = new FlxSprite();
 		bg.alpha = 0.7;
@@ -85,8 +88,8 @@ class ProfileBox extends FlxSpriteGroup {
 						text.text = "Welcome, " + user + "!";
 					else
 						text.text = user;
-					desc.text = "Points: " + (profileData?.points ?? 0);
-					desc.text += "\nAvg. Accuracy: " + FlxMath.roundDecimal(((profileData?.avgAccuracy ?? 0) * 100), 2) + "%";
+					desc.text = "Points: " + (profileData.points ?? 0);
+					desc.text += "\nAvg. Accuracy: " + FlxMath.roundDecimal((profileData.avgAccuracy * 100), 2) + "%";
 				}
 
 				Thread.run(() -> {
@@ -121,9 +124,9 @@ class ProfileBox extends FlxSpriteGroup {
     public function drawBG() {
 		var profileHue = profileData?.profileHue ?? 230;
 
-		bg.makeGraphic(300, cardHeight, FlxColor.TRANSPARENT);
+		bg.makeGraphic(320 + 10 * sizeAdd, cardHeight, FlxColor.TRANSPARENT);
 		// later concept for detailed cards, fill a tall round rectangle with darker color and then draw the normal card
-		FlxSpriteUtil.drawRoundRect(bg, 0, 0, 300, cardHeight, 40, 40, FlxColor.fromHSL(profileHue, 0.25, 0.25));
+		FlxSpriteUtil.drawRoundRect(bg, 0, 0, 320 + 10 * sizeAdd, cardHeight, 40, 40, FlxColor.fromHSL(profileHue, 0.25, 0.25));
 		bg.updateHitbox();
 
 		fitAvatar();
