@@ -59,7 +59,7 @@ class MainTab extends TabSprite {
 
 		chatInputPlaceholder = new TextField();
 		chatInputPlaceholder.defaultTextFormat = TabSprite.getDefaultFormat();
-		chatInputPlaceholder.text = "(Click here to chat)";
+		chatInputPlaceholder.text = "(Click here or press TAB to chat)";
 		chatInputPlaceholder.selectable = false;
 		chatInputPlaceholder.y = Lib.application.window.height - (chatInputPlaceholder.textHeight + 5);
 		chatInputPlaceholder.width = Std.int(widthTab);

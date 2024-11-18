@@ -2372,7 +2372,7 @@ class PlayState extends MusicBeatState
 		}
 		
 		if (!GameClient.isConnected()) {
-			if (!finishingSong && elapsed >= 0.1 && Conductor.songPosition > lastLagPos) {
+			if (!ClientPrefs.data.disableLagDetection && !finishingSong && elapsed >= 0.1 && Conductor.songPosition > lastLagPos) {
 				setSongTime(Conductor.songPosition - 3000);
 				lastLagPos = Conductor.songPosition;
 				Alert.alert("Mod Lag Detected (-3s)");
