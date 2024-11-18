@@ -127,6 +127,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Disable Lag Detection',
+			'If checked, the game will no longer rewind 3 seconds when a lag is detected',
+			'disableLagDetection',
+			'bool');
+		addOption(option);
+
 		super();
 	}
 
