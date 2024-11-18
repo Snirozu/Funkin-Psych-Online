@@ -2,9 +2,15 @@
 // this can be locally tested with sync.hxs in the game directory
 
 import backend.Mods;
+import Main;
+import online.gui.Alert;
 
 function init() { // initializes the game
     print("received sync script from git!");
+
+    if (Main.GIT_COMMIT == "807d1b1d7314e08f13a61f1c88a974617ca9f37e") {
+        Alert.alert('Outdated Version!', 'A hotfix is available!\n(You should update to v0.9.1/2!)')
+    }
 }
 
 function switchState(state) { // game state gets switched
