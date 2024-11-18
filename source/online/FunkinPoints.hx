@@ -12,7 +12,7 @@ class FunkinPoints {
 
 		// depends on the amount of hitted notes and the density of the song
 		// density values for songs: 2.9p (unbeatable), 3.6 (ballistic), 4.2 (spookeez erect), 4.6 (sporting) 
-		// so for a song with 3.0 density (ex. spookeez erect), for every ~65 hitted notes a player will gain 1 fp (without combo bonus)
+		// so for a song with 4.0 density (ex. spookeez erect), for every 50 hitted notes a player will gain 1 fp (without combo bonus)
 		var fp:Float = (1 + songDensity) * (notesHit / 200);
 		// depends on player's note streak (x2fp per 2000 combo)
 		fp *= 1 + maxCombo / 2000;
