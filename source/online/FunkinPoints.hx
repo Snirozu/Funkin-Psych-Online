@@ -10,8 +10,8 @@ class FunkinPoints {
             return 0;
 
 
-		// depends on the amount of hitted notes (1fp per 10-300 notes)
-		var fp:Float = notesHit / denseNotes;
+		// depends on the amount of hitted notes (1fp per 5-150 notes)
+		var fp:Float = notesHit / denseNotes / 2;
 		// depends on player's note streak (x2fp per 1000 combo)
 		fp *= 1 + maxCombo / 1000;
 		// depends on player's note accuracy (weighted by power of 3; 95% = x0.85, 90% = x0.72, 80% = x0.512)
