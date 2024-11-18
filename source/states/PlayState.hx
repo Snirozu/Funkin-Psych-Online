@@ -431,7 +431,7 @@ class PlayState extends MusicBeatState
 	}
 	var waitReadySpr:Alphabet;
 
-	public var denseNotes:Float = 0;
+	public var songDensity:Float = 0;
 
 	var stageData:StageFile;
 	var stageModDir:String;
@@ -1751,7 +1751,7 @@ class PlayState extends MusicBeatState
 			scoreTextObject.text = 'Score: ' + FlxStringUtil.formatMoney(songScore, false) + ' | Misses: ' + songMisses + ' | Rating: ' + str;
 		}
 
-		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo);
+		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, songDensity, totalNotesHit, maxCombo);
 		if (points != songPoints) {
 			songPoints = points;
 			resetRPC(true);
@@ -1937,19 +1937,16 @@ class PlayState extends MusicBeatState
 					makeEvent(event, i);
 		}
 
-		var densLastStrumTime:Float = -1;
-		var densNotes:Float = 0;
-		var densNotesCount:Float = 0;
-		var lastNoteDiff:Float = 0;
-		var cNoteCount:Float = 0;
+		var playingNoteCount:Float = 0;
+		var lastStrumTime:Float = 0;
 
-		//csc = Conductor.stepCrochet * 1.5;
-		var csc = 300; //130
 		for (section in noteData)
 		{
 			for (songNotes in section.sectionNotes)
 			{
 				var daStrumTime:Float = songNotes[0];
+				if (daStrumTime > inst.length)
+					continue;
 				var daNoteData:Int = Std.int(songNotes[1] % 4);
 				var maniaKeys:Int = 4;
 				switch (SONG.mania) {
@@ -1984,31 +1981,10 @@ class PlayState extends MusicBeatState
 					gottaHitNote = !section.mustHitSection;
 				}
 
-				if (songNotes[2] <= 0 && playsAsBF() ? gottaHitNote : !gottaHitNote && daStrumTime - densLastStrumTime > 0) {
-					var noteDiff = (daStrumTime - densLastStrumTime) / playbackRate;
-					// var keepCombo = noteDiff < csc && noteDiff + 20 < lastNoteDiff;
-
-					// if (noteDiff < csc_2) {
-					// 	lessDenseCount++;
-					// }
-
-					// if (keepCombo) {
-					// 	if (noteDiff > 10) {
-					// 		densNotesCount++;
-					// 		densNotes += (csc - noteDiff) / csc;
-					// 	}
-					// }
-
-					// lastNoteDiff = noteDiff;
-					// densLastStrumTime = daStrumTime;
-
-					if (noteDiff > 10 && noteDiff < csc) {
-						densNotes += noteDiff;
-						densNotesCount++;
-					}
-
-					densLastStrumTime = daStrumTime;
+				if (playsAsBF() ? gottaHitNote : !gottaHitNote && daStrumTime - lastStrumTime > 10) {
+					playingNoteCount++;
 				}
+				lastStrumTime = daStrumTime;
 
 				var oldNote:Note;
 				if (unspawnNotes.length > 0)
@@ -2094,11 +2070,8 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
-		// denseNotes = densNotesCount == 0 ? 0 : (densNotes + densNotesBonus) / 1000;
-		// trace(' + predensity: ' + densNotes);
-		// trace(' + bonus: ' + densNotesBonus);
-		denseNotes = densNotesCount == 0 ? csc : densNotes / densNotesCount;
-		trace("note density score: " + denseNotes);
+		songDensity = playingNoteCount == 0 ? 0 : playingNoteCount / (inst.length / playbackRate / 1000) / 2;
+		trace("note density score (w/ fp): " + (1 + songDensity));
 		for (event in songData.events) //Event Notes
 			for (i in 0...event[1].length)
 				makeEvent(event, i);
@@ -3249,7 +3222,7 @@ class PlayState extends MusicBeatState
 			return false;
 		}
 
-		songPoints = online.FunkinPoints.calcFP(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo);
+		songPoints = online.FunkinPoints.calcFP(ratingPercent, songMisses, songDensity, totalNotesHit, maxCombo);
 
 		//Should kill you if you tried to cheat
 		if(!startingSong) {
@@ -3305,7 +3278,7 @@ class PlayState extends MusicBeatState
 			if(Math.isNaN(percent)) percent = 0;
 			if (!isInvalidScore() && finishingSong) {
 				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent);
-				var offlinePoints = online.FunkinPoints.save(ratingPercent, songMisses, denseNotes, totalNotesHit, maxCombo);
+				var offlinePoints = online.FunkinPoints.save(ratingPercent, songMisses, songDensity, totalNotesHit, maxCombo);
 				if (!online.network.FunkinNetwork.loggedIn)
 					gainedPoints = offlinePoints;
 				if (replayRecorder != null)
