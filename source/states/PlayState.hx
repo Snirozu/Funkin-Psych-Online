@@ -1937,14 +1937,14 @@ class PlayState extends MusicBeatState
 					makeEvent(event, i);
 		}
 
-		var tension:Float = 0;
-		var tenseCombo:Float = 0;
 		var densLastStrumTime:Float = -1;
 		var densNotes:Float = 0;
 		var densNotesCount:Float = 0;
-		var densNotesBonus:Float = 0;
-		var csc = 125; //Conductor.stepCrochet * 1.5;
-		trace('step crochet: ' + csc);
+		var lastNoteDiff:Float = 0;
+		var cNoteCount:Float = 0;
+
+		//csc = Conductor.stepCrochet * 1.5;
+		var csc = 300; //130
 		for (section in noteData)
 		{
 			for (songNotes in section.sectionNotes)
@@ -1984,31 +1984,27 @@ class PlayState extends MusicBeatState
 					gottaHitNote = !section.mustHitSection;
 				}
 
-				if (songNotes[2] <= 0 && playsAsBF() ? gottaHitNote : !gottaHitNote) {
+				if (songNotes[2] <= 0 && playsAsBF() ? gottaHitNote : !gottaHitNote && daStrumTime - densLastStrumTime > 0) {
 					var noteDiff = (daStrumTime - densLastStrumTime) / playbackRate;
+					// var keepCombo = noteDiff < csc && noteDiff + 20 < lastNoteDiff;
 
-					if (densLastStrumTime != -1 && noteDiff > 10) {
-						var keepCombo = tenseCombo < 2 || csc - noteDiff + 10 >= tension / tenseCombo;
+					// if (noteDiff < csc_2) {
+					// 	lessDenseCount++;
+					// }
 
-						if (noteDiff <= csc) {
-							if (keepCombo) {
-								tenseCombo++;
-								tension += csc - noteDiff;
-							}
-							densNotesCount++;
-							densNotes += (csc - noteDiff) / csc;
-						}
-						
-						if (noteDiff > csc || !keepCombo) {
-							if (tenseCombo > 0 && tension > 0) {
-								var temp = tension / (csc * 5) * Math.pow(tenseCombo, 1.15);
-								densNotesBonus += temp;
-								if (ClientPrefs.isDebug())
-									trace(temp, tenseCombo);
-							}
-							tenseCombo = 0;
-							tension = 0;
-						}
+					// if (keepCombo) {
+					// 	if (noteDiff > 10) {
+					// 		densNotesCount++;
+					// 		densNotes += (csc - noteDiff) / csc;
+					// 	}
+					// }
+
+					// lastNoteDiff = noteDiff;
+					// densLastStrumTime = daStrumTime;
+
+					if (noteDiff > 10 && noteDiff < csc) {
+						densNotes += noteDiff;
+						densNotesCount++;
 					}
 
 					densLastStrumTime = daStrumTime;
@@ -2098,9 +2094,10 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
-		denseNotes = densNotesCount == 0 ? 0 : (densNotes + densNotesBonus) / 1000;
-		trace(' + predensity: ' + densNotes);
-		trace(' + bonus: ' + densNotesBonus);
+		// denseNotes = densNotesCount == 0 ? 0 : (densNotes + densNotesBonus) / 1000;
+		// trace(' + predensity: ' + densNotes);
+		// trace(' + bonus: ' + densNotesBonus);
+		denseNotes = densNotesCount == 0 ? csc : densNotes / densNotesCount;
 		trace("note density score: " + denseNotes);
 		for (event in songData.events) //Event Notes
 			for (i in 0...event[1].length)
@@ -3640,7 +3637,6 @@ class PlayState extends MusicBeatState
 				songGoods++;
 			case "bad":
 				songBads++;
-				combo = 0;
 			case "shit":
 				songShits++;
 				combo = 0;
