@@ -992,7 +992,7 @@ class FreeplayState extends MusicBeatState
 						ratingFC = 'SDCB';
 
 					var fpRating = '';
-					if (top[i].playbackRate != null) {
+					if (top[i].playbackRate != 0) {
 						if (top[i].playbackRate > 1)
 							fpRating = "+";
 						else if (top[i].playbackRate < 1)
