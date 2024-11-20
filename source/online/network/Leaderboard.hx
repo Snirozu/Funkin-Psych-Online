@@ -96,5 +96,5 @@ typedef TopScore = {
 	var goods:Float;
 	var bads:Float;
 	var shits:Float;
-	var playbackRate:Float;
+	var playbackRate:Null<Float>;
 }
