@@ -980,11 +980,21 @@ class FreeplayState extends MusicBeatState
 								coolColor = null;
 						}
 					}
+
+					var ratingFC = 'Clear';
+					if(top[i].misses < 1) {
+						if (top[i].shits > 0) ratingFC = 'NM';
+						else if (top[i].bads > 0) ratingFC = 'FC';
+						else if (top[i].goods > 0) ratingFC = 'GFC';
+						else if (top[i].sicks > 0) ratingFC = 'SFC';
+					}
+					else if (top[i].misses < 10)
+						ratingFC = 'SDCB';
 					
 					topShit.setRow(i, [
 						(i + 1 + curPage * 15) + ". " + top[i].player,
-						FlxStringUtil.formatMoney(top[i].score, false) + " - " + top[i].points + "FP",
-						top[i].accuracy + "%" + (top[i].misses == 0 ? " - FC" : "")
+						FlxStringUtil.formatMoney(top[i].score, false) + " - " + top[i].points + "FP" + (top[i].playbackRate != 1 ? "+" : ''),
+						top[i].accuracy + "% - " + ratingFC
 					], coolColor);
 				}
 
