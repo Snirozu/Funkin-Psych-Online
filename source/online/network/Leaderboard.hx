@@ -91,4 +91,10 @@ typedef TopScore = {
 	var submitted:String;
 	var id:String;
 	var misses:Float;
+	var modURL:String;
+	var sicks:Float;
+	var goods:Float;
+	var bads:Float;
+	var shits:Float;
+	var playbackRate:Float;
 }
