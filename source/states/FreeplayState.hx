@@ -990,6 +990,14 @@ class FreeplayState extends MusicBeatState
 					}
 					else if (top[i].misses < 10)
 						ratingFC = 'SDCB';
+
+					var fpRating = '';
+					if (top[i].playbackRate != null) {
+						if (top[i].playbackRate > 1)
+							fpRating = "+";
+						else if (top[i].playbackRate < 1)
+							fpRating = "-";
+					}
 					
 					topShit.setRow(i, [
 						(i + 1 + curPage * 15) + ". " + top[i].player,
