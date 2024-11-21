@@ -36,6 +36,9 @@ typedef SwagSong =
 
 	//MOD SPECIFIC
 	@:optional var mania:Int;
+
+	//psych engine 1.0
+	@:optional var format:String;
 }
 
 class Song
@@ -159,6 +162,9 @@ class Song
 
 	public static function parseJSONshit(rawJson:String):SwagSong
 	{
-		return cast Json.parse(rawJson).song;
+		var parsed:Dynamic = Json.parse(rawJson);
+		if (!(parsed.song is String))
+			return cast parsed.song;
+		return cast parsed;
 	}
 }

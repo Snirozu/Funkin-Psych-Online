@@ -1940,6 +1940,8 @@ class PlayState extends MusicBeatState
 		var playingNoteCount:Float = 0;
 		var lastStrumTime:Float = 0;
 
+		var isPsychRelease = songData.format == 'psych_v1';
+
 		for (section in noteData)
 		{
 			for (songNotes in section.sectionNotes)
@@ -1976,10 +1978,16 @@ class PlayState extends MusicBeatState
 					continue;
 				var gottaHitNote:Bool = section.mustHitSection;
 
-				if (songNotes[1] > maniaKeys - 1)
-				{
-					gottaHitNote = !section.mustHitSection;
+				if (!isPsychRelease) {
+					if (songNotes[1] > maniaKeys - 1)
+					{
+						gottaHitNote = !section.mustHitSection;
+					}
 				}
+				else {
+					gottaHitNote = songNotes[1] > maniaKeys - 1;
+				}
+				
 
 				if (playsAsBF() ? gottaHitNote : !gottaHitNote && daStrumTime - lastStrumTime > 10) {
 					playingNoteCount++;
