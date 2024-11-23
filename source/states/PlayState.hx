@@ -301,6 +301,8 @@ class PlayState extends MusicBeatState
 	public var songShits:Int = 0;
 	public var songPoints:Float = 0;
 
+	public var pointsPercent:Float = 0;
+
 	public var scoreTxt:FlxText;
 	public var scoreTxtP1:FlxText;
 	public var scoreTxtP2:FlxText;
@@ -1754,13 +1756,17 @@ class PlayState extends MusicBeatState
 		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, songDensity, totalNotesHit, maxCombo);
 		if (points != songPoints) {
 			songPoints = points;
+			if (totalPlayed != 0) {
+				var maxPoints = online.FunkinPoints.calcFP(1, 0, songDensity, totalPlayed, totalPlayed);
+				pointsPercent = Math.min(1, Math.max(0, points / maxPoints));
+			}
 			resetRPC(true);
 		}
 		songPoints = points;
 
 		if (skipRest) {
 			if (ClientPrefs.data.showFP)
-				scoreTextObject.text += ' | FP: ' + songPoints;
+				scoreTextObject.text += ' | FP: ' + songPoints + ' (${CoolUtil.floorDecimal(pointsPercent * 100, 1)}%)';
 			return;
 		}
 
@@ -1784,7 +1790,7 @@ class PlayState extends MusicBeatState
 		}
 		callOnScripts('onUpdateScore', [miss]);
 		if (ClientPrefs.data.showFP)
-			scoreTextObject.text += ' | FP: ' + songPoints;
+			scoreTextObject.text += ' | FP: ' + songPoints + ' (${CoolUtil.floorDecimal(pointsPercent * 100, 1)}%)';
 	}
 
 	public function setSongTime(time:Float)
