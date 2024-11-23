@@ -992,16 +992,16 @@ class FreeplayState extends MusicBeatState
 						ratingFC = 'SDCB';
 
 					var fpRating = '';
-					if (top[i].playbackRate != 0) {
-						if (top[i].playbackRate > 1)
+					if (top[i].playbackRate != 0.0) {
+						if (top[i].playbackRate > 1.0)
 							fpRating = "+";
-						else if (top[i].playbackRate < 1)
+						else if (top[i].playbackRate < 1.0)
 							fpRating = "-";
 					}
 					
 					topShit.setRow(i, [
 						(i + 1 + curPage * 15) + ". " + top[i].player,
-						FlxStringUtil.formatMoney(top[i].score, false) + " - " + top[i].points + "FP" + (top[i].playbackRate != 1 ? "+" : ''),
+						FlxStringUtil.formatMoney(top[i].score, false) + " - " + top[i].points + "FP" + fpRating,
 						top[i].accuracy + "% - " + ratingFC
 					], coolColor);
 				}
