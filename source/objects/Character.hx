@@ -1,8 +1,5 @@
 package objects;
 
-#if flxanimate
-import flxanimate.FlxAnimate;
-#end
 import animateatlas.AtlasFrameMaker;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.util.FlxSort;
