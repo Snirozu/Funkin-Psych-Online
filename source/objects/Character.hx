@@ -1,6 +1,5 @@
 package objects;
 
-import animateatlas.AtlasFrameMaker;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.util.FlxSort;
 import flixel.util.FlxDestroyUtil;
@@ -149,12 +148,12 @@ class Character extends FlxSprite {
 					atlas.showPivot = false;
 					try
 					{
-						Paths.loadAnimateAtlas(atlas, json.image);
+						Paths.loadAnimateAtlas(atlas, imageFile);
 					}
 					catch(e:Dynamic)
 					{
-						FlxG.log.warn('Could not load atlas ${json.image}: $e');
-						trace('Could not load atlas ${json.image}: $e');
+						FlxG.log.warn('Could not load atlas ${imageFile}: $e');
+						trace('Could not load atlas ${imageFile}: $e');
 					}
 				}
 				#end
