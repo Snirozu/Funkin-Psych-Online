@@ -17,12 +17,14 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 			typeTextHint.text = "(Type something to input the message, ACCEPT to send)";
 			typeBg.colorTransform.alphaOffset = 0;
 			typeBg.scale.x = FlxG.width;
+			ClientPrefs.toggleVolumeKeys(false);
 		}
 		else {
 			FlxG.mouse.visible = prevMouseVisibility;
 			typeTextHint.text = "(Press TAB to open chat!)";
 			typeBg.colorTransform.alphaOffset = -100;
 			typeBg.scale.x = Std.int(bg.width);
+			ClientPrefs.toggleVolumeKeys(true);
 		}
 		typeBg.updateHitbox();
 		targetAlpha = v ? 3 : 0;
@@ -157,6 +159,9 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 			if (msg.text != initMessage)
 				lastMessages.push(msg.text);
 		}
+
+		if(focused)
+			ClientPrefs.toggleVolumeKeys(true);
 
 		super.destroy();
 
