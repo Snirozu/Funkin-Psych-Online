@@ -8,7 +8,6 @@ import haxe.io.Path;
 import sys.FileSystem;
 import flixel.group.FlxGroup;
 import objects.Character;
-import flxanimate.FlxAnimate;
 
 class SkinsState extends MusicBeatState {
 	var charactersName:Map<Int, String> = new Map<Int, String>();

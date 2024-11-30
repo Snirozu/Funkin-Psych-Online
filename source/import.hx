@@ -10,6 +10,10 @@ import llua.*;
 import llua.Lua;
 #end
 
+#if flxanimate
+import flxanimate.FlxAnimate;
+#end
+
 import backend.Paths;
 import backend.Controls;
 import backend.CoolUtil;

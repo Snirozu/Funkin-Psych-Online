@@ -1,7 +1,5 @@
 package backend;
 
-import flxanimate.FlxAnimate;
-import animateatlas.AtlasFrameMaker;
 
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
 import flixel.graphics.frames.FlxAtlasFrames;

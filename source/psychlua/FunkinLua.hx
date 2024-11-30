@@ -1197,7 +1197,8 @@ class FunkinLua {
 			}
 			else
 			{
-				obj.animation.play(name, forced, reverse, startFrame);
+				if(obj.anim != null) obj.anim.play(name, forced, reverse, startFrame); //FlxAnimate
+				else obj.animation.play(name, forced, reverse, startFrame);
 				return true;
 			}
 			return false;
@@ -1612,6 +1613,7 @@ class FunkinLua {
 
 		#if DISCORD_ALLOWED DiscordClient.addLuaCallbacks(lua); #end
 		#if HSCRIPT_ALLOWED HScript.implement(this); #end
+		#if flxanimate FlxAnimateFunctions.implement(this); #end
 		ReflectionFunctions.implement(this);
 		TextFunctions.implement(this);
 		ExtraFunctions.implement(this);
