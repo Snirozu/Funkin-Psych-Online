@@ -8,6 +8,7 @@ class AlphaLikeText extends FlxText implements Scrollable {
 	public var startPosition:FlxPoint = new FlxPoint(0, 0); // for the calculations
 	public var isMenuItem:Bool = true;
 	public var scaleX(default, set):Float = 1;
+	public var scaleY(default, set):Float = 1;
 
 	public function new(x:Float, y:Float, text:String = "") {
 		super(x, y);
@@ -40,5 +41,12 @@ class AlphaLikeText extends FlxText implements Scrollable {
 			return value;
 
 		return scale.x = scaleX = value;
+	}
+
+	private function set_scaleY(value:Float) {
+		if (value == scaleY)
+			return value;
+
+		return scale.y = scaleY = value;
 	}
 }

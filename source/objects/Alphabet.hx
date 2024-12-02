@@ -10,10 +10,12 @@ interface Scrollable extends IFlxSprite {
 
 	var isMenuItem:Bool;
 	var scaleX(default, set):Float;
+	var scaleY(default, set):Float;
 
 	// IFlxSprite doesn't have?
 	public var width(get, set):Float;
 	public var height(get, set):Float;
+	public var cameras(get, set):Array<FlxCamera>;
 }
 
 enum Alignment

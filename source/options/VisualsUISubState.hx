@@ -198,6 +198,13 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Group Songs:',
+			"How should songs on Freeplay menu be group by?",
+			'groupSongsBy',
+			'string',
+			['No Grouping', 'Alphabetically', 'Modpack']);
+		addOption(option);
+
 		super();
 		add(notes);
 	}
