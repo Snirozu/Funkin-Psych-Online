@@ -71,8 +71,10 @@ class FreeplayState extends MusicBeatState
 	var intendedRating:Float = 0;
 	var infoText:FlxText;
 	
-	var randomText:Alphabet;
+	var randomText:Scrollable;
 	var randomIcon:HealthIcon;
+
+	var groupTitle:Scrollable;
 
 	private var grpSongs:FlxTypedGroup<FlxSprite>;
 	private var grpIcons:FlxTypedGroup<HealthIcon>;
@@ -221,19 +223,31 @@ class FreeplayState extends MusicBeatState
 		grpIcons.cameras = [itemsCamera];
 		add(grpIcons);
 
-		randomText = new Alphabet(90, 320, "RANDOM", true);
+		// if (!ClientPrefs.data.disableFreeplayAlphabet)
+			randomText = new Alphabet(90, 320, "RANDOM", true);
+		// else
+		// 	randomText = new online.objects.AlphaLikeText(90, 320, "RANDOM");
 		randomText.scaleX = Math.min(1, 980 / randomText.width);
 		randomText.targetY = -1;
 		randomText.snapToPosition();
 		randomText.cameras = [itemsCamera];
-		add(randomText);
+		add(cast randomText);
+
+		// if (!ClientPrefs.data.disableFreeplayAlphabet)
+			groupTitle = new Alphabet(90, 320, "DEFAULT", true);
+		// else
+		// 	groupTitle = new online.objects.AlphaLikeText(90, 320, "");
+		groupTitle.targetY = -2;
+		groupTitle.snapToPosition();
+		groupTitle.cameras = [itemsCamera];
+		add(cast groupTitle);
 
 		var curSkin = ClientPrefs.data.modSkin ?? [null, null];
 
 		Mods.currentModDirectory = curSkin[0];
 		var charaData:CharacterFile = Character.getCharacterFile(curSkin[1]);
 		randomIcon = new HealthIcon(charaData.healthicon);
-		randomIcon.sprTracker = randomText;
+		randomIcon.sprTracker = cast randomText;
 		randomIcon.scrollFactor.set(1, 1);
 		randomIcon.cameras = [itemsCamera];
 		add(randomIcon);
@@ -242,6 +256,8 @@ class FreeplayState extends MusicBeatState
 
 		trace("drawing songs");
 		var drawTime = Sys.time();
+
+		var modList:Array<String> = [];
 
 		for (i in 0...initSongs.length) {
 			var songText:Scrollable;
@@ -261,6 +277,9 @@ class FreeplayState extends MusicBeatState
 				icon.visible = icon.active = false;
 				icon.scrollFactor.set(1, 1);
 			}
+			if (!modList.contains(Mods.currentModDirectory)) {
+				modList.push(Mods.currentModDirectory);
+			}
 			initSongItems.push([songText, icon]);
 		}
 		WeekData.setDirectoryFromWeek();
@@ -270,7 +289,51 @@ class FreeplayState extends MusicBeatState
 		+ (ClientPrefs.data.disableFreeplayIcons ? ' (no icons)' : '')
 		);
 
+		var newGroup:GroupType = null;
+		switch (ClientPrefs.data.groupSongsBy) {
+			case 'Alphabetically':
+				newGroup = ALPHABET;
+			case 'Modpack':
+				newGroup = MOD;
+			case 'Character Mix':
+				newGroup = MIX;
+			default:
+				newGroup = NONE;
+		}
+		if (newGroup != searchGroup) {
+			searchGroup = newGroup;
+			searchGroupValue = 0;
+
+			switch (searchGroup) {
+				case ALPHABET:
+					searchGroupVList = ['ab', 'cd', 'ef', 'gh', 'ij', 'kl', 'mn', 'op', 'qr', 'st', 'uv', 'wx', 'yz'];
+				case MOD:
+					searchGroupVList = modList;
+				case MIX:
+					searchGroupVList = [];
+				default:
+					searchGroupVList = [];
+			}
+		}
+
+		scoreText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
+		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
+		scoreText.scrollFactor.set();
+
+		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 66, 0xFF000000);
+		scoreBG.alpha = 0.6;
+		scoreBG.scrollFactor.set();
+		scoreBG.cameras = [hudCamera];
+
+		searchInput = new FlxText(scoreText.x, scoreText.y + 36, 0, "PRESS F TO SEARCH", 24);
+		searchInput.font = scoreText.font;
+		searchInput.scrollFactor.set();
+
+		searchInput.cameras = [hudCamera];
+		scoreText.cameras = [hudCamera];
+
 		search(true);
+		updateGroupTitle();
 
 		// sickScore = new FlxSprite(Paths.image('sickScore'));
 		// sickScore.antialiasing = ClientPrefs.data.antialiasing;
@@ -327,23 +390,7 @@ class FreeplayState extends MusicBeatState
 		topShit.cameras = [itemsCamera];
 		add(topShit);
 
-		scoreText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
-		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
-		scoreText.scrollFactor.set();
-
-		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 66, 0xFF000000);
-		scoreBG.alpha = 0.6;
-		scoreBG.scrollFactor.set();
-		scoreBG.cameras = [hudCamera];
 		add(scoreBG);
-
-		searchInput = new FlxText(scoreText.x, scoreText.y + 36, 0, "PRESS F TO SEARCH", 24);
-		searchInput.font = scoreText.font;
-		searchInput.scrollFactor.set();
-		
-		searchInput.cameras = [hudCamera];
-		scoreText.cameras = [hudCamera];
-
 		add(searchInput);
 		add(scoreText);
 
@@ -612,7 +659,7 @@ class FreeplayState extends MusicBeatState
 		if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
 
 		if (!selected) {
-			if(songs.length > 1)
+			if(songs.length > 0)
 			{
 				if(FlxG.keys.justPressed.HOME)
 				{
@@ -635,6 +682,18 @@ class FreeplayState extends MusicBeatState
 				{
 					changeSelection(shiftMult);
 					holdTime = 0;
+				}
+
+				if (controls.UI_LEFT_P) {
+					searchGroupValue--;
+					search();
+					updateGroupTitle();
+				}
+
+				if (controls.UI_RIGHT_P) {
+					searchGroupValue++;
+					search();
+					updateGroupTitle();
 				}
 
 				if(controls.UI_DOWN || controls.UI_UP)
@@ -1369,6 +1428,41 @@ class FreeplayState extends MusicBeatState
 		searchInput.x -= searchInput.width / 2;
 	}
 
+	private function updateGroupTitle() {
+		var textValue = '';
+		switch (searchGroup) {
+			case MOD:
+				textValue = searchGroupVList[searchGroupValue] ?? '';
+			case ALPHABET:
+				textValue = searchGroupVList[searchGroupValue].charAt(0).toUpperCase() + '-' + searchGroupVList[searchGroupValue].charAt(1).toUpperCase();
+			default:
+				groupTitle.visible = false;
+				return;
+		}
+
+		groupTitle.visible = true;
+		if (textValue == '') {
+			textValue = 'Default';
+		}
+
+		if (groupTitle is Alphabet)
+			cast(groupTitle, Alphabet).text = "< " + textValue.substr(0, 30) + " >";
+		else if (groupTitle is online.objects.AlphaLikeText)
+			cast(groupTitle, online.objects.AlphaLikeText).text = "< " + textValue.substr(0, 30) + " >";
+		groupTitle.scaleY = 0.7;
+		groupTitle.scaleX = 0.7;
+	}
+
+	private function updateScrollable(obj:Scrollable, elapsed:Float = 0.0) {
+		obj.x = ((obj.targetY - lerpSelected) * obj.distancePerItem.x) + obj.startPosition.x;
+		obj.y = ((obj.targetY - lerpSelected) * 1.3 * obj.distancePerItem.y) + obj.startPosition.y;
+
+		if (selected)
+			obj.alpha -= elapsed * 4;
+		else
+			obj.alpha = FlxMath.bound(obj.alpha + elapsed * 5, 0, 0.6);
+	}
+
 	var _drawDistance:Int = 4;
 	var _lastVisibles:Array<Int> = [];
 	var _lastSelected:Bool = false;
@@ -1383,16 +1477,10 @@ class FreeplayState extends MusicBeatState
 		}
 		_lastVisibles = [];
 
-		
-		randomText.x = ((randomText.targetY - lerpSelected) * randomText.distancePerItem.x) + randomText.startPosition.x;
-		randomText.y = ((randomText.targetY - lerpSelected) * 1.3 * randomText.distancePerItem.y) + randomText.startPosition.y;
+		updateScrollable(groupTitle, elapsed);
+		updateScrollable(randomText, elapsed);
 		if (curSelected == -1)
 			randomText.alpha = 1;
-		else
-			if (selected)
-				randomText.alpha -= elapsed * 4;
-			else
-				randomText.alpha = FlxMath.bound(randomText.alpha + elapsed * 5, 0, 0.6);
 		randomIcon.alpha = randomText.alpha;
 
 		var min:Int = Math.round(Math.max(0, Math.min(songs.length, lerpSelected - _drawDistance)));
@@ -1542,6 +1630,9 @@ class FreeplayState extends MusicBeatState
 		#end
 	}
 
+	static var searchGroup:GroupType = NONE;
+	static var searchGroupValue:Int = 0;
+	static var searchGroupVList:Array<String> = [];
 	static var searchString(default, set):String = '';
 	static function set_searchString(v) {
 		if (FreeplayState.instance.searchInputWait || v.length > 0) {
@@ -1561,15 +1652,33 @@ class FreeplayState extends MusicBeatState
 		_lastVisibles = [];
 		songs = [];
 
+		if (searchGroupValue < 0)
+			searchGroupValue = searchGroupVList.length - 1;
+		if (searchGroupValue > searchGroupVList.length - 1)
+			searchGroupValue = 0;
+
 		var i:Int = 0;
 		for (songID => arr in initSongItems) {
 			var song:SongMetadata = initSongs[songID];
-			if (song != null && (
+			if (song == null)
+				continue;
+			
+			if (searchGroup == MOD && song.folder != searchGroupVList[searchGroupValue]) {
+				continue;
+			}
+			if (searchGroup == ALPHABET &&
+				song.songName.charAt(0).toLowerCase() != searchGroupVList[searchGroupValue].charAt(0) && 
+				song.songName.charAt(0).toLowerCase() != searchGroupVList[searchGroupValue].charAt(1)
+			) {
+				continue;
+			}
+
+			if (
 				searchString.length < 1 || 
 				song.songName.toLowerCase().replace('-', ' ').contains(searchString.toLowerCase()) || 
 				song.folder.toLowerCase().replace('-', ' ').contains(searchString.toLowerCase()) ||
 				song.songCharacter.toLowerCase().replace('-', ' ').contains(searchString.toLowerCase())
-			)) {
+			) {
 				arr[0].targetY = i;
 				arr[0].snapToPosition();
 
@@ -1586,6 +1695,44 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 
+		if (searchGroup == ALPHABET) {
+			var opHistory:Array<Int> = [];
+			songs.sort(function(x:SongMetadata, y:SongMetadata):Int {
+				var a = x.songName.toUpperCase();
+				var b = y.songName.toUpperCase();
+
+				if (a < b) {
+					opHistory.push(-1);
+				}
+				else if (a > b) {
+					opHistory.push(1);
+				}
+				else {
+					opHistory.push(0);
+				}
+
+				return opHistory[opHistory.length - 1];
+			});
+
+			var gsi = 0;
+			grpSongs.sort(function(o:Int, x:FlxSprite, y:FlxSprite):Int {
+				return opHistory[gsi++];
+			});
+
+			var gii = 0;
+			grpIcons.sort(function(o:Int, x:HealthIcon, y:HealthIcon):Int {
+				return opHistory[gii++];
+			});
+
+			var fgsi = 0;
+			for (_ds in grpSongs) {
+				var song:Dynamic = cast _ds;
+				song.targetY = fgsi;
+				song.snapToPosition();
+				fgsi++;
+			}
+		}
+
 		if (songs.length < 1) {
 			searchString = '';
 			search(init);
@@ -1599,8 +1746,6 @@ class FreeplayState extends MusicBeatState
 
 		curSelected = -1;
 		instPlaying = -1;
-		if (songs.length < 2)
-			curSelected = 0;
 		changeSelection();
 		updateTexts();
 	}
@@ -1673,4 +1818,11 @@ class SongMetadata
 		this.hasErect = hasErect;
 		this.hasNightmare = hasNightmare;
 	}
+}
+
+enum GroupType {
+	NONE;
+	ALPHABET;
+	MOD;
+	MIX;
 }
