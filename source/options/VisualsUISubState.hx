@@ -202,7 +202,7 @@ class VisualsUISubState extends BaseOptionsMenu
 			"How should songs on Freeplay menu be group by?",
 			'groupSongsBy',
 			'string',
-			['No Grouping', 'Alphabetically', 'Modpack']);
+			['No Grouping', 'Alphabetically', 'Modpack', 'Hidden']);
 		addOption(option);
 
 		super();

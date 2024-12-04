@@ -278,8 +278,15 @@ class Character extends FlxSprite {
 		}
 	}
 
+	public var noAnimationBullshit:Bool = false;
+
 	override function update(elapsed:Float) {
 		if(isAnimateAtlas) atlas.update(elapsed);
+
+		if (noAnimationBullshit) {
+			super.update(elapsed);
+			return;
+		}
 
 		if (!debugMode && !isAnimationNull()) {
 			if (heyTimer > 0) {
@@ -403,6 +410,8 @@ class Character extends FlxSprite {
 		}
 	}
 
+	final randomDirections:Array<String> = ['LEFT', 'DOWN', 'UP', 'RIGHT'];
+
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void {
 		if (AnimName == null)
 			return;
@@ -411,6 +420,7 @@ class Character extends FlxSprite {
 		colorTransform.greenMultiplier = 1;
 		colorTransform.blueMultiplier = 1;
 
+		noAnimationBullshit = false;
 		specialAnim = false;
 		isMissing = AnimName.endsWith("miss");
 
@@ -418,6 +428,11 @@ class Character extends FlxSprite {
 			specialAnim = true;
 			heyTimer = 1;
 		}
+
+		if (AnimName == "hurt" && !animExists(AnimName)) {
+			AnimName = 'sing' + randomDirections[FlxG.random.int(0, randomDirections.length - 1)] + 'miss';
+		}
+
 		if (!animExists(AnimName)) {
 			if (AnimName.endsWith("-alt")) {
 				AnimName = AnimName.substring(0, AnimName.length - "-alt".length);
