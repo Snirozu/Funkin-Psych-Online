@@ -184,7 +184,7 @@ class ResultsState extends MusicBeatState {
 		p1Accuracy = GameClient.getPlayerAccuracyPercent(getPlayer(1));
 		p2Accuracy = GameClient.getPlayerAccuracyPercent(getPlayer(2));
 
-		if (p1Accuracy >= p2Accuracy)
+		if (getPlayer(1).score >= getPlayer(2).score)
 			winner = 0;
         else
 			winner = 1;
@@ -286,6 +286,9 @@ class ResultsState extends MusicBeatState {
 			else {
 				loserPlayer.playAnim("hurt");
 			}
+
+			winnerPlayer.noAnimationBullshit = true;
+			loserPlayer.noAnimationBullshit = true;
 
 			FlxTween.tween(p1Text, {alpha: 1}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
 			FlxTween.tween(p2Text, {alpha: 1}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
