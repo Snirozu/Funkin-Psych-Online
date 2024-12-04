@@ -245,6 +245,11 @@ class Main extends Sprite
 			});
 		});
 
+		FlxG.signals.postUpdate.add(() -> {
+			if (online.backend.SyncScript.activeUpdate)
+				online.backend.SyncScript.dispatch("update", [FlxG.elapsed]);
+		});
+
 		online.backend.SyncScript.resyncScript(false, () -> {
 			online.backend.SyncScript.dispatch("init");
 		});
