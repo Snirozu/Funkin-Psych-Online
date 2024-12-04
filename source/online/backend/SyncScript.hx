@@ -64,7 +64,7 @@ class SyncScript extends SScript {
 		set("data", data);
 		set("print", s -> Sys.println(s));
 		set("typeof", s -> Type.getClassName(Type.getClass(s)));
-		set("parent", () -> return this);
+		set("parent", this);
 		set("alert", (title, ?message) -> Alert.alert(title, message));
 	}
 }
