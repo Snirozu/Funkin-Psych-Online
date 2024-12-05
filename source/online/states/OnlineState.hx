@@ -57,6 +57,7 @@ class OnlineState extends MusicBeatState {
 	
 	var discord:FlxSprite;
 	var github:FlxSprite;
+	var bsky:FlxSprite;
 
     function onRoomJoin(err:Dynamic) {
 		if (err != null) {
@@ -167,7 +168,19 @@ class OnlineState extends MusicBeatState {
 		github.alpha = 0.8;
 		add(github);
 
-		itemDesc = new FlxText(0, FlxG.height - 125);
+		bsky = new FlxSprite();
+		bsky.antialiasing = ClientPrefs.data.antialiasing;
+		bsky.frames = Paths.getSparrowAtlas('online_bsky');
+		bsky.animation.addByPrefix('idle', "idle", 24);
+		bsky.animation.addByPrefix('active', "active", 24);
+		bsky.animation.play('idle');
+		bsky.updateHitbox();
+		bsky.x = github.x + github.width + 20;
+		bsky.y = FlxG.height - bsky.height - 28;
+		bsky.alpha = 0.8;
+		add(bsky);
+
+		itemDesc = new FlxText(0, FlxG.height - 170);
 		itemDesc.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		itemDesc.screenCenter(X);
 		add(itemDesc);
@@ -363,6 +376,22 @@ class OnlineState extends MusicBeatState {
 					github.alpha = 0.8;
 					github.animation.play("idle");
 				}
+
+				if (FlxG.mouse.overlaps(bsky)) {
+					bsky.alpha = 1;
+					bsky.animation.play("active");
+
+					itemDesc.text = "Follow the official Psych Online Bluesky account!";
+					itemDesc.screenCenter(X);
+
+					if (FlxG.mouse.justPressed) {
+						RequestSubstate.requestURL("https://bsky.app/profile/funkin.sniro.boo", true);
+					}
+				}
+				else {
+					bsky.alpha = 0.8;
+					bsky.animation.play("idle");
+				}
 			}
 		}
     }
@@ -394,7 +423,7 @@ class OnlineState extends MusicBeatState {
 		itemDesc.screenCenter(X);
 
 		descBox.scale.set(FlxG.width - 500, (itemDesc.text.split("\n").length + 2) * (itemDesc.size));
-		descBox.y = (FlxG.height - 125) + descBox.scale.y * 0.5 - itemDesc.size;
+		descBox.y = itemDesc.y + descBox.scale.y * 0.5 - itemDesc.size;
 		descBox.screenCenter(X);
 		
 		selectLine.y = (items.y + 20) + (curSelected) * 40;

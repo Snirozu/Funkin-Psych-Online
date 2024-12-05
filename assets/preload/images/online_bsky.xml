@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="online_bsky.png">
+	<!-- Created with Adobe Animate version 23.0.2.103 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="active0000" x="0" y="0" width="82" height="78"/>
+	<SubTexture name="active0001" x="0" y="0" width="82" height="78"/>
+	<SubTexture name="active0002" x="82" y="0" width="82" height="78"/>
+	<SubTexture name="active0003" x="82" y="0" width="82" height="78"/>
+	<SubTexture name="active0004" x="164" y="0" width="82" height="78"/>
+	<SubTexture name="active0005" x="164" y="0" width="82" height="78"/>
+	<SubTexture name="active0006" x="82" y="0" width="82" height="78"/>
+	<SubTexture name="active0007" x="82" y="0" width="82" height="78"/>
+	<SubTexture name="idle0000" x="0" y="78" width="73" height="71"/>
+	<SubTexture name="idle0001" x="0" y="78" width="73" height="71"/>
+	<SubTexture name="idle0002" x="73" y="78" width="73" height="71"/>
+	<SubTexture name="idle0003" x="73" y="78" width="73" height="71"/>
+	<SubTexture name="idle0004" x="146" y="78" width="73" height="71"/>
+	<SubTexture name="idle0005" x="146" y="78" width="73" height="71"/>
+	<SubTexture name="idle0006" x="73" y="78" width="73" height="71"/>
+	<SubTexture name="idle0007" x="73" y="78" width="73" height="71"/>
+</TextureAtlas>
