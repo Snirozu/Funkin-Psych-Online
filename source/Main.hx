@@ -50,8 +50,8 @@ class Main extends Sprite
 	public static var stage3D:AwayStage;
 	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.9.2";
-	public static final CLIENT_PROTOCOL:Float = 5;
+	public static final PSYCH_ONLINE_VERSION:String = "0.9.3";
+	public static final CLIENT_PROTOCOL:Float = 6;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 
 	// You can pretty much ignore everything from here on - your code should go in your states.

@@ -15,6 +15,8 @@ class SelectStageSubstate extends MusicBeatSubstate {
 
     override function create() {
 		super.create();
+
+		trace(GameClient.room.state.stageName);
 		
 		blurFilter = new BlurFilter();
 		for (cam in FlxG.cameras.list) {
@@ -101,10 +103,11 @@ class SelectStageSubstate extends MusicBeatSubstate {
         }
 
         if (controls.ACCEPT || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(options.members[curSelected], camera))) {
-            if (stageNames[curSelected] == "(default)") {
+            if (curSelected == 0) {
                 Alert.alert("Stage set to default!");
                 GameClient.send("setStage", ['', '', '']);
                 close();
+                return;
             }
 
             var stageURL = '';

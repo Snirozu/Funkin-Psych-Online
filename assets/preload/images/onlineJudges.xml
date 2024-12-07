@@ -11,10 +11,19 @@
 	<SubTexture name="loser0006" x="564" y="0" width="282" height="130"/>
 	<SubTexture name="loser0007" x="564" y="0" width="282" height="130"/>
 	<SubTexture name="loser0008" x="564" y="0" width="282" height="130"/>
-	<SubTexture name="weiner0000" x="0" y="130" width="354" height="146"/>
-	<SubTexture name="weiner0001" x="0" y="130" width="354" height="146"/>
-	<SubTexture name="weiner0002" x="0" y="130" width="354" height="146"/>
-	<SubTexture name="weiner0003" x="354" y="130" width="354" height="146"/>
-	<SubTexture name="weiner0004" x="354" y="130" width="354" height="146"/>
-	<SubTexture name="weiner0005" x="354" y="130" width="354" height="146"/>
+	<SubTexture name="tie0000" x="0" y="130" width="252" height="116"/>
+	<SubTexture name="tie0001" x="0" y="130" width="252" height="116"/>
+	<SubTexture name="tie0002" x="0" y="130" width="252" height="116"/>
+	<SubTexture name="tie0003" x="252" y="130" width="252" height="116"/>
+	<SubTexture name="tie0004" x="252" y="130" width="252" height="116"/>
+	<SubTexture name="tie0005" x="252" y="130" width="252" height="116"/>
+	<SubTexture name="tie0006" x="504" y="130" width="252" height="116"/>
+	<SubTexture name="tie0007" x="504" y="130" width="252" height="116"/>
+	<SubTexture name="tie0008" x="504" y="130" width="252" height="116"/>
+	<SubTexture name="weiner0000" x="0" y="246" width="354" height="146"/>
+	<SubTexture name="weiner0001" x="0" y="246" width="354" height="146"/>
+	<SubTexture name="weiner0002" x="0" y="246" width="354" height="146"/>
+	<SubTexture name="weiner0003" x="354" y="246" width="354" height="146"/>
+	<SubTexture name="weiner0004" x="354" y="246" width="354" height="146"/>
+	<SubTexture name="weiner0005" x="354" y="246" width="354" height="146"/>
 </TextureAtlas>

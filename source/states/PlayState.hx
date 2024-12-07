@@ -518,6 +518,7 @@ class PlayState extends MusicBeatState
 				};
 				endCallback = () -> {
 					finishingSong = true;
+					GameClient.send("updateSongFP", songPoints);
 					GameClient.send("playerEnded");
 				};
 			}
@@ -3380,8 +3381,6 @@ class PlayState extends MusicBeatState
 					CustomFadeTransition.nextCamera = null;
 				}
 				FreeplayState.gainedPoints = gainedPoints;
-				if (ClientPrefs.isDebug() && FreeplayState.gainedPoints == 0)
-					FreeplayState.gainedPoints = songPoints;
 				FlxG.switchState(() -> new FreeplayState());
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				changedDifficulty = false;

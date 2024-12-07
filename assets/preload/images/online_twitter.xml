@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="online_twitter.png">
+	<!-- Created with Adobe Animate version 23.0.2.103 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="active0000" x="0" y="0" width="96" height="82"/>
+	<SubTexture name="active0001" x="0" y="0" width="96" height="82"/>
+	<SubTexture name="active0002" x="0" y="83" width="96" height="82"/>
+	<SubTexture name="active0003" x="0" y="83" width="96" height="82"/>
+	<SubTexture name="active0004" x="0" y="166" width="96" height="82"/>
+	<SubTexture name="active0005" x="0" y="166" width="96" height="82"/>
+	<SubTexture name="idle0000" x="97" y="0" width="88" height="72"/>
+	<SubTexture name="idle0001" x="97" y="0" width="88" height="72"/>
+	<SubTexture name="idle0002" x="97" y="73" width="88" height="72"/>
+	<SubTexture name="idle0003" x="97" y="73" width="88" height="72"/>
+	<SubTexture name="idle0004" x="97" y="146" width="88" height="72"/>
+	<SubTexture name="idle0005" x="97" y="146" width="88" height="72"/>
+</TextureAtlas>
