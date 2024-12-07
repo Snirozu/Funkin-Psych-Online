@@ -263,14 +263,13 @@ class ResultsState extends MusicBeatState {
 		dim.makeGraphic(Std.int(FlxG.width), Std.int(FlxG.height), FlxColor.BLACK);
 		dim.scrollFactor.set(0, 0);
 		dim.alpha = 1;
-		dim.visible = winner > -1;
 		add(dim);
 
 		Paths.setCurrentLevel('week1');
 		spotlight = new FlxSprite(0, -250).loadGraphic(Paths.image('spotlight'));
 		spotlight.alpha = 0.375;
 		spotlight.blend = ADD;
-		spotlight.visible = winner > -1;
+		spotlight.visible = false;
 		spotlight.x = winner == 0 ? 70 : 630;
 		add(spotlight);
 
@@ -352,7 +351,7 @@ class ResultsState extends MusicBeatState {
 			FlxTween.tween(p1Bg, {alpha: 0.5}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
 			FlxTween.tween(p2Bg, {alpha: 0.5}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
 
-			if (winner > 0) {
+			if (winner > -1) {
 				FlxTween.tween(win, {alpha: 1}, 0.5, {ease: FlxEase.quadInOut});
 				FlxTween.tween(lose, {alpha: 1, angle: 3}, 0.5, {ease: FlxEase.quadInOut});
 				FlxTween.tween(lose, {angle: 0}, 0.2, {ease: FlxEase.quadInOut});
@@ -362,6 +361,7 @@ class ResultsState extends MusicBeatState {
 				spotlight.visible = true;
 			}
 			else {
+				FlxTween.tween(dim, {alpha: 0}, 1, {ease: FlxEase.quadInOut});
 				FlxTween.tween(tie, {alpha: 1}, 0.5, {ease: FlxEase.quadInOut});
 			}
 

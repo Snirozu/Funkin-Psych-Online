@@ -128,6 +128,7 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 						winCondition.descText.text = 'Player with the most FP wins!';
 				}
 				winCondition.descText.text += ' (Click to Change)';
+				winCondition.box.makeGraphic(Std.int(winCondition.descText.x - winCondition.x + winCondition.descText.width) + 10, Std.int(winCondition.height), 0x81000000);
 			}
 
 			prevCond = GameClient.room.state.winCondition;
