@@ -1958,29 +1958,29 @@ class PlayState extends MusicBeatState
 					continue;
 				var daNoteData:Int = Std.int(songNotes[1] % 4);
 				var maniaKeys:Int = 4;
-				switch (SONG.mania) {
-					case 1, 5, 6: // 6k
-						maniaKeys = 6;
-						daNoteData = Std.int(songNotes[1] % maniaKeys);
+				// switch (SONG.mania) {
+				// 	case 1, 5, 6: // 6k
+				// 		maniaKeys = 6;
+				// 		daNoteData = Std.int(songNotes[1] % maniaKeys);
 
-						if (daNoteData > 3)
-							daNoteData -= 4;
-					case 2, 7: // 7k
-						maniaKeys = 7;
-						daNoteData = Std.int(songNotes[1] % maniaKeys);
+				// 		if (daNoteData > 3)
+				// 			daNoteData -= 4;
+				// 	case 2, 7: // 7k
+				// 		maniaKeys = 7;
+				// 		daNoteData = Std.int(songNotes[1] % maniaKeys);
 
-						if (daNoteData > 3)
-							daNoteData -= 4;
-					case 3, 8: // 9k
-						maniaKeys = 9;
-						daNoteData = Std.int(songNotes[1] % maniaKeys);
+				// 		if (daNoteData > 3)
+				// 			daNoteData -= 4;
+				// 	case 3, 8: // 9k
+				// 		maniaKeys = 9;
+				// 		daNoteData = Std.int(songNotes[1] % maniaKeys);
 
-						if (daNoteData > 7)
-							daNoteData -= 4;
+				// 		if (daNoteData > 7)
+				// 			daNoteData -= 4;
 						
-						if (daNoteData > 3)
-							daNoteData -= 4;
-				}
+				// 		if (daNoteData > 3)
+				// 			daNoteData -= 4;
+				// }
 				if (songNotes[1] < 0 || songNotes[1] > maniaKeys * 2 - 1) // this should prevent most exe mods from crashing
 					continue;
 				var gottaHitNote:Bool = section.mustHitSection;
