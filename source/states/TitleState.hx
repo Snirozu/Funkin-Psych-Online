@@ -18,7 +18,6 @@ import openfl.display.BitmapData;
 import shaders.ColorSwap;
 
 import states.StoryMenuState;
-import states.OutdatedState;
 import states.MainMenuState;
 
 #if MODS_ALLOWED
@@ -68,7 +67,7 @@ class TitleState extends MusicBeatState
 	var easterEggKeysBuffer:String = '';
 	#end
 
-	var mustUpdate:Bool = false;
+	public static var mustUpdate:Bool = false;
 	//public static var offlineMode:Bool = false;
 
 	var titleJSON:TitleData;
@@ -427,11 +426,11 @@ class TitleState extends MusicBeatState
 					#if DEBUG_RESULTS
 					FlxG.switchState(() -> new online.states.ResultsScreen());
 					#else
-					if (mustUpdate) {
-						FlxG.switchState(() -> new OutdatedState());
-					} else {
+					// if (mustUpdate) {
+					// 	FlxG.switchState(() -> new OutdatedState());
+					// } else {
 						FlxG.switchState(() -> new MainMenuState());
-					}
+					//}
 					#end
 					closedState = true;
 				});

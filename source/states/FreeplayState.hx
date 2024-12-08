@@ -163,6 +163,7 @@ class FreeplayState extends MusicBeatState
 
 		prevPauseGame = FlxG.autoPause;
 
+		FlxG.mouse.visible = false;
 		FlxG.autoPause = false;
 
 		//Paths.clearStoredMemory();
