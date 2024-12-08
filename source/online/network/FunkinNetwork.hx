@@ -262,11 +262,29 @@ class FunkinNetwork {
 		});
 
 		if (avatarResponse == null)
-			return null;
+			return getDefaultAvatar();
 
 		try {
 			var bytes = output.getBytes();
 			cacheAvatar.set(user, bytes);
+			return BitmapData.fromBytes(bytes);
+		}
+		catch (exc) {
+			trace(exc);
+			return getDefaultAvatar();
+		}
+	}
+
+	public static function getDefaultAvatar():BitmapData
+	{
+		var output = new BytesOutput();
+		var avatarResponse = FunkinNetwork.requestAPI({
+			path: 'images/bf' + FlxG.random.int(1, 2) + ".png",
+			bodyOutput: output
+		});
+
+		try {
+			var bytes = output.getBytes();
 			return BitmapData.fromBytes(bytes);
 		}
 		catch (exc) {
