@@ -36,6 +36,7 @@ class MainMenuState extends MusicBeatState
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
+	var updatEBg:FlxSprite;
 
 	public function new() {
 		super();
@@ -137,6 +138,23 @@ class MainMenuState extends MusicBeatState
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
+
+		if (TitleState.mustUpdate) {
+			FlxG.mouse.visible = true;
+
+			var updatE:FlxText = new FlxText(12, FlxG.height - 64, 0, "A new version is available!\n(Click here to update)", 12);
+			updatE.scrollFactor.set();
+			updatE.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			updatE.setPosition(FlxG.width - updatE.width - 40, 40);
+
+			updatEBg = new FlxSprite();
+			updatEBg.scrollFactor.set();
+			updatEBg.makeGraphic(Std.int(updatE.width) + 40, Std.int(updatE.height) + 40, FlxColor.BLACK);
+			updatEBg.alpha = 0.5;
+			updatEBg.setPosition(updatE.x - 20, updatE.y - 20);
+			add(updatEBg);
+			add(updatE);
+		}
 
 		// NG.core.calls.event.logEvent('swag').send();
 
@@ -276,6 +294,10 @@ class MainMenuState extends MusicBeatState
 				FlxG.switchState(() -> new MasterEditorMenu());
 			}
 			#end
+
+			if (FlxG.mouse.justPressed && updatEBg != null && FlxG.mouse.overlaps(updatEBg)) {
+				online.substates.RequestSubstate.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/releases", true);
+			}
 		}
 
 		super.update(elapsed);
