@@ -163,10 +163,6 @@ class Tank extends BaseStage
 		gfCutscene = new FlxSprite(gf.x - 104, gf.y + 122);
 		gfCutscene.antialiasing = ClientPrefs.data.antialiasing;
 
-		picoCutscene = new FlxAnimate(gf.x - 849, gf.y - 264);
-		picoCutscene.antialiasing = ClientPrefs.data.antialiasing;
-		picoCutscene.showPivot = false;
-
 		boyfriendCutscene = new FlxSprite(boyfriend.x + 5, boyfriend.y + 20);
 		boyfriendCutscene.antialiasing = ClientPrefs.data.antialiasing;
 
@@ -174,7 +170,6 @@ class Tank extends BaseStage
 		cutsceneHandler.push(tankman2);
 		cutsceneHandler.push(gfDance);
 		cutsceneHandler.push(gfCutscene);
-		cutsceneHandler.push(picoCutscene);
 		cutsceneHandler.push(boyfriendCutscene);
 
 		cutsceneHandler.finishCallback = function()
@@ -311,10 +306,15 @@ class Tank extends BaseStage
 		addBehindGF(gfCutscene);
 		if (!ClientPrefs.data.lowQuality) gfCutscene.alpha = 0.00001;
 
+		picoCutscene = new FlxAnimate(gf.x - 849, gf.y - 264);
+		picoCutscene.antialiasing = ClientPrefs.data.antialiasing;
+		picoCutscene.showPivot = false;
+
 		Paths.loadAnimateAtlas(picoCutscene, 'cutscenes/stressPico');
 		picoCutscene.antialiasing = ClientPrefs.data.antialiasing;
 		picoCutscene.anim.addBySymbol('anim', 'Pico Badass', 24, true);
 		addBehindGF(picoCutscene);
+		cutsceneHandler.push(picoCutscene);
 		picoCutscene.alpha = 0.00001;
 
 		boyfriendCutscene.frames = Paths.getSparrowAtlas('characters/BOYFRIEND');
