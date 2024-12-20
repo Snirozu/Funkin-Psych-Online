@@ -163,8 +163,15 @@ class Song
 	public static function parseJSONshit(rawJson:String):SwagSong
 	{
 		var parsed:Dynamic = Json.parse(rawJson);
-		if (!(parsed.song is String))
-			return cast parsed.song;
-		return cast parsed;
+		var toReturn:SwagSong = null;
+		
+		if (!Std.isOfType(parsed.song, String))
+			toReturn = parsed.song;
+		else
+			toReturn = parsed;
+
+		trace(toReturn);
+
+		return toReturn;
 	}
 }
