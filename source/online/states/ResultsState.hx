@@ -199,12 +199,12 @@ class ResultsState extends MusicBeatState {
 
 		switch (GameClient.room.state.winCondition) {
 			case 0:
-				winner = (getPlayer(1).score >= getPlayer(2).score ? 0 : 1);
-				if (getPlayer(1).score == getPlayer(2).score)
-					winner = -1;
-			case 1:
 				winner = (p1Accuracy >= p2Accuracy ? 0 : 1);
 				if (p1Accuracy == p2Accuracy)
+					winner = -1;
+			case 1:
+				winner = (getPlayer(1).score >= getPlayer(2).score ? 0 : 1);
+				if (getPlayer(1).score == getPlayer(2).score)
 					winner = -1;
 			case 2:
 				winner = (getPlayer(1).misses <= getPlayer(2).misses ? 0 : 1);
@@ -416,7 +416,7 @@ class ResultsState extends MusicBeatState {
 		if (FlxG.keys.justPressed.F12) {
 			trace('reloading lumod');
 			Lumod.cache.scripts.clear();
-			luaLoad();
+			lmLoad();
 		}
 
 		if (luaValue == false)

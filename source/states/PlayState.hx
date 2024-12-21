@@ -272,6 +272,7 @@ class PlayState extends MusicBeatState
 		return cpuControlled;
 	}
 	public var practiceMode:Bool = false;
+	public var noSpecialNotes:Bool = false;
 
 	public var botplaySine:Float = 0;
 	@:unreflective public var botplayTxt:FlxText;
@@ -547,6 +548,7 @@ class PlayState extends MusicBeatState
 			practiceMode = ClientPrefs.getGameplaySetting('practice');
 			cpuControlled = ClientPrefs.getGameplaySetting('botplay');
 			opponentMode = ClientPrefs.getGameplaySetting('opponentplay');
+			noSpecialNotes = ClientPrefs.getGameplaySetting('nospecialnotes');
 		});
 
 		preloadTasks.push(() -> {
@@ -1297,29 +1299,40 @@ class PlayState extends MusicBeatState
 	public function addCharacterToList(newCharacter:String, type:Int) {
 		switch(type) {
 			case 0:
-				if (boyfriend.isSkin)
+				if (!ClientPrefs.data.modchartSkinChanges && boyfriend.isSkin)
 					return;
 
 				if(!boyfriendMap.exists(newCharacter)) {
-					var newBoyfriend:Character = new Character(0, 0, newCharacter, true);
+					var newBoyfriend:Character;
+					if (boyfriend.isSkin && newCharacter == SONG.player1)
+						newBoyfriend = boyfriend;
+					else {
+						newBoyfriend = new Character(0, 0, newCharacter, true);
+						boyfriendGroup.add(newBoyfriend);
+						startCharacterPos(newBoyfriend);
+						newBoyfriend.alpha = 0.00001;
+						startCharacterScripts(newBoyfriend.curCharacter);
+					}
+						
 					boyfriendMap.set(newCharacter, newBoyfriend);
-					boyfriendGroup.add(newBoyfriend);
-					startCharacterPos(newBoyfriend);
-					newBoyfriend.alpha = 0.00001;
-					startCharacterScripts(newBoyfriend.curCharacter);
 				}
 
 			case 1:
-				if (dad.isSkin)
+				if (!ClientPrefs.data.modchartSkinChanges && dad.isSkin)
 					return;
 
 				if(!dadMap.exists(newCharacter)) {
-					var newDad:Character = new Character(0, 0, newCharacter);
+					var newDad:Character;
+					if (dad.isSkin && newCharacter == SONG.player2)
+						newDad = dad;
+					else {
+						newDad = new Character(0, 0, newCharacter);
+						dadGroup.add(newDad);
+						startCharacterPos(newDad, true);
+						newDad.alpha = 0.00001;
+						startCharacterScripts(newDad.curCharacter);
+					}
 					dadMap.set(newCharacter, newDad);
-					dadGroup.add(newDad);
-					startCharacterPos(newDad, true);
-					newDad.alpha = 0.00001;
-					startCharacterScripts(newDad.curCharacter);
 				}
 
 			case 2:
@@ -1992,9 +2005,11 @@ class PlayState extends MusicBeatState
 					}
 				}
 				else {
-					gottaHitNote = songNotes[1] > maniaKeys - 1;
+					gottaHitNote = songNotes[1] < maniaKeys;
 				}
 				
+				if (noSpecialNotes && songNotes[3] != null)
+					continue;
 
 				if (playsAsBF() ? gottaHitNote : !gottaHitNote && daStrumTime - lastStrumTime > 10) {
 					playingNoteCount++;
@@ -3038,7 +3053,7 @@ class PlayState extends MusicBeatState
 
 				switch(charType) {
 					case 0:
-						if (boyfriend.isSkin)
+						if (!ClientPrefs.data.modchartSkinChanges && boyfriend.isSkin)
 							return;
 
 						if(boyfriend.curCharacter != value2) {
@@ -3055,7 +3070,7 @@ class PlayState extends MusicBeatState
 						setOnScripts('boyfriendName', boyfriend.curCharacter);
 
 					case 1:
-						if (dad.isSkin)
+						if (!ClientPrefs.data.modchartSkinChanges && dad.isSkin)
 							return;
 
 						if(dad.curCharacter != value2) {
@@ -4380,13 +4395,13 @@ class PlayState extends MusicBeatState
 		}
 
 		super.stepHit();
-		
-		if (!GameClient.isConnected() && swingMode && (curStep % 4 == 3)) { // here in the funkin crew we call that a functional audio resyncing algorithm
-			setSongTime(Conductor.songPosition + Conductor.calculateCrochet(Conductor.bpm) / 4);
-		}
 
 		if(curStep == lastStepHit) {
 			return;
+		}
+
+		if (!GameClient.isConnected() && swingMode && (curStep % 4 == 3)) { // here in the funkin crew we call that a functional audio resyncing algorithm
+			setSongTime(Conductor.songPosition + Conductor.calculateCrochet(Conductor.bpm) / 4);
 		}
 
 		lastStepHit = curStep;
@@ -4893,7 +4908,7 @@ class PlayState extends MusicBeatState
 	#end
 
 	function isInvalidScore() {
-		return cpuControlled || controls.moodyBlues != null;
+		return cpuControlled || controls.moodyBlues != null || noSpecialNotes;
 	}
 
 	// MULTIPLAYER STUFF HERE
