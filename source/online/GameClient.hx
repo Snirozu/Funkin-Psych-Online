@@ -196,9 +196,9 @@ class GameClient {
 			options.set("skinURL", OnlineMods.getModURL(ClientPrefs.data.modSkin[0]));
 		}
 
-		if (asHost) {
-			options.set("gameplaySettings", ClientPrefs.data.gameplaySettings);
-		}
+		// if (asHost) {
+		// 	options.set("gameplaySettings", ClientPrefs.data.gameplaySettings);
+		// }
 
 		return options;
 	}

@@ -374,7 +374,7 @@ class SkinsState extends MusicBeatState {
 		camFollow.setPosition(FlxG.width / 2, FlxG.height / 2);
 
 		if (stopUpdates) {
-			camFollow.y += !ClientPrefs.data.lowQuality ? 800 : 200;
+			camFollow.y += !ClientPrefs.data.lowQuality ? 600 : 200;
 			return;
 		}
 
@@ -395,6 +395,9 @@ class SkinsState extends MusicBeatState {
 				}
 				if (controls.NOTE_RIGHT) {
 					character.members[0].playAnim("singRIGHT");
+				}
+				if (controls.TAUNT) {
+					character.members[0].playAnim("taunt");
 				}
 			}
         }
@@ -433,11 +436,7 @@ class SkinsState extends MusicBeatState {
 			}));
 		}
 
-        if (controls.BACK) {
-			switchState(() -> Type.createInstance(backClass, []));
-        }
-
-        if (controls.ACCEPT) {
+		if (!FlxG.keys.pressed.SHIFT && controls.ACCEPT) {
 			var charName = charactersName[curCharacter];
 			if (charName.endsWith("-player"))
 				charName = charName.substring(0, charName.length - "-player".length);
@@ -467,6 +466,10 @@ class SkinsState extends MusicBeatState {
 			if (character.members[0] != null)
 				character.members[0].playAnim("hey", true);
         }
+
+		if (controls.BACK || (!FlxG.keys.pressed.SHIFT && controls.ACCEPT)) {
+			switchState(() -> Type.createInstance(backClass, []));
+		}
 
 		if (FlxG.keys.justPressed.EIGHT) {
 			Mods.currentModDirectory = charactersMod.get(charactersName[curCharacter]);

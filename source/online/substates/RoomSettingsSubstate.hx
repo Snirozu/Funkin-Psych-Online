@@ -119,9 +119,9 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			if (GameClient.room.state.winCondition != prevCond) {
 				switch (GameClient.room.state.winCondition) {
 					case 0:
-						winCondition.descText.text = 'Player with the most Score wins!';
-					case 1:
 						winCondition.descText.text = 'Player with the highest Accuracy wins!';
+					case 1:
+						winCondition.descText.text = 'Player with the most Score wins!';
 					case 2:
 						winCondition.descText.text = 'Player with the least Misses wins!';
 					case 3:

@@ -34,6 +34,7 @@ import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
 import openfl.media.Sound;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 
 import lime.utils.Assets;
 import openfl.utils.Assets as OpenFlAssets;
@@ -78,6 +79,7 @@ class FreeplayState extends MusicBeatState
 
 	private var grpSongs:FlxTypedGroup<FlxSprite>;
 	private var grpIcons:FlxTypedGroup<HealthIcon>;
+	private var grpHearts:FlxTypedGroup<Heart>;
 	private var curPlaying:Bool = false;
 
 	private var initSongs:Array<SongMetadata> = [];
@@ -100,6 +102,8 @@ class FreeplayState extends MusicBeatState
 	var selectedScore:Int = 0;
 
 	static var bustSound:FlxSound;
+	static var favSound:FlxSound;
+	static var unfavSound:FlxSound;
 	var explods:FlxTypedGroup<Explod>;
 
 	// var dTime:Alphabet = new Alphabet(0, 0, "0:00", false);
@@ -227,6 +231,11 @@ class FreeplayState extends MusicBeatState
 		grpIcons.cameras = [itemsCamera];
 		add(grpIcons);
 
+		grpHearts = new FlxTypedGroup<Heart>();
+		grpHearts.cameras = [itemsCamera];
+		grpHearts.recycle(Heart);
+		add(grpHearts);
+
 		// if (!ClientPrefs.data.disableFreeplayAlphabet)
 			randomText = new Alphabet(90, 320, "RANDOM", true);
 		// else
@@ -260,6 +269,18 @@ class FreeplayState extends MusicBeatState
 			bustSound = new FlxSound();
 			bustSound.loadEmbedded(Paths.sound('badexplosion'));
 			bustSound.persist = true;
+		}
+
+		if (favSound == null) {
+			favSound = new FlxSound();
+			favSound.loadEmbedded(Paths.sound('fav'));
+			favSound.persist = true;
+		}
+		
+		if (unfavSound == null) {
+			unfavSound = new FlxSound();
+			unfavSound.loadEmbedded(Paths.sound('unfav'));
+			unfavSound.persist = true;
 		}
 
 		explods = new FlxTypedGroup<Explod>();
@@ -317,26 +338,35 @@ class FreeplayState extends MusicBeatState
 				newGroup = MIX;
 			case 'Hidden':
 				newGroup = HIDDEN;
+			case 'Favorites':
+				newGroup = FAV;
 			default:
 				newGroup = NONE;
 		}
 		if (newGroup != searchGroup) {
 			searchGroup = newGroup;
 			searchGroupValue = 0;
-
-			switch (searchGroup) {
-				case ALPHABET:
-					searchGroupVList = ['ab', 'cd', 'ef', 'gh', 'ij', 'kl', 'mn', 'op', 'qr', 'st', 'uv', 'wx', 'yz'];
-				case MOD:
-					searchGroupVList = modList;
-				case MIX:
-					searchGroupVList = [];
-				case HIDDEN:
-					searchGroupVList = ['Hidden', 'Visible'];
-				default:
-					searchGroupVList = [];
-			}
 		}
+
+		switch (searchGroup) {
+			case ALPHABET:
+				searchGroupVList = ['ab', 'cd', 'ef', 'gh', 'ij', 'kl', 'mn', 'op', 'qr', 'st', 'uv', 'wx', 'yz'];
+			case MOD:
+				searchGroupVList = modList;
+			case MIX:
+				searchGroupVList = [];
+			case HIDDEN:
+				searchGroupVList = ['Hidden', 'Visible'];
+			case FAV:
+				searchGroupVList = ['Favorites', 'Not Favorited'];
+			default:
+				searchGroupVList = [];
+		}
+
+		if (searchGroupValue < 0)
+			searchGroupValue = 0;
+		if (searchGroupValue > searchGroupVList.length - 1)
+			searchGroupValue = searchGroupVList.length - 1;
 
 		scoreText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
 		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
@@ -704,6 +734,24 @@ class FreeplayState extends MusicBeatState
 				{
 					changeSelection(shiftMult);
 					holdTime = 0;
+				}
+
+				if (controls.FAV && curSelected != -1) {
+					var songId = songs[curSelected].songName + '-' + songs[curSelected].folder;
+					if (ClientPrefs.data.favSongs.contains(songId)) {
+						ClientPrefs.data.favSongs.remove(songId);
+
+						unfavSound.volume = 1;
+						unfavSound.play(true);
+					}
+					else {
+						ClientPrefs.data.favSongs.push(songId);
+
+						favSound.volume = 1;
+						favSound.play(true);
+					}
+					ClientPrefs.saveSettings();
+					search();
 				}
 
 				if (controls.RESET && curSelected != -1 && !FlxG.keys.pressed.ALT) {
@@ -1498,7 +1546,7 @@ class FreeplayState extends MusicBeatState
 	private function updateGroupTitle() {
 		var textValue = '';
 		switch (searchGroup) {
-			case MOD, HIDDEN:
+			case MOD, HIDDEN, FAV:
 				textValue = searchGroupVList[searchGroupValue] ?? '';
 			case ALPHABET:
 				textValue = searchGroupVList[searchGroupValue].charAt(0).toUpperCase() + '-' + searchGroupVList[searchGroupValue].charAt(1).toUpperCase();
@@ -1716,8 +1764,12 @@ class FreeplayState extends MusicBeatState
 	function search(?init:Bool = false) {
 		grpIcons.clear();
 		grpSongs.clear();
+		grpHearts.killMembers();
 		_lastVisibles = [];
 		songs = [];
+
+		if (!init)
+			instPlaying = -1;
 
 		if (searchGroupValue < 0)
 			searchGroupValue = searchGroupVList.length - 1;
@@ -1751,6 +1803,14 @@ class FreeplayState extends MusicBeatState
 				continue;
 			}
 
+			var isFavorited = ClientPrefs.data.favSongs.contains(song.songName + '-' + song.folder);
+			if (searchGroup == FAV) {
+				if (isFavorited && searchGroupValue == 1)
+					continue;
+				if (!isFavorited && searchGroupValue == 0)
+					continue;
+			}
+
 			if (
 				searchString.length < 1 || 
 				song.songName.toLowerCase().replace('-', ' ').contains(searchString.toLowerCase()) || 
@@ -1769,6 +1829,17 @@ class FreeplayState extends MusicBeatState
 					grpIcons.add(arr[1]); // icon
 				}
 				songs.push(song);
+
+				if (isFavorited) {
+					grpHearts.recycle(Heart).target = arr[1];
+				}
+
+				var diff = Difficulty.getString(curDifficulty);
+				var trackSuffix = diff == "Erect" || diff == "Nightmare" ? "-erect" : "";
+				var track = song.songName.toLowerCase() + trackSuffix;
+				if (track == trackPlaying)
+					instPlaying = i;
+
 				i++;
 			}
 		}
@@ -1825,7 +1896,6 @@ class FreeplayState extends MusicBeatState
 			return;
 		}
 
-		instPlaying = -1;
 		changeSelection();
 		updateTexts();
 	}
@@ -1906,6 +1976,7 @@ enum GroupType {
 	MOD;
 	MIX;
 	HIDDEN;
+	FAV;
 }
 
 class Explod extends FlxSprite {
@@ -1946,5 +2017,43 @@ class Explod extends FlxSprite {
 		y = ((targetY - FreeplayState.instance.lerpSelected) * 1.3 * distancePerItem.y) + startY - 40;
 
 		super.update(elapsed);
+	}
+}
+
+class Heart extends LockInSprite {
+	public function new(?target:FlxSprite) {
+		super(target, Paths.image('heart'));
+	}
+}
+
+class LockInSprite extends FlxSprite {
+	public var target(default, set):FlxSprite;
+
+	public function new(target:FlxSprite, ?asset:FlxGraphicAsset) {
+		super(0, 0, asset);
+
+		this.target = target;
+	}
+
+	override function update(elapsed) {
+		super.update(elapsed);
+
+		if (target == null || !target.alive) {
+			kill();
+			return;
+		}
+
+		x = target.x;
+		y = target.y;
+		alpha = target.alpha;
+		scale.x = target.scale.x;
+		scale.y = target.scale.y;
+		visible = target.active && target.visible;
+	}
+
+	function set_target(v:FlxSprite) {
+		target = v;
+		revive();
+		return target;
 	}
 }

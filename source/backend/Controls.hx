@@ -81,12 +81,14 @@ class Controls
 	public var RESET(get, never):Bool;
 	public var TAUNT(get, never):Bool;
 	public var SIDEBAR(get, never):Bool;
+	public var FAV(get, never):Bool;
 	private function get_ACCEPT() return justPressed('accept');
 	private function get_BACK() return justPressed('back');
 	private function get_PAUSE() return justPressed('pause');
 	private function get_RESET() return justPressed('reset');
 	private function get_TAUNT() return justPressed('taunt');
 	private function get_SIDEBAR() return justPressed('sidebar');
+	private function get_FAV() return justPressed('fav');
 
 	//Gamepad & Keyboard stuff
 	public var keyboardBinds:Map<String, Array<FlxKey>>;

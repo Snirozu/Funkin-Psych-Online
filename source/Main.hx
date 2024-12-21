@@ -51,7 +51,7 @@ class Main extends Sprite
 	#end
 
 	public static final PSYCH_ONLINE_VERSION:String = "0.9.3";
-	public static final CLIENT_PROTOCOL:Float = 6;
+	public static final CLIENT_PROTOCOL:Float = 7;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
@@ -112,8 +112,15 @@ class Main extends Sprite
 
 		CoolUtil.setDarkMode(true);
 
-		Lumod.get_scriptsRootPath = () -> {
-			return Lumod.scriptsRootPath = Paths.mods(Mods.currentModDirectory + "/lumod");
+		Lumod.scriptPathHandler = scriptPath -> {
+			var defaultPath:String = 'lumod/' + scriptPath;
+
+			// check if script exists in any of loaded mods
+			var path:String = Paths.modFolders(defaultPath);
+			if (FileSystem.exists(path))
+				return path;
+
+			return defaultPath;
 		}
 		Lumod.classResolver = Deflection.resolveClass;
 

@@ -15,6 +15,7 @@ import objects.AchievementPopup;
 import states.editors.MasterEditorMenu;
 import options.OptionsState;
 
+@:build(lumod.LuaScriptClass.build())
 class MainMenuState extends MusicBeatState
 {
 	public static var psychEngineVersion:String = '0.7.1h'; // This is also used for Discord RPC
@@ -40,10 +41,6 @@ class MainMenuState extends MusicBeatState
 
 	public function new() {
 		super();
-
-		// if (TitleState.offlineMode) {
-		// 	optionShit.remove('online');
-		// }
 	}
 
 	override function create()

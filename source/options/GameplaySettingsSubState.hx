@@ -133,6 +133,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Modchart Skin Changes',
+			'If enabled, the song events will change the character of your active skin',
+			'modchartSkinChanges',
+			'bool');
+		addOption(option);
+
 		super();
 	}
 
