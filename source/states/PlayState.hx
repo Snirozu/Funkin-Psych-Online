@@ -4134,6 +4134,10 @@ class PlayState extends MusicBeatState
 		if (Paths.formatToSongPath(SONG.song) != 'tutorial')
 			camZooming = true;
 
+		var compat:String = note.mustPress ? 'goodNoteHit' : 'opponentNoteHit';
+		var result:Dynamic = callOnLuas(compat + 'Pre', [notes.members.indexOf(note), Math.abs(note.noteData), note.noteType, note.isSustainNote]);
+		if(result != FunkinLua.Function_Stop && result != FunkinLua.Function_StopHScript && result != FunkinLua.Function_StopAll) callOnHScript(compat + 'Pre', [note]);
+		
 		if (note.noteType == 'Hey!' && getOpponent().animOffsets.exists('hey')) {
 			getOpponent().playAnim('hey', true);
 			getOpponent().specialAnim = true;
@@ -4169,8 +4173,7 @@ class PlayState extends MusicBeatState
 		strumPlayAnim(true, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
 		note.hitByOpponent = true;
 
-		var compat:String = note.mustPress ? 'goodNoteHit' : 'opponentNoteHit';
-		var result:Dynamic = callOnLuas(compat, [notes.members.indexOf(note), Math.abs(note.noteData), note.noteType, note.isSustainNote]);
+		result = callOnLuas(compat, [notes.members.indexOf(note), Math.abs(note.noteData), note.noteType, note.isSustainNote]);
 		if(result != FunkinLua.Function_Stop && result != FunkinLua.Function_StopHScript && result != FunkinLua.Function_StopAll) callOnHScript(compat, [note]);
 
 		spawnHoldSplashOnNote(note);
@@ -4190,6 +4193,14 @@ class PlayState extends MusicBeatState
 
 		if (!note.wasGoodHit)
 		{
+			var isSus:Bool = note.isSustainNote; //GET OUT OF MY HEAD, GET OUT OF MY HEAD, GET OUT OF MY HEAD
+			var leData:Int = Math.round(Math.abs(note.noteData));
+			var leType:String = note.noteType;
+
+			var compat:String = note.mustPress ? 'goodNoteHit' : 'opponentNoteHit';
+			var result:Dynamic = callOnLuas(compat + 'Pre', [notes.members.indexOf(note), leData, leType, isSus]);
+			if(result != FunkinLua.Function_Stop && result != FunkinLua.Function_StopHScript && result != FunkinLua.Function_StopAll) callOnHScript(compat + 'Pre', [note]);
+			
 			if(cpuControlled && (note.ignoreNote || note.hitCausesMiss)) return;
 
 			note.wasGoodHit = true;
@@ -4291,12 +4302,7 @@ class PlayState extends MusicBeatState
 			}
 			getPlayerVocals().volume = 1;
 
-			var isSus:Bool = note.isSustainNote; //GET OUT OF MY HEAD, GET OUT OF MY HEAD, GET OUT OF MY HEAD
-			var leData:Int = Math.round(Math.abs(note.noteData));
-			var leType:String = note.noteType;
-
-			var compat:String = note.mustPress ? 'goodNoteHit' : 'opponentNoteHit';
-			var result:Dynamic = callOnLuas(compat, [notes.members.indexOf(note), leData, leType, isSus]);
+			result = callOnLuas(compat, [notes.members.indexOf(note), leData, leType, isSus]);
 			if(result != FunkinLua.Function_Stop && result != FunkinLua.Function_StopHScript && result != FunkinLua.Function_StopAll) callOnHScript(compat, [note]);
 
 			spawnHoldSplashOnNote(note);
