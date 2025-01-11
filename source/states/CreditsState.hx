@@ -45,11 +45,14 @@ class CreditsState extends MusicBeatState
 
 		var defaultList:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
 			['Psych Online'],
-			['Snirozu', 'snirozu', 'Developer', 'https://bsky.app/profile/sniro.boo', 'FFCC33'],
+			['Snirozu', 'snirozu', 'Developer', 'https://sniro.boo', 'FFCC33'],
 			[''],
 			['Contributors'],
 			['Magniill', 'notmagniill', 'Remade the Online button sprite!', 'https://twitter.com/magniill', '910000'],
-			['xenkap', '', 'Contributed some cool stuff to the source code!', 'https://github.com/xenkap', '9370DB'],
+			['xenkap', '', 'Swag Contributor!', 'https://github.com/xenkap', '9370DB'],
+			['Lily', '', 'Cool Contributor!', 'https://github.com/mcagabe19', 'FFC0CB'],
+			['Til', '', 'Awesome Contributor!', 'https://github.com/TechnikTil', 'FFFF00'],
+			['Vortex', '', 'Neat Contributor!', 'https://github.com/Vortex2Oblivion', '00FFFF'],
 			[''],
 			['Psych Engine Team'],
 			['Shadow Mario',		'shadowmario',		'Main Programmer of Psych Engine',								'https://twitter.com/Shadow_Mario_',	'444444'],

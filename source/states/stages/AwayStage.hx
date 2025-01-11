@@ -1,5 +1,6 @@
 package states.stages;
 
+import away3d.animators.SpriteSheetAnimator;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
 import openfl.geom.Matrix;
@@ -54,7 +55,7 @@ class AwayStage extends Sprite {
 		debugText.selectable = false;
 		debugText.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 16, 0xFFFFFFFF);
 		debugText.multiline = true;
-		debugText.wordWrap = true;
+		debugText.wordWrap = false;
 		stage.addChild(debugText);
 
 		addEventListener(Event.ENTER_FRAME, _onEnterFrame);
@@ -65,6 +66,8 @@ class AwayStage extends Sprite {
 	public function setupOnlineStage() {
 		switch (PlayState.SONG.song.toLowerCase()) {
 			case "thorns":
+				PlayState.instance.dad.useFramePixels = true;
+
 				// walkway
 				var _plainBitmap = Assets.getBitmapData(Paths.getLibraryPathForce("images/weeb/evilWalkway.png", "week_assets", "week6"));
 				var plainBitmap = new BitmapData(1024, 1024, FlxColor.TRANSPARENT); // why THE FUCK does it need to be a power of 2 value???
@@ -128,9 +131,9 @@ class AwayStage extends Sprite {
 
 				dad = new Mesh(geom, material);
 
-				dad.x = 399;
-				dad.y = 761;
-				dad.z = 1056;
+				dad.x = 169;
+				dad.y = -233;
+				dad.z = -620;
 				dad.rotationX = -90;
 
 				_view.scene.addChild(dad);
@@ -210,7 +213,7 @@ class AwayStage extends Sprite {
 		// _view.camera.z = (FlxG.camera.zoom - 1) * (zoomMult + 200);
 
 		if (ClientPrefs.isDebug()) {
-			var moveSpeed = 0.01 * (FlxG.keys.pressed.CONTROL ? 10 : 1) * (FlxG.keys.pressed.ALT ? 100 : 1);
+			var moveSpeed = 0.02 * (FlxG.keys.pressed.CONTROL ? 10 : 1) * (FlxG.keys.pressed.ALT ? 100 : 1);
 
 			if (FlxG.keys.justPressed.TAB) {
 				debugSprite++;
@@ -274,17 +277,22 @@ class AwayStage extends Sprite {
 	function drawSpriteOnMesh(mesh:Mesh, sprite:FlxSprite) {
 		// note: seems that sprite.frame.parent.bitmap fucks up rendering lol
 
-		var fullBitmap = sprite.pixels;
+		var fullBitmap = sprite.graphic.bitmap;
+		//var fullBitmap = sprite.framePixels;
 		var targetBitmap = cast(cast(mesh.material, TextureMaterial).texture, BitmapTexture).bitmapData;
 		var frame = sprite.frames.frames[sprite.animation.frameIndex];
 
 		if (frame == null)
 			return;
 
-		//Sys.println(sprite.animation.frameIndex + " " + frame.frame.x + " " + frame.frame.y);
 		//shows correct coordinates
+		//ig spritesheet animator class should be used for that?
 
 		//should copy these pixels correctly, but it doesnt and stays on the first frame?????
-		targetBitmap.copyPixels(fullBitmap, frame.frame.copyToFlash(_rect), frame.offset.copyToFlash(_point), null, null, true);
+		targetBitmap.copyPixels(fullBitmap, frame.frame.copyToFlash(_rect), new Point(0, 0), null, null, true);
+		// targetBitmap.draw(fullBitmap, null, null, null, frame.frame.copyToFlash(_rect));
+
+		// doesn't change?
+		//targetBitmap.setPixel(i++, Math.ceil(i / 500), FlxColor.YELLOW);
 	}
 }

@@ -277,20 +277,7 @@ class FunkinNetwork {
 
 	public static function getDefaultAvatar():BitmapData
 	{
-		var output = new BytesOutput();
-		var avatarResponse = FunkinNetwork.requestAPI({
-			path: 'images/bf' + FlxG.random.int(1, 2) + ".png",
-			bodyOutput: output
-		});
-
-		try {
-			var bytes = output.getBytes();
-			return BitmapData.fromBytes(bytes);
-		}
-		catch (exc) {
-			trace(exc);
-			return null;
-		}
+		return Paths.image('bf' + FlxG.random.int(1, 2)).bitmap;
 	}
 
 	public static function requestAPI(request:HTTPRequest, ?alertError:Bool = true):Null<HTTPResponse> {

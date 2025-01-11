@@ -272,7 +272,7 @@ class PlayState extends MusicBeatState
 		return cpuControlled;
 	}
 	public var practiceMode:Bool = false;
-	public var noSpecialNotes:Bool = false;
+	public var noBadNotes:Bool = false;
 
 	public var botplaySine:Float = 0;
 	@:unreflective public var botplayTxt:FlxText;
@@ -548,7 +548,7 @@ class PlayState extends MusicBeatState
 			practiceMode = ClientPrefs.getGameplaySetting('practice');
 			cpuControlled = ClientPrefs.getGameplaySetting('botplay');
 			opponentMode = ClientPrefs.getGameplaySetting('opponentplay');
-			noSpecialNotes = ClientPrefs.getGameplaySetting('nospecialnotes');
+			noBadNotes = ClientPrefs.getGameplaySetting('nobadnotes');
 		});
 
 		preloadTasks.push(() -> {
@@ -672,7 +672,7 @@ class PlayState extends MusicBeatState
 				case 'mall': new states.stages.Mall(); // Week 5 - Cocoa, Eggnog
 				case 'mallEvil': new states.stages.MallEvil(); // Week 5 - Winter Horrorland
 				case 'school': new states.stages.School(); // Week 6 - Senpai, Roses
-				case 'schoolEvil': new states.stages.SchoolEvil(); // Week 6 - Thorns
+				#if !AWAY_TEST case 'schoolEvil': new states.stages.SchoolEvil(); #end // Week 6 - Thorns
 				case 'tank': new states.stages.Tank(); // Week 7 - Ugh, Guns, Stress
 			}
 
@@ -2007,13 +2007,7 @@ class PlayState extends MusicBeatState
 				else {
 					gottaHitNote = songNotes[1] < maniaKeys;
 				}
-				
-				if (noSpecialNotes && songNotes[3] != null)
-					continue;
 
-				if (playsAsBF() ? gottaHitNote : !gottaHitNote && daStrumTime - lastStrumTime > 10) {
-					playingNoteCount++;
-				}
 				lastStrumTime = daStrumTime;
 
 				var oldNote:Note;
@@ -2029,12 +2023,20 @@ class PlayState extends MusicBeatState
 				swagNote.noteType = songNotes[3];
 				if(!Std.isOfType(songNotes[3], String)) swagNote.noteType = ChartingState.noteTypeList[songNotes[3]]; //Backward compatibility + compatibility with Week 7 charts
 
+				if (noBadNotes && (swagNote.hitCausesMiss || swagNote.hitHealth < 0)) {
+					swagNote.destroy();
+					continue;
+				}
+
 				swagNote.scrollFactor.set();
 
 				var susLength:Float = swagNote.sustainLength;
 
 				susLength = susLength / Conductor.stepCrochet;
+
 				unspawnNotes.push(swagNote);
+				if (playsAsBF() ? gottaHitNote : !gottaHitNote && daStrumTime - lastStrumTime > 10)
+					playingNoteCount++;
 
 				var floorSus:Int = Math.floor(susLength);
 				if(floorSus > 0) {
@@ -4908,7 +4910,7 @@ class PlayState extends MusicBeatState
 	#end
 
 	function isInvalidScore() {
-		return cpuControlled || controls.moodyBlues != null || noSpecialNotes;
+		return cpuControlled || controls.moodyBlues != null || noBadNotes;
 	}
 
 	// MULTIPLAYER STUFF HERE
