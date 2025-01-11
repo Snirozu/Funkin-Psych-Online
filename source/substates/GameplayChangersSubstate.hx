@@ -83,7 +83,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 			optionsArray.push(option);
 		}
 
-		var option:GameplayOption = new GameplayOption('No Special Notes', 'nospecialnotes', 'bool', false);
+		var option:GameplayOption = new GameplayOption('No Hurt Notes', 'nobadnotes', 'bool', false);
 		optionsArray.push(option);
 
 		GameClient.send("status", "In the Game Changers Menu");

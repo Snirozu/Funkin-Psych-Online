@@ -635,6 +635,7 @@ class SkinsState extends MusicBeatState {
 
 				var daCharacter = new Character(0, 0, curCharName, flipped);
 				daCharacter.scrollFactor.set(1.2, 1.2);
+				daCharacter.graphic.bitmap.disposeImage();
 				character.add(daCharacter);
 
 				character.members[0].x = 420 + character.members[0].positionArray[0];
