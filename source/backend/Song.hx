@@ -207,15 +207,17 @@ class Song
 	public static function parseJSONshit(rawJson:String):SwagSong
 	{
 		var parsed:Dynamic = Json.parse(rawJson);
-		var toReturn:SwagSong = null;
 		
 		if (parsed.song != null && !Std.isOfType(parsed.song, String))
-			toReturn = parsed.song;
+		{
+			parsed.song.format = 'psych_legacy';
+			return parsed.song;
+		}
 		else if(parsed.song != null)
-			toReturn = parsed;
+			return parsed;
 		else if (parsed.events != null)
 		{
-			toReturn = {
+			return {
 				events: cast parsed.events,
 				song: "",
 				notes: [],
@@ -231,10 +233,5 @@ class Song
 		}
 		else
 			throw new haxe.Exception("No song data found, or is invalid.");
-
-		if(toReturn.format == null)
-			toReturn.format = 'psych_legacy';
-
-		return toReturn;
 	}
 }
