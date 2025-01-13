@@ -61,15 +61,59 @@ class Song
 	public var player2:String = 'dad';
 	public var gfVersion:String = 'gf';
 
-	private static function onLoadJson(songJson:Dynamic) // Convert old charts to newest format
+	private static function onLoadJson(songJson:Dynamic) // Convert old charts to newest format, or convert new format to old format?
 	{
+		if(songJson.format == null)
+			throw new haxe.Exception('No chart format found!');
+
+		trace('Loaded ${songJson.format} Song!');
+
 		if(songJson.gfVersion == null)
 		{
 			songJson.gfVersion = songJson.player3;
 			songJson.player3 = null;
 		}
 
-		if(songJson.events == null)
+		if(StringTools.startsWith(songJson.format, 'psych_v1'))
+		{
+			var characters:Array<String> = [songJson.player1, songJson.player2, songJson.gfVersion];
+			for (i in 0...characters.length)
+			{
+				switch(characters[i])
+				{
+					case 'pico-playable':
+						characters[i] = 'pico-player';
+
+					case 'tankman-playable':
+						characters[i] = 'tankman-player';
+				}
+			}
+
+			songJson.player1 = characters[0];
+			songJson.player2 = characters[1];
+			songJson.gfVersion = characters[2];
+
+			for (secNum in 0...songJson.notes.length)
+			{
+				var sec:SwagSection = songJson.notes[secNum];
+				for(i in 0...sec.sectionNotes.length)
+				{
+					var note:Array<Dynamic> = sec.sectionNotes[i];
+
+					var secondPlayer:Bool = note[1] > 3;
+
+					if(!sec.mustHitSection)
+						secondPlayer = !secondPlayer;
+
+					note[1] = note[1] % 4;
+
+					if(secondPlayer)
+						note[1] += 4;
+				}
+			}
+		}
+
+		if(songJson.events == null && songJson.format == 'psych_legacy')
 		{
 			songJson.events = [];
 			for (secNum in 0...songJson.notes.length)
@@ -163,8 +207,31 @@ class Song
 	public static function parseJSONshit(rawJson:String):SwagSong
 	{
 		var parsed:Dynamic = Json.parse(rawJson);
-		if (!(parsed.song is String))
-			return cast parsed.song;
-		return cast parsed;
+		
+		if (parsed.song != null && !Std.isOfType(parsed.song, String))
+		{
+			parsed.song.format = 'psych_legacy';
+			return parsed.song;
+		}
+		else if(parsed.song != null)
+			return parsed;
+		else if (parsed.events != null)
+		{
+			return {
+				events: cast parsed.events,
+				song: "",
+				notes: [],
+				bpm: 0,
+				needsVoices: true,
+				speed: 1,
+				player1: "",
+				player2: "",
+				gfVersion: "",
+				stage: "",
+				format: 'psych_v1'
+			};
+		}
+		else
+			throw new haxe.Exception("No song data found, or is invalid.");
 	}
 }
