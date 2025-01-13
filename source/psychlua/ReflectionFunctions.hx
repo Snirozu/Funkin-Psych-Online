@@ -139,6 +139,41 @@ class ReflectionFunctions
 			}
 			return value;
 		});
+		Lua_helper.add_callback(lua, "addToGroup", function(group:String, tag:String, ?index:Int = -1) {
+			var obj:FlxSprite = LuaUtils.getObjectDirectly(tag);
+			if(obj == null || obj.destroy == null)
+			{
+				FunkinLua.luaTrace('addToGroup: Object $tag is not valid!', false, false, FlxColor.RED);
+				return;
+			}
+
+			// uiGroup and such is not existent in psych online, so we can sorta imitate it by just adding it onto PlayState
+			if(['comboGroup', 'uiGroup', 'noteGroup'].contains(group))
+			{
+				PlayState.instance.add(obj);
+				return;
+			}
+
+			var groupOrArray:Dynamic = Reflect.getProperty(LuaUtils.getTargetInstance(), group);
+			if(groupOrArray == null)
+			{
+				FunkinLua.luaTrace('addToGroup: Group/Array $group is not valid!', false, false, FlxColor.RED);
+				return;
+			}
+
+			if(index < 0)
+			{
+				switch(Type.typeof(groupOrArray))
+				{
+					case TClass(Array): //Is Array
+						groupOrArray.push(obj);
+
+					default: //Is Group
+						groupOrArray.add(obj);
+				}
+			}
+			else groupOrArray.insert(index, obj);
+		});
 		Lua_helper.add_callback(lua, "removeFromGroup", function(obj:String, index:Int, dontDestroy:Bool = false) {
 			var groupOrArray:Dynamic = Reflect.getProperty(LuaUtils.getTargetInstance(), obj);
 			if(Std.isOfType(groupOrArray, FlxTypedGroup)) {
