@@ -27,7 +27,7 @@ class Auth {
 		try {
 			saveData = Json.parse(File.getContent(savePath));
 		} catch(e) {
-			trace("Couldn't load peo_auth.json! More info " + e);
+			trace("Couldn't load peo_auth.json! More info: " + e);
 			generateSave();
 			saveData = {
 				id: null,
