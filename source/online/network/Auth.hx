@@ -21,17 +21,20 @@ class Auth {
     public static function load() {
 		savePath = lime.system.System.applicationStorageDirectory + 'peo_auth.json';
 
-		if (!FileSystem.exists(savePath)) {
-			if (!FileSystem.exists(Path.directory(savePath)))
-				FileSystem.createDirectory(Path.directory(savePath));
+		if (!FileSystem.exists(savePath))
+			generateSave();
 
-			File.saveContent(savePath, Json.stringify({
-                id: null,
-                token: null
-            }));
-        }
+		try {
+			saveData = Json.parse(File.getContent(savePath));
+		} catch(e) {
+			trace("Couldn't load peo_auth.json! More info: " + e);
+			generateSave();
+			saveData = {
+				id: null,
+				token: null
+			};
+		}
 
-		saveData = Json.parse(File.getContent(savePath));
         //FileSystem.deleteFile(savePath); // maybe not a good idea?
 
 		authID = saveData.id;
@@ -46,6 +49,16 @@ class Auth {
 			FlxG.save.flush();
         }
     }
+
+	public static function generateSave() {
+		if (!FileSystem.exists(Path.directory(savePath)))
+			FileSystem.createDirectory(Path.directory(savePath));
+
+		File.saveContent(savePath, Json.stringify({
+            id: null,
+            token: null
+        }));
+	}
 
     public static function save(id:String, token:String) {
 		saveData.id = authID = id;
