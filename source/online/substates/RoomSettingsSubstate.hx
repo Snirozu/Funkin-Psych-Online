@@ -168,9 +168,13 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		stageSelect.ID = i++;
 
 		items.add(skinSelect = new Option("Select Skin", "Select your skin here!", () -> {
-			GameClient.clearOnMessage();
-			LoadingState.loadAndSwitchState(new SkinsState());
-		}, null, 0, 80 * i, false, true));
+			if(!GameClient.room.state.disableSkins) {
+				GameClient.clearOnMessage();
+				LoadingState.loadAndSwitchState(new SkinsState());
+			}
+		}, (elapsed) -> {
+			skinSelect.alpha = !GameClient.room.state.disableSkins ? 1 : 0.8;
+		}, 0, 80 * i, false, true));
 		skinSelect.ID = i++;
 
 		items.add(gameOptions = new Option("Game Options", "Open your game options here!", () -> {
