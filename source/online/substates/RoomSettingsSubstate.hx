@@ -14,6 +14,8 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 	var blurFilter:BlurFilter;
 	var coolCam:FlxCamera;
 
+	var toggledSkins:Bool = false;
+
     //options
 	var skinSelect:Option;
 	var gameOptions:Option;
@@ -109,6 +111,19 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		}, 0, 80 * i, GameClient.room.state.hideGF));
 		hideGF.ID = i++;
 
+		var disableSkins:Option;
+		items.add(disableSkins = new Option("Disable Skins", "This will force chart characters.", () -> {
+			if (GameClient.hasPerms()) {
+				GameClient.send("toggleSkins");
+				toggledSkins = true;
+			}
+		}, (elapsed) -> {
+			disableSkins.alpha = GameClient.hasPerms() ? 1 : 0.8;
+
+			disableSkins.checked = GameClient.room.state.disableSkins;
+		}, 0, 80 * i, GameClient.room.state.disableSkins));
+		disableSkins.ID = i++;
+
 		var prevCond:Int = -1;
 		var winCondition:Option;
 		items.add(winCondition = new Option("Win Condition", "...", () -> {
@@ -195,6 +210,11 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
         if (controls.BACK) {
             close();
 			FlxG.mouse.visible = prevMouseVisibility;
+
+			if(toggledSkins) {
+				cast (FlxG.state, RoomState).loadCharacter(true); 
+				cast (FlxG.state, RoomState).loadCharacter(false);
+			}
         }
 
 		if (!GameClient.isConnected()) {

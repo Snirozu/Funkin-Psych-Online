@@ -68,6 +68,9 @@ class Room extends Schema {
 	@:type("boolean")
 	public var hideGF:Bool = false;
 
+	@:type("boolean")
+	public var disableSkins: Bool = false;
+
 	@:type("number")
 	public var winCondition: Dynamic = 0;
 }

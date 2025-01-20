@@ -501,22 +501,25 @@ class RoomState extends MusicBeatState {
 			p1 = null;
 			p1Layer.clear();
 
-			if (FileSystem.exists(Paths.mods(GameClient.room.state.player1.skinMod))) {
-				if (GameClient.room.state.player1.skinMod != null)
-					Mods.currentModDirectory = GameClient.room.state.player1.skinMod;
-
-				if (GameClient.room.state.player1.skinName != null)
-					p1 = new Character(0, 0, GameClient.room.state.player1.skinName + (GameClient.room.state.swagSides ? "-player" : ''), GameClient.room.state.swagSides);
-			}
-			else if (enableDownload && GameClient.room.state.player1.skinURL != null) {
-				waitingForPlayer1Skin = true;
-				OnlineMods.downloadMod(GameClient.room.state.player1.skinURL, manualDownload, (_) -> {
-					if (destroyed)
-						return;
-
-					loadCharacter(isP1, false);
-					waitingForPlayer1Skin = false;
-				});
+			if(!GameClient.room.state.disableSkins)
+			{
+				if (FileSystem.exists(Paths.mods(GameClient.room.state.player1.skinMod))) {
+					if (GameClient.room.state.player1.skinMod != null)
+						Mods.currentModDirectory = GameClient.room.state.player1.skinMod;
+	
+					if (GameClient.room.state.player1.skinName != null)
+						p1 = new Character(0, 0, GameClient.room.state.player1.skinName + (GameClient.room.state.swagSides ? "-player" : ''), GameClient.room.state.swagSides);
+				}
+				else if (enableDownload && GameClient.room.state.player1.skinURL != null) {
+					waitingForPlayer1Skin = true;
+					OnlineMods.downloadMod(GameClient.room.state.player1.skinURL, manualDownload, (_) -> {
+						if (destroyed)
+							return;
+	
+						loadCharacter(isP1, false);
+						waitingForPlayer1Skin = false;
+					});
+				}
 			}
 
 			if (p1 == null)
@@ -533,23 +536,26 @@ class RoomState extends MusicBeatState {
 			p2 = null;
 			p2Layer.clear();
 
-			if (FileSystem.exists(Paths.mods(GameClient.room.state.player2.skinMod))) {
-				if (GameClient.room.state.player2.skinMod != null)
-					Mods.currentModDirectory = GameClient.room.state.player2.skinMod;
-
-				if (GameClient.room.state.player2.skinName != null)
-					p2 = new Character(0, 0, GameClient.room.state.player2.skinName + (GameClient.room.state.swagSides ? '' : "-player"), !GameClient.room.state.swagSides);
-			}
-			else if (enableDownload && GameClient.room.state.player2.skinURL != null) {
-				waitingForPlayer2Skin = true;
-				OnlineMods.downloadMod(GameClient.room.state.player2.skinURL, manualDownload, (_) -> {
-					if (destroyed)
-						return;
-
-					loadCharacter(isP1, false);
-					waitingForPlayer2Skin = false;
-				});
-			}
+			if(!GameClient.room.state.disableSkins)
+			{
+				if (FileSystem.exists(Paths.mods(GameClient.room.state.player2.skinMod))) {
+					if (GameClient.room.state.player2.skinMod != null)
+						Mods.currentModDirectory = GameClient.room.state.player2.skinMod;
+	
+					if (GameClient.room.state.player2.skinName != null)
+						p2 = new Character(0, 0, GameClient.room.state.player2.skinName + (GameClient.room.state.swagSides ? '' : "-player"), !GameClient.room.state.swagSides);
+				}
+				else if (enableDownload && GameClient.room.state.player2.skinURL != null) {
+					waitingForPlayer2Skin = true;
+					OnlineMods.downloadMod(GameClient.room.state.player2.skinURL, manualDownload, (_) -> {
+						if (destroyed)
+							return;
+	
+						loadCharacter(isP1, false);
+						waitingForPlayer2Skin = false;
+					});
+				}
+			}			
 
 			if (p2 == null)
 				p2 = new Character(/*770*/ 0, 0, "default" + (GameClient.room.state.swagSides ? '' : "-player"), !GameClient.room.state.swagSides);

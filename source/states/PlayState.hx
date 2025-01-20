@@ -755,13 +755,15 @@ class PlayState extends MusicBeatState
 			Mods.currentModDirectory = "";
 
 			if (GameClient.isConnected()) {
-				var roomDad = !GameClient.room.state.swagSides ? GameClient.room.state.player1 : GameClient.room.state.player2;
-				if (FileSystem.exists(Paths.mods(roomDad.skinMod))) {
-					if (roomDad.skinMod != null)
-						Mods.currentModDirectory = roomDad.skinMod;
+				if (!GameClient.room.state.disableSkins) {
+					var roomDad = !GameClient.room.state.swagSides ? GameClient.room.state.player1 : GameClient.room.state.player2;
+					if (FileSystem.exists(Paths.mods(roomDad.skinMod))) {
+						if (roomDad.skinMod != null)
+							Mods.currentModDirectory = roomDad.skinMod;
 
-					if (roomDad.skinName != null)
-						dad = new Character(0, 0, roomDad.skinName + skinsSuffix, !playsAsBF(), true);
+						if (roomDad.skinName != null)
+							dad = new Character(0, 0, roomDad.skinName + skinsSuffix, !playsAsBF(), true);
+					}
 				}
 			}
 			else if (!playsAsBF() && ClientPrefs.data.modSkin != null) {
@@ -788,13 +790,15 @@ class PlayState extends MusicBeatState
 			Mods.currentModDirectory = "";
 
 			if (GameClient.isConnected()) {
-				var roomBf = !GameClient.room.state.swagSides ? GameClient.room.state.player2 : GameClient.room.state.player1;
-				if (FileSystem.exists(Paths.mods(roomBf.skinMod))) {
-					if (roomBf.skinMod != null)
-						Mods.currentModDirectory = roomBf.skinMod;
+				if (!GameClient.room.state.disableSkins) {
+					var roomBf = !GameClient.room.state.swagSides ? GameClient.room.state.player2 : GameClient.room.state.player1;
+					if (FileSystem.exists(Paths.mods(roomBf.skinMod))) {
+						if (roomBf.skinMod != null)
+							Mods.currentModDirectory = roomBf.skinMod;
 
-					if (roomBf.skinName != null)
-						boyfriend = new Character(0, 0, roomBf.skinName + skinsSuffix + "-player", playsAsBF(), true);
+						if (roomBf.skinName != null)
+							boyfriend = new Character(0, 0, roomBf.skinName + skinsSuffix + "-player", playsAsBF(), true);
+					}
 				}
 			}
 			else if (playsAsBF() && ClientPrefs.data.modSkin != null) {
