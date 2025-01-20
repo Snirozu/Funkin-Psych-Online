@@ -214,11 +214,6 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
         if (controls.BACK) {
             close();
 			FlxG.mouse.visible = prevMouseVisibility;
-
-			if(toggledSkins) {
-				cast (FlxG.state, RoomState).loadCharacter(true); 
-				cast (FlxG.state, RoomState).loadCharacter(false);
-			}
         }
 
 		if (!GameClient.isConnected()) {

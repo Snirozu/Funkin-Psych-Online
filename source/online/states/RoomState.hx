@@ -198,6 +198,7 @@ class RoomState extends MusicBeatState {
 	var waitingForPlayer2Skin = false;
 
 	var lastSwapped = false;
+	var lastSkinDisable = false;
 
 	override function create() {
 		super.create();
@@ -636,12 +637,13 @@ class RoomState extends MusicBeatState {
 
 		lastFocused = chatBox.focused && chatBox.typeText.text.length > 0;
 
-		if (lastSwapped != GameClient.room.state.swagSides) {
+		if (lastSwapped != GameClient.room.state.swagSides || lastSkinDisable != GameClient.room.state.disableSkins) {
 			loadCharacter(true);
 			loadCharacter(false);
 		}
 
 		lastSwapped = GameClient.room.state.swagSides;
+		lastSkinDisable = GameClient.room.state.disableSkins;
 		
 		// if (FlxG.keys.justPressed.SPACE) {
 		// 	Alert.alert("Camera Location:", '${cum.scroll.x},${cum.scroll.y} x ${cum.zoom}');
