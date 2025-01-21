@@ -1,5 +1,6 @@
 package substates;
 
+import states.FreeplayState;
 import online.backend.Waiter;
 import online.GameClient;
 import objects.AttachedText;
@@ -45,6 +46,10 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		option.changeValue = 0.05;
 		option.displayFormat = '%vX';
 		option.decimals = 2;
+		option.onChange = () -> {
+			if (FlxG.state is FreeplayState)
+				FreeplayState.updateFreeplayMusicPitch();
+		};
 		optionsArray.push(option);
 		#end
 
@@ -77,6 +82,9 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 			var option:GameplayOption = new GameplayOption('Play as Opponent', 'opponentplay', 'bool', false);
 			optionsArray.push(option);
 		}
+
+		var option:GameplayOption = new GameplayOption('No Hurt Notes', 'nobadnotes', 'bool', false);
+		optionsArray.push(option);
 
 		GameClient.send("status", "In the Game Changers Menu");
 	}
@@ -151,7 +159,6 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 		if (GameClient.isConnected()) {
 			GameClient.room.state.gameplaySettings.onChange(receiveChange);
-			
 		}
 	}
 
@@ -161,6 +168,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 			for (option in optionsArray) {
 				updateTextFrom(option);
 			}
+			FreeplayState.updateFreeplayMusicPitch();
 		});
 	}
 

@@ -3,11 +3,9 @@ package online.states;
 import flixel.util.FlxStringUtil;
 import backend.WeekData;
 import lumod.Lumod;
-import flixel.util.FlxSpriteUtil;
 import flixel.effects.FlxFlicker;
 import sys.FileSystem;
 import objects.Character;
-import online.backend.schema.Player;
 
 @:build(lumod.LuaScriptClass.build())
 class ResultsState extends MusicBeatState {
@@ -17,6 +15,7 @@ class ResultsState extends MusicBeatState {
 
 	var win:FlxSprite;
 	var lose:FlxSprite;
+	var tie:FlxSprite;
 	var back:FlxSprite;
 
 	var p1Text:Alphabet;
@@ -90,10 +89,21 @@ class ResultsState extends MusicBeatState {
 		p2.y = p2.positionArray[1] - 50;
 		add(p2);
 
-		p1.dance();
-		p1.animation.finish();
-		p2.dance();
-		p2.animation.finish();
+		if (p1.animExists('resultsIdle')) {
+			p1.playAnim('resultsIdle');
+		}
+		else {
+			p1.dance();
+			p1.animation.finish();
+		}
+
+		if (p2.animExists('resultsIdle')) {
+			p2.playAnim('resultsIdle');
+		}
+		else {
+			p2.dance();
+			p2.animation.finish();
+		}
 
 		var p1Bg = new FlxSprite();
 		p1Bg.makeGraphic(1, 1, FlxColor.BLACK);
@@ -143,6 +153,18 @@ class ResultsState extends MusicBeatState {
 		lose.alpha = 0;
 		add(lose);
 
+		tie = new FlxSprite();
+		tie.antialiasing = ClientPrefs.data.antialiasing;
+		tie.frames = Paths.getSparrowAtlas('onlineJudges');
+		tie.animation.addByPrefix('idle', "tie", 24);
+		tie.animation.play('idle');
+		tie.scale.set(0.6, 0.6);
+		tie.updateHitbox();
+		tie.y = win.y + 10;
+		tie.alpha = 0;
+		tie.screenCenter(X);
+		add(tie);
+
 		back = new FlxSprite();
 		back.antialiasing = ClientPrefs.data.antialiasing;
 		back.frames = Paths.getSparrowAtlas('backspace');
@@ -175,10 +197,24 @@ class ResultsState extends MusicBeatState {
 		p1Accuracy = GameClient.getPlayerAccuracyPercent(getPlayer(1));
 		p2Accuracy = GameClient.getPlayerAccuracyPercent(getPlayer(2));
 
-		if (p1Accuracy >= p2Accuracy)
-			winner = 0;
-        else
-			winner = 1;
+		switch (GameClient.room.state.winCondition) {
+			case 0:
+				winner = (p1Accuracy >= p2Accuracy ? 0 : 1);
+				if (p1Accuracy == p2Accuracy)
+					winner = -1;
+			case 1:
+				winner = (getPlayer(1).score >= getPlayer(2).score ? 0 : 1);
+				if (getPlayer(1).score == getPlayer(2).score)
+					winner = -1;
+			case 2:
+				winner = (getPlayer(1).misses <= getPlayer(2).misses ? 0 : 1);
+				if (getPlayer(1).misses == getPlayer(2).misses)
+					winner = -1;
+			case 3:
+				winner = (getPlayer(1).songPoints >= getPlayer(2).songPoints ? 0 : 1);
+				if (getPlayer(1).score == getPlayer(2).score)
+					winner = -1;
+		}
 
 		var winnerPlayer = winner == 0 ? p1 : p2;
 		var loserPlayer = winner == 0 ? p2 : p1;
@@ -190,8 +226,8 @@ class ResultsState extends MusicBeatState {
 		if (p2Name.trim() == "")
 			p2Name = "(none)";
 
-		p1Text.text = '${p1Name}\nAccuracy: ${p1Accuracy}% - ${GameClient.getPlayerRating(getPlayer(1))}\nMisses: ${getPlayer(1).misses}\nScore: ${FlxStringUtil.formatMoney(getPlayer(1).score, false)}';
-		p2Text.text = '${p2Name}\nAccuracy: ${p2Accuracy}% - ${GameClient.getPlayerRating(getPlayer(2))}\nMisses: ${getPlayer(2).misses}\nScore: ${FlxStringUtil.formatMoney(getPlayer(2).score, false)}';
+		p1Text.text = '${p1Name}\nAccuracy: ${p1Accuracy}% - ${GameClient.getPlayerRating(getPlayer(1))}\nMisses: ${getPlayer(1).misses}\nScore: ${FlxStringUtil.formatMoney(getPlayer(1).score, false)} - ${getPlayer(1).songPoints}FP';
+		p2Text.text = '${p2Name}\nAccuracy: ${p2Accuracy}% - ${GameClient.getPlayerRating(getPlayer(2))}\nMisses: ${getPlayer(2).misses}\nScore: ${FlxStringUtil.formatMoney(getPlayer(2).score, false)} - ${getPlayer(2).songPoints}FP';
 
 		p1Text.x = 176;
 		p2Text.x = 702;
@@ -227,7 +263,6 @@ class ResultsState extends MusicBeatState {
 		dim.makeGraphic(Std.int(FlxG.width), Std.int(FlxG.height), FlxColor.BLACK);
 		dim.scrollFactor.set(0, 0);
 		dim.alpha = 1;
-		dim.visible = true;
 		add(dim);
 
 		Paths.setCurrentLevel('week1');
@@ -250,17 +285,85 @@ class ResultsState extends MusicBeatState {
 
 		new FlxTimer().start(2, (t) -> {
 
-			winnerPlayer.playAnim("hey");
-			loserPlayer.playAnim("hurt");
+			if (winner > -1) {
+				if (winnerPlayer.animExists('win')) {
+					winnerPlayer.playAnim("win");
+
+					if (winnerPlayer.animExists('winLoop')) {
+						winnerPlayer.animation.finishCallback = n -> {
+							winnerPlayer.animation.finishCallback = null;
+							winnerPlayer.playAnim("winLoop");
+						};
+					}
+				}
+				else {
+					winnerPlayer.playAnim("hey");
+				}
+
+				if (loserPlayer.animExists('lose')) {
+					loserPlayer.playAnim("lose");
+
+					if (loserPlayer.animExists('loseLoop')) {
+						loserPlayer.animation.finishCallback = n -> {
+							loserPlayer.animation.finishCallback = null;
+							loserPlayer.playAnim("loseLoop");
+						};
+					}
+				}
+				else {
+					loserPlayer.playAnim("hurt");
+				}
+			}
+			else {
+				if (p1.animExists('tie')) {
+					p1.playAnim("tie");
+
+					if (p1.animExists('tieLoop')) {
+						p1.animation.finishCallback = n -> {
+							p1.animation.finishCallback = null;
+							p1.playAnim("tieLoop");
+						};
+					}
+				}
+				else {
+					p1.playAnim("hurt");
+				}
+
+				if (p2.animExists('tie')) {
+					p2.playAnim("tie");
+
+					if (p2.animExists('tieLoop')) {
+						p2.animation.finishCallback = n -> {
+							p2.animation.finishCallback = null;
+							p2.playAnim("tieLoop");
+						};
+					}
+				}
+				else {
+					p2.playAnim("hurt");
+				}
+			}
+			p1.noAnimationBullshit = true;
+			p2.noAnimationBullshit = true;
 
 			FlxTween.tween(p1Text, {alpha: 1}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
 			FlxTween.tween(p2Text, {alpha: 1}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
 			FlxTween.tween(p1Bg, {alpha: 0.5}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
 			FlxTween.tween(p2Bg, {alpha: 0.5}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
 
-			FlxTween.tween(win, {alpha: 1}, 0.5, {ease: FlxEase.quadInOut});
-			FlxTween.tween(lose, {alpha: 1, angle: 3}, 0.5, {ease: FlxEase.quadInOut});
-			FlxTween.tween(lose, {angle: 0}, 0.2, {ease: FlxEase.quadInOut});
+			if (winner > -1) {
+				FlxTween.tween(win, {alpha: 1}, 0.5, {ease: FlxEase.quadInOut});
+				FlxTween.tween(lose, {alpha: 1, angle: 3}, 0.5, {ease: FlxEase.quadInOut});
+				FlxTween.tween(lose, {angle: 0}, 0.2, {ease: FlxEase.quadInOut});
+				if (ClientPrefs.data.flashing) {
+					flickerLoop();
+				}
+				spotlight.visible = true;
+			}
+			else {
+				FlxTween.tween(dim, {alpha: 0}, 1, {ease: FlxEase.quadInOut});
+				FlxTween.tween(tie, {alpha: 1}, 0.5, {ease: FlxEase.quadInOut});
+			}
 
 			if (gainedPoints > 0) {
 				gainedText.visible = true;
@@ -275,12 +378,6 @@ class ResultsState extends MusicBeatState {
 			}
 
 			gainedPoints = 0;
-
-			if (ClientPrefs.data.flashing) {
-				flickerLoop();
-				return;
-			}
-			spotlight.visible = true;
 
 		});
 
@@ -319,7 +416,7 @@ class ResultsState extends MusicBeatState {
 		if (FlxG.keys.justPressed.F12) {
 			trace('reloading lumod');
 			Lumod.cache.scripts.clear();
-			luaLoad();
+			lmLoad();
 		}
 
 		if (luaValue == false)

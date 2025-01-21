@@ -4,7 +4,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 {
 	public function new()
 	{
-		title = 'Gameplay Settings';
+		title = 'Gameplay';
 		rpcTitle = 'Gameplay Settings Menu'; //for Discord Rich Presence
 
 		//I'd suggest using "Downscroll" as an example for making your own option since it is the simplest here
@@ -124,6 +124,18 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Disable Leaderboard Submiting',
 			'If checked, the game will no longer submit your replays to the leaderboard\nCan be toggled in-game with F2',
 			'disableSubmiting',
+			'bool');
+		addOption(option);
+
+		var option:Option = new Option('Disable Lag Detection',
+			'If checked, the game will no longer rewind 3 seconds when a lag is detected',
+			'disableLagDetection',
+			'bool');
+		addOption(option);
+
+		var option:Option = new Option('Modchart Skin Changes',
+			'If enabled, the song events will change the character of your active skin',
+			'modchartSkinChanges',
 			'bool');
 		addOption(option);
 

@@ -34,6 +34,8 @@ class ControlsSubState extends MusicBeatSubstate
 		[true, 'Accept', 'accept', 'Accept'],
 		[true, 'Back', 'back', 'Back'],
 		[true, 'Pause', 'pause', 'Pause'],
+		[true, 'Sidebar', 'sidebar', 'Sidebar'],
+		[true, 'Favorite', 'fav', 'Favorite'],
 		[false],
 		[false, 'VOLUME'],
 		[false, 'Mute', 'volume_mute', 'Volume Mute'],

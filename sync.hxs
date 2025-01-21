@@ -1,8 +1,6 @@
 // for quick patches, hooking into classes
 // this can be locally tested with sync.hxs in the game directory
 
-import backend.Mods;
-
 function init() { // initializes the game
     print("received sync script from git!");
 }

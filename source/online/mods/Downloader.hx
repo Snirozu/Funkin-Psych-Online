@@ -1,6 +1,5 @@
 package online.mods;
 
-import haxe.io.Eof;
 import haxe.io.Error;
 import haxe.CallStack;
 import haxe.io.Path;
@@ -81,7 +80,7 @@ class Downloader {
 				if (!cancelRequested) {
 					trace(id + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
 					Waiter.put(() -> {
-						Alert.alert('Uncaught Download Error!', id + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
+						Alert.alert('Uncaught Download Error!', id + ': ' + ShitUtil.readableError(exc) + "\n\n" + CallStack.toString(exc.stack));
 					});
 				}
 				doCancel();
@@ -98,9 +97,11 @@ class Downloader {
 		"application/gzip",
 		"application/x-gtar",
 		"application/octet-stream", // unknown files
+		#if RAR_SUPPORTED
 		"application/vnd.rar",
 		"application/x-rar-compressed",
 		"application/x-rar",
+		#end
 	];
 
 	public static function isMediaTypeAllowed(file:String) {
@@ -117,7 +118,7 @@ class Downloader {
 
 		var urlFormat = URLScraper.getURLFormat(url);
 		var headers:String = "";
-		headers += '\nHost: ${urlFormat.domain}:${urlFormat.port}';
+		headers += '\nHost: ${urlFormat.domain}' + (urlFormat.port != 80 && urlFormat.port != 443 ? ':${urlFormat.port}' : '');
 		headers += '\nUser-Agent: haxe';
 		if (requestHeaders != null) {
 			for (key => value in requestHeaders) {
@@ -161,7 +162,10 @@ class Downloader {
 				if (tries >= 10) {
 					trace(id + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
 					Waiter.put(() -> {
-						Alert.alert('Couldn\'t connect to the server after multiple tries!', '${urlFormat.domain + urlFormat.path}' + ': ' + exc + "\n\n" + CallStack.toString(exc.stack));
+						Alert.alert('Couldn\'t connect to the server after multiple tries!',
+							'${urlFormat.domain + urlFormat.path}'
+							+ ': '
+							+ ShitUtil.readableError(exc) + "\n\n" + CallStack.toString(exc.stack));
 					});
 					cancelRequested = true;
 					break;
@@ -255,7 +259,7 @@ class Downloader {
 					gotContent += _bytesWritten;
 				}
 				catch (e:Dynamic) {
-					if (e is Eof || e == Error.Blocked) {
+					if (Std.string(e).toLowerCase() == "eof" || e == Error.Blocked) {
 						// Eof and Blocked will be ignored
 						continue;
 					}
@@ -272,7 +276,7 @@ class Downloader {
 					gotContent += _bytesWritten;
 				}
 				catch (e:Dynamic) {
-					if (e is Eof || e == Error.Blocked) {
+					if (Std.string(e).toLowerCase() == "eof" || e == Error.Blocked) {
 						// Eof and Blocked will be ignored
 						continue;
 					}

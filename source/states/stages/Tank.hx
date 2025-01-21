@@ -1,7 +1,6 @@
 package states.stages;
 
 import flixel.math.FlxPoint;
-import animateatlas.AtlasFrameMaker;
 
 import states.stages.objects.*;
 import cutscenes.CutsceneHandler;
@@ -139,7 +138,7 @@ class Tank extends BaseStage
 	var tankman2:FlxSprite;
 	var gfDance:FlxSprite;
 	var gfCutscene:FlxSprite;
-	var picoCutscene:FlxSprite;
+	var picoCutscene:FlxAnimate;
 	var boyfriendCutscene:FlxSprite;
 	function prepareCutscene()
 	{
@@ -164,9 +163,6 @@ class Tank extends BaseStage
 		gfCutscene = new FlxSprite(gf.x - 104, gf.y + 122);
 		gfCutscene.antialiasing = ClientPrefs.data.antialiasing;
 
-		picoCutscene = new FlxSprite(gf.x - 849, gf.y - 264);
-		picoCutscene.antialiasing = ClientPrefs.data.antialiasing;
-
 		boyfriendCutscene = new FlxSprite(boyfriend.x + 5, boyfriend.y + 20);
 		boyfriendCutscene.antialiasing = ClientPrefs.data.antialiasing;
 
@@ -174,7 +170,6 @@ class Tank extends BaseStage
 		cutsceneHandler.push(tankman2);
 		cutsceneHandler.push(gfDance);
 		cutsceneHandler.push(gfCutscene);
-		cutsceneHandler.push(picoCutscene);
 		cutsceneHandler.push(boyfriendCutscene);
 
 		cutsceneHandler.finishCallback = function()
@@ -311,9 +306,15 @@ class Tank extends BaseStage
 		addBehindGF(gfCutscene);
 		if (!ClientPrefs.data.lowQuality) gfCutscene.alpha = 0.00001;
 
-		picoCutscene.frames = AtlasFrameMaker.construct('cutscenes/stressPico');
-		picoCutscene.animation.addByPrefix('anim', 'Pico Badass', 24, false);
+		picoCutscene = new FlxAnimate(gf.x - 849, gf.y - 264);
+		picoCutscene.antialiasing = ClientPrefs.data.antialiasing;
+		picoCutscene.showPivot = false;
+
+		Paths.loadAnimateAtlas(picoCutscene, 'cutscenes/stressPico');
+		picoCutscene.antialiasing = ClientPrefs.data.antialiasing;
+		picoCutscene.anim.addBySymbol('anim', 'Pico Badass', 24, true);
 		addBehindGF(picoCutscene);
+		cutsceneHandler.push(picoCutscene);
 		picoCutscene.alpha = 0.00001;
 
 		boyfriendCutscene.frames = Paths.getSparrowAtlas('characters/BOYFRIEND');
@@ -352,7 +353,7 @@ class Tank extends BaseStage
 				{
 					gfCutscene.visible = false;
 					picoCutscene.alpha = 1;
-					picoCutscene.animation.play('anim', true);
+					picoCutscene.anim.play('anim', true);
 
 					boyfriendGroup.alpha = 1;
 					boyfriendCutscene.visible = false;
@@ -366,11 +367,11 @@ class Tank extends BaseStage
 						}
 					};
 
-					picoCutscene.animation.finishCallback = function(name:String)
+					picoCutscene.anim.onComplete = function()
 					{
 						picoCutscene.visible = false;
 						gfGroup.alpha = 1;
-						picoCutscene.animation.finishCallback = null;
+						picoCutscene.anim.onComplete = null;
 					};
 					gfCutscene.animation.finishCallback = null;
 				}

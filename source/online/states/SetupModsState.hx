@@ -151,10 +151,11 @@ class SetupModsState extends MusicBeatState {
 				item.text = "> " + item.text + " <";
 				item.alpha = 1;
 			}
-			if (modsInput[item.ID].startsWith("http://") || modsInput[item.ID].startsWith("https://"))
-				item.color = FlxColor.LIME;
-			else
+
+			if (modsInput[item.ID] == null || !(modsInput[item.ID].startsWith('https://') || modsInput[item.ID].startsWith('http://')))
 				item.color = FlxColor.RED;
+			else
+				item.color = FlxColor.LIME;
 			item.screenCenter(X);
 		}
     }

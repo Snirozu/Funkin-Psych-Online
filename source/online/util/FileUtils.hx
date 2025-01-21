@@ -86,4 +86,8 @@ class FileUtils {
 		}
 		return filtered;
 	}
+
+	public static function joinNativePath(paths:Array<String>):String {
+		return Path.join(paths).replace('/', #if windows '\\' #else '/' #end);
+	}
 }

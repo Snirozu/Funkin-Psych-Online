@@ -73,6 +73,9 @@ class Deflection {
 		classBlacklist.push(online.util.FileUtils);
 		classBlacklist.push(online.util.HTTPClient);
 
+		// SyncScript can load malicious scripts
+		classBlacklist.push(online.backend.SyncScript);
+
 		// `polymod.*`
 		// Contains functions which may allow for un-blacklisting other modules.
 		for (cls in CompileTime.getAllClasses('polymod')) {

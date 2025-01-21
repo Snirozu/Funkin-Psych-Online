@@ -18,7 +18,6 @@ import openfl.display.BitmapData;
 import shaders.ColorSwap;
 
 import states.StoryMenuState;
-import states.OutdatedState;
 import states.MainMenuState;
 
 #if MODS_ALLOWED
@@ -68,7 +67,7 @@ class TitleState extends MusicBeatState
 	var easterEggKeysBuffer:String = '';
 	#end
 
-	var mustUpdate:Bool = false;
+	public static var mustUpdate:Bool = false;
 	//public static var offlineMode:Bool = false;
 
 	var titleJSON:TitleData;
@@ -108,8 +107,8 @@ class TitleState extends MusicBeatState
 				updateVersion = data.split('\n')[0].trim();
 				var curVersion:String = Main.PSYCH_ONLINE_VERSION.trim();
 				trace('version online: ' + updateVersion + ', your version: ' + curVersion);
-				if(updateVersion != curVersion) {
-					trace('versions arent matching!');
+				if(Std.parseFloat(updateVersion.replace('.', '')) > Std.parseFloat(curVersion.replace('.', ''))) {
+					trace('update version is newer!');
 					mustUpdate = true;
 					//offlineMode = true;
 				}
@@ -359,6 +358,11 @@ class TitleState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
+		if (FlxG.keys.justPressed.DELETE) {
+			lumod.Lumod.cache.scripts.clear();
+			trace("cleared lumod cache");
+		}
+
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
 		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
@@ -427,11 +431,11 @@ class TitleState extends MusicBeatState
 					#if DEBUG_RESULTS
 					FlxG.switchState(() -> new online.states.ResultsScreen());
 					#else
-					if (mustUpdate) {
-						FlxG.switchState(() -> new OutdatedState());
-					} else {
+					// if (mustUpdate) {
+					// 	FlxG.switchState(() -> new OutdatedState());
+					// } else {
 						FlxG.switchState(() -> new MainMenuState());
-					}
+					//}
 					#end
 					closedState = true;
 				});

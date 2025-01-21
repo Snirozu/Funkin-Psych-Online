@@ -25,11 +25,12 @@ class OnlineState extends MusicBeatState {
 		"MOD DOWNLOADER"
     ];
 
-	var networkPlayer:FlxText;
-	var networkBg:FlxSprite;
+	// var networkPlayer:FlxText;
+	// var networkBg:FlxSprite;
 	var itemDesc:FlxText;
 	var playersOnline:FlxText;
 
+	public static var twitterIsDead:Bool = false;
 	static var curSelected = 0;
 
 	var inputWait = false;
@@ -57,6 +58,8 @@ class OnlineState extends MusicBeatState {
 	
 	var discord:FlxSprite;
 	var github:FlxSprite;
+	var bsky:FlxSprite;
+	var twitter:FlxSprite;
 
     function onRoomJoin(err:Dynamic) {
 		if (err != null) {
@@ -167,7 +170,35 @@ class OnlineState extends MusicBeatState {
 		github.alpha = 0.8;
 		add(github);
 
-		itemDesc = new FlxText(0, FlxG.height - 125);
+		if (twitterIsDead) {
+			bsky = new FlxSprite();
+			bsky.antialiasing = ClientPrefs.data.antialiasing;
+			bsky.frames = Paths.getSparrowAtlas('online_bsky');
+			bsky.animation.addByPrefix('idle', "idle", 24);
+			bsky.animation.addByPrefix('active', "active", 24);
+			bsky.animation.play('idle');
+			bsky.updateHitbox();
+			bsky.x = github.x + github.width + 20;
+			bsky.y = FlxG.height - bsky.height - 28;
+			bsky.alpha = 0.8;
+			add(bsky);
+		}
+		else {
+			twitter = new FlxSprite();
+			twitter.antialiasing = ClientPrefs.data.antialiasing;
+			twitter.frames = Paths.getSparrowAtlas('online_twitter');
+			twitter.animation.addByPrefix('idle', "idle", 24);
+			twitter.animation.addByPrefix('active', "active", 24);
+			twitter.animation.play('idle');
+			twitter.updateHitbox();
+			twitter.x = github.x + github.width + 20;
+			twitter.y = FlxG.height - twitter.height - 28;
+			twitter.alpha = 0.8;
+			add(twitter);
+		}
+		
+
+		itemDesc = new FlxText(0, FlxG.height - 170);
 		itemDesc.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		itemDesc.screenCenter(X);
 		add(itemDesc);
@@ -185,32 +216,37 @@ class OnlineState extends MusicBeatState {
 		availableRooms.screenCenter(X);
 		add(availableRooms);
 
-		networkBg = new FlxSprite(20, 20);
-		networkBg.makeGraphic(1, 1, FlxColor.BLACK);
-		networkBg.alpha = 0.6;
-		add(networkBg);
+		// networkBg = new FlxSprite(20, 20);
+		// networkBg.makeGraphic(1, 1, FlxColor.BLACK);
+		// networkBg.alpha = 0.6;
+		// add(networkBg);
 
-		networkPlayer = new FlxText(30, 30);
-		networkPlayer.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		networkPlayer.alpha = 0.5;
-		networkPlayer.text = FunkinNetwork.loggedIn ? "Logged in as " + FunkinNetwork.nickname : "Not logged in";
-		if (FunkinNetwork.loggedIn) {
-			networkPlayer.text += "\nPoints:" + FunkinNetwork.points;
-		}
-		add(networkPlayer);
+		// networkPlayer = new FlxText(30, 30);
+		// networkPlayer.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		// networkPlayer.alpha = 0.5;
+		// networkPlayer.text = FunkinNetwork.loggedIn ? "Logged in as " + FunkinNetwork.nickname : "Not logged in";
+		// if (FunkinNetwork.loggedIn) {
+		// 	networkPlayer.text += "\nPoints:" + FunkinNetwork.points;
+		// }
+		// add(networkPlayer);
 
-		networkBg.scale.set(networkPlayer.width + 20, networkPlayer.height + 20);
-		networkBg.updateHitbox();
+		// networkBg.scale.set(networkPlayer.width + 20, networkPlayer.height + 20);
+		// networkBg.updateHitbox();
 
-		// slide to the right
-		networkBg.x = FlxG.width - networkBg.width - 20;
-		networkPlayer.x = networkBg.x + 10;
+		// // slide to the right
+		// networkBg.x = FlxG.width - networkBg.width - 20;
+		// networkPlayer.x = networkBg.x + 10;
 
 		var frontMessage = new FlxText(0, 0, 500);
 		frontMessage.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		frontMessage.alpha = 0.5;
 		frontMessage.x = FlxG.width - frontMessage.fieldWidth - 50;
 		add(frontMessage);
+
+		FunkinNetwork.ping();
+		var profileBox = new ProfileBox(FunkinNetwork.nickname, true);
+		profileBox.setPosition(FlxG.width - profileBox.width - 20, 20);
+		add(profileBox);
 		
 		changeSelection(0);
 
@@ -219,8 +255,9 @@ class OnlineState extends MusicBeatState {
 			Waiter.put(() -> {
 				if (data == null) {
 					playersOnline.text = "NETWORK OFFLINE";
-					networkPlayer.visible = false;
-					networkBg.visible = false;
+					profileBox.visible = false;
+					// networkPlayer.visible = false;
+					// networkBg.visible = false;
 				}
 				else {
 					playersOnline.text = 'Players Online: ' + data.online;
@@ -295,6 +332,17 @@ class OnlineState extends MusicBeatState {
 						// FlxG.openURL(GameClient.serverAddress + "/rooms");
 						FlxG.switchState(() -> new FindRoomState());
 					case "host":
+						var count:Float = 0;
+						for (mod in Mods.getModDirectories()) {
+							var url = OnlineMods.getModURL(mod);
+							if (url == null || !(url.startsWith('https://') || url.startsWith('http://')))
+								count++;
+						}
+
+						if (count > 0) {
+							Alert.alert('WARNING', count + ' of your mods doesn\'t have a valid URL set!');
+						}
+
 						disableInput = true;
 						GameClient.createRoom(GameClient.serverAddress, onRoomJoin);
 					case "options":
@@ -357,6 +405,43 @@ class OnlineState extends MusicBeatState {
 					github.alpha = 0.8;
 					github.animation.play("idle");
 				}
+
+				if (twitterIsDead) {
+					if (FlxG.mouse.overlaps(bsky)) {
+						bsky.alpha = 1;
+						bsky.animation.play("active");
+
+						itemDesc.text = "Follow the official Psych Online Bluesky account!";
+						itemDesc.screenCenter(X);
+
+						if (FlxG.mouse.justPressed) {
+							RequestSubstate.requestURL("https://bsky.app/profile/funkin.sniro.boo", true);
+						}
+					}
+					else {
+						bsky.alpha = 0.8;
+						bsky.animation.play("idle");
+					}
+				}
+				else {
+					if (FlxG.mouse.overlaps(twitter)) {
+						twitter.alpha = 1;
+						twitter.animation.play("active");
+						twitter.offset.set(5, 5);
+
+						itemDesc.text = "Follow the official Psych Online Twitter account!";
+						itemDesc.screenCenter(X);
+
+						if (FlxG.mouse.justPressed) {
+							RequestSubstate.requestURL("https://twitter.com/PsychOnlineFNF", true);
+						}
+					}
+					else {
+						twitter.alpha = 0.8;
+						twitter.animation.play("idle");
+						twitter.offset.set(0, 0);
+					}
+				}
 			}
 		}
     }
@@ -388,7 +473,7 @@ class OnlineState extends MusicBeatState {
 		itemDesc.screenCenter(X);
 
 		descBox.scale.set(FlxG.width - 500, (itemDesc.text.split("\n").length + 2) * (itemDesc.size));
-		descBox.y = (FlxG.height - 125) + descBox.scale.y * 0.5 - itemDesc.size;
+		descBox.y = itemDesc.y + descBox.scale.y * 0.5 - itemDesc.size;
 		descBox.screenCenter(X);
 		
 		selectLine.y = (items.y + 20) + (curSelected) * 40;

@@ -74,7 +74,7 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		}, 0, 80 * i, GameClient.room.state.anarchyMode));
 		anarchyMode.ID = i++;
 
-		items.add(swapSides = new Option("Swap Sides", "Swaps Player 1's strums with Player 2.", () -> {
+		items.add(swapSides = new Option("Swap Sides", "Swaps Player 1's notes with Player 2.", () -> {
 			if (GameClient.hasPerms()) {
 				GameClient.send("swapSides");
 			}
@@ -86,7 +86,7 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		swapSides.ID = i++;
 
 		var unlockModifiers:Option;
-		items.add(unlockModifiers = new Option("Unlock Gameplay Modifiers", "This will use player's local gameplay settings instead of room ones.", () -> {
+		items.add(unlockModifiers = new Option("Unlock Gameplay Modifiers", "Allow everyone to set their own Gameplay Modifiers.", () -> {
 			if (GameClient.hasPerms()) {
 				GameClient.send("toggleLocalModifiers", GameClient.room.state.permitModifiers ? ClientPrefs.data.gameplaySettings : null);
 			}
@@ -108,6 +108,32 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			hideGF.checked = GameClient.room.state.hideGF;
 		}, 0, 80 * i, GameClient.room.state.hideGF));
 		hideGF.ID = i++;
+
+		var prevCond:Int = -1;
+		var winCondition:Option;
+		items.add(winCondition = new Option("Win Condition", "...", () -> {
+			if (GameClient.hasPerms()) {
+				GameClient.send("nextWinCondition");
+			}
+		}, (elapsed) -> {
+			if (GameClient.room.state.winCondition != prevCond) {
+				switch (GameClient.room.state.winCondition) {
+					case 0:
+						winCondition.descText.text = 'Player with the highest Accuracy wins!';
+					case 1:
+						winCondition.descText.text = 'Player with the most Score wins!';
+					case 2:
+						winCondition.descText.text = 'Player with the least Misses wins!';
+					case 3:
+						winCondition.descText.text = 'Player with the most FP wins!';
+				}
+				winCondition.descText.text += ' (Click to Change)';
+				winCondition.box.makeGraphic(Std.int(winCondition.descText.x - winCondition.x + winCondition.descText.width) + 10, Std.int(winCondition.height), 0x81000000);
+			}
+
+			prevCond = GameClient.room.state.winCondition;
+		}, 0, 80 * i, false, true));
+		winCondition.ID = i++;
 
 		var modifers:Option;
 		items.add(modifers = new Option("Game Modifiers", "Select room's gameplay modifiers here!", () -> {

@@ -176,7 +176,7 @@ class FunkinLua {
 		// Some settings, no jokes
 		set('downscroll', ClientPrefs.data.downScroll);
 		set('middlescroll', ClientPrefs.data.middleScroll);
-		set('framerate', ClientPrefs.data.unlockFramerate ? 999 : ClientPrefs.data.framerate);
+		set('framerate', ClientPrefs.data.unlockFramerate ? 1000 : ClientPrefs.data.framerate);
 		set('ghostTapping', ClientPrefs.getGhostTapping());
 		set('hideHud', ClientPrefs.data.hideHud);
 		set('timeBarType', ClientPrefs.data.timeBarType);
@@ -1197,7 +1197,8 @@ class FunkinLua {
 			}
 			else
 			{
-				obj.animation.play(name, forced, reverse, startFrame);
+				if(obj.anim != null) obj.anim.play(name, forced, reverse, startFrame); //FlxAnimate
+				else obj.animation.play(name, forced, reverse, startFrame);
 				return true;
 			}
 			return false;
@@ -1612,6 +1613,7 @@ class FunkinLua {
 
 		#if DISCORD_ALLOWED DiscordClient.addLuaCallbacks(lua); #end
 		#if HSCRIPT_ALLOWED HScript.implement(this); #end
+		#if flxanimate FlxAnimateFunctions.implement(this); #end
 		ReflectionFunctions.implement(this);
 		TextFunctions.implement(this);
 		ExtraFunctions.implement(this);

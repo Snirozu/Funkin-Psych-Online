@@ -77,7 +77,7 @@ class InputFormatter {
 			//case SLASH:
 			//	return "/";
 			case GRAVEACCENT:
-				return "`";
+				return "Tilde";
 			case LBRACKET:
 				return "[";
 			//case BACKSLASH:

@@ -40,7 +40,7 @@ class ReplayRecorder extends FlxBasic {
 		ghost_tapping: true,
 		rating_offset: null,
 		safe_frames: null,
-		version: 1,
+		version: 3,
 		mod_url: ''
     };
 
@@ -147,12 +147,12 @@ class ReplayRecorder extends FlxBasic {
 		data.goods = state.songGoods;
 		data.bads = state.songBads;
 		data.shits = state.songShits;
-		data.points = FunkinPoints.calcFP(state.ratingPercent, state.songMisses, state.noteDensity, state.totalNotesHit, state.combo, state.playbackRate, state.songSpeed);
+		data.points = FunkinPoints.calcFP(state.ratingPercent, state.songMisses, state.songDensity, state.totalNotesHit, state.maxCombo);
 		data.beat_time = Date.now().getTime();
 		data.note_offset = ClientPrefs.data.noteOffset;
 
 		if (data.accuracy < 30) {
-			Alert.alert("GIT GUD", 'your performance was so shit that\nim not even going to save the replay for it');
+			Alert.alert("git gud", 'your performance was SHIT');
 			return 0;
 		}
 

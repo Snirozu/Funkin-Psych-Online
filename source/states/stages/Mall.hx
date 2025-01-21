@@ -1,7 +1,6 @@
 package states.stages;
 
 import openfl.media.Sound;
-import flxanimate.FlxAnimate;
 import states.stages.objects.*;
 
 class Mall extends BaseStage

@@ -8,6 +8,7 @@ import sys.FileSystem;
 class SyncScript extends SScript {
 	public static var syncScript:SyncScript;
 	public static var data:Any = {};
+	public static var activeUpdate:Bool = false;
     
 	public static function resyncScript(threaded:Bool = true, ?onDone:Void->Void) {
 		if (threaded) {
@@ -25,6 +26,7 @@ class SyncScript extends SScript {
 
 	static function retrieveScript():String {
 		if (FileSystem.exists("sync.hxs") && ClientPrefs.isDebug()) {
+			Alert.alert("[WARNING] Loaded some script from the local storage!!!");
 			trace("loading sync script from local storage...");
 			return File.getContent("sync.hxs");
 		}
@@ -62,6 +64,8 @@ class SyncScript extends SScript {
 		set("data", data);
 		set("print", s -> Sys.println(s));
 		set("typeof", s -> Type.getClassName(Type.getClass(s)));
+		set("parent", this);
+		set("alert", (title, ?message) -> Alert.alert(title, message));
 	}
 }
 #end

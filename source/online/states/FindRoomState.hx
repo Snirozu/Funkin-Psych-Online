@@ -114,7 +114,7 @@ class FindRoomState extends MusicBeatState {
 				items.clear();
 
                 if (err != null) {
-					Alert.alert("Couldn't connect!", "ERROR: " + err.code + " - " + err.message + (GameClient.serverAddress.endsWith(".onrender.com") ? "\nTry again in a few minutes! The server is probably restarting!" : ""));
+					Alert.alert("Couldn't connect!", "ERROR: " + ShitUtil.prettyStatus(err.code) + " - " + err.message + (GameClient.serverAddress.endsWith(".onrender.com") ? "\nTry again in a few minutes! The server is probably restarting!" : ""));
                     return;
                 }
 

@@ -61,8 +61,8 @@
       "name": "SScript",
       "type": "git",
       "dir": null,
-      "ref": "main",
-      "url": "https://github.com/mcagabe19-stuff/SScript-7.7.0"
+      "ref": "patch-1",
+      "url": "https://github.com/Snirozu/SScript-7.7.0"
     },
     {
       "name": "discord_rpc",
@@ -113,7 +113,7 @@
     {
       "name": "lumod",
       "type": "haxelib",
-      "version": "1.0.0"
+      "version": "2.0.0"
     },
     {
       "name": "actuate",

@@ -84,7 +84,7 @@ class GameClient {
 		reconnecting = false;
 		if (err != null) {
 			trace(err.code + " - " + err.message);
-			Alert.alert("Couldn't connect!", "JOIN ERROR: " + err.code + " - " + err.message);
+			Alert.alert("Couldn't connect!", "JOIN ERROR: " + ShitUtil.prettyStatus(err.code) + "\n" + ShitUtil.readableError(err.message));
 			client = null;
 			_pendingMessages = [];
 			onJoin(err);
@@ -103,9 +103,9 @@ class GameClient {
 		GameClient.rpcClientRoomID = Md5.encode(FlxG.random.int(0, 1000000).hex());
 		clearOnMessage();
 
-		GameClient.room.onError += (id:Int, e:String) -> {
-			Alert.alert("Room error!", "room.onError: " + id + " - " + e + "\n\nPlease report this error on GitHub!");
-			Sys.println("Room.onError: " + id + " - " + e);
+		GameClient.room.onError += (code:Int, e:String) -> {
+			Alert.alert("Room error!", "room.onError: " + ShitUtil.prettyStatus(code) + "\n" + ShitUtil.readableError(e));
+			Sys.println("Room.onError: " + code + " - " + e);
 		}
 
 		GameClient.room.onLeave += () -> {
@@ -159,7 +159,7 @@ class GameClient {
 				if (err != null) {
 					trace(err.code + " - " + err.message);
 					Waiter.put(() -> {
-						Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + err.code + " - " + err.message);
+						Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + ShitUtil.prettyStatus(err.code) + " - " + ShitUtil.readableError(err.message));
 					});
 					leaveRoom();
 					return;
@@ -196,9 +196,9 @@ class GameClient {
 			options.set("skinURL", OnlineMods.getModURL(ClientPrefs.data.modSkin[0]));
 		}
 
-		if (asHost) {
-			options.set("gameplaySettings", ClientPrefs.data.gameplaySettings);
-		}
+		// if (asHost) {
+		// 	options.set("gameplaySettings", ClientPrefs.data.gameplaySettings);
+		// }
 
 		return options;
 	}
@@ -357,7 +357,7 @@ class GameClient {
 		return serverAddress;
 	}
 
-	public static function addressToUrl(address:Null<String>) {
+	public static function addressToUrl(?address:Null<String>) {
 		var copyAddress = address ?? GameClient.serverAddress;
 		if (copyAddress.startsWith("wss://")) {
 			copyAddress = "https://" + copyAddress.substr("wss://".length);

@@ -50,8 +50,8 @@ class Main extends Sprite
 	public static var stage3D:AwayStage;
 	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.8.3";
-	public static final CLIENT_PROTOCOL:Float = 4;
+	public static final PSYCH_ONLINE_VERSION:String = "0.9.3";
+	public static final CLIENT_PROTOCOL:Float = 7;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
@@ -69,7 +69,7 @@ class Main extends Sprite
 		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
 		Lib.current.addChild(new Main());
 		//TBA
-		//Lib.current.addChild(new online.sgui.SideUI());
+		Lib.current.addChild(new online.gui.sidebar.SideUI());
 	}
 
 	public function new()
@@ -112,8 +112,15 @@ class Main extends Sprite
 
 		CoolUtil.setDarkMode(true);
 
-		Lumod.get_scriptsRootPath = () -> {
-			return Lumod.scriptsRootPath = Paths.mods(Mods.currentModDirectory + "/lumod");
+		Lumod.scriptPathHandler = scriptPath -> {
+			var defaultPath:String = 'lumod/' + scriptPath;
+
+			// check if script exists in any of loaded mods
+			var path:String = Paths.modFolders(defaultPath);
+			if (FileSystem.exists(path))
+				return path;
+
+			return defaultPath;
 		}
 		Lumod.classResolver = Deflection.resolveClass;
 
@@ -191,7 +198,7 @@ class Main extends Sprite
 		#else
 		online.GameClient.serverAddresses.push("ws://localhost:2567");
 		#end
-		online.network.FunkinNetwork.client = new online.util.HTTPClient(online.GameClient.addressToUrl(online.GameClient.serverAddress));
+		online.network.FunkinNetwork.client = new online.util.HTTPClient(online.GameClient.addressToUrl());
 
 		online.mods.Downloader.checkDeleteDlDir();
 
@@ -243,6 +250,11 @@ class Main extends Sprite
 			FlxG.state.subStateOpened.add(substate -> {
 				online.backend.SyncScript.dispatch("openSubState", [substate]);
 			});
+		});
+
+		FlxG.signals.postUpdate.add(() -> {
+			if (online.backend.SyncScript.activeUpdate)
+				online.backend.SyncScript.dispatch("update", [FlxG.elapsed]);
 		});
 
 		online.backend.SyncScript.resyncScript(false, () -> {

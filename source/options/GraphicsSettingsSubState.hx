@@ -8,7 +8,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 	var boyfriend:Character = null;
 	public function new()
 	{
-		title = 'Graphics';
+		title = 'Graphics and Performance';
 		rpcTitle = 'Graphics Settings Menu'; //for Discord Rich Presence
 
 		boyfriend = new Character(840, 170, 'bf', true);
@@ -47,15 +47,6 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 		#if !html5 //Apparently other framerates isn't correctly supported on Browser? Probably it has some V-Sync shit enabled by default, idk
 
-		if (ClientPrefs.data.debugMode) {
-			var option:Option = new Option('Unlock FPS', //Name
-				"If checked, the FPS timer will be set to 999 (this can't be infinite for obvious reasons)", //Description
-				'unlockFramerate',
-				'bool');
-			option.onChange = onChangeFramerate;
-			addOption(option);
-		}
-
 		var option:Option = new Option('Framerate',
 			"Pretty self explanatory, isn't it?",
 			'framerate',
@@ -66,7 +57,32 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		option.maxValue = 240;
 		option.displayFormat = '%v FPS';
 		option.onChange = onChangeFramerate;
+
+		var option:Option = new Option('Max FPS', //Name
+			"If checked, the FPS limit will be set to 1000.\nThis setting makes the input timing more accurate, but in cost of minor graphical issues.", //Description
+			'unlockFramerate',
+			'bool');
+		option.onChange = onChangeFramerate;
+		addOption(option);
 		#end
+
+		var option:Option = new Option('Disable Freeplay Icons', //Name
+			"If checked, freeplay menu song icons will not be shown, slightly decreases loading times.", //Description
+			'disableFreeplayIcons',
+			'bool');
+		addOption(option);
+
+		var option:Option = new Option('Fast Freeplay Song Render', //Name
+			"If checked, freeplay songs will be render with the default HaxeFlixel font, greatly improving song loading time", //Description
+			'disableFreeplayAlphabet',
+			'bool');
+		addOption(option);
+
+		var option:Option = new Option('Combo Stacking',
+			"If unchecked, Ratings and Combo won't stack, saving on System Memory and making them easier to read",
+			'comboStacking',
+			'bool');
+		addOption(option);
 
 		super();
 		insert(1, boyfriend);
@@ -86,8 +102,8 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 	function onChangeFramerate()
 	{
 		if (ClientPrefs.data.unlockFramerate) {
-			FlxG.updateFramerate = 999;
-			FlxG.drawFramerate = 999;
+			FlxG.updateFramerate = 1000;
+			FlxG.drawFramerate = 1000;
 			return;
 		}
 

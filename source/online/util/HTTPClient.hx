@@ -1,7 +1,7 @@
 package online.util;
 
 import haxe.io.Error;
-import haxe.io.Eof;
+// import haxe.io.Eof; avoid using that, unreliable
 import haxe.io.Bytes;
 import haxe.io.Output;
 import sys.net.Host;
@@ -15,70 +15,13 @@ class HTTPClient {
 	public var hostname(default, null):String;
 	public var port(default, null):Int = 80;
 	public var ssl(default, null):Bool = false;
-
-    /**
-     * 
-     * @param host Host Name that you want to connect to
-     */
-    public function new(host:String, ?isSSL:Null<Bool>) {
-        // URL parsing
-        var protocolAHost = host.split("://");
-
-		ssl = protocolAHost.length > 1 && protocolAHost[0] == "https";
-        if (ssl) port = 443;
-
-		var hostAPort = protocolAHost[protocolAHost.length - 1].split(":");
-		hostname = hostAPort[0];
-
-		if (hostAPort[1] != null)
-			port = Std.parseInt(hostAPort[1]);
-
-		if (isSSL != null)
-		    ssl = isSSL;
-    }
-
-	public static function requestURL(url:String, ?requestOptions:HTTPURLRequest) {
-        var url = url;
-        var ssl:Null<Bool> = null;
-        if (url.startsWith("https://")) {
-            ssl = true;
-            url = url.substr("https://".length);
-        }
-		else if (url.startsWith("http://")) {
-			url = url.substr("http://".length);
-        }
-
-		var host = "";
-		var port = ssl ?? false ? 443 : 80;
-
-		var portIndex = url.indexOf(':');
-		var pathIndex = url.indexOf('/');
-		if (portIndex != -1 && portIndex < pathIndex) {
-			host = url.substr(0, portIndex);
-
-			var portStr = url.substr(portIndex + 1, pathIndex - portIndex - 1);
-			port = Std.parseInt(portStr);
-        }
-        else {
-			host = url.substr(0, pathIndex);
-        }
-
-		var path = url.substr(pathIndex);
-
-		return new HTTPClient(host + ":" + port, ssl).request({
-            path: path,
-			post: requestOptions?.post,
-			headers: requestOptions?.headers,
-			body: requestOptions?.body,
-			bodyOutput: requestOptions?.bodyOutput
-        });
-    }
+	//requests:Array<String>
 
 	public function request(request:HTTPRequest):HTTPResponse {
 		var response:HTTPResponse = new HTTPResponse();
         try {
             var header:String = "";
-			header += '\r\nHost: ${hostname}:${port}';
+			header += '\r\nHost: ${hostname}' + (port != 80 && port != 443 ? ':${port}' : '');
 			header += '\r\nUser-Agent: haxe';
 			if (request.body != null)
 				header += '\r\nContent-Length: ' + Bytes.ofString(request.body).length;
@@ -94,11 +37,48 @@ class HTTPClient {
             socket = ssl ? new sys.ssl.Socket() : new Socket();
             socket.setTimeout(5);
             socket.setBlocking(true);
-            socket.connect(new Host(hostname), port);
-			socket.write('${request.post ? "POST" : "GET"} ${request.path} HTTP/1.1${header}\r\n\r\n${request.body != null ? request.body : ""}');
+			while (true) {
+				try {
+					socket.connect(new Host(hostname), port);
+					break;
+				}
+				catch (e:Dynamic) {
+					if (e == Error.Blocked) {
+						// Blocked will be ignored
+						continue;
+					}
+					throw e;
+				}
+			}
+			//another one
+			while (true) {
+				try {
+					socket.write('${request.post ? "POST" : "GET"} ${request.path} HTTP/1.1${header}\r\n\r\n${request.body != null ? request.body : ""}');
+					break;
+				}
+				catch (e:Dynamic) {
+					if (e == Error.Blocked) {
+						// Blocked will be ignored
+						continue;
+					}
+					throw e;
+				}
+			}
 
             //read response status
-            var status:Array<String> = socket.input.readLine().split(" ");
+            var status:Array<String> = null;
+			while (status == null) {
+				try {
+					status = socket.input.readLine().split(" ");
+				}
+				catch (e:Dynamic) {
+					if (e == Error.Blocked) {
+						// Blocked will be ignored
+						continue;
+					}
+					throw e;
+				}
+			}
 			status.shift();
 			response.status = Std.parseInt(status.shift());
             response.body = status.join(" ");
@@ -106,11 +86,24 @@ class HTTPClient {
             //read response headers
             response.headers = new Map<String, String>();
             while (true) {
-                var readLine:String = socket.input.readLine();
-                if (readLine.trim() == "")
-                    break;
-                var splitHeader = readLine.split(": ");
-                response.headers.set(splitHeader[0].toLowerCase(), splitHeader[1]);
+				try {
+					var readLine:String = socket.input.readLine();
+					if (readLine.trim() == "")
+						break;
+					var splitHeader = readLine.split(": ");
+					response.headers.set(splitHeader[0].toLowerCase(), splitHeader[1]);
+				}
+				catch (e:Dynamic) {
+					if (e == Error.Blocked) {
+						// Blocked will be ignored
+						continue;
+					}
+					if (isEOF(e)) {
+						// End of Request (early?) (previous ones will catch eof because http status header is required for http servers)
+						break;
+					}
+					throw e;
+				}
             }
 
             //forward to another location if it's specified
@@ -141,6 +134,10 @@ class HTTPClient {
                                 continue;
                             }
                             request.bodyOutput.close();
+							if (isEOF(e)) {
+								// End of Request
+								break;
+							}
                             throw e;
                         }
                     }
@@ -157,6 +154,10 @@ class HTTPClient {
 							if (e == Error.Blocked) {
 								// Blocked will be ignored
 								continue;
+							}
+							if (isEOF(e)) {
+								// End of Request
+								break;
 							}
 							throw e;
 						}
@@ -176,6 +177,10 @@ class HTTPClient {
 								// Blocked will be ignored
 								continue;
 							}
+							if (isEOF(e)) {
+								// End of Request
+								break;
+							}
 							throw e;
 						}
 					}
@@ -193,6 +198,10 @@ class HTTPClient {
 								// Blocked will be ignored
 								continue;
 							}
+							if (isEOF(e)) {
+								// End of Request
+								break;
+							}
 							throw e;
 						}
 					}
@@ -200,18 +209,84 @@ class HTTPClient {
             }
         }
         catch (exc) {
-            if (!(exc is Eof))
-			    response.exception = exc;
+			if (exc != null) {
+				trace(request);
+				trace(ShitUtil.prettyError(exc));
+			}
+			response.exception = exc;
         }
 
         return response;
     }
+
+	/**
+	 * 
+	 * @param host Host Name that you want to connect to
+	 */
+	public function new(host:String, ?isSSL:Null<Bool>) {
+		// URL parsing
+		var protocolAHost = host.split("://");
+
+		ssl = protocolAHost.length > 1 && protocolAHost[0] == "https";
+		if (ssl)
+			port = 443;
+
+		var hostAPort = protocolAHost[protocolAHost.length - 1].split(":");
+		hostname = hostAPort[0];
+
+		if (hostAPort[1] != null)
+			port = Std.parseInt(hostAPort[1]);
+
+		if (isSSL != null)
+			ssl = isSSL;
+	}
+
+	public static function requestURL(url:String, ?requestOptions:HTTPURLRequest) {
+		var url = url;
+		var ssl:Null<Bool> = null;
+		if (url.startsWith("https://")) {
+			ssl = true;
+			url = url.substr("https://".length);
+		}
+		else if (url.startsWith("http://")) {
+			url = url.substr("http://".length);
+		}
+
+		var host = "";
+		var port = ssl ?? false ? 443 : 80;
+
+		var portIndex = url.indexOf(':');
+		var pathIndex = url.indexOf('/');
+		if (portIndex != -1 && portIndex < pathIndex) {
+			host = url.substr(0, portIndex);
+
+			var portStr = url.substr(portIndex + 1, pathIndex - portIndex - 1);
+			port = Std.parseInt(portStr);
+		}
+		else {
+			host = url.substr(0, pathIndex);
+		}
+
+		var path = url.substr(pathIndex);
+
+		return new HTTPClient(host + ":" + port, ssl).request({
+			path: path,
+			post: requestOptions?.post,
+			headers: requestOptions?.headers,
+			body: requestOptions?.body,
+			bodyOutput: requestOptions?.bodyOutput
+		});
+	}
 
     public function getURL(path:String) {
 		if (path.length > 0 && path.charAt(0) != "/")
 			path = "/" + path;
 		return (ssl ? "https://" : "http://") + hostname + (port != 80 && port != 443 ? ":" + port : "") + path;
     }
+
+	public static inline function isEOF(exc:Dynamic) {
+		return Std.string(exc).toLowerCase() == "eof";
+	}
 }
 
 typedef HTTPURLRequest = {

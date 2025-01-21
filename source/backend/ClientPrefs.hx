@@ -59,7 +59,8 @@ class SaveVariables {
 		'instakill' => false,
 		'practice' => false,
 		'botplay' => false,
-		'opponentplay' => false
+		'opponentplay' => false,
+		'nobadnotes' => false,
 	];
 
 	public var comboOffset:Array<Int> = [0, 0, 0, 0];
@@ -69,7 +70,7 @@ class SaveVariables {
 	public final badWindow:Int = 135;
 	public var safeFrames:Float = 10;
 	public var discordRPC:Bool = true;
-	//ONLINE
+	// PSYCH ONLINE
 	private var nickname:String = "Boyfriend";
 	public var serverAddress:String = null;
 	public var modSkin:Array<String> = null;
@@ -84,6 +85,14 @@ class SaveVariables {
 	public var showNoteTiming:Bool = false;
 	public var disableAutoDownloads:Bool = false;
 	public var disableSongComments:Bool = false;
+	public var disableFreeplayIcons:Bool = false;
+	public var showFP:Bool = false;
+	public var disableFreeplayAlphabet:Bool = false;
+	public var disableLagDetection:Bool = false;
+	public var groupSongsBy:String = 'No Grouping';
+	public var hiddenSongs:Array<String> = []; //format: 'songname-originfolder'
+	public var favSongs:Array<String> = []; //format: 'songname-originfolder'
+	public var modchartSkinChanges:Bool = false;
 
 	public function new()
 	{
@@ -113,6 +122,8 @@ class ClientPrefs {
 		'pause'			=> [ENTER, ESCAPE],
 		'reset'			=> [R],
 		'taunt'			=> [SPACE],
+		'sidebar'		=> [GRAVEACCENT],
+		'fav'			=> [Q],
 		
 		'volume_mute'	=> [ZERO],
 		'volume_up'		=> [NUMPADPLUS, PLUS],
@@ -136,7 +147,9 @@ class ClientPrefs {
 		'back'			=> [B],
 		'pause'			=> [START],
 		'reset'			=> [BACK],
-		'taunt'			=> [A]
+		'taunt'			=> [A],
+		'sidebar'		=> [],
+		'fav'			=> []
 	];
 	public static var defaultKeys:Map<String, Array<FlxKey>> = null;
 	public static var defaultButtons:Map<String, Array<FlxGamepadInputID>> = null;
@@ -211,8 +224,8 @@ class ClientPrefs {
 		#end
 
 		if (ClientPrefs.data.unlockFramerate) {
-			FlxG.updateFramerate = 999;
-			FlxG.drawFramerate = 999;
+			FlxG.updateFramerate = 1000;
+			FlxG.drawFramerate = 1000;
 		} else if(data.framerate > FlxG.drawFramerate) {
 			FlxG.updateFramerate = data.framerate;
 			FlxG.drawFramerate = data.framerate;

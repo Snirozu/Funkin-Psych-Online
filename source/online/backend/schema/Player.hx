@@ -29,6 +29,9 @@ class Player extends Schema {
 	@:type("number")
 	public var shits: Dynamic = 0;
 
+	@:type("number")
+	public var songPoints: Dynamic = 0;
+
 	@:type("string")
 	public var name: String = "";
 

@@ -81,7 +81,7 @@ class FPS extends TextField
 
 		var currentCount = times.length;
 		currentFPS = Math.round((currentCount + cacheCount) / 2);
-		var optionFramerate = ClientPrefs.data.unlockFramerate ? 999 : ClientPrefs.data.framerate;
+		var optionFramerate = ClientPrefs.data.unlockFramerate ? 1000 : ClientPrefs.data.framerate;
 		if (currentFPS > optionFramerate) currentFPS = optionFramerate;
 
 		if (currentCount != cacheCount /*&& visible*/)
