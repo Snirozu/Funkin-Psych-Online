@@ -416,9 +416,11 @@ class Character extends FlxSprite {
 		if (AnimName == null)
 			return;
 
-		colorTransform.redMultiplier = 1;
-		colorTransform.greenMultiplier = 1;
-		colorTransform.blueMultiplier = 1;
+		if(colorTransform != null) {
+			colorTransform.redMultiplier = 1;
+			colorTransform.greenMultiplier = 1;
+			colorTransform.blueMultiplier = 1;
+		}
 
 		noAnimationBullshit = false;
 		specialAnim = false;
@@ -438,7 +440,7 @@ class Character extends FlxSprite {
 				AnimName = AnimName.substring(0, AnimName.length - "-alt".length);
 			}
 
-			if (AnimName.endsWith("miss")) {
+			if (AnimName.endsWith("miss") && colorTransform != null) {
 				AnimName = AnimName.substring(0, AnimName.length - "miss".length);
 				colorTransform.redMultiplier = 0.5;
 				colorTransform.greenMultiplier = 0.3;
