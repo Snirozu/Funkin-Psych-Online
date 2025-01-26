@@ -22,14 +22,16 @@ class SustainSplash extends FlxSprite {
 			frames = Paths.getSparrowAtlas(skin);
 		}
 
-    animation.addByPrefix('hold', 'hold', 24, true);
-    animation.addByPrefix('end', 'end', 24, false);
+    if(frames != null) {
+      animation.addByPrefix('hold', 'hold', 24, true);
+      animation.addByPrefix('end', 'end', 24, false);
+    }
   }
 
   override function update(elapsed) {
     super.update(elapsed);
 
-		if (strumNote != null) {
+		if (strumNote != null && animation != null) {
 			setPosition(strumNote.x, strumNote.y);
 			visible = strumNote.visible;
       alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
@@ -48,6 +50,8 @@ class SustainSplash extends FlxSprite {
     final timeThingy:Float = (startCrochet * lengthToGet + (timeToGet - Conductor.songPosition + ClientPrefs.data.ratingOffset)) / playbackRate * .001;
 
     var tailEnd:Note = !daNote.isSustainNote ? daNote.tail[daNote.tail.length - 1] : daNote.parent.tail[daNote.parent.tail.length - 1];
+
+    if(animation == null) return;
 
 		animation.play('hold', true, false, 0);
 		animation.curAnim.frameRate = frameRate;
