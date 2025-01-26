@@ -213,7 +213,10 @@ class OnlineMods {
 		}
 
 		trace(modName, parentFolder);
-		
+
+		if (beginFolder == '/')
+			beginFolder = '';
+
 		if (beginFolder == null) {
 			Waiter.put(() -> {
 				Alert.alert("Mod data not found inside of the archive!");
