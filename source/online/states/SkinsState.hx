@@ -11,6 +11,7 @@ import sys.FileSystem;
 import flixel.group.FlxGroup;
 import objects.Character;
 
+@:build(lumod.LuaScriptClass.build())
 class SkinsState extends MusicBeatState {
 	var charactersName:Array<String> = new Array<String>();
 	var charactersLength:Int = 0;
@@ -350,6 +351,7 @@ class SkinsState extends MusicBeatState {
 
     var acceptSound:FlxSound;
 	var stopUpdates:Bool = false;
+	var isExiting:Bool = false;
 	var leftHoldTime:Float = 0;
 	var rightHoldTime:Float = 0;
 	var leavingState:Bool = false;
@@ -374,7 +376,8 @@ class SkinsState extends MusicBeatState {
 		camFollow.setPosition(FlxG.width / 2, FlxG.height / 2);
 
 		if (stopUpdates) {
-			camFollow.y += !ClientPrefs.data.lowQuality ? 600 : 200;
+			if (isExiting)
+				camFollow.y += !ClientPrefs.data.lowQuality ? 600 : 200;
 			return;
 		}
 
@@ -397,7 +400,8 @@ class SkinsState extends MusicBeatState {
 					character.members[0].playAnim("singRIGHT");
 				}
 				if (controls.TAUNT) {
-					character.members[0].playAnim("taunt");
+					var altSuffix = FlxG.keys.pressed.ALT ? '-alt' : '';
+					character.members[0].playAnim("taunt" + altSuffix);
 				}
 			}
         }
@@ -437,6 +441,11 @@ class SkinsState extends MusicBeatState {
 		}
 
 		if (!FlxG.keys.pressed.SHIFT && controls.ACCEPT) {
+			if (selectTimer != null && !selectTimer.finished) {
+				selectTimer.onComplete(selectTimer);
+				selectTimer.cancel();
+			}
+
 			var charName = charactersName[curCharacter];
 			if (charName.endsWith("-player"))
 				charName = charName.substring(0, charName.length - "-player".length);
@@ -462,13 +471,17 @@ class SkinsState extends MusicBeatState {
 				acceptSound.stop();
 
 			acceptSound = FlxG.sound.play(Paths.sound('CS_confirm'), 0.8);
+			music.stop();
 
 			if (character.members[0] != null)
 				character.members[0].playAnim("hey", true);
         }
 
 		if (controls.BACK || (!FlxG.keys.pressed.SHIFT && controls.ACCEPT)) {
-			switchState(() -> Type.createInstance(backClass, []));
+			stopUpdates = true;
+			FlxTimer.wait(1, () -> {
+				switchState(() -> Type.createInstance(backClass, []));
+			});
 		}
 
 		if (FlxG.keys.justPressed.EIGHT) {
@@ -506,10 +519,10 @@ class SkinsState extends MusicBeatState {
 
 	function switchState(switchFunction:flixel.util.typeLimit.NextState) {
 		stopUpdates = true;
+		isExiting = true;
 		camera.follow(camFollow, LOCKON, 0.01);
 		characterCamera.follow(camFollow, LOCKON, 0.01);
 
-		FlxG.sound.play(Paths.sound('cancelMenu'));
 		if (GameClient.isConnected()) {
 			if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
 				GameClient.send("setSkin", [
@@ -527,12 +540,18 @@ class SkinsState extends MusicBeatState {
 		blackRectangle.alpha = 0;
 		add(blackRectangle);
 
-		//var funkySound = music.playing ? music : musicIntro;
-		music.fadeOut(0.5, 0, t -> {
-			//musicIntro.stop();
-			music.stop();
+		if (music.playing)
+			music.fadeOut(0.5, 0, t -> {
+				music.stop();
 
-			for (v in [FlxG.sound.music, FreeplayState.vocals, FreeplayState.opponentVocals]) {
+				okNowYouCanSwitchTheState(switchFunction);
+			});
+		else
+			okNowYouCanSwitchTheState(switchFunction);
+	}
+
+	function okNowYouCanSwitchTheState(switchFunction:flixel.util.typeLimit.NextState) {
+		for (v in [FlxG.sound.music, FreeplayState.vocals, FreeplayState.opponentVocals]) {
 				if (v == null)
 					continue;
 
@@ -545,7 +564,6 @@ class SkinsState extends MusicBeatState {
 			Conductor.songPosition = prevConTime;
 
 			FlxG.switchState(switchFunction);
-		});
 	}
 
 	override function openSubState(SubState:FlxSubState) {
@@ -618,7 +636,7 @@ class SkinsState extends MusicBeatState {
 			if (selectTimer != null)
 				selectTimer.cancel();
 
-			selectTimer = new FlxTimer().start(1, t -> {
+			selectTimer = new FlxTimer().start(0.8, t -> {
 				var curCharName = charactersName[curCharacter]; // re-define it lol
 
 				if (character.members[0] != null) {
@@ -691,16 +709,19 @@ class SkinsState extends MusicBeatState {
     }
 
 	override function beatHit() {
-		super.beatHit();
-
-		if (character.members[0] != null && character.members[0].animation.curAnim.finished)
-			character.members[0].dance();
+		super.beatHit();		
 
 		if (staticMan.visible)
 			staticMan.animation.play('idle');
 
 		if (stageSpeakers != null)
 			stageSpeakers.anim.play('beat');
+
+		if (stopUpdates)
+			return;
+
+		if (character.members[0] != null && character.members[0].animation.curAnim.finished)
+			character.members[0].dance();
 	}
 
 	override function stepHit() {

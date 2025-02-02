@@ -273,6 +273,8 @@ class ChartingState extends MusicBeatState
 		//addSection();
 
 		// sections = _song.notes;
+		if (_song.notes[curSec] == null)
+			curSec = 0;
 
 		currentSongName = Paths.formatToSongPath(_song.song);
 		loadSong();

@@ -1,0 +1,210 @@
+{
+	"animations": [
+		{
+			"offsets": [
+				3,
+				0
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "idle",
+			"indices": [],
+			"name": "Pico Idle Dance"
+		},
+		{
+			"offsets": [
+				39,
+				2
+			],
+			"loop": false,
+			"anim": "hey",
+			"fps": 24,
+			"name": "Pico HEY",
+			"indices": []
+		},
+		{
+			"offsets": [
+				21,
+				27
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singUP",
+			"indices": [],
+			"name": "pico Up note0"
+		},
+		{
+			"offsets": [
+				84,
+				-80
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singDOWN",
+			"indices": [],
+			"name": "Pico Down Note0"
+		},
+		{
+			"offsets": [
+				80,
+				-38
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singDOWNmiss",
+			"indices": [],
+			"name": "Pico Down Note MISS"
+		},
+		{
+			"offsets": [
+				28,
+				67
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singUPmiss",
+			"indices": [],
+			"name": "pico Up note miss"
+		},
+		{
+			"loop": false,
+			"offsets": [
+				-48,
+				2
+			],
+			"anim": "singRIGHT",
+			"fps": 24,
+			"name": "Pico Note Right0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				85,
+				-10
+			],
+			"anim": "singLEFT",
+			"fps": 24,
+			"name": "Pico NOTE LEFT0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				-45,
+				50
+			],
+			"anim": "singRIGHTmiss",
+			"fps": 24,
+			"name": "Pico Note Right Miss",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				83,
+				28
+			],
+			"anim": "singLEFTmiss",
+			"fps": 24,
+			"name": "Pico NOTE LEFT miss",
+			"indices": []
+		},
+		{
+			"fps": 24,
+			"loop": false,
+			"indices": [],
+			"anim": "burpShit",
+			"name": "burpshit",
+			"offsets": [
+				33,
+				-3
+			]
+		},
+		{
+			"fps": 24,
+			"loop": false,
+			"indices": [],
+			"anim": "burpSmile",
+			"name": "burpsmile",
+			"offsets": [
+				33,
+				-3
+			]
+		},
+		{
+			"fps": 24,
+			"loop": false,
+			"indices": [],
+			"anim": "shit",
+			"name": "shit",
+			"offsets": [
+				0,
+				-3
+			]
+		},
+		{
+			"fps": 24,
+			"loop": false,
+			"indices": [],
+			"anim": "singRIGHT-censor",
+			"name": "pico swear right",
+			"offsets": [
+				-50,
+				1
+			]
+		},
+		{
+			"fps": 24,
+			"loop": false,
+			"indices": [],
+			"anim": "singDOWN-censor",
+			"name": "pico swear down",
+			"offsets": [
+				84,
+				-77
+			]
+		},
+		{
+			"fps": 24,
+			"loop": false,
+			"indices": [],
+			"anim": "singUP-censor",
+			"name": "pico swear up",
+			"offsets": [
+				21,
+				28
+			]
+		},
+		{
+			"fps": 24,
+			"loop": false,
+			"indices": [],
+			"anim": "singLEFT-censor",
+			"name": "pico swear left",
+			"offsets": [
+				84,
+				-11
+			]
+		}
+	],
+	"no_antialiasing": false,
+	"image": "characters/pico_dark,characters/Pico_Finger_dark",
+	"position": [
+		0,
+		300
+	],
+	"healthicon": "pico",
+	"flip_x": true,
+	"healthbar_colors": [
+		183,
+		216,
+		85
+	],
+	"camera_position": [
+		220,
+		0
+	],
+	"sing_duration": 4,
+	"scale": 1
+}

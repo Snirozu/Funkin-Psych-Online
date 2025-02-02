@@ -10,6 +10,8 @@ import flixel.math.FlxPoint;
 import states.StoryMenuState;
 import states.FreeplayState;
 
+// i hate how this state is coded, can we kill shadoemaryo
+
 class GameOverSubstate extends MusicBeatSubstate
 {
 	public var boyfriend:Character;
@@ -25,6 +27,8 @@ class GameOverSubstate extends MusicBeatSubstate
 	public static var endSoundName:String = 'gameOverEnd';
 
 	public static var instance:GameOverSubstate;
+
+	public var retryButton:Character;
 
 	public static function resetVariables() {
 		characterName = 'bf-dead';
@@ -50,7 +54,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		super.create();
 	}
 
-	public function new(x:Float, y:Float, camX:Float, camY:Float)
+	public function new(x:Float, y:Float, camX:Float, camY:Float, ?overCharacter:Character)
 	{
 		super();
 
@@ -58,10 +62,57 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		Conductor.songPosition = 0;
 
-		boyfriend = new Character(x, y, characterName, true);
-		boyfriend.x += boyfriend.positionArray[0];
-		boyfriend.y += boyfriend.positionArray[1];
+		if (overCharacter == null) {
+			boyfriend = new Character(x, y, characterName, true);
+			boyfriend.x += boyfriend.positionArray[0];
+			boyfriend.y += boyfriend.positionArray[1];
+		}
+		else {
+			boyfriend = overCharacter;
+			boyfriend.setPosition(x, y);
+			boyfriend.x += boyfriend.positionArray[0];
+			boyfriend.y += boyfriend.positionArray[1];
+		}
+		boyfriend.visible = true;
+		boyfriend.alpha = 1;
 		add(boyfriend);
+
+		var retryChar:String = null;
+		if (boyfriend.curCharacter.startsWith('pico')) {
+			retryChar = 'pico-retry-button';
+			deathSoundName = 'fnf_loss_sfx-pico';
+			loopSoundName = 'gameOver-pico';
+			endSoundName = 'gameOverEnd-pico';
+
+			var neneKill = new FlxSprite(x, y);
+			if (boyfriend.curCharacter.startsWith('pico-christmas')) {
+				neneKill.frames = Paths.getSparrowAtlas('characters/neneChristmas/neneChristmasKnife');
+				neneKill.animation.addByPrefix('idle', 'knife toss xmas', 24, false);
+			}
+			else {
+				neneKill.frames = Paths.getSparrowAtlas('characters/NeneKnifeToss');
+				neneKill.animation.addByPrefix('idle', 'knife toss', 24, false);
+			}
+			neneKill.animation.finishCallback = _ -> {
+				FlxTween.tween(neneKill, {alpha: 0}, 0.5, {ease: FlxEase.quadOut});
+			};
+			neneKill.animation.play('idle');
+			neneKill.setPosition(
+				PlayState.instance.gf.getScreenPosition().x + PlayState.instance.gf.positionArray[0],
+				PlayState.instance.gf.getScreenPosition().y + PlayState.instance.gf.positionArray[1]
+			);
+			add(neneKill);
+		}
+
+		if (retryChar != null) {
+			retryButton = new Character(x, y, retryChar, true);
+			retryButton.setPosition(x, y);
+			retryButton.x += retryButton.positionArray[0];
+			retryButton.y += retryButton.positionArray[1];
+			retryButton.visible = false;
+			retryButton.alpha = 0;
+			add(retryButton);
+		}
 
 		FlxG.sound.play(Paths.sound(deathSoundName));
 		FlxG.camera.scroll.set();
@@ -70,9 +121,11 @@ class GameOverSubstate extends MusicBeatSubstate
 		boyfriend.playAnim('firstDeath');
 
 		camFollow = new FlxObject(0, 0, 1, 1);
-		camFollow.setPosition(boyfriend.getGraphicMidpoint().x, boyfriend.getGraphicMidpoint().y);
+		camFollow.setPosition(boyfriend.getMidpoint().x, boyfriend.getMidpoint().y);
 		FlxG.camera.focusOn(new FlxPoint(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2)));
 		add(camFollow);
+
+		add(new online.objects.DebugPosHelper());
 	}
 
 	public var startedDeath:Bool = false;
@@ -111,11 +164,20 @@ class GameOverSubstate extends MusicBeatSubstate
 				PlayState.instance.callOnScripts('onGameOverConfirm', [false]);
 			}
 		}
+
+		if (retryButton != null && retryButton.visible) {
+			retryButton.alpha += elapsed;
+		}
 		
 		if (boyfriend.animation.curAnim != null)
 		{
-			if (boyfriend.animation.curAnim.name == 'firstDeath' && boyfriend.animation.curAnim.finished && startedDeath)
+			if (boyfriend.animation.curAnim.name == 'firstDeath' && boyfriend.animation.curAnim.finished && startedDeath) {
+				if (retryButton != null) {
+					retryButton.visible = true;
+					retryButton.playAnim('deathLoop');
+				}
 				boyfriend.playAnim('deathLoop');
+			}
 
 			if(boyfriend.animation.curAnim.name == 'firstDeath')
 			{
@@ -126,7 +188,7 @@ class GameOverSubstate extends MusicBeatSubstate
 					isFollowingAlready = true;
 				}
 
-				if (boyfriend.animation.curAnim.finished && !playingDeathSound)
+				if (boyfriend.animation.curAnim.finished && !playingDeathSound && !isEnding)
 				{
 					startedDeath = true;
 					if (PlayState.SONG.stage == 'tank')
@@ -169,6 +231,10 @@ class GameOverSubstate extends MusicBeatSubstate
 		if (!isEnding)
 		{
 			isEnding = true;
+			if (retryButton != null) {
+				retryButton.visible = true;
+				retryButton.playAnim('deathConfirm');
+			}
 			boyfriend.playAnim('deathConfirm', true);
 			FlxG.sound.music.stop();
 			FlxG.sound.play(Paths.music(endSoundName));

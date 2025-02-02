@@ -90,6 +90,8 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 	function onChangeAntiAliasing()
 	{
+		FlxSprite.defaultAntialiasing = ClientPrefs.data.antialiasing;
+		
 		for (sprite in members)
 		{
 			var sprite:FlxSprite = cast sprite;

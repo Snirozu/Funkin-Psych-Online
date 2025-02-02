@@ -147,9 +147,9 @@ class ClientPrefs {
 		'back'			=> [B],
 		'pause'			=> [START],
 		'reset'			=> [BACK],
-		'taunt'			=> [A],
+		'taunt'			=> [RIGHT_STICK_CLICK],
 		'sidebar'		=> [],
-		'fav'			=> []
+		'fav'			=> [Y]
 	];
 	public static var defaultKeys:Map<String, Array<FlxKey>> = null;
 	public static var defaultButtons:Map<String, Array<FlxGamepadInputID>> = null;
@@ -222,6 +222,8 @@ class ClientPrefs {
 		#if (!html5 && !switch)
 		FlxG.autoPause = ClientPrefs.data.autoPause;
 		#end
+
+		FlxSprite.defaultAntialiasing = ClientPrefs.data.antialiasing;
 
 		if (ClientPrefs.data.unlockFramerate) {
 			FlxG.updateFramerate = 1000;

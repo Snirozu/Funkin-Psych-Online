@@ -68,6 +68,7 @@ class TitleState extends MusicBeatState
 	#end
 
 	public static var mustUpdate:Bool = false;
+	public static var inDev:Bool = false;
 	//public static var offlineMode:Bool = false;
 
 	var titleJSON:TitleData;
@@ -107,10 +108,30 @@ class TitleState extends MusicBeatState
 				updateVersion = data.split('\n')[0].trim();
 				var curVersion:String = Main.PSYCH_ONLINE_VERSION.trim();
 				trace('version online: ' + updateVersion + ', your version: ' + curVersion);
-				if(Std.parseFloat(updateVersion.replace('.', '')) > Std.parseFloat(curVersion.replace('.', ''))) {
-					trace('update version is newer!');
-					mustUpdate = true;
-					//offlineMode = true;
+
+				var updatVer:Array<Int> = updateVersion.split('.').map(s -> {
+					return Std.parseInt(s);
+				});
+				var curVer:Array<Int> = curVersion.split('.').map(s -> {
+					return Std.parseInt(s);
+				});
+
+				trace('comparing ' + updatVer + ' > ' + curVer);
+				for (i => num in updatVer) {
+					if (num > curVer[i] ?? 0) {
+						mustUpdate = true;
+						trace('update version is newer! [' + i + "]");
+						break;
+					}
+					if (num < curVer[i] ?? 0) {
+						inDev = true;
+						trace('running on indev build! [' + i + "]");
+						lime.app.Application.current.window.title = lime.app.Application.current.window.title + ' [DEV]';
+						break;
+					}
+					if (i == updatVer.length - 1) {
+						trace('running on latest version!');
+					}
 				}
 			}
 
@@ -503,6 +524,25 @@ class TitleState extends MusicBeatState
 			if(controls.UI_LEFT) swagShader.hue -= elapsed * 0.1;
 			if(controls.UI_RIGHT) swagShader.hue += elapsed * 0.1;
 		}
+
+		#if RESULTS_TEST
+		if (FlxG.keys.justPressed.F1) {
+			FlxG.switchState(() -> new online.states.ResultsSoloState({
+				hitNotes: FlxG.random.int(5, 2000),
+				combo: FlxG.random.int(5, 2000),
+				sicks: FlxG.random.int(5, 1000),
+				goods: FlxG.random.int(0, 500),
+				bads: FlxG.random.int(0, 250),
+				shits: FlxG.random.int(0, 100),
+				misses: FlxG.random.int(0, 50),
+				score: FlxG.random.int(5, 999999999),
+				accuracy: 1, //FlxG.random.float(0, 1),
+				character: (ClientPrefs.data.modSkin ?? [])[1],
+				difficultyName: 'nightmare',
+				points: FlxG.random.int(0, 100)
+			}));
+		}
+		#end
 
 		super.update(elapsed);
 	}

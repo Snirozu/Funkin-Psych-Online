@@ -85,4 +85,21 @@ class WinAPI {
     ')
 	#end
 	public static function alert(title:String, content:String, yesCallback:Void->Void):Void {}
+
+    #if (windows && cpp)
+	@:functionCode('
+    int msgboxID = MessageBox(NULL, content.c_str(), title.c_str(), MB_ICONERROR | MB_YESNOCANCEL | MB_DEFBUTTON3);
+    switch (msgboxID) {
+    	case IDYES:
+            yesCallback();
+    		break;
+        case IDNO:
+            noCallback();
+    		break;
+    	case IDCANCEL:
+    		break;
+    }
+    ')
+	#end
+	public static function ask(title:String, content:String, yesCallback:Void->Void, noCallback:Void->Void):Void {}
 }

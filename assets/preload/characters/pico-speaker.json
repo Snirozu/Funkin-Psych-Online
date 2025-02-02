@@ -108,7 +108,7 @@
 	"no_antialiasing": false,
 	"image": "characters/picoSpeaker",
 	"position": [
-		120,
+		10,
 		-125
 	],
 	"healthicon": "pico",

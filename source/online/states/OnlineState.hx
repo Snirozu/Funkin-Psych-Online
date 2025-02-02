@@ -13,6 +13,7 @@ import states.MainMenuState;
 import openfl.events.KeyboardEvent;
 import flixel.addons.text.FlxTextField;
 
+@:build(lumod.LuaScriptClass.build())
 class OnlineState extends MusicBeatState {
 	var items:FlxTypedSpriteGroup<FlxText>;
 
@@ -340,7 +341,7 @@ class OnlineState extends MusicBeatState {
 						}
 
 						if (count > 0) {
-							Alert.alert('WARNING', count + ' of your mods doesn\'t have a valid URL set!');
+							Alert.alert('WARNING', count + ' of your mods do not have a valid URL set!');
 						}
 
 						disableInput = true;

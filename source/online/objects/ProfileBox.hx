@@ -89,6 +89,7 @@ class ProfileBox extends FlxSpriteGroup {
 					else
 						text.text = user;
 					desc.text = "Points: " + (profileData.points ?? 0);
+					desc.text += "\nRank: " + ShitUtil.toOrdinalNumber(profileData.rank);
 					desc.text += "\nAvg. Accuracy: " + FlxMath.roundDecimal((profileData.avgAccuracy * 100), 2) + "%";
 				}
 

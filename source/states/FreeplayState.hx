@@ -1,5 +1,6 @@
 package states;
 
+import online.util.ShitUtil;
 import flixel.FlxBasic;
 import flixel.FlxSubState;
 import backend.ClientPrefs;
@@ -84,6 +85,17 @@ class FreeplayState extends MusicBeatState
 
 	private var initSongs:Array<SongMetadata> = [];
 	private var initSongItems:Array<Dynamic> = [];
+
+	public static var overChart:Map<String, Array<String>> = new Map<String, Array<String>>();
+
+	public static function getMixSuffix(track:String, diff:String) {
+		var curSkin = ClientPrefs.data.modSkin ?? [null, null];
+		if (overChart.exists(track)) {
+			if (overChart.get(track).contains(diff))
+				return '-' + curSkin[1];
+		}
+		return '';
+	}
 
 	var bg:FlxSprite;
 	var intendedColor:Int;
@@ -208,6 +220,9 @@ class FreeplayState extends MusicBeatState
 		}
 		Mods.loadTopMod();
 
+		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
+			playFreakyMusic();
+
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		bg.scrollFactor.set();
@@ -258,6 +273,18 @@ class FreeplayState extends MusicBeatState
 		var curSkin = ClientPrefs.data.modSkin ?? [null, null];
 
 		Mods.currentModDirectory = curSkin[0];
+
+		var characterWeek = ShitUtil.getJson('characters_weeks/' + curSkin[1]);
+		overChart.clear();
+		if (characterWeek != null) {
+			var charSongs:Array<Array<Dynamic>> = characterWeek.songs;
+			for (arr in charSongs) {
+				// arr[0] - song
+				// arr[1] - diff
+				overChart.set(arr[0].toLowerCase(), arr[1].split(','));
+			}
+		}
+
 		var charaData:CharacterFile = Character.getCharacterFile(curSkin[1]);
 		randomIcon = new HealthIcon(charaData.healthicon);
 		randomIcon.sprTracker = cast randomText;
@@ -906,7 +933,7 @@ class FreeplayState extends MusicBeatState
 				switch (selectedItem) {
 					case 0:
 						if (GameClient.isConnected()) {
-							var songLowercase:String = Paths.formatToSongPath(songs[curSelected].songName);
+							var songLowercase:String = Paths.formatToSongPath(getSongName());
 							var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
 
 							persistentUpdate = false;
@@ -977,7 +1004,7 @@ class FreeplayState extends MusicBeatState
 						}
 					case 3:
 						persistentUpdate = false;
-						openSubState(new ResetScoreSubState(songs[curSelected].songName, curDifficulty, songs[curSelected].songCharacter));
+						openSubState(new ResetScoreSubState(getSongName(), curDifficulty, songs[curSelected].songCharacter));
 						FlxG.sound.play(Paths.sound('scrollMenu'));
 					case 4:
 						if (!GameClient.isConnected()) {
@@ -1099,7 +1126,7 @@ class FreeplayState extends MusicBeatState
 		PlayState.replayData.gameplay_modifiers = ReplayPlayer.objToMap(shit.gameplay_modifiers);
 		PlayState.replayID = replayID;
 
-		var songLowercase:String = Paths.formatToSongPath(songs[curSelected].songName);
+		var songLowercase:String = Paths.formatToSongPath(getSongName());
 		var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
 
 		if (PlayState.replayData.chart_hash == Md5.encode(Song.loadRawSong(poop, songLowercase))) {
@@ -1128,11 +1155,11 @@ class FreeplayState extends MusicBeatState
 			return;
 
 		try {
-			var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
-			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+			var poop:String = Highscore.formatSong(getSongName().toLowerCase(), curDifficulty);
+			PlayState.SONG = Song.loadFromJson(poop, getSongName().toLowerCase());
 			
 			var uhhPage = curPage;
-			Leaderboard.fetchLeaderboard(curPage, filterCharacters(PlayState.SONG.song) + "-" + filterCharacters(Difficulty.getString(curDifficulty)) + "-" + filterCharacters(Md5.encode(Song.loadRawSong(poop, songs[curSelected].songName.toLowerCase()))), top -> {
+			Leaderboard.fetchLeaderboard(curPage, filterCharacters(PlayState.SONG.song) + "-" + filterCharacters(Difficulty.getString(curDifficulty)) + "-" + filterCharacters(Md5.encode(Song.loadRawSong(poop, getSongName().toLowerCase()))), top -> {
 				if (uhhPage != curPage || !topShit.exists)
 					return;
 
@@ -1312,7 +1339,7 @@ class FreeplayState extends MusicBeatState
 
 		var diff = Difficulty.getString(curDifficulty);
 		var trackSuffix = diff == "Erect" || diff == "Nightmare" ? "-erect" : "";
-		var track = songs[curSelected].songName.toLowerCase() + trackSuffix;
+		var track = getSongName() + trackSuffix;
 
 		if (track != trackPlaying) {
 			try {
@@ -1320,8 +1347,8 @@ class FreeplayState extends MusicBeatState
 				destroyFreeplayVocals();
 				FlxG.sound.music.volume = 0;
 				Mods.currentModDirectory = songs[curSelected].folder;
-				var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
-				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+				var poop:String = Highscore.formatSong(getSongName().toLowerCase(), curDifficulty);
+				PlayState.SONG = Song.loadFromJson(poop, getSongName().toLowerCase());
 				Conductor.bpm = PlayState.SONG.bpm;
 				Conductor.mapBPMChanges(PlayState.SONG);
 
@@ -1423,8 +1450,8 @@ class FreeplayState extends MusicBeatState
 			return;
 
 		#if !switch
-		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
-		intendedRating = Highscore.getRating(songs[curSelected].songName, curDifficulty);
+		intendedScore = Highscore.getScore(getSongName(), curDifficulty);
+		intendedRating = Highscore.getRating(getSongName(), curDifficulty);
 		#end
 
 		lastDifficultyName = Difficulty.getString(curDifficulty);
@@ -1702,8 +1729,13 @@ class FreeplayState extends MusicBeatState
 			grpIcons.members[instPlaying].scale.set(1.2, 1.2);
 	}
 
+	function getSongName() {
+		final songName = songs[curSelected].songName.toLowerCase();
+		return songName + getMixSuffix(songName, Difficulty.getString(curDifficulty));
+	}
+
 	function enterSong() {
-		var songLowercase:String = Paths.formatToSongPath(songs[curSelected].songName);
+		var songLowercase:String = Paths.formatToSongPath(getSongName());
 		var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
 
 		try {
@@ -1837,6 +1869,7 @@ class FreeplayState extends MusicBeatState
 				var diff = Difficulty.getString(curDifficulty);
 				var trackSuffix = diff == "Erect" || diff == "Nightmare" ? "-erect" : "";
 				var track = song.songName.toLowerCase() + trackSuffix;
+				track += getMixSuffix(track, diff);
 				if (track == trackPlaying)
 					instPlaying = i;
 

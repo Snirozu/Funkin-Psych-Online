@@ -60,6 +60,8 @@ class ModsMenuState extends MusicBeatState
 	var visibleWhenNoMods:Array<FlxBasic> = [];
 	var visibleWhenHasMods:Array<FlxBasic> = [];
 
+	public static var onOnlineRoom:Bool = false;
+
 	override function create()
 	{
 		Paths.clearStoredMemory();
@@ -533,7 +535,13 @@ class ModsMenuState extends MusicBeatState
 			}
 			else
 			{
-				FlxG.switchState(() -> new MainMenuState());
+				if (!onOnlineRoom) {
+					FlxG.switchState(() -> new MainMenuState());
+				}
+				else {
+					onOnlineRoom = false;
+					FlxG.switchState(() -> new online.states.RoomState());
+				}
 			}
 		}
 

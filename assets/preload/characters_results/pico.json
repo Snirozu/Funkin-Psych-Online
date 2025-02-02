@@ -1,0 +1,84 @@
+{
+    "PERFECT": {
+        "sound": "resultsPERFECT-pico",
+        "soundOnFlash": true,
+        "images": [
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-pico/resultsPERFECT",
+                "zIndex": 500,
+                "scale": 0.88,
+                "offsets": [
+                    385,
+                    82
+                ],
+                "loopFrame": 91
+            }
+        ]
+    },
+    "EXCELLENT": {
+        "sound": "resultsEXCELLENT-pico",
+        "images": [
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-pico/resultsGREAT",
+                "zIndex": 500,
+                "scale": 1.25,
+                "offsets": [
+                    350,
+                    25
+                ],
+                "looped": true,
+                "loopFrame": 32
+            }
+        ]
+    },
+    "GREAT": {
+        "sound": "resultsNORMAL-pico",
+        "images": [
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-pico/resultsGREAT",
+                "zIndex": 500,
+                "scale": 1.25,
+                "offsets": [
+                    350,
+                    25
+                ],
+                "looped": true,
+                "loopFrame": 32
+            }
+        ]
+    },
+    "GOOD": {
+        "sound": "resultsNORMAL-pico",
+        "images": [
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-pico/resultsGOOD",
+                "zIndex": 500,
+                "scale": 1.25,
+                "offsets": [
+                    350,
+                    25
+                ],
+                "loopFrame": 41
+            }
+        ]
+    },
+    "SHIT": {
+        "sound": "resultsSHIT-pico",
+        "images": [
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-pico/resultsSHIT",
+                "zIndex": 500,
+                "offsets": [
+                    -185,
+                    -125
+                ],
+                "loopFrame": 0
+            }
+        ]
+    }
+}

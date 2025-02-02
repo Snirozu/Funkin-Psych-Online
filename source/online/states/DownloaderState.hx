@@ -10,6 +10,7 @@ import flixel.graphics.FlxGraphic;
 import online.mods.GameBanana.GBSub;
 import flixel.group.FlxGroup;
 
+@:build(lumod.LuaScriptClass.build())
 class DownloaderState extends MusicBeatState {
 	var items:FlxTypedSpriteGroup<ModItem> = new FlxTypedSpriteGroup<ModItem>();
 	var itemsY:Int = FlxG.height - (3 * 190) - 50;
@@ -441,7 +442,7 @@ class DownloaderState extends MusicBeatState {
 		}
 
 		if (i == 0) {
-			pageInfo.text = "None mods found!";
+			pageInfo.text = "No mods found!";
 		}
 
 		items.screenCenter(X);

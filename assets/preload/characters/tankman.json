@@ -131,10 +131,46 @@
 			"anim": "ugh",
 			"loop": false,
 			"name": "TANKMAN UGH 1"
+		},
+		{
+			"flip_x": true,
+			"indices": [],
+			"loop": false,
+			"offsets": [
+				-18,
+				10
+			],
+			"fps": 24,
+			"name": "tankman laugh",
+			"anim": "laugh"
+		},
+		{
+			"flip_x": true,
+			"indices": [],
+			"loop": false,
+			"offsets": [
+				90,
+				-9
+			],
+			"fps": 24,
+			"name": "tankman beat it",
+			"anim": "beat it"
+		},
+		{
+			"flip_x": true,
+			"indices": [],
+			"loop": false,
+			"offsets": [
+				52,
+				-6
+			],
+			"fps": 24,
+			"name": "tankman ARGH",
+			"anim": "augh"
 		}
 	],
 	"no_antialiasing": false,
-	"image": "characters/tankmanCaptain",
+	"image": "characters/tankmanCaptain,characters/tankmanPico",
 	"position": [
 		0,
 		200

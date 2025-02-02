@@ -1,10 +1,43 @@
 package online.util;
 
+import flixel.math.FlxAngle;
+import flixel.FlxObject;
 import haxe.Json;
 import haxe.CallStack;
 
 @:publicFields
 class ShitUtil {
+	static function tempSwitchMod(switchMod:String, func:Void->Void) {
+		var beforeMod = Mods.currentModDirectory;
+		Mods.currentModDirectory = switchMod;
+		func();
+		Mods.currentModDirectory = beforeMod;
+	}
+
+	static function toOrdinalNumber(num:Float) {
+		if (num % 10 == 1 && num != 11)
+			return num + 'st';
+		if (num % 10 == 2 && num != 12)
+			return num + 'nd';
+		if (num % 10 == 3 && num != 13)
+			return num + 'rd';
+		return num + "th";
+	}
+
+	// can flixel implement this please
+	static function moveByDegrees(object:FlxObject, distance:Float, angle:Float) {
+		var rad = FlxAngle.asRadians(angle);
+		object.x += Math.cos(rad) * distance;
+		object.y += Math.sin(rad) * distance;
+	}
+
+	static function getJson(path:String) {
+		var raw = Paths.getTextFromFile(path + '.json');
+		if (raw == null)
+			return null;
+		return Json.parse(raw);
+	}
+
 	static function parseLog(msg:Dynamic):LogData {
 		try {
 			if (msg is String)

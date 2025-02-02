@@ -124,6 +124,25 @@
       "name": "compiletime",
       "type": "haxelib",
       "version": "2.8.0"
+    },
+    {
+      "name": "funkin.vis",
+      "type": "git",
+      "dir": null,
+      "ref": "1966f8fbbbc509ed90d4b520f3c49c084fc92fd6",
+      "url": "https://github.com/FunkinCrew/funkVis"
+    },
+    {
+      "name": "grig.audio",
+      "type": "git",
+      "dir": null,
+      "ref": "162f924bdde427fc84af5b51961d2faef51f6955",
+      "url": "https://github.com/Snirozu/grig.audio"
+    },
+    {
+      "name": "tink_core",
+      "type": "haxelib",
+      "version": "2.1.1"
     }
   ]
 }

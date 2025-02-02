@@ -1,0 +1,212 @@
+{
+	"animations": [
+		{
+			"loop": false,
+			"offsets": [
+				0,
+				0
+			],
+			"anim": "danceLeft",
+			"fps": 24,
+			"name": "Nene Abot Idle xmas0",
+			"indices": [
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14
+			]
+		},
+		{
+			"loop": false,
+			"offsets": [
+				0,
+				0
+			],
+			"anim": "danceRight",
+			"fps": 24,
+			"name": "Nene Abot Idle xmas0",
+			"indices": [
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25,
+				26,
+				27,
+				28,
+				29
+			]
+		},
+		{
+			"loop": false,
+			"offsets": [
+				-120,
+				50
+			],
+			"anim": "combo50",
+			"fps": 24,
+			"name": "combo celebration 1 nene xmas0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				0,
+				0
+			],
+			"anim": "drop70",
+			"fps": 24,
+			"name": "laughing nene xmas0",
+			"indices": [
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				7,
+				8,
+				9,
+				10,
+				11,
+				7,
+				8,
+				9,
+				10,
+				11,
+				7,
+				8,
+				9,
+				10,
+				11,
+				7,
+				8,
+				9,
+				10,
+				11,
+				7,
+				8,
+				9,
+				10,
+				11
+			]
+		},
+		{
+			"loop": false,
+			"offsets": [
+				-52,
+				-25
+			],
+			"anim": "combo200",
+			"fps": 24,
+			"name": "fawn nene xmas0",
+			"indices": [
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6,
+				6
+			]
+		},
+		{
+			"loop": false,
+			"offsets": [
+				0,
+				52
+			],
+			"anim": "raiseKnife",
+			"fps": 24,
+			"name": "knife raise xmas0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				-112,
+				52
+			],
+			"anim": "idleKnife",
+			"fps": 24,
+			"name": "knife high held xmas0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				134,
+				52
+			],
+			"anim": "lowerKnife",
+			"fps": 24,
+			"name": "knife lower xmas0",
+			"indices": []
+		}
+	],
+	"no_antialiasing": false,
+	"image": "characters/neneChristmas/neneChristmas",
+	"position": [
+		50,
+		0
+	],
+	"healthicon": "face",
+	"flip_x": false,
+	"healthbar_colors": [
+		161,
+		161,
+		161
+	],
+	"camera_position": [
+		40,
+		40
+	],
+	"sing_duration": 6.1,
+	"scale": 1
+}
