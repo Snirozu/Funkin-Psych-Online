@@ -3,6 +3,7 @@ package online.states;
 import lime.system.Clipboard;
 import openfl.events.KeyboardEvent;
 
+@:build(lumod.LuaScriptClass.build())
 class SetupModsState extends MusicBeatState {
 	var items:FlxTypedSpriteGroup<FlxText>;
 

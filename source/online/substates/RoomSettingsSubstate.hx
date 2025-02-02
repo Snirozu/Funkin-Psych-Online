@@ -4,6 +4,7 @@ import openfl.filters.BlurFilter;
 import substates.GameplayChangersSubstate;
 import options.OptionsState;
 import flixel.util.FlxSpriteUtil;
+import states.ModsMenuState;
 
 class RoomSettingsSubstate extends MusicBeatSubstate {
     var bg:FlxSprite;
@@ -109,6 +110,18 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		}, 0, 80 * i, GameClient.room.state.hideGF));
 		hideGF.ID = i++;
 
+		var disableSkins:Option;
+		items.add(disableSkins = new Option("Disable Skins", "Forbids players from using skins.", () -> {
+			if (GameClient.hasPerms()) {
+				GameClient.send("toggleSkins");
+			}
+		}, (elapsed) -> {
+			disableSkins.alpha = GameClient.hasPerms() ? 1 : 0.8;
+
+			disableSkins.checked = GameClient.room.state.disableSkins;
+		}, 0, 80 * i, GameClient.room.state.disableSkins));
+		disableSkins.ID = i++;
+
 		var prevCond:Int = -1;
 		var winCondition:Option;
 		items.add(winCondition = new Option("Win Condition", "...", () -> {
@@ -121,11 +134,13 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 					case 0:
 						winCondition.descText.text = 'Player with the highest Accuracy wins!';
 					case 1:
-						winCondition.descText.text = 'Player with the most Score wins!';
+						winCondition.descText.text = 'Player with the highest Score wins!';
 					case 2:
 						winCondition.descText.text = 'Player with the least Misses wins!';
 					case 3:
 						winCondition.descText.text = 'Player with the most FP wins!';
+					case 4:
+						winCondition.descText.text = 'Player with the highest Combo wins!';
 				}
 				winCondition.descText.text += ' (Click to Change)';
 				winCondition.box.makeGraphic(Std.int(winCondition.descText.x - winCondition.x + winCondition.descText.width) + 10, Std.int(winCondition.height), 0x81000000);
@@ -153,8 +168,13 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		stageSelect.ID = i++;
 
 		items.add(skinSelect = new Option("Select Skin", "Select your skin here!", () -> {
-			GameClient.clearOnMessage();
-			LoadingState.loadAndSwitchState(new SkinsState());
+			if (!GameClient.room.state.disableSkins) {
+				GameClient.clearOnMessage();
+				LoadingState.loadAndSwitchState(new SkinsState());
+			}
+			else {
+				Alert.alert('Skins are disabled!');
+			}
 		}, null, 0, 80 * i, false, true));
 		skinSelect.ID = i++;
 
@@ -165,6 +185,14 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			OptionsState.onOnlineRoom = true;
 		}, null, 0, 80 * i, false, true));
 		gameOptions.ID = i++;
+
+		var mods:Option;
+		items.add(mods = new Option("Mods", "Check your mods here!", () -> {
+			GameClient.clearOnMessage();
+			LoadingState.loadAndSwitchState(new ModsMenuState());
+			ModsMenuState.onOnlineRoom = true;
+		}, null, 0, 80 * i, false, true));
+		mods.ID = i++;
 
 		add(items);
 

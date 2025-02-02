@@ -1,0 +1,45 @@
+{
+	"animations": [
+		{
+			"loop": false,
+			"offsets": [
+				50,
+				290
+			],
+			"anim": "deathConfirm",
+			"fps": 24,
+			"name": "Retry Text Confirm",
+			"indices": []
+		},
+		{
+			"loop": true,
+			"offsets": [
+				-200,
+				80
+			],
+			"anim": "deathLoop",
+			"fps": 24,
+			"name": "Retry Text Loop",
+			"indices": []
+		}
+	],
+	"no_antialiasing": false,
+	"image": "characters/Pico_Death_Retry",
+	"position": [
+		0,
+		300
+	],
+	"healthicon": "pico",
+	"flip_x": true,
+	"healthbar_colors": [
+		183,
+		216,
+		85
+	],
+	"camera_position": [
+		220,
+		0
+	],
+	"sing_duration": 4,
+	"scale": 1
+}

@@ -181,6 +181,21 @@ class RoomState extends MusicBeatState {
 			});
 		});
 
+		GameClient.room.onMessage("requestSkin", function(?msg:Dynamic) {
+			Waiter.put(() -> {
+				if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
+					GameClient.send("setSkin", [
+						ClientPrefs.data.modSkin[0],
+						ClientPrefs.data.modSkin[1],
+						OnlineMods.getModURL(ClientPrefs.data.modSkin[0])
+					]);
+				}
+				else {
+					GameClient.send("setSkin", null);
+				}
+			});
+		});
+
 		GameClient.room.state.gameplaySettings.onChange((o, n) -> {
 			FreeplayState.updateFreeplayMusicPitch();
 		});
@@ -743,8 +758,10 @@ class RoomState extends MusicBeatState {
 				if (controls.NOTE_DOWN_P) {
 					playerAnim('singDOWN' + suffix);
 				}
-				if (controls.TAUNT)
-					playerAnim('taunt');
+				if (controls.TAUNT) {
+					var altSuffix = FlxG.keys.pressed.SHIFT ? '-alt' : '';
+					playerAnim('taunt' + altSuffix);
+				}
 			} else {
 				if (controls.UI_LEFT_P) {
 					changeSelection(1);
@@ -996,6 +1013,7 @@ class RoomState extends MusicBeatState {
 			p2.colorTransform.redOffset = 0;
 			p2.colorTransform.greenOffset = 0;
 			p2.colorTransform.blueOffset = 0;
+			p2.alpha = 1;
 			dlSkinTxt.visible = waitingForPlayer2Skin;
 			if (waitingForPlayer2Skin)
 				dlSkinTxt.setPosition(p2.x + p2.width / 2 - dlSkinTxt.width / 2, p2.y + p2.height / 2 - dlSkinTxt.height / 2);
@@ -1089,7 +1107,10 @@ class RoomState extends MusicBeatState {
 
 		box.desc.applyMarkup(
             "Points: " + player.points + "\n" +
-			(player.verified && box.profileData != null ? "Avg. Accuracy: " + FlxMath.roundDecimal((box.profileData.avgAccuracy * 100), 2) + "%\n" : "") +
+			(player.verified && box.profileData != null ? 
+				"Rank: " + ShitUtil.toOrdinalNumber(box.profileData.rank) + "\n" +
+				"Avg. Accuracy: " + FlxMath.roundDecimal((box.profileData.avgAccuracy * 100), 2) + "%\n"
+			 : "") +
 			"Ping: <p>" + player.ping + "ms<p>\n\n" +
 			player.status + "\n" +
 			(!player.isReady ? "NOT " : "") + "READY" +

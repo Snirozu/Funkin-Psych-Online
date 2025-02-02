@@ -50,7 +50,7 @@ class Main extends Sprite
 	public static var stage3D:AwayStage;
 	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.9.3";
+	public static final PSYCH_ONLINE_VERSION:String = "0.10.0";
 	public static final CLIENT_PROTOCOL:Float = 7;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 
@@ -289,7 +289,7 @@ class Main extends Sprite
 		alertMsg += exc + "\n";
 		daError += CallStack.toString(callStack) + "\n";
 		if (exc is Exception)
-			daError += cast(exc, Exception).stack.toString() + "\n";
+			daError += "\n" + cast(exc, Exception).stack.toString() + "\n";
 		alertMsg += daError;
 
 		Sys.println(alertMsg);
@@ -299,12 +299,36 @@ class Main extends Sprite
 		File.saveContent(path, alertMsg + "\n\n === \n\nCommit: " + GIT_COMMIT + "\n");
 		Sys.println("Crash dump saved in " + Path.normalize(path));
 		
+		var daLine:Int = 0;
+		var daFile:String = '';
+
+		if (callStack.length > 0)
+			switch (callStack[0]) {
+				case FilePos(s, file, line, col):
+					daLine = line;
+					daFile = file;
+					if (s != null && daFile != null && daFile.startsWith('lumod/LuaScriptClass'))
+						switch (s) {
+							case Method(cname, meth): // haxe has meth confirm? (from CallStack)
+								if (cname != null)
+									daFile = cname.replace('.', '/');
+							default:
+						}
+				default:
+			}
+
+		var cookUrl = 'https://github.com/Snirozu/Funkin-Psych-Online/blob/$GIT_COMMIT/source/$daFile#L$daLine';
+
 		#if (windows && cpp)
 		alertMsg += "\nDo you wish to report this error on GitHub?";
-		alertMsg += "\nPress OK to draft a new GitHub issue";
-		WinAPI.alert("Uncaught Exception!", alertMsg, () -> {
-			daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ($GIT_COMMIT)';
+		alertMsg += "\nPress Yes to draft a new GitHub issue";
+		alertMsg += "\nPress No to jump into the origin error point (on GitHub)";
+		WinAPI.ask("Uncaught Exception!", alertMsg,
+		() -> { //yes
+			daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';
 			FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${exc}')}&body=${StringTools.urlEncode(daError)}');
+		}, () -> { //no
+			FlxG.openURL(cookUrl);
 		});
 		#else
 		Application.current.window.alert(alertMsg, "Uncaught Exception!");

@@ -1,0 +1,236 @@
+{
+	"animations": [
+		{
+			"loop": false,
+			"offsets": [
+				40,
+				0
+			],
+			"anim": "idle",
+			"fps": 24,
+			"name": "Pico Idle Dance xmas0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				29,
+				-8
+			],
+			"fps": 24,
+			"anim": "hey",
+			"indices": [],
+			"name": "Pico HEY"
+		},
+		{
+			"loop": false,
+			"offsets": [
+				41,
+				18
+			],
+			"anim": "singUP",
+			"fps": 24,
+			"name": "pico Up note xmas0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				93,
+				-88
+			],
+			"anim": "singDOWN",
+			"fps": 24,
+			"name": "Pico Down Note xmas0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				92,
+				-45
+			],
+			"anim": "singDOWNmiss",
+			"fps": 24,
+			"name": "Pico Down Note MISS xmas0",
+			"indices": [
+				1,
+				2,
+				3,
+				4
+			]
+		},
+		{
+			"loop": false,
+			"offsets": [
+				69,
+				60
+			],
+			"anim": "singUPmiss",
+			"fps": 24,
+			"name": "pico Up note miss xmas0",
+			"indices": [
+				1,
+				2,
+				3,
+				4
+			]
+		},
+		{
+			"offsets": [
+				-46,
+				-1
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singRIGHT",
+			"indices": [],
+			"name": "Pico Note Right xmas0"
+		},
+		{
+			"offsets": [
+				103,
+				-13
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singLEFT",
+			"indices": [],
+			"name": "Pico NOTE LEFT xmas0"
+		},
+		{
+			"offsets": [
+				-38,
+				45
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singRIGHTmiss",
+			"indices": [
+				1,
+				2,
+				3,
+				4
+			],
+			"name": "Pico Note Right Miss xmas0"
+		},
+		{
+			"offsets": [
+				104,
+				21
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singLEFTmiss",
+			"indices": [],
+			"name": "Pico NOTE LEFT miss"
+		},
+		{
+			"loop": false,
+			"offsets": [
+				215,
+				85
+			],
+			"fps": 24,
+			"anim": "firstDeath",
+			"indices": [
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25,
+				25,
+				26,
+				27,
+				28,
+				29,
+				30,
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47
+			],
+			"name": "DEATH PICO xmas0"
+		},
+		{
+			"loop": true,
+			"offsets": [
+				215,
+				85
+			],
+			"fps": 24,
+			"anim": "deathLoop",
+			"indices": [
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54,
+				55,
+				56,
+				57,
+				58,
+				59,
+				60,
+				61,
+				62,
+				63
+			],
+			"name": "DEATH PICO xmas0"
+		}
+	],
+	"no_antialiasing": false,
+	"image": "characters/picoChristmas/picoChristmas,characters/picoChristmas/picoChristmasDeath,characters/Pico_Finger",
+	"position": [
+		0,
+		300
+	],
+	"healthicon": "pico",
+	"flip_x": true,
+	"healthbar_colors": [
+		183,
+		216,
+		85
+	],
+	"camera_position": [
+		220,
+		0
+	],
+	"sing_duration": 4,
+	"scale": 1
+}

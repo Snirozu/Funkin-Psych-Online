@@ -129,6 +129,8 @@
 	<haxelib name="lumod" />
 	<haxelib name="actuate" />
 	<haxelib name="compiletime" />
+	<haxelib name="funkin.vis" />
+	<haxelib name="grig.audio" />
 
 	<haxedef name="openflPos" />
 	<haxedef name="hscriptPos" />

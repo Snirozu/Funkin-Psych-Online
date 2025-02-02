@@ -70,4 +70,7 @@ class Room extends Schema {
 
 	@:type("number")
 	public var winCondition: Dynamic = 0;
+
+	@:type("boolean")
+	public var disableSkins:Bool = false;
 }

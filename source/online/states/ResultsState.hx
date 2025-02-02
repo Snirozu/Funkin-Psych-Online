@@ -212,7 +212,11 @@ class ResultsState extends MusicBeatState {
 					winner = -1;
 			case 3:
 				winner = (getPlayer(1).songPoints >= getPlayer(2).songPoints ? 0 : 1);
-				if (getPlayer(1).score == getPlayer(2).score)
+				if (getPlayer(1).songPoints == getPlayer(2).songPoints)
+					winner = -1;
+			case 4:
+				winner = (getPlayer(1).maxCombo >= getPlayer(2).maxCombo ? 0 : 1);
+				if (getPlayer(1).maxCombo == getPlayer(2).maxCombo)
 					winner = -1;
 		}
 
@@ -443,9 +447,10 @@ class ResultsState extends MusicBeatState {
             }
 
 			if (!chatBox.focused && controls.TAUNT) {
-				(GameClient.isOwner ? p1 : p2).playAnim('taunt', true);
+				var altSuffix = FlxG.keys.pressed.ALT ? '-alt' : '';
+				(GameClient.isOwner ? p1 : p2).playAnim('taunt' + altSuffix, true);
 				if (GameClient.isConnected())
-					GameClient.send("charPlay", ["taunt"]);
+					GameClient.send("charPlay", ["taunt" + altSuffix]);
 			}
         }
         else {

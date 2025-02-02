@@ -1,6 +1,6 @@
 package online.replay;
 
-import states.FreeplayState;
+import flixel.input.gamepad.FlxGamepad;
 import online.network.Leaderboard;
 import haxe.crypto.Md5;
 import backend.Song;
@@ -97,6 +97,10 @@ class ReplayRecorder extends FlxBasic {
         
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+
+		// nvm
+		// @:privateAccess FlxG.gamepads.getFirstActiveGamepad()._device.__gamepad.onButtonDown.add(onPadDown);
+		// @:privateAccess FlxG.gamepads.getFirstActiveGamepad()._device.__gamepad.onButtonUp.add(onPadUp);
     }
 
 	override function destroy() {
@@ -107,23 +111,47 @@ class ReplayRecorder extends FlxBasic {
 	}
 
 	function onKeyDown(e:KeyboardEvent) {
-		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode) ?? (state.controls.controllerMode ? controllerIds.get(e.keyCode) : null), e.keyCode, 0);
+		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode), e.keyCode, 0, true);
     }
 
 	function onKeyUp(e:KeyboardEvent) {
-		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode) ?? (state.controls.controllerMode ? controllerIds.get(e.keyCode) : null), e.keyCode, 1);
+		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode), e.keyCode, 1, true);
 	}
 
-	function recordKey(time:Float, ids:Array<String>, keyCode:Int, move:Int) {
-		switch (keyCode) {
-			case 16: // shift
-				data.inputs.push([time, 'KEY:SHIFT', move]);
-			case 17: // ctrl
-				data.inputs.push([time, 'KEY:CONTROL', move]);
-			case 18: // alt
-				data.inputs.push([time, 'KEY:ALT', move]);
-			case 32: // spaceeee
-				data.inputs.push([time, 'KEY:SPACE', move]);
+	var _gamepad:FlxGamepad;
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+
+		if (FlxG.gamepads.numActiveGamepads > 0) {
+			if (_gamepad == null || !_gamepad.connected)
+				_gamepad = FlxG.gamepads.getFirstActiveGamepad();
+
+			if (_gamepad != null)
+				for (id => ids in controllerIds) {
+					switch (@:privateAccess _gamepad.buttons[_gamepad.mapping.getRawID(id)].current) {
+						case JUST_PRESSED:
+							recordKey(Conductor.songPosition, ids, id, 0, false);
+						case JUST_RELEASED:
+							recordKey(Conductor.songPosition, ids, id, 1, false);
+						default:
+							// nothing
+					}
+				}
+		}
+	}
+
+	function recordKey(time:Float, ids:Array<String>, keyCode:Int, move:Int, isKeyboard:Bool) {
+		if (isKeyboard) {
+			switch (keyCode) {
+				case 16: // shift
+					data.inputs.push([time, 'KEY:SHIFT', move]);
+				case 17: // ctrl
+					data.inputs.push([time, 'KEY:CONTROL', move]);
+				case 18: // alt
+					data.inputs.push([time, 'KEY:ALT', move]);
+				case 32: // spaceeee
+					data.inputs.push([time, 'KEY:SPACE', move]);
+			}
 		}
 		
 		if (ids == null)
@@ -151,7 +179,7 @@ class ReplayRecorder extends FlxBasic {
 		data.beat_time = Date.now().getTime();
 		data.note_offset = ClientPrefs.data.noteOffset;
 
-		if (data.accuracy < 30) {
+		if (data.accuracy < 5) {
 			Alert.alert("git gud", 'your performance was SHIT');
 			return 0;
 		}

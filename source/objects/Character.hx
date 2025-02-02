@@ -39,6 +39,7 @@ typedef AnimArray = {
 	var indices:Array<Int>;
 	var offsets:Array<Int>;
 	@:optional var sound:String;
+	@:optional var flip_x:Bool;
 }
 
 class Character extends FlxSprite {
@@ -81,6 +82,8 @@ class Character extends FlxSprite {
 	public var animSounds:Map<String, openfl.media.Sound> = new Map<String, openfl.media.Sound>();
 	public var sound:FlxSound;
 
+	public var modDir:String = null;
+
 	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
 
 	public static function getCharacterFile(character:String, ?instance:Character):CharacterFile {
@@ -114,6 +117,8 @@ class Character extends FlxSprite {
 
 	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false, ?isSkin:Bool = false) {
 		super(x, y);
+
+		modDir = Mods.currentModDirectory;
 
 		animOffsets = new Map<String, Array<Dynamic>>();
 		curCharacter = character;
@@ -201,18 +206,20 @@ class Character extends FlxSprite {
 						var animFps:Int = anim.fps;
 						var animLoop:Bool = !!anim.loop; // Bruh
 						var animIndices:Array<Int> = anim.indices;
+						var flipX:Bool = !!anim.flip_x;
 						if(!isAnimateAtlas)
 						{
 							if (animIndices != null && animIndices.length > 0) {
-								animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
+								animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop, flipX);
 							}
 							else {
-								animation.addByPrefix(animAnim, animName, animFps, animLoop);
+								animation.addByPrefix(animAnim, animName, animFps, animLoop, flipX);
 							}
 						}
 						#if flxanimate
 						else
 						{
+							// no flipX in flxanimate bcs not supported bye
 							if(animIndices != null && animIndices.length > 0)
 								atlas.anim.addBySymbolIndices(animAnim, animName, animIndices, animFps, animLoop);
 							else
@@ -426,7 +433,7 @@ class Character extends FlxSprite {
 		specialAnim = false;
 		isMissing = AnimName.endsWith("miss");
 
-		if (AnimName == "taunt") {
+		if (AnimName == "taunt" || AnimName == "taunt-alt") {
 			specialAnim = true;
 			heyTimer = 1;
 		}
@@ -447,7 +454,7 @@ class Character extends FlxSprite {
 				colorTransform.blueMultiplier = 0.5;
 			}
 
-			if (AnimName == "taunt") {
+			if (AnimName == "taunt" || AnimName == "taunt-alt") {
 				AnimName = "hey";
 			}
 
@@ -614,4 +621,7 @@ class Character extends FlxSprite {
 		destroyAtlas();
 		#end
 	}
+
+	public function onCombo(from:Int, to:Int) {}
+	public function onHealth(from:Float, to:Float) {}
 }

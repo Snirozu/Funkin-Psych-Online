@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<TextureAtlas imagePath="Pico_Finger_dark.png" width="1522" height="483">
+  <SubTexture name="Pico HEY0001" x="4" y="4" width="513" height="475" frameX="-1" frameY="-0" frameWidth="514" frameHeight="477" />
+  <SubTexture name="Pico HEY0005" x="525" y="4" width="497" height="475" frameX="-0" frameY="-2" frameWidth="514" frameHeight="477" />
+  <SubTexture name="Pico HEY0003" x="1030" y="4" width="488" height="474" frameX="-0" frameY="-3" frameWidth="514" frameHeight="477" />
+  <SubTexture name="Pico HEY0002" x="4" y="4" width="513" height="475" frameX="-1" frameY="-0" frameWidth="514" frameHeight="477" />
+  <SubTexture name="Pico HEY0004" x="1030" y="4" width="488" height="474" frameX="-0" frameY="-3" frameWidth="514" frameHeight="477" />
+  <SubTexture name="Pico HEY0006" x="525" y="4" width="497" height="475" frameX="-0" frameY="-2" frameWidth="514" frameHeight="477" />
+  <SubTexture name="Pico HEY0007" x="525" y="4" width="497" height="475" frameX="-0" frameY="-2" frameWidth="514" frameHeight="477" />
+  <SubTexture name="Pico HEY0008" x="525" y="4" width="497" height="475" frameX="-0" frameY="-2" frameWidth="514" frameHeight="477" />
+</TextureAtlas>

@@ -1,0 +1,113 @@
+{
+    "PERFECT": {
+        "sound": "resultsPERFECT",
+        "soundOnFlash": true,
+        "images": [
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-bf/resultsPERFECT",
+                "zIndex": 500,
+                "offsets": [
+                    1342,
+                    370
+                ],
+                "loopFrame": 137
+            },
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-bf/resultsPERFECT/hearts",
+                "zIndex": 501,
+                "delay": 4.41,
+                "offsets": [
+                    1342,
+                    370
+                ],
+                "loopFrame": 43
+            }
+        ]
+    },
+    "EXCELLENT": {
+        "sound": "resultsEXCELLENT",
+        "images": [
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-bf/resultsEXCELLENT",
+                "zIndex": 500,
+                "offsets": [
+                    1329,
+                    429
+                ],
+                "loopFrame": 29
+            }
+        ]
+    },
+    "GREAT": {
+        "sound": "resultsNORMAL",
+        "images": [
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-bf/resultsGREAT/gf",
+                "scale": 0.93,
+                "delay": 0.25,
+                "offsets": [
+                    802,
+                    331
+                ],
+                "zIndex": 499,
+                "loopFrame": 9
+            },
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-bf/resultsGREAT/bf",
+                "scale": 0.93,
+                "zIndex": 500,
+                "offsets": [
+                    929,
+                    363
+                ],
+                "loopFrame": 15
+            }
+        ]
+    },
+    "GOOD": {
+        "sound": "resultsNORMAL",
+        "images": [
+            {
+                "renderType": "sparrow",
+                "assetPath": "resultScreen/results-bf/resultsGOOD/resultGirlfriendGOOD",
+                "zIndex": 500,
+                "delay": 0.91,
+                "offsets": [
+                    629,
+                    323
+                ],
+                "loopFrame": 9
+            },
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-bf/resultsGOOD/bf",
+                "zIndex": 501,
+                "offsets": [
+                    662,
+                    371
+                ],
+                "loopFrame": 14
+            }
+        ]
+    },
+    "SHIT": {
+        "sound": "resultsSHIT",
+        "images": [
+            {
+                "renderType": "animateatlas",
+                "assetPath": "resultScreen/results-bf/resultsSHIT",
+                "zIndex": 500,
+                "offsets": [
+                    0,
+                    20
+                ],
+                "loopFrameLabel": "Loop Start"
+            }
+        ]
+    }
+}
