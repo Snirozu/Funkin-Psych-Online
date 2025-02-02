@@ -54,7 +54,7 @@ class Main extends Sprite
 	public static final CLIENT_PROTOCOL:Float = 7;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 
-	public static wankyUpdate:String = 'version';
+	public static var wankyUpdate:String = 'version';
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
