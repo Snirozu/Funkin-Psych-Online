@@ -99,6 +99,19 @@ class ReplayRecorder extends FlxBasic {
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
     }
 
+	override public function update(elapsed:Float) {
+		super.update(elapsed);
+
+		if(state.controls.controllerMode) {
+			for(id in controllerIds.keys()) {
+				if(FlxG.gamepads.anyJustPressed(id))
+					recordKey(Conductor.songPosition, controllerIds.get(id), null, 0);
+				else if(FlxG.gamepads.anyJustReleased(id))
+					recordKey(Conductor.songPosition, controllerIds.get(id), null, 1);
+			}
+		}
+	}
+
 	override function destroy() {
 		super.destroy();
 
@@ -107,14 +120,14 @@ class ReplayRecorder extends FlxBasic {
 	}
 
 	function onKeyDown(e:KeyboardEvent) {
-		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode) ?? (state.controls.controllerMode ? controllerIds.get(e.keyCode) : null), e.keyCode, 0);
+		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode), e.keyCode, 0);
     }
 
 	function onKeyUp(e:KeyboardEvent) {
-		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode) ?? (state.controls.controllerMode ? controllerIds.get(e.keyCode) : null), e.keyCode, 1);
+		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode), e.keyCode, 1);
 	}
 
-	function recordKey(time:Float, ids:Array<String>, keyCode:Int, move:Int) {
+	function recordKey(time:Float, ids:Array<String>, keyCode:Null<Int>, move:Int) {
 		switch (keyCode) {
 			case 16: // shift
 				data.inputs.push([time, 'KEY:SHIFT', move]);
