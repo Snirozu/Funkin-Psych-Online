@@ -169,6 +169,7 @@ class FreeplayState extends MusicBeatState
 	// var sickSparkle:FlxSprite;
 
 	var _substateIsModifiers = false;
+	var transToPlayState:Bool = false;
 
 	var itemsCamera:FlxCamera;
 	var hudCamera:FlxCamera;
@@ -723,7 +724,7 @@ class FreeplayState extends MusicBeatState
 			scoreText.text = 'PERSONAL BEST: ' + lerpScore + ' (' + ratingSplit.join('.') + '%)';
 		positionHighscore();
 
-		if ((chatBox != null && chatBox.focused) || searchInputWait) {
+		if ((chatBox != null && chatBox.focused) || searchInputWait || transToPlayState) {
 			updateTexts(elapsed);
 			super.update(elapsed);
 			return;
@@ -1767,6 +1768,7 @@ class FreeplayState extends MusicBeatState
 			return;
 		}
 		LoadingState.loadAndSwitchState(new PlayState());
+		transToPlayState = true;
 		FlxG.autoPause = prevPauseGame;
 
 		FlxG.sound.music.volume = 0;
