@@ -119,6 +119,14 @@ class TitleState extends MusicBeatState
 				trace('comparing ' + updatVer + ' > ' + curVer);
 				for (i => num in updatVer) {
 					if (num > curVer[i] ?? 0) {
+						switch (i) {
+							case 0:
+								Main.wankyUpdate = 'PSYCH ENGINE 1.0.0 WHAT';
+							case 1:
+								Main.wankyUpdate = 'major release';
+							default:
+								Main.wankyUpdate = 'minor patch';
+						}
 						mustUpdate = true;
 						trace('update version is newer! [' + i + "]");
 						break;

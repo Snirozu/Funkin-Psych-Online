@@ -139,7 +139,7 @@ class MainMenuState extends MusicBeatState
 		if (TitleState.mustUpdate) {
 			FlxG.mouse.visible = true;
 
-			var updatE:FlxText = new FlxText(12, FlxG.height - 64, 0, "A new version is available!\n(Click here to update)", 12);
+			var updatE:FlxText = new FlxText(12, FlxG.height - 64, 0, 'A new ${Main.wankyUpdate} is available!\n(Click here to update)', 12);
 			updatE.scrollFactor.set();
 			updatE.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			updatE.setPosition(FlxG.width - updatE.width - 40, 40);
