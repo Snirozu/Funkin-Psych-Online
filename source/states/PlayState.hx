@@ -718,12 +718,6 @@ class PlayState extends MusicBeatState
 				SONG.gfVersion = 'nene' + skinsSuffix;
 			}
 
-			if (SONG.gfVersion == 'nene' || SONG.gfVersion == 'nene-christmas') {
-				abot = new ABotSpeaker(-30, 310, curStage == 'spooky-erect');
-				updateABotEye(true);
-				gfGroup.add(abot);
-			}
-
 			add(gfGroup);
 			add(dadGroup);
 			add(boyfriendGroup);
@@ -782,6 +776,12 @@ class PlayState extends MusicBeatState
 
 			if (!stageData.hide_girlfriend && !(GameClient.isConnected() && GameClient.room.state.hideGF))
 			{
+				if (SONG.gfVersion == 'nene' || SONG.gfVersion == 'nene-christmas') {
+					abot = new ABotSpeaker(-30, 310, curStage == 'spooky-erect');
+					updateABotEye(true);
+					gfGroup.add(abot);
+				}
+				
 				if(SONG.gfVersion == null || SONG.gfVersion.length < 1) SONG.gfVersion = 'gf'; //Fix for the Chart Editor
 				if (!SONG.gfVersion.startsWith('nene'))
 					gf = new Character(0, 0, SONG.gfVersion);
