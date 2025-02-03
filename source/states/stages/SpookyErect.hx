@@ -76,7 +76,9 @@ class SpookyErect extends BaseStage
 				}
 				gfDark.flipX = gf.flipX;
 				gfDark.debugMode = true;
-				addBehindGF(gfDark);
+				gfDark.x -= gfGroup.x;
+				gfDark.y -= gfGroup.y;
+				addBehindGF(gfDark, true);
 			});
 		}
 
