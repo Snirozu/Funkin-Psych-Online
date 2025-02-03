@@ -17,12 +17,12 @@ class StageErect extends BaseStage
             add(lightSmall);
         }
 
-		var bg:BGSprite = new BGSprite('erect/bg', -603, -237, 1, 1);
+		var bg:BGSprite = new BGSprite('erect/bg', -603, -277, 1, 1);
 		bg.setGraphicSize(Std.int(bg.width * 1.1));
 		bg.updateHitbox();
 		add(bg);
 
-		var server:BGSprite = new BGSprite('erect/server', -361, 205, 1, 1);
+		var server:BGSprite = new BGSprite('erect/server', -361, 215, 1, 1);
 		add(server);
 
 		if (!ClientPrefs.data.lowQuality) {

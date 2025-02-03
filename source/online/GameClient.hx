@@ -156,18 +156,17 @@ class GameClient {
 			if (debugReconnectDelay > 0)
 				Sys.sleep(debugReconnectDelay);
 			client.reconnect(room.reconnectionToken, GameRoom, (err, newRoom:Room<GameRoom>) -> {
+				if (err != null) {
+					trace(err.code + " - " + err.message);
+					Waiter.put(() -> {
+						Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + ShitUtil.prettyStatus(err.code) + " - " + ShitUtil.readableError(err.message));
+					});
+					leaveRoom();
+					return;
+				}
+
 				newRoom.onStateChange += _ -> {
 					newRoom.onStateChange = new EventHandler<Dynamic->Void>();
-					
-					trace(newRoom.state.song);
-					if (err != null) {
-						trace(err.code + " - " + err.message);
-						Waiter.put(() -> {
-							Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + ShitUtil.prettyStatus(err.code) + " - " + ShitUtil.readableError(err.message));
-						});
-						leaveRoom();
-						return;
-					}
 
 					_onJoin(err, newRoom, GameClient.isOwner, GameClient.address);
 					if (addListeners != null)
