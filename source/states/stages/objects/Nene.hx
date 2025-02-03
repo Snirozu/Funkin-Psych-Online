@@ -19,17 +19,19 @@ class Nene extends Character {
         if (!GameClient.isConnected() && !PlayState.playsAsBF())
             return;
 
-        if (from > 0.5 && to <= 0.5) {
+		if (to <= 0.5 && state != DIRE) {
             state = DIRE;
 
             playAnim('raiseKnife', true);
+            return;
 		}
-
-        if (from <= 0.5 && to > 0.5) {
+        
+		if (to > 0.5 && state != NORMAL) {
             state = NORMAL;
 
             playAnim('lowerKnife', true);
             specialAnim = true;
+            return;
         }
     }
 
