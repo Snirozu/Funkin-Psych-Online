@@ -97,6 +97,8 @@ class Tank extends BaseStage
 		{
 			for (daGf in gfGroup)
 			{
+				if (!(daGf is Character)) continue;
+
 				var gf:Character = cast daGf;
 				if(gf.curCharacter == 'pico-speaker')
 				{
