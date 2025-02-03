@@ -220,10 +220,14 @@ class PlayState extends MusicBeatState
 
 	public var gfSpeed:Int = 1;
 	var _health:Float = 1;
+	var _prevOHealth:Float = 1;
 	public var health(get, set):Float;
 	function get_health() {
 		if (GameClient.isConnected()) {
-			return GameClient.room.state.health;
+			if (_prevOHealth != GameClient.room.state.health && gf != null)
+				gf.onHealth(_prevOHealth, GameClient.room.state.health);
+
+			return _prevOHealth = GameClient.room.state.health;
 		}
 		return _health;
 	}
