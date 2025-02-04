@@ -2065,8 +2065,6 @@ class PlayState extends MusicBeatState
 					gottaHitNote = songNotes[1] < maniaKeys;
 				}
 
-				lastStrumTime = daStrumTime;
-
 				var oldNote:Note;
 				if (unspawnNotes.length > 0)
 					oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
@@ -2092,8 +2090,13 @@ class PlayState extends MusicBeatState
 				susLength = susLength / Conductor.stepCrochet;
 
 				unspawnNotes.push(swagNote);
-				if (playsAsBF() ? gottaHitNote : !gottaHitNote && daStrumTime - lastStrumTime > 10)
-					playingNoteCount++;
+
+				if (isPlayerNote(swagNote)) {
+					if (daStrumTime - lastStrumTime > 10)
+						playingNoteCount++;
+
+					lastStrumTime = daStrumTime;
+				}
 
 				var floorSus:Int = Math.floor(susLength);
 				if(floorSus > 0) {
