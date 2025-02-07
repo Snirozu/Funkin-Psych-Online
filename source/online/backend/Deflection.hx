@@ -10,6 +10,11 @@ class Deflection {
 		if (classBlacklist == null)
 			initClassBlacklist();
 
+		if(clsName == 'hxcodec.flixel.FlxVideo')
+		{
+			clsName = 'backend.HxCodecWrapper';
+		}
+
 		var cls = Type.resolveClass(clsName);
 
 		if (classBlacklist.contains(cls)) {
