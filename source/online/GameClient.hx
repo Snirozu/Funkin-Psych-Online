@@ -187,6 +187,7 @@ class GameClient {
 			"points" => FunkinPoints.funkinPoints,
 			"arrowRGBT" => ClientPrefs.data.arrowRGB,
 			"arrowRGBP" => ClientPrefs.data.arrowRGBPixel,
+			"noteSkins" => [ClientPrefs.data.noteSkin, ClientPrefs.data.splashSkin],
 		];
 
 		if (Auth.authID != null && Auth.authToken != null) {

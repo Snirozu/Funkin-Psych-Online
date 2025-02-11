@@ -4426,13 +4426,13 @@ class PlayState extends MusicBeatState
 		if(note != null) {
 			var strum:StrumNote = getPlayerStrums().members[note.noteData];
 			if(strum != null)
-				spawnNoteSplash(strum.x, strum.y, note.noteData, note);
+				spawnNoteSplash(strum.x, strum.y, note.noteData, note.mustPress, note);
 		}
 	}
 
-	public function spawnNoteSplash(x:Float, y:Float, data:Int, ?note:Note = null) {
+	public function spawnNoteSplash(x:Float, y:Float, data:Int, ?mustPress:Bool = true, ?note:Note = null) {
 		var splash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);
-		splash.setupNoteSplash(x, y, data, note);
+		splash.setupNoteSplash(x, y, data, mustPress, note);
 		grpNoteSplashes.add(splash);
 	}
 

@@ -192,6 +192,7 @@ class FunkinLua {
 		set('currentModDirectory', Mods.currentModDirectory);
 
 		// Noteskin/Splash
+		// Remind me to change this!
 		set('noteSkin', ClientPrefs.data.noteSkin);
 		set('noteSkinPostfix', Note.getNoteSkinPostfix());
 		set('splashSkin', ClientPrefs.data.splashSkin);
