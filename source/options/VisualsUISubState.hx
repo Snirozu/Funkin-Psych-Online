@@ -1,11 +1,14 @@
 package options;
 
+import online.GameClient;
 import objects.Note;
 import objects.StrumNote;
 import objects.Alphabet;
 
 class VisualsUISubState extends BaseOptionsMenu
 {
+	public static var isOpened:Bool = false;
+
 	var noteOptionID:Int = -1;
 	var notes:FlxTypedGroup<StrumNote>;
 	var notesTween:Array<FlxTween> = [];
@@ -14,6 +17,8 @@ class VisualsUISubState extends BaseOptionsMenu
 	{
 		title = 'Visuals and UI';
 		rpcTitle = 'Visuals & UI Settings Menu'; //for Discord Rich Presence
+
+		isOpened = true;
 
 		// for note skins
 		notes = new FlxTypedGroup<StrumNote>();
@@ -260,6 +265,10 @@ class VisualsUISubState extends BaseOptionsMenu
 	override function destroy()
 	{
 		if(changedMusic && !OptionsState.onPlayState) FlxG.sound.playMusic(Paths.music('freakyMenu'), 1, true);
+		isOpened = false;
+		if (GameClient.isConnected()) {
+			GameClient.send('updateNoteSkins', [ClientPrefs.data.noteSkin, ClientPrefs.data.splashSkin]);
+		}
 		super.destroy();
 	}
 
