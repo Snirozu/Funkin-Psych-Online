@@ -3928,6 +3928,19 @@ class PlayState extends MusicBeatState
 			});
 		}
 
+		if (ClientPrefs.data.colorRating) {
+			if (songMisses == 0) {
+				if (songShits > 0)
+					rating.color = 0xDF6D6C;
+				else if (songBads > 0)
+					rating.color =	0xE2C777;
+				else if (songGoods > 0)
+					rating.color = 0x77CCEB;
+				else if (songSicks > 0)
+					rating.color = 0x76E690;
+			} 
+		}
+
 		return daRating;
 	}
 
