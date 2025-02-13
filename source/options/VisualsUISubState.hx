@@ -205,6 +205,12 @@ class VisualsUISubState extends BaseOptionsMenu
 			['No Grouping', 'Alphabetically', 'Modpack', 'Favorites', 'Hidden']);
 		addOption(option);
 
+		var option:Option = new Option('FC Rating Color',
+			'If checked, the Rating text will be colored depending on your current Full Combo rating',
+			'colorRating',
+			'bool');
+		addOption(option);
+
 		super();
 		add(notes);
 	}
