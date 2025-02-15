@@ -545,12 +545,12 @@ class OnlineState extends MusicBeatState {
 				case "join":
 					disableInput = true;
 					if (daCoomCode.toLowerCase() == "adachi") {
+						FlxG.sound.playMusic(Paths.sound('cabbage'));
 						var image = new FlxSprite().loadGraphic(Paths.image('unnamed_file_from_google'));
 						image.setGraphicSize(FlxG.width, FlxG.height);
 						image.updateHitbox();
-						add(image);
 						FreeplayState.destroyFreeplayVocals();
-						FlxG.sound.playMusic(Paths.sound('cabbage'));
+						add(image);
 						return;
 					}
 					#if VIDEOS_ALLOWED
@@ -589,6 +589,15 @@ class OnlineState extends MusicBeatState {
 						return;
 					}
 					#end
+					else if (daCoomCode.toLowerCase() == "tomar") {
+						FlxG.sound.playMusic(Paths.sound('tomar'));
+						var image = new FlxSprite().loadGraphic(Paths.image('tomar'));
+						image.setGraphicSize(FlxG.width, FlxG.height);
+						image.updateHitbox();
+						FreeplayState.destroyFreeplayVocals();
+						add(image);
+						return;
+					}
 					GameClient.joinRoom(daCoomCode, onRoomJoin);
 			}
 		}

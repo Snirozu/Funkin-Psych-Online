@@ -211,6 +211,12 @@ class VisualsUISubState extends BaseOptionsMenu
 			['No Grouping', 'Alphabetically', 'Modpack', 'Favorites', 'Hidden']);
 		addOption(option);
 
+		var option:Option = new Option('Rating Color',
+			'If checked, the Rating text will be colored depending on your current... well... Rating, same with Combo.',
+			'colorRating',
+			'bool');
+		addOption(option);
+
 		super();
 		add(notes);
 	}
