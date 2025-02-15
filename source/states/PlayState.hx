@@ -315,6 +315,11 @@ class PlayState extends MusicBeatState
 
 	public var pointsPercent:Float = 0;
 
+	static var COLOR_SICK:FlxColor = 0x6CFD8E;
+	static var COLOR_GOOD:FlxColor = 0x68D5FD;
+	static var COLOR_BAD:FlxColor = 0xFCD768;
+	static var COLOR_SHIT:FlxColor = 0xFC6B68;
+
 	public var scoreTxt:FlxText;
 	public var scoreTxtP1:FlxText;
 	public var scoreTxtP2:FlxText;
@@ -3843,6 +3848,20 @@ class PlayState extends MusicBeatState
 		noteTimingRating.velocity.y -= 150;
 		noteTimingRating.velocity.x += comboSpr.velocity.x;
 
+		var colorCombo:Null<FlxColor> = null;
+		if (ClientPrefs.data.colorRating) {
+			if (songMisses == 0) {
+				if (songShits > 0)
+					colorCombo = COLOR_SHIT;
+				else if (songBads > 0)
+					colorCombo = COLOR_BAD;
+				else if (songGoods > 0)
+					colorCombo = COLOR_GOOD;
+				else if (songSicks > 0)
+					colorCombo = COLOR_SICK;
+			} 
+		}
+
 		var seperatedScore:Array<Int> = [];
 
 		if(combo >= 1000) {
@@ -3906,6 +3925,9 @@ class PlayState extends MusicBeatState
 
 			daLoop++;
 			if(numScore.x > xThing) xThing = numScore.x;
+
+			if (colorCombo != null)
+				numScore.color = colorCombo;
 		}
 		comboSpr.x = xThing + 50;
 		FlxTween.tween(rating, {alpha: 0}, 0.2 / playbackRate, {
@@ -3926,6 +3948,19 @@ class PlayState extends MusicBeatState
 				startDelay: Conductor.crochet * 0.001 / playbackRate,
 				onComplete: (t) -> noteTimingRating.active = false
 			});
+		}
+
+		if (ClientPrefs.data.colorRating) {
+			switch (daRating.name) {
+				case 'shit':
+					rating.color = COLOR_SHIT;
+				case 'bad':
+					rating.color = COLOR_BAD;
+				case 'good':
+					rating.color = COLOR_GOOD;
+				case 'sick':
+					rating.color = COLOR_SICK;
+			}
 		}
 
 		return daRating;
