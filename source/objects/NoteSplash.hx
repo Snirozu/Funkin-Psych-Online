@@ -18,7 +18,6 @@ class NoteSplash extends FlxSprite
 	private var idleAnim:String;
 	private var _textureLoaded:String = null;
 	private var _configLoaded:String = null;
-	private var mustPress:Bool = true;
 
 	public static var defaultNoteSplash(default, never):String = 'noteSplashes/noteSplashes';
 	public static var configs:Map<String, NoteSplashConfig> = new Map<String, NoteSplashConfig>();
@@ -45,15 +44,14 @@ class NoteSplash extends FlxSprite
 	}
 
 	var maxAnims:Int = 2;
-	public function setupNoteSplash(x:Float, y:Float, direction:Int = 0, ?mustPress:Bool = true, ?note:Note = null) {
+	public function setupNoteSplash(x:Float, y:Float, direction:Int = 0, ?note:Note = null) {
 		setPosition(x - Note.swagWidth * 0.95, y - Note.swagWidth);
 		aliveTime = 0;
-		this.mustPress = mustPress;
 
 		var texture:String = null;
 		if(note != null && note.noteSplashData.texture != null) texture = note.noteSplashData.texture;
 		else if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) texture = PlayState.SONG.splashSkin;
-		else texture = defaultNoteSplash + getSplashSkinPostfix(mustPress);
+		else texture = defaultNoteSplash + getSplashSkinPostfix();
 		
 		var config:NoteSplashConfig = null;
 		if(_textureLoaded != texture)
@@ -111,12 +109,11 @@ class NoteSplash extends FlxSprite
 			animation.curAnim.frameRate = FlxG.random.int(minFps, maxFps);
 	}
 
-	public static function getSplashSkinPostfix(?mustPress:Bool = true)
+	public static function getSplashSkinPostfix()
 	{
 		var skin:String = '';
-		var noteSkin:String = ClientPrefs.getSplashSkin(!GameClient.room?.state?.swagSides ?? false ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1));
-		if(noteSkin != ClientPrefs.defaultData.splashSkin)
-			skin = '-' + noteSkin.trim().toLowerCase().replace(' ', '_');
+		if(ClientPrefs.data.splashSkin != ClientPrefs.defaultData.splashSkin)
+			skin = '-' + ClientPrefs.data.splashSkin.trim().toLowerCase().replace(' ', '_');
 		return skin;
 	}
 
@@ -126,7 +123,7 @@ class NoteSplash extends FlxSprite
 		var config:NoteSplashConfig = null;
 		if(frames == null)
 		{
-			skin = defaultNoteSplash + getSplashSkinPostfix(mustPress);
+			skin = defaultNoteSplash + getSplashSkinPostfix();
 			frames = Paths.getSparrowAtlas(skin);
 			if(frames == null) //if you really need this, you really fucked something up
 			{

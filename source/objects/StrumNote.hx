@@ -3,6 +3,7 @@ package objects;
 import online.GameClient;
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
+import backend.NoteSkinData;
 
 class StrumNote extends FlxSprite
 {
