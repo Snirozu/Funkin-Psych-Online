@@ -519,6 +519,7 @@ class ModsMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			FlxG.mouse.visible = false;
 			saveTxt(modsList);
+			backend.NoteSkinData.reloadNoteSkins();
 			if(needaReset)
 			{
 				//FlxG.switchState(() -> new TitleState());

@@ -3,6 +3,7 @@ package objects;
 // If you want to make a custom note type, you should search for:
 // "function set_noteType"
 
+import backend.NoteSkinData;
 import online.GameClient;
 import backend.NoteTypesConfig;
 import shaders.RGBPalette;
@@ -388,7 +389,7 @@ class Note extends FlxSprite
 	public static function getNoteSkinPostfix(?mustPress:Bool = true)
 	{
 		var skin:String = '';
-		var noteSkin:String = ClientPrefs.getNoteSkin(!GameClient.room?.state?.swagSides ?? false ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1));
+		var noteSkin:String = NoteSkinData.getCurrent(!GameClient.room?.state?.swagSides ?? false ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1)).skin;
 		if(noteSkin != ClientPrefs.defaultData.noteSkin)
 			skin = '-' + noteSkin.trim().toLowerCase().replace(' ', '_');
 		return skin;
@@ -576,11 +577,14 @@ class Note extends FlxSprite
 			var animBefore:String = animation.curAnim.name;
 
 			animation.play(colArray[noteData % colArray.length] + 'Scroll');
-			offsetX += width / 2;
+			offsetX = width / 2;
 
 			animation.play(animBefore);
 			updateHitbox();
 			offsetX -= width / 2;
+
+			if (PlayState.isPixelStage)
+				offsetX += 30;
 		}
 
 		return value;

@@ -1,5 +1,6 @@
 package options;
 
+import backend.NoteSkinData;
 import online.GameClient;
 import objects.Note;
 import objects.StrumNote;
@@ -18,6 +19,8 @@ class VisualsUISubState extends BaseOptionsMenu
 		title = 'Visuals and UI';
 		rpcTitle = 'Visuals & UI Settings Menu'; //for Discord Rich Presence
 
+		NoteSkinData.reloadNoteSkins();
+
 		isOpened = true;
 
 		// for note skins
@@ -33,18 +36,16 @@ class VisualsUISubState extends BaseOptionsMenu
 
 		// options
 
-		var noteSkins:Array<String> = Mods.mergeAllTextsNamed('images/noteSkins/list.txt', 'shared');
-		if(noteSkins.length > 0)
+		if(NoteSkinData.noteSkins.length > 0)
 		{
-			if(!noteSkins.contains(ClientPrefs.data.noteSkin))
+			if(!NoteSkinData.noteSkinArray.contains(ClientPrefs.data.noteSkin))
 				ClientPrefs.data.noteSkin = ClientPrefs.defaultData.noteSkin; //Reset to default if saved noteskin couldnt be found
 
-			noteSkins.insert(0, ClientPrefs.defaultData.noteSkin); //Default skin always comes first
 			var option:Option = new Option('Note Skins:',
 				"Select your prefered Note skin.",
 				'noteSkin',
 				'string',
-				noteSkins);
+				NoteSkinData.noteSkinArray);
 			addOption(option);
 			option.onChange = onChangeNoteSkin;
 			noteOptionID = optionsArray.length - 1;
@@ -253,6 +254,9 @@ class VisualsUISubState extends BaseOptionsMenu
 
 	function changeNoteSkin(note:StrumNote)
 	{
+		var data:NoteSkinStructure = NoteSkinData.getCurrent();
+		Mods.currentModDirectory = data.folder;
+
 		var skin:String = Note.defaultNoteSkin;
 		var customSkin:String = skin + Note.getNoteSkinPostfix();
 		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
@@ -267,8 +271,10 @@ class VisualsUISubState extends BaseOptionsMenu
 		if(changedMusic && !OptionsState.onPlayState) FlxG.sound.playMusic(Paths.music('freakyMenu'), 1, true);
 		isOpened = false;
 		if (GameClient.isConnected()) {
-			GameClient.send('updateNoteSkins', [ClientPrefs.data.noteSkin, ClientPrefs.data.splashSkin]);
+			var data:NoteSkinStructure = NoteSkinData.getCurrent(-1);
+			GameClient.send('updateNoteSkinData', [data.skin, data.folder, data.url]);
 		}
+		Mods.currentModDirectory = '';
 		super.destroy();
 	}
 

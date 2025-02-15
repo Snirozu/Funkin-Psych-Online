@@ -885,7 +885,7 @@ class EditorPlayState extends MusicBeatSubstate
 
 	function spawnNoteSplash(x:Float, y:Float, data:Int, ?note:Note = null) {
 		var splash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);
-		splash.setupNoteSplash(x, y, data, true, note);
+		splash.setupNoteSplash(x, y, data, note);
 		grpNoteSplashes.add(splash);
 	}
 	

@@ -394,15 +394,4 @@ class ClientPrefs {
 		else
 			return GameClient.room.state.player2.noteSkin;
 	}
-
-	public static function getSplashSkin(player:Int = 0):String
-	{
-		if(!GameClient.isConnected() || NotesSubState.isOpened || VisualsUISubState.isOpened)
-			return data.splashSkin;
-	
-		if(player == 0)
-			return GameClient.room.state.player1.splashSkin;
-		else
-			return GameClient.room.state.player2.splashSkin;
-	}
 }

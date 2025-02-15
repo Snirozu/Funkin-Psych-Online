@@ -78,7 +78,10 @@ class Player extends Schema {
 	public var noteSkin:String = null;
 
 	@:type("string")
-	public var splashSkin:String = null;
+	public var noteSkinMod:String = null;
+
+	@:type("string")
+	public var noteSkinURL:String = null;
 
 	@:type("array", "number")
 	public var arrowColor0:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
