@@ -1,5 +1,6 @@
 package backend;
 
+import options.VisualsUISubState;
 import options.NotesSubState;
 import online.network.FunkinNetwork;
 import online.GameClient;
@@ -382,5 +383,16 @@ class ClientPrefs {
 			CoolUtil.asta(GameClient.room.state.player2.arrowColorP2),
 			CoolUtil.asta(GameClient.room.state.player2.arrowColorP3),
 		];
+	}
+
+	public static function getNoteSkin(player:Int = 0):String
+	{
+		if(!GameClient.isConnected() || NotesSubState.isOpened || VisualsUISubState.isOpened)
+			return data.noteSkin;
+
+		if(player == 0)
+			return GameClient.room.state.player1.noteSkin;
+		else
+			return GameClient.room.state.player2.noteSkin;
 	}
 }

@@ -193,7 +193,7 @@ class FunkinLua {
 
 		// Noteskin/Splash
 		set('noteSkin', ClientPrefs.data.noteSkin);
-		set('noteSkinPostfix', Note.getNoteSkinPostfix());
+		set('noteSkinPostfix', Note.getNoteSkinPostfix(!GameClient.room?.state?.swagSides ?? true));
 		set('splashSkin', ClientPrefs.data.splashSkin);
 		set('splashSkinPostfix', NoteSplash.getSplashSkinPostfix());
 		set('splashAlpha', ClientPrefs.data.splashAlpha);
