@@ -74,6 +74,15 @@ class Player extends Schema {
 	@:type("boolean")
 	public var verified:Bool = false;
 
+	@:type("string")
+	public var noteSkin:String = null;
+
+	@:type("string")
+	public var noteSkinMod:String = null;
+
+	@:type("string")
+	public var noteSkinURL:String = null;
+
 	@:type("array", "number")
 	public var arrowColor0:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 

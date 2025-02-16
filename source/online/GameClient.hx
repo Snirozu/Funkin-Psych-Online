@@ -1,5 +1,6 @@
 package online;
 
+import backend.NoteSkinData;
 import flixel.FlxState;
 import online.network.Auth;
 import online.network.FunkinNetwork;
@@ -51,7 +52,7 @@ class GameClient {
 		}, (exc) -> {
 			onJoin(exc);
 			LoadingScreen.toggle(false);
-			Alert.alert("Failed to connect!", exc.toString());
+			Alert.alert("Failed to connect!", exc.details());
 		});
     }
 
@@ -199,6 +200,11 @@ class GameClient {
 			options.set("skinName", ClientPrefs.data.modSkin[1]);
 			options.set("skinURL", OnlineMods.getModURL(ClientPrefs.data.modSkin[0]));
 		}
+
+		var data:NoteSkinStructure = NoteSkinData.getCurrent(-1);
+		options.set('noteSkin', data.skin);
+		options.set('noteSkinMod', data.folder);
+		options.set('noteSkinURL', data.url);
 
 		// if (asHost) {
 		// 	options.set("gameplaySettings", ClientPrefs.data.gameplaySettings);
