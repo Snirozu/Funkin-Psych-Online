@@ -40,6 +40,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 	var onCommand:(String, Array<String>) -> Bool;
 
 	static var lastMessages:Array<Dynamic> = [];
+	var dwnMsgToClick:Map<NoteSkinDownloadMessage, ()->Void> = new Map<NoteSkinDownloadMessage, ()->Void>();
 
 	var initMessage:String = "See /help for the list of commands!";
 
@@ -53,6 +54,19 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
 		var chat = new ChatMessage(instance.bg.width, ShitUtil.parseLog(raw));
 		instance.chatGroup.insert(0, chat);
+
+		if (instance.chatGroup.length >= 22) {
+			instance.chatGroup.remove(instance.chatGroup.members[instance.chatGroup.length - 1], true);
+		}
+	}
+
+	public function addNoteSkinDownloadMessage(onClick:()->Void) {
+		instance.targetAlpha = 5;
+
+		var chat = new NoteSkinDownloadMessage(instance.bg.width);
+		instance.chatGroup.insert(0, chat);
+
+		dwnMsgToClick.set(chat, onClick);
 
 		if (instance.chatGroup.length >= 22) {
 			instance.chatGroup.remove(instance.chatGroup.members[instance.chatGroup.length - 1], true);
@@ -188,9 +202,17 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 				msg.alpha = 0.8;
 				if (msg != null && FlxG.mouse.visible && FlxG.mouse.overlaps(msg, camera)) {
 					msg.alpha = 1;
-					if (FlxG.mouse.justPressed && msg.link != null) {
-						focused = false;
-						RequestSubstate.requestURL(msg.link);
+					if (FlxG.mouse.justPressed) {
+						if(msg.link != null) {
+							focused = false;
+							RequestSubstate.requestURL(msg.link);
+						}
+						else if(Std.isOfType(msg, NoteSkinDownloadMessage)) {
+							var func = dwnMsgToClick.get(cast msg);
+
+							if(func != null)
+								func();
+						}
 					}
 				}
 				if (!focused) {
@@ -291,5 +313,18 @@ class ChatMessage extends FlxText {
 
 		if (link != null)
 			addFormat(new FlxTextFormat(FlxColor.CYAN), formatBeg, formatEnd);
+	}
+}
+
+class NoteSkinDownloadMessage extends ChatMessage {
+	static final MESSAGE:String = "There's an opponent note skin available! Click here to download it.";
+	static final DOWNLOAD_MSG_PART:String = 'Click here to download it.';
+
+	public function new(fieldWidth:Float = 0) {
+		super(fieldWidth, {content: MESSAGE, hue: null});
+
+		var startIndex:Int = MESSAGE.indexOf(DOWNLOAD_MSG_PART);
+		var endIndex:Int = startIndex + DOWNLOAD_MSG_PART.length;
+		addFormat(new FlxTextFormat(FlxColor.CYAN), startIndex, endIndex);
 	}
 }
