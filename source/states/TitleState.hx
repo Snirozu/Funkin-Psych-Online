@@ -98,6 +98,8 @@ class TitleState extends MusicBeatState
 
 		ClientPrefs.loadPrefs();
 
+		backend.NoteSkinData.reloadNoteSkins();
+
 		#if CHECK_FOR_UPDATES
 		if(ClientPrefs.data.checkForUpdates && !closedState) {
 			trace('checking for update');

@@ -19,6 +19,7 @@ import backend.WeekData;
 import backend.Song;
 import haxe.crypto.Md5;
 import states.FreeplayState;
+import states.ModsMenuState;
 import openfl.utils.Assets as OpenFlAssets;
 
 @:build(lumod.LuaScriptClass.build())
@@ -196,9 +197,26 @@ class RoomState extends MusicBeatState {
 			});
 		});
 
+		GameClient.room.state.player1.listen("noteSkin", (value, prev) -> {
+			if (value == prev)
+				return;
+			Waiter.put(() -> {
+				checkNoteSkin(true);
+			});
+		});
+
+		GameClient.room.state.player2.listen("noteSkin", (value, prev) -> {
+			if (value == prev)
+				return;
+			Waiter.put(() -> {
+				checkNoteSkin(false);
+			});
+		});
+
 		GameClient.room.state.gameplaySettings.onChange((o, n) -> {
 			FreeplayState.updateFreeplayMusicPitch();
 		});
+
 	}
 
 	override function destroy() {
@@ -474,6 +492,9 @@ class RoomState extends MusicBeatState {
 		verifyDownloadMod(false, true);
 		checkStage();
 
+		checkNoteSkin(true);
+		checkNoteSkin(false);
+
 		if (stage != null)
 			stage.createPost();
 
@@ -604,6 +625,24 @@ class RoomState extends MusicBeatState {
 
 		if (rightSideBox != null) {
 			rightSideBox.x = 700 - leftSideBox.width / 2;
+		}
+	}
+
+	function checkNoteSkin(isP1:Bool, ?manualDownload:Bool = false) {
+		var player = isP1 ? GameClient.room.state.player1 : GameClient.room.state.player2;
+
+		if (!FileSystem.exists(Paths.mods(player.noteSkinMod)) && player.noteSkinURL != null) {
+			OnlineMods.downloadMod(player.noteSkinURL, manualDownload, function(_) {
+				Mods.updatedOnState = false;
+				Mods.parseList();
+				Mods.pushGlobalMods();
+			});
+
+			if(!manualDownload && ClientPrefs.data.disableAutoDownloads) {
+				chatBox.addNoteSkinDownloadMessage(function() {
+					checkNoteSkin(isP1, true);
+				});
+			}
 		}
 	}
 

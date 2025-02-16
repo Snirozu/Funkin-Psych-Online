@@ -3,6 +3,7 @@ package objects;
 // If you want to make a custom note type, you should search for:
 // "function set_noteType"
 
+import backend.NoteSkinData;
 import online.GameClient;
 import backend.NoteTypesConfig;
 import shaders.RGBPalette;
@@ -37,7 +38,7 @@ class Note extends FlxSprite
 	public var extraData:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	public var strumTime:Float = 0;
-	public var mustPress:Bool = false;
+	public var mustPress(default, set):Bool = false;
 	public var noteData:Int = 0;
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
@@ -317,8 +318,18 @@ class Note extends FlxSprite
 		var skin:String = texture + postfix;
 		if(texture.length < 1) {
 			skin = PlayState.SONG != null ? PlayState.SONG.arrowSkin : null;
-			if(skin == null || skin.length < 1)
+			if(skin == null || skin.length < 1) {
 				skin = defaultNoteSkin + postfix;
+
+				lastTexture = defaultNoteSkin;
+				lastPostfix = postfix;
+			} else {
+				lastTexture = '';
+				lastPostfix = '';
+			}
+		} else {
+			lastTexture = texture;
+			lastPostfix = postfix;
 		}
 
 		var animName:String = null;
@@ -328,7 +339,7 @@ class Note extends FlxSprite
 
 		var skinPixel:String = skin;
 		var lastScaleY:Float = scale.y;
-		var skinPostfix:String = getNoteSkinPostfix();
+		var skinPostfix:String = getNoteSkinPostfix(mustPress);
 		var customSkin:String = skin + skinPostfix;
 		var path:String = PlayState.isPixelStage ? 'pixelUI/' : '';
 		if(customSkin == _lastValidChecked || Paths.fileExists('images/' + path + customSkin + '.png', IMAGE))
@@ -375,11 +386,12 @@ class Note extends FlxSprite
 			animation.play(animName, true);
 	}
 
-	public static function getNoteSkinPostfix()
+	public static function getNoteSkinPostfix(?mustPress:Bool = true)
 	{
 		var skin:String = '';
-		if(ClientPrefs.data.noteSkin != ClientPrefs.defaultData.noteSkin)
-			skin = '-' + ClientPrefs.data.noteSkin.trim().toLowerCase().replace(' ', '_');
+		var noteSkin:String = NoteSkinData.getCurrent(!GameClient.room?.state?.swagSides ?? false ? (mustPress ? 1 : 0) : (mustPress ? 0 : 1)).skin;
+		if(noteSkin != ClientPrefs.defaultData.noteSkin)
+			skin = '-' + noteSkin.trim().toLowerCase().replace(' ', '_');
 		return skin;
 	}
 
@@ -553,4 +565,28 @@ class Note extends FlxSprite
 	@:unreflective public var noteAlpha(get, set):Float;
 	@:unreflective function get_noteAlpha():Float { return alpha; }
 	@:unreflective function set_noteAlpha(value:Float):Float { return super.set_alpha(value); }
+
+	var lastTexture:String = '';
+	var lastPostfix:String = '';
+	function set_mustPress(value:Bool):Bool
+	{
+		mustPress = value;
+		reloadNote(lastTexture, lastPostfix); // workaround for player related things
+
+		if (isSustainNote) {
+			var animBefore:String = animation.curAnim.name;
+
+			animation.play(colArray[noteData % colArray.length] + 'Scroll');
+			offsetX = width / 2;
+
+			animation.play(animBefore);
+			updateHitbox();
+			offsetX -= width / 2;
+
+			if (PlayState.isPixelStage)
+				offsetX += 30;
+		}
+
+		return value;
+	}
 }
