@@ -51,7 +51,7 @@ class Main extends Sprite
 	#end
 
 	public static final PSYCH_ONLINE_VERSION:String = "0.10.2";
-	public static final CLIENT_PROTOCOL:Float = 7;
+	public static final CLIENT_PROTOCOL:Float = 8;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 
 	public static var wankyUpdate:String = 'version';
