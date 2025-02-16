@@ -49,6 +49,9 @@ class ProfileBox extends FlxSpriteGroup {
     }
 
 	public function updateData(leUser:String, leVerified:Bool) {
+		if (destroyed)
+			return;
+
 		user = leUser;
 		verified = leVerified;
 
@@ -70,12 +73,14 @@ class ProfileBox extends FlxSpriteGroup {
 			else
 				profileData = null;
 
-			if (!destroyed)
-				Waiter.put(creativo);
+			Waiter.put(creativo);
 		});
 	}
 
     public function creativo() {
+		if (destroyed)
+			return;
+
 		if (autoUpdateThings) {
 			text.text = "";
 			desc.text = "";
@@ -147,6 +152,9 @@ class ProfileBox extends FlxSpriteGroup {
 	var maxTextSizeDesc:Float = 0.0;
 	var _cardHeight:Int;
     public function updatePositions() {
+		if (destroyed)
+			return;
+		
 		avatar.x = x + 20;
 		avatar.y = y + height / 2 - avatar.height / 2;
 		text.x = avatar.x + avatar.width + 20;

@@ -503,7 +503,7 @@ class SkinsState extends MusicBeatState {
 			switchState(() -> new DownloaderState('collection:110039'));
 		}
 
-		if (character.members[0] != null) {
+		if (character.members[0]?.animation?.curAnim != null) {
 			switch (character.members[0].animation.curAnim.name) {
 				case 'singRIGHT':
 					camFollow.x += 20;
@@ -653,7 +653,9 @@ class SkinsState extends MusicBeatState {
 
 				var daCharacter = new Character(0, 0, curCharName, flipped);
 				daCharacter.scrollFactor.set(1.2, 1.2);
-				daCharacter.graphic.bitmap.disposeImage();
+				if (daCharacter?.graphic?.bitmap != null)
+					daCharacter.graphic.bitmap.disposeImage();
+				
 				character.add(daCharacter);
 
 				character.members[0].x = 420 + character.members[0].positionArray[0];
@@ -720,7 +722,7 @@ class SkinsState extends MusicBeatState {
 		if (stopUpdates)
 			return;
 
-		if (character.members[0] != null && character.members[0].animation.curAnim.finished)
+		if (character.members[0]?.animation?.curAnim != null && character.members[0].animation.curAnim.finished)
 			character.members[0].dance();
 	}
 
