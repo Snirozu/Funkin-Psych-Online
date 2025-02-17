@@ -571,6 +571,10 @@ class Note extends FlxSprite
 	function set_mustPress(value:Bool):Bool
 	{
 		mustPress = value;
+
+		if(inEditor)
+			return value;
+
 		reloadNote(lastTexture, lastPostfix); // workaround for player related things
 
 		if (isSustainNote) {
