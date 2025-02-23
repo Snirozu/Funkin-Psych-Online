@@ -12,6 +12,7 @@ class OptionsState extends MusicBeatState
 	public static var menuBG:FlxSprite;
 	public static var onPlayState:Bool = false;
 	public static var onOnlineRoom:Bool = false;
+	public static var loadedMod:String = '';
 
 	function openSelectedSubstate(label:String) {
 		switch(label) {
@@ -34,6 +35,8 @@ class OptionsState extends MusicBeatState
 	var selectorRight:Alphabet;
 
 	override function create() {
+		OptionsState.loadedMod = Mods.currentModDirectory;
+		
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("In the Menus", "Options");
 		#end
@@ -86,6 +89,7 @@ class OptionsState extends MusicBeatState
 		}
 
 		if (controls.BACK) {
+			Mods.currentModDirectory = OptionsState.loadedMod;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			if(onPlayState)
 			{

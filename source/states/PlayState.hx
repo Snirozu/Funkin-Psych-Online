@@ -2444,6 +2444,7 @@ class PlayState extends MusicBeatState
 	public var disableForceShow:Bool = false;
 
 	var lastLagPos:Float = 0;
+	var isPlayNoteNear:Bool = false;
 
 	override public function update(elapsed:Float)
 	{
@@ -2469,10 +2470,14 @@ class PlayState extends MusicBeatState
 		}
 		
 		if (!GameClient.isConnected()) {
-			if (!ClientPrefs.data.disableLagDetection && !finishingSong && elapsed >= 0.1 && Conductor.songPosition > lastLagPos) {
-				setSongTime(Conductor.songPosition - 3000);
-				lastLagPos = Conductor.songPosition;
-				Alert.alert("Mod Lag Detected (-3s)");
+			if (!ClientPrefs.data.disableLagDetection
+				&& !finishingSong
+				&& elapsed >= 0.1
+				&& Conductor.songPosition > lastLagPos
+				&& isPlayNoteNear) {
+				setSongTime(Conductor.songPosition - 2000);
+				lastLagPos = Conductor.songPosition + 3000; // don't tp for another 3s starting from last lag pos
+				Alert.alert("Mod Lag Detected (-2s)");
 			}
 
 			if (FlxG.keys.justPressed.F6) {
@@ -2676,6 +2681,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 
+		isPlayNoteNear = false;
 		if (generatedMusic)
 		{
 			if(!inCutscene)
@@ -2724,6 +2730,9 @@ class PlayState extends MusicBeatState
 
 							if (isPlayerNote(daNote))
 							{
+								if (!isPlayNoteNear && daNote.strumTime - Conductor.songPosition < 500)
+									isPlayNoteNear = true;
+
 								if(cpuControlled && !daNote.blockHit && daNote.canBeHit && (daNote.isSustainNote || daNote.strumTime <= Conductor.songPosition))
 									goodNoteHit(daNote);
 							}
@@ -2767,6 +2776,18 @@ class PlayState extends MusicBeatState
 				}
 			}
 			checkEventNote();
+		}
+
+		if (!GameClient.isConnected() 
+			&& !ClientPrefs.data.disableLagDetection
+			&& !finishingSong
+			&& elapsed >= 0.1
+			&& Conductor.songPosition > lastLagPos
+			&& isPlayNoteNear) 
+		{
+			setSongTime(Conductor.songPosition - 2000);
+			lastLagPos = Conductor.songPosition + 3000; // don't tp for another 3s starting from last lag pos
+			Alert.alert("Mod Lag Detected (-2s)");
 		}
 
 		#if debug
