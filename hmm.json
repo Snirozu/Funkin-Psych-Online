@@ -51,11 +51,9 @@
       "version": "1.1.0"
     },
     {
-      "name": "hxCodec",
-      "type": "git",
-      "dir": null,
-      "ref": "cafc58e9046505ff93fa659339808b53faa5d6f3",
-      "url": "https://github.com/polybiusproxy/hxCodec"
+      "name": "hxvlc",
+      "type": "haxelib",
+      "version": "1.8.2"
     },
     {
       "name": "SScript",

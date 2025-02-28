@@ -563,8 +563,9 @@ class OnlineState extends MusicBeatState {
 						add(ass);
 						
 						
-						var video = new hxcodec.flixel.FlxVideo();
-						video.play(Paths.video('enables'));
+						var video = new hxvlc.flixel.FlxVideo();
+						video.load(Paths.video('enables'));
+						video.play();
 						video.onEndReached.add(function() {
 							video.dispose();
 
