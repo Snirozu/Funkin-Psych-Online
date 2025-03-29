@@ -94,19 +94,24 @@ class ModDownloader {
 			client.close();
 
 			if (client.response.isFailed()) {
-				Waiter.put(() -> {
-					Alert.alert('Downloading failed!', 
-						ShitUtil.prettyStatus(client.response.status) + "\n" +
-						(client?.response?.exception != null ? ShitUtil.prettyError(client.response.exception) : '')
-					);
-				});
+				if (client.cancelRequested) {
+					Waiter.put(() -> {
+						Alert.alert('Download canceled!');
+					});
+				}
+				else {
+					Waiter.put(() -> {
+						Alert.alert('Downloading failed!', 
+							ShitUtil.prettyStatus(client.response.status) + "\n" +
+							(client?.response?.exception != null ? ShitUtil.prettyError(client.response.exception) : '')
+						);
+					});
+				}
 			}
 			else {
-				if (!client.cancelRequested) {
-					status = INSTALLING;
-					OnlineMods.installMod(downloadPath, url, gbMod, onSuccess);
-					status = FINISHED;
-				}
+				status = INSTALLING;
+				OnlineMods.installMod(downloadPath, url, gbMod, onSuccess);
+				status = FINISHED;
 			}
 
 			delete();

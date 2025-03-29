@@ -262,6 +262,7 @@ class HTTPClient {
 	}
 
 	public function close() {
+		cancel();
 		if (socket != null) {
 			socket.close();
 			socket = null;
