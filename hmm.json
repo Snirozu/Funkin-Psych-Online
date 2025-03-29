@@ -68,7 +68,7 @@
       "name": "linc_luajit",
       "type": "git",
       "dir": null,
-      "ref": "main",
+      "ref": "master",
       "url": "https://github.com/superpowers04/linc_luajit"
     },
     {
