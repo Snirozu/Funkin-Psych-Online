@@ -92,7 +92,7 @@ class HTTPClient {
 
 			// connecting to the server
 			socket = address.ssl ? new sys.ssl.Socket() : new Socket();
-			socket.setTimeout(10);
+			socket.setTimeout(5);
 			socket.setBlocking(true);
 			while (!cancelRequested) {
 				try {

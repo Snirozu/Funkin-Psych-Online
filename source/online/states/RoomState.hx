@@ -223,9 +223,10 @@ class RoomState extends MusicBeatState {
 	override function destroy() {
 		super.destroy();
 		
-		@:privateAccess
-		if (GameClient.isConnected())
+		try {
+			@:privateAccess
 			GameClient.room.state.gameplaySettings._callbacks.clear();
+		} catch (exc) {}
 	}
 
 	var waitingForPlayer1Skin = false;
