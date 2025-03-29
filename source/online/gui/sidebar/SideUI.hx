@@ -164,7 +164,7 @@ class SideUI extends WSprite {
 			if (LoadingScreen.loading)
 				return;
 
-			if (e.localY > upBar.height && e.localX > totalTabWidth() && !Alert.isAnyFreezed())
+			if (e.localY > upBar.height * scaleY && e.localX > totalTabWidth() * scaleX && !Alert.isAnyFreezed())
 				active = false;
 
 			if (active) {
