@@ -54,8 +54,17 @@ class Util {
 	}
 
 	static function inviteToPlay(daUsername:String) {
-		if (GameClient.isConnected() && NetworkClient.room != null) {
-			NetworkClient.room.send('inviteplayertoroom', daUsername);
+		if (GameClient.isConnected()) {
+			if (NetworkClient.room == null)
+				NetworkClient.connect();
+
+			while (NetworkClient.connecting) {}
+
+			if (NetworkClient.room != null) {
+				NetworkClient.room.send('inviteplayertoroom', daUsername);
+			}
+			else
+				Alert.alert('Failed to connect to the Network!');
 		}
 		else {
 			Alert.alert('You\'re not in a room!');
