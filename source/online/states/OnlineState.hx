@@ -563,6 +563,7 @@ class OnlineState extends MusicBeatState {
 						add(ass);
 						
 						
+						#if hxCodec
 						var video = new hxcodec.flixel.FlxVideo();
 						video.play(Paths.video('enables'));
 						video.onEndReached.add(function() {
@@ -586,6 +587,7 @@ class OnlineState extends MusicBeatState {
 							DiscordClient.loadModRPC();
 							#end
 						}, true);
+						#end
 						return;
 					}
 					#end

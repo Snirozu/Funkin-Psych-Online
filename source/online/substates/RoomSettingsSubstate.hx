@@ -169,7 +169,6 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 
 		items.add(skinSelect = new Option("Select Skin", "Select your skin here!", () -> {
 			if (!GameClient.room.state.disableSkins) {
-				GameClient.clearOnMessage();
 				LoadingState.loadAndSwitchState(new SkinsState());
 			}
 			else {
@@ -179,7 +178,6 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		skinSelect.ID = i++;
 
 		items.add(gameOptions = new Option("Game Options", "Open your game options here!", () -> {
-			GameClient.clearOnMessage();
 			LoadingState.loadAndSwitchState(new OptionsState());
 			OptionsState.onPlayState = false;
 			OptionsState.onOnlineRoom = true;
@@ -188,7 +186,6 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 
 		var mods:Option;
 		items.add(mods = new Option("Mods", "Check your mods here!", () -> {
-			GameClient.clearOnMessage();
 			LoadingState.loadAndSwitchState(new ModsMenuState());
 			ModsMenuState.onOnlineRoom = true;
 		}, null, 0, 80 * i, false, true));

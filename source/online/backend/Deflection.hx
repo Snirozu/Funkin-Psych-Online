@@ -71,7 +71,7 @@ class Deflection {
 
 		// FileUtils accesses files duh
 		classBlacklist.push(online.util.FileUtils);
-		classBlacklist.push(online.util.HTTPClient);
+		classBlacklist.push(online.http.HTTPClient);
 
 		// SyncScript can load malicious scripts
 		classBlacklist.push(online.backend.SyncScript);

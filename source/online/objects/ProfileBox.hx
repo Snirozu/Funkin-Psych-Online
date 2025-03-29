@@ -1,5 +1,6 @@
 package online.objects;
 
+import flixel.util.FlxStringUtil;
 import online.network.FunkinNetwork;
 import flixel.util.FlxSpriteUtil;
 
@@ -93,7 +94,7 @@ class ProfileBox extends FlxSpriteGroup {
 						text.text = "Welcome, " + user + "!";
 					else
 						text.text = user;
-					desc.text = "Points: " + (profileData.points ?? 0);
+					desc.text = "Points: " + FlxStringUtil.formatMoney(profileData.points ?? 0, false);
 					desc.text += "\nRank: " + ShitUtil.toOrdinalNumber(profileData.rank);
 					desc.text += "\nAvg. Accuracy: " + FlxMath.roundDecimal((profileData.avgAccuracy * 100), 2) + "%";
 				}
@@ -197,7 +198,7 @@ class ProfileBox extends FlxSpriteGroup {
 		bg.alpha = FlxG.mouse.overlaps(this, camera) ? 1 : 0.8;
 		if (FlxG.mouse.overlaps(this, camera) && FlxG.mouse.justPressed) {
 			if (user != null)
-				RequestSubstate.requestURL(GameClient.addressToUrl() + "/user/" + StringTools.urlEncode(user), true);
+				online.gui.sidebar.tabs.ProfileTab.view(user);
 			else if (isSelf && !FunkinNetwork.loggedIn)
 				FlxG.switchState(() -> new OnlineOptionsState(true));
         }

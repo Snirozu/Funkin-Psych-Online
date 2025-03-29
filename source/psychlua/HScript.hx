@@ -159,6 +159,13 @@ class HScript extends SScript
 		set('buildTarget', FunkinLua.getBuildTarget());
 		set('customSubstate', CustomSubstate.instance);
 		set('customSubstateName', CustomSubstate.name);
+		set('camGame', PlayState.instance.camGame);
+		set('camZooming', PlayState.instance.camZooming);
+		set('boyfriend', PlayState.instance.boyfriend);
+		set('dad', PlayState.instance.dad);
+		set('gf', PlayState.instance.gf);
+		set('boyfriend', PlayState.instance.boyfriend);
+		set('defaultCamZoom', PlayState.instance.defaultCamZoom);
 
 		set('Function_Stop', FunkinLua.Function_Stop);
 		set('Function_Continue', FunkinLua.Function_Continue);

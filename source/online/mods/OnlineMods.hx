@@ -1,5 +1,6 @@
 package online.mods;
 
+import online.http.HTTPClient;
 import haxe.CallStack;
 #if RAR_SUPPORTED
 import unrar.UnRAR;
@@ -18,6 +19,7 @@ import haxe.zip.Entry;
 import online.states.SetupModsState;
 import sys.io.File;
 import sys.FileSystem;
+import online.http.URLScraper;
 
 class OnlineMods {
 	public static function checkMods() {
@@ -106,13 +108,11 @@ class OnlineMods {
 	];
 
 	public static function startDownloadMod(fileName:String, modURL:String, ?gbMod:GBMod, ?onSuccess:String->Void, ?headers:Map<String, String>, ?ogURL:String) {
-		new Downloader(fileName, ogURL ?? modURL, modURL, (fileName, downloader) -> {
-			installMod(fileName, downloader, downloader.originURL, gbMod, onSuccess);
-		}, gbMod, headers, ogURL);
+		return new ModDownloader(fileName, modURL, gbMod, onSuccess, headers, ogURL);
 	}
 
 	//gbMod only works if the url is a mod page url not the direct download one
-	public static function installMod(fileName:String, ?downloader:Downloader, ?modURL:String, ?gbMod:GBMod, ?onSuccess:String->Void) {
+	public static function installMod(fileName:String, ?modURL:String, ?gbMod:GBMod, ?onSuccess:String->Void) {
 		fileName = Path.normalize(fileName); // I HATE WINDOWS PATH FORMAT AAAAAAAAAAAAAA (C:/ is cool though, JUST INVERT THESE SLASHES PLEASE)
 		var _fileNameSplit = fileName.split("/");
 		var swagFileName = _fileNameSplit[_fileNameSplit.length - 1].split(".")[0];

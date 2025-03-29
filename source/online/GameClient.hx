@@ -294,7 +294,6 @@ class GameClient {
 				PlayState.storyDifficulty = GameClient.room.state.diff;
 				PlayState.SONG = Song.loadFromJson(GameClient.room.state.song, GameClient.room.state.folder);
 				PlayState.isStoryMode = false;
-				GameClient.clearOnMessage();
 				LoadingState.loadAndSwitchState(new PlayState());
 
 				FlxG.sound.music.volume = 0;
@@ -363,7 +362,7 @@ class GameClient {
 
 		ClientPrefs.data.serverAddress = v;
 		ClientPrefs.saveSettings();
-		FunkinNetwork.client = new HTTPClient(GameClient.addressToUrl(v));
+		FunkinNetwork.client = new online.http.HTTPHandler(GameClient.addressToUrl(v));
 		return serverAddress;
 	}
 
@@ -389,7 +388,7 @@ class GameClient {
 			address = serverAddress;
 
 		Thread.run(() -> {
-			var http = new Http(addressToUrl(address) + "/api/online");
+			var http = new Http(addressToUrl(address) + "/api/onlinecount");
 
 			http.onData = function(data:String) {
 				if (callback != null)

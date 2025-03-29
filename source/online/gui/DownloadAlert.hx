@@ -23,31 +23,31 @@ class DownloadAlerts extends Sprite {
 		super.__enterFrame(delta);
 
 		if (FlxG.keys.pressed.ALT) {
-			if (FlxG.keys.justPressed.ONE && Downloader.downloaders[0] != null)
-				Downloader.downloaders[0].cancel();
-			if (FlxG.keys.justPressed.TWO && Downloader.downloaders[1] != null)
-				Downloader.downloaders[1].cancel();
-			if (FlxG.keys.justPressed.THREE && Downloader.downloaders[2] != null)
-				Downloader.downloaders[2].cancel();
-			if (FlxG.keys.justPressed.FOUR && Downloader.downloaders[3] != null)
-				Downloader.downloaders[3].cancel();
-			if (FlxG.keys.justPressed.FIVE && Downloader.downloaders[4] != null)
-				Downloader.downloaders[4].cancel();
-			if (FlxG.keys.justPressed.SIX && Downloader.downloaders[5] != null)
-				Downloader.downloaders[5].cancel();
-			if (FlxG.keys.justPressed.SEVEN && Downloader.downloaders[6] != null)
-				Downloader.downloaders[6].cancel();
-			if (FlxG.keys.justPressed.EIGHT && Downloader.downloaders[7] != null)
-				Downloader.downloaders[7].cancel();
-			if (FlxG.keys.justPressed.NINE && Downloader.downloaders[8] != null)
-				Downloader.downloaders[8].cancel();
+			if (FlxG.keys.justPressed.ONE && ModDownloader.downloaders[0] != null)
+				ModDownloader.downloaders[0].client.close();
+			if (FlxG.keys.justPressed.TWO && ModDownloader.downloaders[1] != null)
+				ModDownloader.downloaders[1].client.close();
+			if (FlxG.keys.justPressed.THREE && ModDownloader.downloaders[2] != null)
+				ModDownloader.downloaders[2].client.close();
+			if (FlxG.keys.justPressed.FOUR && ModDownloader.downloaders[3] != null)
+				ModDownloader.downloaders[3].client.close();
+			if (FlxG.keys.justPressed.FIVE && ModDownloader.downloaders[4] != null)
+				ModDownloader.downloaders[4].client.close();
+			if (FlxG.keys.justPressed.SIX && ModDownloader.downloaders[5] != null)
+				ModDownloader.downloaders[5].client.close();
+			if (FlxG.keys.justPressed.SEVEN && ModDownloader.downloaders[6] != null)
+				ModDownloader.downloaders[6].client.close();
+			if (FlxG.keys.justPressed.EIGHT && ModDownloader.downloaders[7] != null)
+				ModDownloader.downloaders[7].client.close();
+			if (FlxG.keys.justPressed.NINE && ModDownloader.downloaders[8] != null)
+				ModDownloader.downloaders[8].client.close();
 		}
 
 		var prevAlert:DownloadAlert = null;
 		var i = 1;
 		for (alert in instances) {
-			var downloader = Downloader.downloaders[i - 1];
-			if (downloader.cancelRequested) {
+			var downloader = ModDownloader.downloaders[i - 1];
+			if (downloader.client.cancelRequested) {
 				alert.cancelText.text = 'Cancelling...';
 			}
 			else {
@@ -78,12 +78,22 @@ class DownloadAlerts extends Sprite {
 			alert.cancelBg.scaleX = alert.cancelText.textWidth;
 			alert.cancelBg.scaleY = alert.cancelText.textHeight + 5;
 			
-			if (downloader.isInstalling)
-				alert.setStatus("Installing...");
-			else if (downloader.isDownloading)
-				alert.updateProgress(downloader.gotContent, downloader.contentLength);
-			else
-				alert.setStatus(alert.newStatus);
+			switch (downloader.status) {
+				case CONNECTING:
+					alert.setStatus("Connecting...");
+				case READING_HEADERS:
+					alert.setStatus("Reading Headers...");
+				case READING_BODY:
+					alert.updateProgress(downloader.client.receivedBytes, downloader.client.contentLength);
+				case FAILED(exc):
+					alert.setStatus("Failed! " + exc);
+				case DOWNLOADED:
+					alert.setStatus("Preparing to instal...");
+				case INSTALLING:
+					alert.setStatus("Installing...");
+				case FINISHED:
+					alert.setStatus("Finished!");
+			}
 
 			prevAlert = alert;
 			i++;
@@ -99,8 +109,6 @@ class DownloadAlert extends Sprite {
 
 	public var cancelBg:Bitmap;
 	public var cancelText:TextField;
-
-	public var newStatus:String = 'Initializing the Download...';
 
     public function new(id:String) {
         super();
@@ -138,12 +146,12 @@ class DownloadAlert extends Sprite {
 		addChild(cancelBg);
 
 		cancelText = new TextField();
-		cancelText.text = 'Cancel: ALT + ' + Downloader.downloaders.length;
+		cancelText.text = 'Cancel: ALT + ' + ModDownloader.downloaders.length;
 		cancelText.selectable = false;
 		cancelText.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 13, 0xFFFFFFFF);
 		addChild(cancelText);
 
-		setStatus(newStatus);
+		setStatus('Initializing the Download...');
     }
 
     public function updateProgress(loaded:Float, total:Float) {

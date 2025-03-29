@@ -26,6 +26,8 @@
   <img src="https://contrib.rocks/image?repo=Snirozu/Funkin-Psych-Online" />
 </a>
 
+Be free to contribute your code to this project! [(Before you PR, read this!)](https://github.com/Snirozu/Funkin-Psych-Online/blob/main/CONTRIBUTING.md)
+
 ###### Generated with [contrib.rocks](https://contrib.rocks)!
 
 ###### Psych Engine Commit: 5d0a66d

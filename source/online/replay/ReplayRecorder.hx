@@ -190,7 +190,8 @@ class ReplayRecorder extends FlxBasic {
 		trace("Saved a replay!");
 		
 		if (!ClientPrefs.data.disableSubmiting) {
-			var res = Json.parse(Leaderboard.submitScore(replayData)?.body ?? "{}");
+			var res = Json.parse(Leaderboard.submitScore(replayData)?.getString() ?? "{}");
+			states.FreeplayState.gainedRanks += res.climbed_ranks ?? 0;
 			if (res.gained_points != null) {
 				return res.gained_points;
 			}

@@ -90,7 +90,7 @@ class SaveVariables {
 	public var showFP:Bool = false;
 	public var disableFreeplayAlphabet:Bool = false;
 	public var disableLagDetection:Bool = false;
-	public var groupSongsBy:String = 'No Grouping';
+	public var groupSongsBy:String = 'Default';
 	public var hiddenSongs:Array<String> = []; //format: 'songname-originfolder'
 	public var favSongs:Array<String> = []; //format: 'songname-originfolder'
 	public var modchartSkinChanges:Bool = false;

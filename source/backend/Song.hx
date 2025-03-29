@@ -75,8 +75,9 @@ class Song
 			songJson.player3 = null;
 		}
 
-		if(StringTools.startsWith(songJson.format, 'psych_v1'))
-		{
+		if(StringTools.startsWith(songJson.format, 'psych_v1')) {
+			songJson.format = 'psych_v1';
+
 			var characters:Array<String> = [songJson.player1, songJson.player2, songJson.gfVersion];
 			for (i in 0...characters.length)
 			{
@@ -93,25 +94,6 @@ class Song
 			songJson.player1 = characters[0];
 			songJson.player2 = characters[1];
 			songJson.gfVersion = characters[2];
-
-			for (secNum in 0...songJson.notes.length)
-			{
-				var sec:SwagSection = songJson.notes[secNum];
-				for(i in 0...sec.sectionNotes.length)
-				{
-					var note:Array<Dynamic> = sec.sectionNotes[i];
-
-					var secondPlayer:Bool = note[1] > 3;
-
-					if(!sec.mustHitSection)
-						secondPlayer = !secondPlayer;
-
-					note[1] = note[1] % 4;
-
-					if(secondPlayer)
-						note[1] += 4;
-				}
-			}
 		}
 
 		if(songJson.events == null && songJson.format == 'psych_legacy')
@@ -124,16 +106,16 @@ class Song
 				var i:Int = 0;
 				var notes:Array<Dynamic> = sec.sectionNotes;
 				var len:Int = notes.length;
-				while(i < len)
-				{
+				while(i < len) {
 					var note:Array<Dynamic> = notes[i];
-					if(note[1] < 0)
-					{
+					// if notedata is -1 (event note)
+					if(note[1] < 0) {
 						songJson.events.push([note[0], [[note[2], note[3], note[4]]]]);
 						notes.remove(note);
 						len = notes.length;
+						continue;
 					}
-					else i++;
+					i++;
 				}
 			}
 		}
@@ -199,7 +181,11 @@ class Song
 				daSong = songData.song;
 				daBpm = songData.bpm; */
 
-		var songJson:Dynamic = parseJSONshit(loadRawSong(jsonInput, folder));
+		return parseRawJSON(jsonInput, loadRawSong(jsonInput, folder));
+	}
+
+	public static function parseRawJSON(jsonInput:String, rawSONG:String) {
+		var songJson:Dynamic = parseJSONshit(rawSONG);
 		if(!jsonInput.startsWith('events')) StageData.loadDirectory(songJson);
 		onLoadJson(songJson);
 		return songJson;
@@ -209,15 +195,15 @@ class Song
 	{
 		var parsed:Dynamic = Json.parse(rawJson);
 		
-		if (parsed.song != null && !Std.isOfType(parsed.song, String))
-		{
+		if (parsed.song != null) {
+			if (Std.isOfType(parsed.song, String))
+				return parsed;
+			
 			parsed.song.format = 'psych_legacy';
 			return parsed.song;
 		}
-		else if(parsed.song != null)
-			return parsed;
-		else if (parsed.events != null)
-		{
+		
+		if (parsed.events != null) {
 			return {
 				events: cast parsed.events,
 				song: "",
@@ -232,7 +218,7 @@ class Song
 				format: 'psych_v1'
 			};
 		}
-		else
-			throw new haxe.Exception("No song data found, or is invalid.");
+
+		throw new haxe.Exception("No song data found, or is invalid.");
 	}
 }
