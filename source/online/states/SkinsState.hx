@@ -13,6 +13,7 @@ import objects.Character;
 
 @:build(lumod.LuaScriptClass.build())
 class SkinsState extends MusicBeatState {
+	var charactersWithWeeks:Array<String> = new Array<String>();
 	var charactersName:Array<String> = new Array<String>();
 	var charactersLength:Int = 0;
     var character:FlxTypedGroup<Character>;
@@ -22,6 +23,7 @@ class SkinsState extends MusicBeatState {
 
 	var hud:FlxCamera;
 	var charSelect:FlxText;
+	var charInfo:FlxText;
 
 	var bg:FlxSprite;
 	var title:Alphabet;
@@ -221,13 +223,16 @@ class SkinsState extends MusicBeatState {
 
 		for (name in [null].concat(Mods.parseList().enabled)) {
 			var characters:String;
+			var charactersWeeks:String;
 			if (name == null) {
 				Mods.loadTopMod();
 				characters = 'assets/characters/';
+				charactersWeeks = 'assets/characters_weeks/';
 			}
 			else {
 				Mods.currentModDirectory = name;
 				characters = Paths.mods(name + '/characters/');
+				charactersWeeks = Paths.mods(name + '/characters_weeks/');
 			}
 			if (FileSystem.exists(characters)) {
 				for (file in FileSystem.readDirectory(characters)) {
@@ -241,6 +246,13 @@ class SkinsState extends MusicBeatState {
 						if (!hardList.contains(character) && FileSystem.exists(Path.join([characters, (!flipped ? character + "-player" : character.substring(0, character.length - "-player".length)) + ".json"]))) {
 							if (name == null)
 								hardList.push(character);
+							
+							if (FileSystem.exists(Path.join([
+								charactersWeeks,
+								(flipped ? character.substring(0, character.length - "-player".length) : character) + ".json"
+							]))) {
+								charactersWithWeeks.push(character + ' ' + name);
+							}
 
 							//characterList.set(character, new Character(0, 0, character, flipped));
 							charactersMod.set(character, name);
@@ -318,6 +330,15 @@ class SkinsState extends MusicBeatState {
 		charSelect.alpha = 0.8;
 		charSelect.cameras = [hud];
 		add(charSelect);
+
+		charInfo = new FlxText(0, 0, FlxG.width);
+		charInfo.text = 'Sample';
+		charInfo.setFormat("VCR OSD Mono", 19, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		charInfo.y = barDown.y + (charSelect.y - barDown.y) / 2 - charInfo.height / 2;
+		charInfo.alpha = 0.6;
+		charInfo.cameras = [hud];
+		charInfo.visible = false;
+		add(charInfo);
 
 		var swagText = new FlxText(0, charSelect.y + charSelect.height + 5, FlxG.width);
 		swagText.text = 'Use Note keybinds while pressing SHIFT to move!';
@@ -633,6 +654,18 @@ class SkinsState extends MusicBeatState {
 		if (charactersName[curCharacter] != null) {
 			var curCharName = charactersName[curCharacter];
 
+			// Mods.currentModDirectory = charactersMod.get(curCharName);
+			// var characterWeek = ShitUtil.getJson('characters_weeks/' + curSkin[1]);
+			// overChart.clear();
+			// if (characterWeek != null) {
+			// 	var charSongs:Array<Array<Dynamic>> = characterWeek.songs;
+			// 	for (arr in charSongs) {
+			// 		// arr[0] - song
+			// 		// arr[1] - diff
+			// 		overChart.set(arr[0].toLowerCase(), arr[1].split(','));
+			// 	}
+			// }
+
 			if (selectTimer != null)
 				selectTimer.cancel();
 
@@ -655,6 +688,9 @@ class SkinsState extends MusicBeatState {
 				daCharacter.scrollFactor.set(1.2, 1.2);
 				if (daCharacter?.graphic?.bitmap != null)
 					daCharacter.graphic.bitmap.disposeImage();
+				if (daCharacter.animExists('spawn')) {
+					daCharacter.playAnim('spawn');
+				}
 				
 				character.add(daCharacter);
 
@@ -678,6 +714,12 @@ class SkinsState extends MusicBeatState {
 				charSelect.text = 'Press ACCEPT to select!';
 				charSelect.alpha = 0.8;
             }
+
+			charInfo.visible = false;
+			if (charactersWithWeeks.contains(curCharName + ' ' + charactersMod.get(curCharName))) {
+				charInfo.text = 'This character has custom MIXES!';
+				charInfo.visible = true;
+			}
 
 			tweenColor(FlxColor.fromRGB(150, 150, 150));
         }

@@ -389,6 +389,15 @@ class TitleState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
+		if (FlxG.keys.justPressed.P) {
+			online.gui.Alert.alert(
+				'A Very Long Title So I Can Test How Much Can It Fit On The Screen Oh Yeaaaah!!!1!', //44
+				'Do you believe in god? Because I think that this is a complicated question, it depends on which mean by god. ' + //233
+				'You see I believe, that we are here, implies to some degree, that there are forces larger than us, now, we can get into this menticality... ' +
+				'The very notion of belief itself can be rhetorically whittled to the bare knob of Its meaning.'
+			);
+		}
+
 		if (FlxG.keys.justPressed.DELETE) {
 			lumod.Lumod.cache.scripts.clear();
 			trace("cleared lumod cache");

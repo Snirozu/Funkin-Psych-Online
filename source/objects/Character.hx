@@ -479,10 +479,12 @@ class Character extends FlxSprite {
 			}
 
 			sound = FlxG.sound.play(animSounds.get(AnimName));
-			sound.onComplete = () -> {
-				sound.destroy();
-				sound = null;
-			};
+			if (sound != null) {
+				sound.onComplete = () -> {
+					sound.destroy();
+					sound = null;
+				};
+			}
 		}
 
 		if(!isAnimateAtlas) animation.play(AnimName, Force, Reversed, Frame);

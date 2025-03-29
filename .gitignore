@@ -20,5 +20,8 @@ export/*
 !.vscode/launch.json
 !.vscode/extensions.json
 
+dump/
+
 changeloge.md
 TODO
+project.hpm

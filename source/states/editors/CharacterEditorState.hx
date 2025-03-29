@@ -725,6 +725,13 @@ class CharacterEditorState extends MusicBeatState {
 			if (!char.animOffsets.exists(newAnim.anim)) {
 				char.addOffset(newAnim.anim, 0, 0);
 			}
+
+			if (newAnim.sound != null) {
+				var sound = Paths.sound(newAnim.sound);
+				if (sound != null)
+					char.animSounds.set(newAnim.anim, sound);
+			}
+			
 			char.animationsArray.push(newAnim);
 
 			/*if (lastAnim == animationInputText.text) {

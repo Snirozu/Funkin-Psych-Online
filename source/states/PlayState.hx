@@ -10,7 +10,7 @@ package states;
 // "function eventEarlyTrigger" - Used for making your event start a few MILLISECONDS earlier
 // "function triggerEvent" - Called when the song hits your event's timestamp, this is probably what you were looking for
 
-import online.substates.PostCommentSubstate;
+import online.substates.PostTextSubstate;
 import haxe.crypto.Md5;
 import online.network.FunkinNetwork;
 import online.objects.InputText;
@@ -76,10 +76,12 @@ import sys.io.File;
 #end
 
 #if VIDEOS_ALLOWED 
+#if hxCodec
 #if (hxCodec >= "3.0.0") import hxcodec.flixel.FlxVideo as VideoHandler;
 #elseif (hxCodec >= "2.6.1") import hxcodec.VideoHandler as VideoHandler;
 #elseif (hxCodec == "2.6.0") import VideoHandler;
 #else import vlc.MP4Handler as VideoHandler; #end
+#end
 #end
 
 import objects.Note.EventNote;
@@ -286,7 +288,7 @@ class PlayState extends MusicBeatState
 	public var noBadNotes:Bool = false;
 
 	public var botplaySine:Float = 0;
-	@:unreflective public var botplayTxt:FlxText;
+	public var botplayTxt:FlxText;
 
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
@@ -512,6 +514,8 @@ class PlayState extends MusicBeatState
 
 		isErect = Difficulty.getString() == "Erect" || Difficulty.getString() == "Nightmare";
 		songSuffix = isErect ? "erect" : "";
+
+		canPause = !(GameClient.isConnected() || redditMod);
 
 		var preloadTasks:Array<Void->Void> = [];
 
@@ -1326,6 +1330,9 @@ class PlayState extends MusicBeatState
 		playbackRate = value;
 		FlxG.animationTimeScale = value;
 		Conductor.safeZoneOffset = (ClientPrefs.getSafeFrames() / 60) * 1000 * value;
+		#if VIDEOS_ALLOWED
+		if(videoCutscene != null && videoCutscene.videoSprite != null) videoCutscene.videoSprite.bitmap.rate = value;
+		#end
 		setOnScripts('playbackRate', playbackRate);
 		return value;
 	}
@@ -1491,7 +1498,8 @@ class PlayState extends MusicBeatState
 		char.y += char.positionArray[1];
 	}
 
-	public function startVideo(name:String)
+	#if hxCodec
+	public function startVideoCodec(name:String)
 	{
 		#if VIDEOS_ALLOWED
 		inCutscene = true;
@@ -1533,9 +1541,72 @@ class PlayState extends MusicBeatState
 		return;
 		#end
 	}
+	#end
+
+	public var videoCutscene:VideoSprite = null;
+	public function startVideo(name:String, forMidSong:Bool = false, canSkip:Bool = true, loop:Bool = false, playOnLoad:Bool = true)
+	{
+		#if VIDEOS_ALLOWED
+		inCutscene = !forMidSong;
+		canPause = forMidSong;
+
+		var foundFile:Bool = false;
+		var fileName:String = Paths.video(name);
+
+		#if sys
+		if (FileSystem.exists(fileName))
+		#else
+		if (OpenFlAssets.exists(fileName))
+		#end
+		foundFile = true;
+
+		if (foundFile)
+		{
+			videoCutscene = new VideoSprite(fileName, forMidSong, canSkip, loop);
+			if(forMidSong) videoCutscene.videoSprite.bitmap.rate = playbackRate;
+
+			// Finish callback
+			if (!forMidSong)
+			{
+				function onVideoEnd()
+				{
+					if (!isDead && generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null && !endingSong && !isCameraOnForcedPos)
+					{
+						moveCameraSection();
+						FlxG.camera.snapToTarget();
+					}
+					videoCutscene = null;
+					canPause = true;
+					inCutscene = false;
+					startAndEnd();
+				}
+				videoCutscene.finishCallback = onVideoEnd;
+				videoCutscene.onSkip = onVideoEnd;
+			}
+			if (GameOverSubstate.instance != null && isDead) GameOverSubstate.instance.add(videoCutscene);
+			else add(videoCutscene);
+
+			if (playOnLoad)
+				videoCutscene.play();
+			return videoCutscene;
+		}
+		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
+		else addTextToDebug("Video not found: " + fileName, FlxColor.RED);
+		#else
+		else FlxG.log.error("Video not found: " + fileName);
+		#end
+		#else
+		FlxG.log.warn('Platform not supported!');
+		startAndEnd();
+		#end
+		return null;
+	}
 
 	function startAndEnd()
 	{
+		if (FlxG.state != this)
+			return;
+
 		if(endingSong)
 			endSong();
 		else
@@ -2061,8 +2132,7 @@ class PlayState extends MusicBeatState
 				var gottaHitNote:Bool = section.mustHitSection;
 
 				if (!isPsychRelease) {
-					if (songNotes[1] > maniaKeys - 1)
-					{
+					if (songNotes[1] > maniaKeys - 1) {
 						gottaHitNote = !section.mustHitSection;
 					}
 				}
@@ -2584,7 +2654,8 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		if (controls.justPressed('debug_1') && !endingSong && !inCutscene && canInput())
+		// "!inCutscene" it's called a DEBUG button for a reason
+		if (controls.justPressed('debug_1') && !endingSong && canInput())
 			openChartEditor();
 
 		var mult:Float = FlxMath.lerp(1, iconP1.scale.x, FlxMath.bound(1 - (elapsed * 9 * playbackRate), 0, 1));
@@ -2603,7 +2674,7 @@ class PlayState extends MusicBeatState
 		iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0;
 		iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0;
 
-		if (controls.justPressed('debug_2') && !endingSong && !inCutscene && canInput())
+		if (controls.justPressed('debug_2') && !endingSong && canInput())
 			openCharacterEditor();
 		
 		if (startedCountdown && !paused)
@@ -2823,7 +2894,7 @@ class PlayState extends MusicBeatState
 
 	function openPauseMenu()
 	{
-		if (GameClient.isConnected() || redditMod)
+		if (!canPause)
 			return;
 
 		FlxG.camera.followLerp = 0;
@@ -3436,7 +3507,6 @@ class PlayState extends MusicBeatState
 				Lib.application.window.resizable = true;
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				if (isInvalidScore()) online.gui.Alert.alert("Calculated Points", "+" + songPoints);
-				GameClient.clearOnMessage();
 				online.states.ResultsState.gainedPoints = gainedPoints;
 				if (!skipResults)
 					FlxG.switchState(() -> new online.states.ResultsState());

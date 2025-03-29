@@ -1,9 +1,9 @@
 package online.network;
 
+import online.http.HTTPClient;
 import haxe.io.BytesOutput;
 import openfl.display.BitmapData;
-import online.util.HTTPClient.HTTPResponse;
-import online.util.HTTPClient.HTTPRequest;
+import online.http.HTTPHandler;
 import haxe.CallStack;
 import openfl.net.FileReference;
 import haxe.io.Bytes;
@@ -12,10 +12,11 @@ import lime.ui.FileDialog;
 import haxe.Http;
 import haxe.Json;
 import online.objects.NicommentsView.SongComment;
+import haxe.ds.Either;
 
 @:unreflective
 class FunkinNetwork {
-	public static var client:HTTPClient = null;
+	public static var client:HTTPHandler = null;
 	public static var nickname(default, null):String = null;
 	public static var points(default, null):Float = 0;
 	public static var avgAccuracy(default, null):Float = 0;
@@ -24,7 +25,7 @@ class FunkinNetwork {
 
 	public static function requestLogin(email:String, ?code:String) {
 		var response = requestAPI({
-			path: "/api/network/auth/login",
+			path: "/api/auth/login",
 			headers: ["content-type" => "application/json"],
 			body: Json.stringify({
 				email: email,
@@ -37,7 +38,7 @@ class FunkinNetwork {
 			return false;
 
 		if (code != null)
-			saveCredentials(Json.parse(response.body));
+			saveCredentials(Json.parse(response.getString()));
 
 		return true;
 	}
@@ -46,8 +47,8 @@ class FunkinNetwork {
 		var emailSplit = email.trim().split(' from ');
 
 		var response = requestAPI({
-			path: "/api/network/account/email/set",
-			headers: ["authorization" => Auth.getAuthHeader(), "content-type" => "application/json"],
+			path: "/api/account/email/set",
+			headers: ["content-type" => "application/json"],
 			body: Json.stringify({
 				email: emailSplit[0].trim(),
 				old_email: emailSplit[1].trim(),
@@ -63,10 +64,7 @@ class FunkinNetwork {
 	}
 
 	public static function deleteAccount() {
-		var response = requestAPI({
-			path: "/api/network/account/delete",
-			headers: ["authorization" => Auth.getAuthHeader()],
-		});
+		var response = requestAPI("/api/account/delete");
 
 		if (response == null)
 			return false;
@@ -86,15 +84,12 @@ class FunkinNetwork {
 		if (Auth.authID == null || Auth.authToken == null)
 			return loggedIn = false;
 
-		var response = requestAPI({
-			path: "/api/network/account/me",
-			headers: ["authorization" => Auth.getAuthHeader()],
-		}, false);
+		var response = requestAPI("/api/account/me", false);
 
 		if (response == null)
 			return loggedIn = false;
 
-		var json = Json.parse(response.body);
+		var json = Json.parse(response.getString());
 		nickname = json.name;
 		points = json.points;
 		avgAccuracy = json.avgAccuracy;
@@ -106,7 +101,7 @@ class FunkinNetwork {
 
 	public static function requestRegister(username:String, email:String, ?code:String) {
 		var response = requestAPI({
-			path: "/api/network/auth/register",
+			path: "/api/auth/register",
 			headers: ["content-type" => "application/json"],
 			body: Json.stringify({
 				username: username,
@@ -120,7 +115,7 @@ class FunkinNetwork {
 			return false;
 
 		if (code != null)
-			saveCredentials(Json.parse(response.body));
+			saveCredentials(Json.parse(response.getString()));
 
 		return true;
 	}
@@ -142,8 +137,8 @@ class FunkinNetwork {
 
 	public static function updateName(name:String):String {
 		var response = requestAPI({
-			path: "/api/network/account/rename",
-			headers: ["authorization" => Auth.getAuthHeader(), "content-type" => "application/json"],
+			path: "/api/account/rename",
+			headers: ["content-type" => "application/json"],
 			body: Json.stringify({
 				username: name
 			}),
@@ -153,13 +148,13 @@ class FunkinNetwork {
 		if (response == null)
 			return nickname;
 
-		return nickname = response.body;
+		return nickname = response.getString();
 	}
 
 	public static function postFrontMessage(message:String):Bool {
 		var response = requestAPI({
-			path: "/api/network/sez",
-			headers: ["authorization" => Auth.getAuthHeader(), "content-type" => "application/json"],
+			path: "/api/sez",
+			headers: ["content-type" => "application/json"],
 			body: Json.stringify({
 				message: message
 			}),
@@ -173,15 +168,13 @@ class FunkinNetwork {
 	}
 
 	public static function fetchFront():Dynamic {
-		var response = requestAPI({
-			path: "/api/front"
-		}, false);
+		var response = requestAPI("/api/front", false);
 
 		if (response == null)
 			return null;
 
 		try {
-			return Json.parse(response.body);
+			return Json.parse(response.getString());
 		}
 		catch (exc) {
 			trace(exc);
@@ -190,15 +183,13 @@ class FunkinNetwork {
 	}
 
 	public static function fetchSongComments(songId:String):Array<SongComment> {
-		var response = requestAPI({
-			path: "/api/network/song/comments?id=" + songId,
-		});
+		var response = requestAPI("/api/song/comments?id=" + StringTools.urlEncode(songId));
 
 		if (response == null)
 			return null;
 
 		try {
-			return Json.parse(response.body);
+			return Json.parse(response.getString());
 		}
 		catch (exc) {
 			trace(exc);
@@ -208,8 +199,8 @@ class FunkinNetwork {
 
 	public static function postSongComment(songId:String, content:String, at:Float):Array<SongComment> {
 		var response = requestAPI({
-			path: "/api/network/song/comment",
-			headers: ["authorization" => Auth.getAuthHeader(), "content-type" => "application/json"],
+			path: "/api/song/comment",
+			headers: ["content-type" => "application/json"],
 			body: Json.stringify({
 				id: songId,
 				content: content,
@@ -222,7 +213,7 @@ class FunkinNetwork {
 			return null;
 
 		try {
-			return Json.parse(response.body);
+			return Json.parse(response.getString());
 		}
 		catch (exc) {
 			trace(exc);
@@ -234,15 +225,13 @@ class FunkinNetwork {
 		if (user == null)
 			return null;
 
-		var response = requestAPI({
-			path: "/api/network/user/info?name=" + user
-		});
+		var response = requestAPI("/api/user/info?name=" + StringTools.urlEncode(user));
 
 		if (response == null)
 			return null;
 
 		try {
-			return Json.parse(response.body);
+			return Json.parse(response.getString());
 		}
 		catch (exc) {
 			trace(exc);
@@ -252,20 +241,22 @@ class FunkinNetwork {
 
 	public static var cacheAvatar:Map<String, Bytes> = [];
 	public static function getUserAvatar(user:String):BitmapData {
-		if (cacheAvatar.exists(user))
-			return BitmapData.fromBytes(cacheAvatar.get(user));
+		if (cacheAvatar.exists(user)) {
+			var bytes = cacheAvatar.get(user);
+			if (bytes == null)
+				return getDefaultAvatar();
+			return BitmapData.fromBytes(bytes);
+		}
 
-		var output = new BytesOutput();
-		var avatarResponse = FunkinNetwork.requestAPI({
-			path: 'api/avatar/' + Base64.encode(Bytes.ofString(user)),
-			bodyOutput: output
-		});
+		var avatarResponse = FunkinNetwork.requestAPI('/api/avatar/' + StringTools.urlEncode(user), false);
 
-		if (avatarResponse == null)
+		var bytes = avatarResponse?.getBytes() ?? null;
+		if (bytes == null || !ShitUtil.isSupportedImage(bytes)) {
+			cacheAvatar.set(user, null);
 			return getDefaultAvatar();
+		}
 
 		try {
-			var bytes = output.getBytes();
 			cacheAvatar.set(user, bytes);
 			return BitmapData.fromBytes(bytes);
 		}
@@ -277,10 +268,29 @@ class FunkinNetwork {
 
 	public static function getDefaultAvatar():BitmapData
 	{
-		return Paths.image('bf' + FlxG.random.int(1, 2)).bitmap;
+		return Paths.image('bf' + FlxG.random.int(1, 2), null, false).bitmap;
 	}
 
-	public static function requestAPI(request:HTTPRequest, ?alertError:Bool = true):Null<HTTPResponse> {
+	public static function requestAPI(data:OneOf<HTTPRequest, String>, ?alertError:Bool = true):Null<HTTPResponse> {
+		var request:HTTPRequest;
+
+		switch (data) {
+			case Left(v):
+				request = v;
+			case Right(v):
+				request = {
+					path: v
+				};
+			case null:
+				request = {};
+		}
+
+		if (request.headers == null)
+			request.headers = new Map<String, String>();
+
+		if (Auth.authID != null && Auth.authToken != null)
+			request.headers.set("authorization", Auth.getAuthHeader());
+		
 		var response = client.request(request);
 
 		if (response.isFailed()) {
@@ -290,12 +300,13 @@ class FunkinNetwork {
 						Alert.alert("Exception: " + request.path, ShitUtil.readableError(response.exception) + (response.exception.stack != null ? "\n\n" + CallStack.toString(response.exception.stack) : ""));
 					});
 			}
-			else if (response.status == 404) {
-				return null;
-			}
 			else if (alertError) {
 				Waiter.put(() -> {
-					Alert.alert('HTTP Error ${ShitUtil.prettyStatus(response.status)}: ' + request.path, response.body != null && response.body.ltrim().startsWith("{") ? Json.parse(response.body).error : response.body);
+					Alert.alert('HTTP Error ${ShitUtil.prettyStatus(response.status)}: ' + request.path, response.getString() != null && 
+					response.getString()
+						.ltrim()
+						.startsWith("{") ? Json.parse(response.getString())
+						.error : response.getString());
 				});
 			}
 			return null;

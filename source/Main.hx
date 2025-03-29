@@ -1,5 +1,6 @@
 package;
 
+import online.GameClient;
 import lumod.Lumod;
 #if AWAY_TEST
 import states.stages.AwayStage;
@@ -50,9 +51,10 @@ class Main extends Sprite
 	public static var stage3D:AwayStage;
 	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.10.2";
+	public static final PSYCH_ONLINE_VERSION:String = "0.11.0";
 	public static final CLIENT_PROTOCOL:Float = 8;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
+	public static final LOW_STORAGE:Bool = online.backend.Macros.hasNoCapacity();
 
 	public static var wankyUpdate:String = 'version';
 
@@ -67,11 +69,11 @@ class Main extends Sprite
 			"Invalid Runtime Path!");
 			Sys.exit(1);
 		}
-
-		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
+		
 		Lib.current.addChild(new Main());
-		//TBA
 		Lib.current.addChild(new online.gui.sidebar.SideUI());
+		Lib.current.addChild(new online.gui.Alert());
+		Lib.current.addChild(new online.gui.LoadingScreen());
 	}
 
 	public function new()
@@ -200,12 +202,10 @@ class Main extends Sprite
 		#else
 		online.GameClient.serverAddresses.push("ws://localhost:2567");
 		#end
-		online.network.FunkinNetwork.client = new online.util.HTTPClient(online.GameClient.addressToUrl());
+		online.network.FunkinNetwork.client = new online.http.HTTPHandler(online.GameClient.addressToUrl());
 
-		online.mods.Downloader.checkDeleteDlDir();
+		online.mods.ModDownloader.checkDeleteDlDir();
 
-		addChild(new online.gui.LoadingScreen());
-		addChild(new online.gui.Alert());
 		addChild(new online.gui.DownloadAlert.DownloadAlerts());
 
 		FlxG.plugins.add(new online.backend.Waiter());
@@ -224,8 +224,8 @@ class Main extends Sprite
 			#if DISCORD_ALLOWED
 			DiscordClient.shutdown();
 			#end
-			online.mods.Downloader.cancelAll();
-			online.mods.Downloader.checkDeleteDlDir();
+			online.mods.ModDownloader.cancelAll();
+			online.mods.ModDownloader.checkDeleteDlDir();
 			online.network.Auth.saveClose();
 		});
 
@@ -243,6 +243,11 @@ class Main extends Sprite
 					online.gui.LoadingScreen.toggle(false);
 				});
 			}
+		});
+
+		// clear messages before the current state gets destroyed and replaced with another
+		FlxG.signals.preStateSwitch.add(() -> {
+			GameClient.clearOnMessage();
 		});
 		
 		#if HSCRIPT_ALLOWED
@@ -311,9 +316,9 @@ class Main extends Sprite
 					daFile = file;
 					if (s != null && daFile != null && daFile.startsWith('lumod/LuaScriptClass'))
 						switch (s) {
-							case Method(cname, meth): // haxe has meth confirm? (from CallStack)
+							case Method(cname, meth): // haxe has meth confirm?
 								if (cname != null)
-									daFile = cname.replace('.', '/');
+									daFile = cname.replace('.', '/') + ".hx";
 							default:
 						}
 				default:

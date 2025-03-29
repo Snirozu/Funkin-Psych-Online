@@ -241,6 +241,10 @@ class ResultsSoloState extends MusicBeatState {
 		var highscore = new FlxSprite(42, 552);
 		highscore.frames = Paths.getSparrowAtlas('resultScreen/highscoreNew');
 		highscore.animation.addByPrefix('idle', 'highscoreAnim', 24, false);
+		highscore.animation.addByIndices('loop', 'highscoreAnim', [for (i in 4...28 + 1) i], '', 24, true);
+		highscore.animation.finishCallback = _ -> {
+			highscore.animation.play('loop');
+		};
 		highscore.visible = false;
 		add(highscore);
 
@@ -322,7 +326,7 @@ class ResultsSoloState extends MusicBeatState {
 							#if DISCORD_ALLOWED
 							DiscordClient.changePresence(
 								'Results! - ${data.songName ?? "???"} [${(data.difficultyName ?? "???").toUpperCase()}]', 
-								'${data.score} (${Math.floor((data.accuracy ?? 0) * 100)})'
+								'${data.score} - ${data.points}FP (${Math.floor((data.accuracy ?? 0) * 100)}%)'
 							);
 							#end
 						}});

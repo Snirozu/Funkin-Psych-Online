@@ -201,7 +201,7 @@ class OnlineOptionsState extends MusicBeatState {
 		}
 		else {
 			var sezOption:InputOption;
-			items.add(sezOption = new InputOption("Leave a Global Message", "Leave a message for others to see in the Online Menu!", ["Message"],
+			items.add(sezOption = new InputOption("Leave a Global Message", "Leave a message for others to see in the Online Menu!\n(Please keep it English)", ["Message"],
 				(message, _) -> {
 					if (FunkinNetwork.postFrontMessage(message))
 						FlxG.switchState(() -> new OnlineState());
@@ -331,7 +331,7 @@ class OnlineOptionsState extends MusicBeatState {
 								FlxG.resetState();
 							}, null, true);
 						case "login to browser":
-							FlxG.openURL(FunkinNetwork.client.getURL("/api/network/account/cookie?id=" + Auth.authID + "&token=" + Auth.authToken));
+							FlxG.openURL(FunkinNetwork.client.getURL("/api/account/cookie?id=" + Auth.authID + "&token=" + Auth.authToken));
 						case "open sidebar":
 							online.gui.sidebar.SideUI.instance.active = true;
 					}

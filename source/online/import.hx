@@ -1,3 +1,4 @@
+#if !macro
 import online.backend.*;
 import online.gui.*;
 import online.mods.*;
@@ -6,3 +7,4 @@ import online.replay.*;
 import online.states.*;
 import online.substates.*;
 import online.util.*;
+#end

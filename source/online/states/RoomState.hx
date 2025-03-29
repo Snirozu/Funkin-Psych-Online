@@ -1,5 +1,6 @@
 package online.states;
 
+import flixel.util.FlxStringUtil;
 import states.stages.Spooky;
 import lumod.Lumod;
 import flixel.util.FlxAxes;
@@ -890,7 +891,6 @@ class RoomState extends MusicBeatState {
 						Alert.alert("Room code copied!");
 					case 4:
 						if (GameClient.hasPerms()) {
-							GameClient.clearOnMessage();
 							FlxG.switchState(() -> new FreeplayState());
 							FlxG.mouse.visible = false;
 						}
@@ -904,14 +904,14 @@ class RoomState extends MusicBeatState {
 						}
 					case 5:
 						if (verifyDownloadMod(true)) {
-							GameClient.clearOnMessage();
 							FlxG.switchState(() -> new DownloaderState());
 						}
 				}
 			}
 			else if (FlxG.mouse.justPressedRight) {
-				if (curSelected == 5)
+				if (curSelected == 5) {
 					FlxG.switchState(() -> new DownloaderState());
+				}
 			}
 		}
 
@@ -974,7 +974,11 @@ class RoomState extends MusicBeatState {
 			}
 
 			if (GameClient.room.state.modDir != null && GameClient.room.state.modURL != null && GameClient.room.state.modURL != "") {
-				OnlineMods.downloadMod(GameClient.room.state.modURL, manual, (mod) -> {
+				var daModURL = GameClient.room.state.modURL;
+				OnlineMods.downloadMod(daModURL, manual, (mod) -> {
+					if (GameClient.isConnected())
+						GameClient.send("notifyInstall", daModURL);
+
 					if (destroyed)
 						return;
 
@@ -1145,7 +1149,7 @@ class RoomState extends MusicBeatState {
 		, [yellowMarker]);
 
 		box.desc.applyMarkup(
-            "Points: " + player.points + "\n" +
+            "Points: " + FlxStringUtil.formatMoney(player.points, false) + "\n" +
 			(player.verified && box.profileData != null ? 
 				"Rank: " + ShitUtil.toOrdinalNumber(box.profileData.rank) + "\n" +
 				"Avg. Accuracy: " + FlxMath.roundDecimal((box.profileData.avgAccuracy * 100), 2) + "%\n"

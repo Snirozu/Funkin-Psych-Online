@@ -1,4 +1,4 @@
-package online.util;
+package online.http;
 
 import htmlparser.HtmlDocument;
 
@@ -10,16 +10,16 @@ class URLScraper {
 
 	public static function downloadFromMediaFire(url:String, ?onSuccess:String->Void) {
 		Thread.run(() -> {
-			var response = HTTPClient.requestURL(url);
+			var response = new HTTPClient(url).request();
 
 			if (response.isFailed()) {
 				Waiter.put(() -> {
-					Alert.alert("Download failed!", "Couldn't connect to MediaFire!\n" + 'Status: ${ShitUtil.prettyStatus(response.status)}\n${response.body}');
+					Alert.alert("Download failed!", "Couldn't connect to MediaFire!\n" + 'Status: ${ShitUtil.prettyStatus(response.status)}');
 				});
 				return;
 			}
 
-			var doc = new HtmlDocument(response.body, true);
+			var doc = new HtmlDocument(response.getString(), true);
 			var titles = doc.find("#downloadButton");
 
 			Waiter.put(() -> {

@@ -54,10 +54,6 @@ class ResultsState extends MusicBeatState {
 		}
 		Mods.loadTopMod();
 		WeekData.setDirectoryFromWeek();
-
-		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("Viewing song results.", null, null, false);
-		#end
         
         FlxG.sound.music.stop();
 
@@ -188,7 +184,6 @@ class ResultsState extends MusicBeatState {
 
 		#if !DEBUG_RESULTS
 		if (!GameClient.isConnected()) {
-			GameClient.clearOnMessage();
 			FlxG.switchState(() -> new OnlineState());
 			return;
 		}
@@ -262,6 +257,17 @@ class ResultsState extends MusicBeatState {
 				letter.colorTransform.blueOffset = 230;
             }
 		}
+		
+		var mePlayer = getPlayer(GameClient.isOwner ? 1 : 2);
+		var opPlayer = getPlayer(GameClient.isOwner ? 2 : 1);
+		var meAccuracy = GameClient.isOwner ? p1Accuracy : p2Accuracy;
+
+		#if DISCORD_ALLOWED
+		DiscordClient.changePresence(
+			'Results! (Online) - ${!GameClient.room.state.isPrivate ? 'VS. ' + opPlayer.name : ''}', 
+			'${mePlayer.score} - ${gainedPoints}FP (${meAccuracy}%)'
+		);
+		#end
 
 		dim = new FlxSprite(0, 0);
 		dim.makeGraphic(Std.int(FlxG.width), Std.int(FlxG.height), FlxColor.BLACK);
@@ -440,8 +446,6 @@ class ResultsState extends MusicBeatState {
 				if (gainedText.visible)
 					FlxTween.tween(gainedText, {alpha: 0}, 0.2, {ease: FlxEase.quadInOut});
                 new FlxTimer().start(0.5, (t) -> {
-					if (GameClient.isConnected())
-						GameClient.clearOnMessage();
 					FlxG.switchState(() -> new RoomState());
                 });
             }

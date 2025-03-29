@@ -17,7 +17,7 @@ import openfl.display.*;
 import openfl.events.*;
 import openfl.geom.Vector3D;
 
-class AwayStage extends Sprite {
+class AwayStage extends online.gui.WSprite {
 	var _view:View3D;
 
 	var debugText:TextField;

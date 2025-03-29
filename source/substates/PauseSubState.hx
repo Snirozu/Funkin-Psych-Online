@@ -1,6 +1,6 @@
 package substates;
 
-import online.substates.PostCommentSubstate;
+import online.substates.PostTextSubstate;
 import sys.io.File;
 import online.network.Leaderboard;
 import haxe.Json;
@@ -306,7 +306,9 @@ class PauseSubState extends MusicBeatSubstate
 					persistentUpdate = false;
 					persistentDraw = true;
 					PlayState.instance.paused = true;
-					PlayState.instance.openSubState(new PostCommentSubstate());
+					PlayState.instance.openSubState(new PostTextSubstate('Post a comment at the current timestamp.', text -> {
+						online.network.FunkinNetwork.postSongComment(PlayState.instance.songId, text, Conductor.songPosition);
+					}));
 				case 'Options':
 					PlayState.instance.paused = true; // For lua
 					PlayState.instance.vocals.volume = 0;
@@ -337,8 +339,10 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.chartingMode = false;
 					FlxG.camera.followLerp = 0;
 				case "Report Replay":
-					if (Leaderboard.reportScore(PlayState.replayID) != null)
-						Alert.alert("Replay Reported");
+					PlayState.instance.openSubState(new PostTextSubstate('What is the issue with this replay?', text -> {
+						if (Leaderboard.reportScore(PlayState.replayID, text) != null)
+							Alert.alert("Replay Reported");
+					}));
 					close();
 				case "Save Replay":
 					var replayData = Json.stringify(PlayState.replayData);

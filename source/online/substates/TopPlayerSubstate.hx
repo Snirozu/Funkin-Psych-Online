@@ -1,5 +1,6 @@
 package online.substates;
 
+import flixel.util.FlxStringUtil;
 import online.network.FunkinNetwork;
 import openfl.filters.BlurFilter;
 import online.network.Leaderboard;
@@ -66,7 +67,10 @@ class TopPlayerSubstate extends MusicBeatSubstate {
 								coolColor = null;
 						}
 					}
-					topShit.setRow(i, [(i + 1 + curPage * 15) + ". " + top[i].player, top[i].points], coolColor);
+					topShit.setRow(i, [
+						(i + 1 + curPage * 15) + ". " + top[i].player,
+						FlxStringUtil.formatMoney(top[i].points, false)
+					], coolColor);
 				}
 			});
 		}
@@ -127,7 +131,7 @@ class TopPlayerSubstate extends MusicBeatSubstate {
         }
         else if (controls.ACCEPT) {
 			if (top[curSelected] != null)
-				FlxG.openURL(FunkinNetwork.client.getURL("/network/user/" + top[curSelected].player));
+				online.gui.sidebar.tabs.ProfileTab.view(top[curSelected].player);
         }
     }
 }

@@ -321,7 +321,7 @@ class NoteSkinDownloadMessage extends ChatMessage {
 	static final DOWNLOAD_MSG_PART:String = 'Click here to download it.';
 
 	public function new(fieldWidth:Float = 0) {
-		super(fieldWidth, {content: MESSAGE, hue: null});
+		super(fieldWidth, {content: MESSAGE, hue: null, date: null});
 
 		var startIndex:Int = MESSAGE.indexOf(DOWNLOAD_MSG_PART);
 		var endIndex:Int = startIndex + DOWNLOAD_MSG_PART.length;

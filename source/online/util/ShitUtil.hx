@@ -1,5 +1,6 @@
 package online.util;
 
+import haxe.io.Bytes;
 import flixel.math.FlxAngle;
 import flixel.FlxObject;
 import haxe.Json;
@@ -22,6 +23,135 @@ class ShitUtil {
 		if (num % 10 == 3 && num != 13)
 			return num + 'rd';
 		return num + "th";
+	}
+
+	static function timeAgo(time:Float):String {
+		var diff = Sys.time() - (time / 1000 - (Date.now().getTimezoneOffset() * 60));
+		if (diff <= 120)
+			return 'just now';
+		// if (diff < 60)
+		// 	return Math.floor(diff) + ' seconds ago';
+		if (diff < 3600)
+			return _addSuffixHT1(Math.floor(diff / 60), 'minute') + ' ago';
+		if (diff < 86400)
+			return _addSuffixHT1(Math.floor(diff / 3600), 'hour') + ' ago';
+		if (diff < 604800)
+			return _addSuffixHT1(Math.floor(diff / 86400), 'day') + ' ago';
+		if (diff < 2629800)
+			return _addSuffixHT1(Math.floor(diff / 604800), 'week') + ' ago';
+		if (diff < 31557600)
+			return _addSuffixHT1(Math.floor(diff / 2629800), 'month') + ' ago';
+		return _addSuffixHT1(Math.floor(diff / 31557600), 'year') + ' ago';
+	}
+
+	private static function _addSuffixHT1(v:Float, word:String, ?suffix:String = 's') {
+		return v + ' ' + word + (v >= 2 ? suffix : '');
+	}
+
+
+	// yyyy-mm-ddThh:mm:ss.mssZ
+	static function parseISODate(date:String) {
+		var char = '';
+		var word = '';
+		var part = 0;
+		var values = [];
+		// reject .split() embrace for and while
+		for (i in 0...date.length) {
+			char = date.charAt(i);
+
+			// go till it hits the letter T
+			if (part == 0) {
+				if (char == '-' || char == 'T') {
+					values.push(word);
+					word = '';
+					if (char == 'T')
+						part = 1;
+					continue;
+				}
+			}
+			else { // until it hits Z
+				if (char == ':' || char == 'Z' || i == date.length - 1) {
+					values.push(word);
+					word = '';
+					if (char == 'Z')
+						break;
+					continue;
+				}
+			}
+
+			word += char;
+		}
+
+		return new Date(
+			Std.parseInt(values[0]), // year
+			Std.parseInt(values[1]) - 1, // month
+			Std.parseInt(values[2]), // day
+			Std.parseInt(values[3]), // hour
+			Std.parseInt(values[4]), // min
+			Std.parseInt(values[5]), // sec
+		);
+	}
+
+	static function wordWrapText(string:String, lineLength:Int) {
+		var lines = [];
+		var semmiSentence = '';
+		var word = '';
+		var char = '';
+		for (i in 0...string.length) {
+			char = string.charAt(i);
+
+			if (char == ' ' || char == '\n' || i == string.length - 1) {
+				if (char == '\n' || semmiSentence.length + word.length > lineLength) {
+					lines.push(semmiSentence);
+					semmiSentence = '';
+				}
+				if (i == string.length - 1)
+					word += char;
+				semmiSentence += (semmiSentence.length > 0 ? ' ' : '') + word;
+				word = '';
+				continue;
+			}
+
+			word += char;
+		}
+		if (semmiSentence.length > 0)
+			lines.push(semmiSentence);
+		return lines.join('\n');
+	}
+
+	static function getMonthName(date:Date) {
+		switch (date.getMonth()) {
+			case 0:
+				return 'January';
+			case 1:
+				return 'February';
+			case 2:
+				return 'March';
+			case 3:
+				return 'April';
+			case 4:
+				return 'May';
+			case 5:
+				return 'June';
+			case 6:
+				return 'July';
+			case 7:
+				return 'August';
+			case 8:
+				return 'September';
+			case 9:
+				return 'October';
+			case 10:
+				return 'November';
+			case 11:
+				return 'December';
+			default:
+				return '?';
+		}
+	}
+
+	static function toBiDigitString(num:Float) {
+		return (num < 10 ? '0' : '') + num;
 	}
 
 	// can flixel implement this please
@@ -47,7 +177,8 @@ class ShitUtil {
 		catch (e) {
 			return {
 				content: msg,
-				hue: null
+				hue: null,
+				date: null
 			}
 		}
 	}
@@ -245,9 +376,30 @@ class ShitUtil {
 		}
 		return str;
 	}
+	
+	private static final pngPrefix = Bytes.ofHex("89504E47");
+
+	static function isPNG(bytes:Bytes) {
+		if (bytes == null) return false;
+		return bytes.sub(0, pngPrefix.length).compare(pngPrefix) == 0;
+	}
+
+	private static final jpegPrefix = Bytes.ofHex("FFD8FFE000104A464946");
+
+	static function isJPEG(bytes:Bytes) {
+		if (bytes == null) return false;
+		return bytes.sub(0, jpegPrefix.length).compare(jpegPrefix) == 0;
+	}
+
+	static function isSupportedImage(bytes:Bytes) {
+		return isPNG(bytes) || isJPEG(bytes);
+	}
 }
 
 typedef LogData = {
 	var content:String;
 	var hue:Null<Float>;
+	var date:Null<Float>;
+	@:optional var color:Null<Int>;
+	@:optional var center:Null<Bool>;
 }
