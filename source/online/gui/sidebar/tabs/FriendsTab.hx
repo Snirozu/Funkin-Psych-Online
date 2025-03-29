@@ -66,7 +66,7 @@ class FriendsTab extends TabSprite {
 		for (i => friend in data.friends) {
 			var profile = trashedProfiles.length > 0 ? trashedProfiles.pop() : new SmolProfile();
 			profile.create(friend);
-			profile.y = i * profile.height + friendsTxt.getTextHeight() + 20;
+			profile.y = i * profile.underlay.height + friendsTxt.getTextHeight() + 20;
 			friendsList.push(profile);
 			addChild(profile);
 		}
@@ -81,7 +81,7 @@ class FriendsTab extends TabSprite {
 				isNotFriend: true,
 				canFriend: true
 			});
-			profile.y = i * profile.height + requestsTxt.y + 30;
+			profile.y = i * profile.underlay.height + requestsTxt.y + 30;
 			friendsList.push(profile);
 			addChild(profile);
 		}
@@ -95,7 +95,7 @@ class FriendsTab extends TabSprite {
 				name: name,
 				isNotFriend: true
 			});
-			profile.y = i * profile.height + pendingTxt.y + 30;
+			profile.y = i * profile.underlay.height + pendingTxt.y + 30;
 			friendsList.push(profile);
 			addChild(profile);
 		}
