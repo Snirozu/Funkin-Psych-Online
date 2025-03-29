@@ -107,26 +107,30 @@ class NetworkClient {
 		}
 
 		room.onLeave += () -> {
-			Waiter.put(() -> {
-				ChatTab.addMessage('Disconnected from the chatroom');
-			});
-
-			var recToken = NetworkClient.room.reconnectionToken;
-			NetworkClient.room = null;
-
 			Thread.safeCatch(() -> {
-				trace("Left/Kicked from the Network room!");
+				Waiter.put(() -> {
+					ChatTab.addMessage('Disconnected from the chatroom');
+				});
 
-				connecting = true;
-				client.reconnect(recToken, NetworkSchema, (err, newRoom) -> {
-					trace("Reconnecting to the Network room");
-					joinCallback(err, newRoom, true);
+				var recToken = NetworkClient.room.reconnectionToken;
+				NetworkClient.room = null;
+
+				Thread.safeCatch(() -> {
+					trace("Left/Kicked from the Network room!");
+
+					connecting = true;
+					client.reconnect(recToken, NetworkSchema, (err, newRoom) -> {
+						trace("Reconnecting to the Network room");
+						joinCallback(err, newRoom, true);
+					});
+				}, e -> {
+					NetworkClient.room = null;
+					connecting = false;
+					trace(ShitUtil.prettyError(e));
 				});
 			}, e -> {
-                NetworkClient.room = null;
-				connecting = false;
 				trace(ShitUtil.prettyError(e));
-            });
+			});
 		}
 
 		room.send('loggedMessagesAfter', ChatTab.lastLogDate);

@@ -363,6 +363,12 @@ class GameClient {
 		ClientPrefs.data.serverAddress = v;
 		ClientPrefs.saveSettings();
 		FunkinNetwork.client = new online.http.HTTPHandler(GameClient.addressToUrl(v));
+		if (NetworkClient.room != null) {
+			NetworkClient.room.leave();
+			NetworkClient.room = null;
+			NetworkClient.connecting = false;
+			NetworkClient.connect();
+		}
 		return serverAddress;
 	}
 
