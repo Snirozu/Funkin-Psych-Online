@@ -21,12 +21,12 @@ class ChatTab extends TabSprite {
 		placeholderInput.alpha = 0.5;
 
 		input = this.createText(0, 0, 16, FlxColor.WHITE);
-		input.text = '';
+		input.text = '\n\n';
 		input.width = tabWidth;
-		input.height = placeholderInput.textHeight;
+		input.height = 16;
 		input.type = INPUT;
 		input.multiline = false;
-		input.y = heightSpace - 20;
+		input.y = heightSpace - input.height;
 		input.addEventListener(Event.CHANGE, _ -> {
 			placeholderInput.visible = input.text.length <= 0;
 		});
@@ -95,7 +95,7 @@ class ChatTab extends TabSprite {
 	}
 
 	override function mouseDown(e:MouseEvent):Void {
-		if (e.localX > 0 && e.localX < tabWidth && e.localY > heightSpace - 10) {
+		if (input.overlapsMouse()) {
 			stage.focus = input;
 		}
 	}

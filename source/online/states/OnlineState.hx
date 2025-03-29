@@ -87,6 +87,11 @@ class OnlineState extends MusicBeatState {
 		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
+		if (online.GameClient.isConnected()) {
+			FlxG.switchState(() -> new online.states.RoomState());
+			return;
+		}
+
 		OnlineMods.checkMods();
 
 		#if DISCORD_ALLOWED
