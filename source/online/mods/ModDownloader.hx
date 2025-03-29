@@ -91,36 +91,42 @@ class ModDownloader {
 				}
 			}
 
+			client.close();
+
 			if (client.response.isFailed()) {
 				Waiter.put(() -> {
 					Alert.alert('Downloading failed!', 
 						ShitUtil.prettyStatus(client.response.status) + "\n" +
-						(client?.response?.exception != null ? ShitUtil.prettyError(client.response.exception) : '') + '\n(Retry via the sidebar.)'
+						(client?.response?.exception != null ? ShitUtil.prettyError(client.response.exception) : '')
 					);
 				});
-				return;
+			}
+			else {
+				if (!client.cancelRequested) {
+					status = INSTALLING;
+					OnlineMods.installMod(downloadPath, url, gbMod, onSuccess);
+					status = FINISHED;
+				}
 			}
 
-			client.close();
-
-			if (!client.cancelRequested) {
-				status = INSTALLING;
-				OnlineMods.installMod(downloadPath, url, gbMod, onSuccess);
-				status = FINISHED;
-			}
-
-			downloaders.remove(this);
-			if (alert != null)
-				alert.destroy();
-			alert = null;
-			deleteTempFile();
+			delete();
 		});
     }
 
+	function delete() {
+		downloaders.remove(this);
+		if (alert != null)
+			alert.destroy();
+		alert = null;
+		deleteTempFile();
+	}
+
 	function deleteTempFile() {
-		if (FileSystem.exists(downloadPath)) {
-			FileSystem.deleteFile(downloadPath);
-		}
+		try {
+			if (FileSystem.exists(downloadPath)) {
+				FileSystem.deleteFile(downloadPath);
+			}
+		} catch (_) {}
 	}
 
     static var allowedMediaTypes:Array<String> = [
