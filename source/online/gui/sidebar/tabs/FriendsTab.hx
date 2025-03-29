@@ -62,7 +62,7 @@ class FriendsTab extends TabSprite {
 				return 0;
 			return a.status.toLowerCase() != 'offline' ? -1 : 1;
 		});
-		
+
 		for (i => friend in data.friends) {
 			var profile = trashedProfiles.length > 0 ? trashedProfiles.pop() : new SmolProfile();
 			profile.create(friend);
@@ -70,8 +70,8 @@ class FriendsTab extends TabSprite {
 			friendsList.push(profile);
 			addChild(profile);
 		}
-		
-		var lastProfile = friendsList[friendsList.length - 1];
+
+		var lastProfile = friendsList.length > 0 ? friendsList[friendsList.length - 1] : friendsTxt;
 		requestsTxt.y = lastProfile.y + lastProfile.height;
 
 		for (i => name in data.requests) {
@@ -86,7 +86,8 @@ class FriendsTab extends TabSprite {
 			addChild(profile);
 		}
 
-		lastProfile = friendsList[friendsList.length - 1];
+		if (friendsList.length > 0)
+			lastProfile = friendsList[friendsList.length - 1];
 		pendingTxt.y = lastProfile.y + lastProfile.height;
 
 		for (i => name in data.pending) {
@@ -100,7 +101,8 @@ class FriendsTab extends TabSprite {
 			addChild(profile);
 		}
 
-		lastProfile = friendsList[friendsList.length - 1];
+		if (friendsList.length > 0)
+			lastProfile = friendsList[friendsList.length - 1];
 		
 		pendingTxt.visible = data.pending.length > 0;
 		requestsTxt.visible = data.requests.length > 0;

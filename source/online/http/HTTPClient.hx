@@ -47,7 +47,7 @@ class HTTPClient {
 		}
     }
 
-	public function request(?data:OneOf<HTTPRequest, String>) {
+	public function request(?data:OneOf<HTTPRequest, String>):HTTPResponse {
 		if (socket != null)
 			throw new Exception('Socket Still Open');
 
@@ -176,7 +176,11 @@ class HTTPClient {
 					socket.close();
 					socket = null;
 				}
-				return this.request(requestData);
+
+				address = parseStringToAddress(response.headers.get("location"));
+				return this.request({
+					output: response.output
+				});
 			}
 
 			if (response.headers.exists("content-length"))
