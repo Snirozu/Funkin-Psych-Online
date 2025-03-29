@@ -1,5 +1,6 @@
 package online.util;
 
+import haxe.Exception;
 import haxe.io.Bytes;
 import flixel.math.FlxAngle;
 import flixel.FlxObject;
@@ -193,7 +194,14 @@ class ShitUtil {
     }
 
 	static function prettyError(exc:Dynamic) {
-		return '${Std.string(exc)} (${exc != null ? Type.getClassName(Type.getClass(exc)) : 'NULL CLASS'})\n' + (exc?.stack != null ? CallStack.toString(exc.stack) : "(NO CALLSTACK)") + "\n";
+		if (exc == null) {
+			return 'Unknown Error (null)';
+		}
+		if (exc is Exception) {
+			var exc:Exception = cast exc;
+			return '${exc.details()}\n';
+		}
+		return '${Std.string(exc)} (${Type.getClassName(Type.getClass(exc))})\n';
     }
 
 	static function prettyStatus(status:Dynamic) {
