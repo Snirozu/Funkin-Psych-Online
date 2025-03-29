@@ -191,6 +191,12 @@ class TitleState extends MusicBeatState
 		}
 
 		FlxG.mouse.visible = false;
+
+		if (online.GameClient.isConnected()) {
+			FlxG.switchState(() -> new online.states.RoomState());
+			return;
+		}
+		
 		#if FREEPLAY
 		FlxG.switchState(() -> new FreeplayState());
 		#elseif CHARTING
