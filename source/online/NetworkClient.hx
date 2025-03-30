@@ -13,6 +13,15 @@ class NetworkClient {
 	public static var room:Room<NetworkSchema>;
     public static var connecting:Bool = false;
 
+	public static function leave() {
+		if (room != null) {
+			room.leave();
+			room = null;
+		}
+		client = null;
+		connecting = false;
+	}
+
 	public static function connect() {
 		if (connecting || NetworkClient.room != null)
             return;
