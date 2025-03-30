@@ -15,12 +15,12 @@ class TabButton extends Sprite implements ITabInteractable {
 
 		this.onClick = onClick;
 
-		border = new Bitmap(Paths.image('sidebar/button_border', null, false).bitmap);
+		border = new Bitmap(GAssets.image('sidebar/button_border'));
 		border.smoothing = false;
 		border.width = 56;
 		border.height = 56;
 
-		icon = new Bitmap(Paths.image('sidebar/' + daIcon, null, false).bitmap);
+		icon = new Bitmap(GAssets.image('sidebar/' + daIcon));
 		icon.smoothing = false;
 		icon.x = 3;
 		icon.y = 3;
