@@ -63,6 +63,9 @@ class Auth {
     public static function save(id:String, token:String) {
 		saveData.id = authID = id;
 		saveData.token = authToken = token;
+
+		if ((saveData.id == null || saveData.token == null) && FileSystem.exists(savePath))
+			FileSystem.deleteFile(savePath);
     }
 
 	public static function saveClose() {
