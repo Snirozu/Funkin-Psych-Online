@@ -1,5 +1,6 @@
 package online;
 
+import io.colyseus.serializer.schema.Schema;
 import backend.NoteSkinData;
 import flixel.FlxState;
 import online.network.Auth;
@@ -40,8 +41,12 @@ class GameClient {
 	public static var serverAddresses:Array<String> = [];
 
 	public static function createRoom(address:String, ?onJoin:(err:Dynamic)->Void) {
+		if (reconnecting)
+			return;
+
 		LoadingScreen.toggle(true);
 
+		leaveRoom('Switching Rooms.');
 		ChatBox.clearLogs();
 		
 		Thread.run(() -> {
@@ -57,7 +62,13 @@ class GameClient {
     }
 
 	public static function joinRoom(roomSecret:String, ?onJoin:(err:Dynamic)->Void) {
+		if (reconnecting)
+			return;
+
 		LoadingScreen.toggle(true);
+
+		leaveRoom('Switching Rooms.');
+		ChatBox.clearLogs();
 
 		var roomID = roomSecret.trim();
 		var roomAddress = GameClient.serverAddress;
@@ -66,8 +77,6 @@ class GameClient {
 			roomID = roomSecret.substring(0, coolIndex).trim();
 			roomAddress = roomSecret.substring(coolIndex + 1).trim();
 		}
-
-		ChatBox.clearLogs();
 
 		Thread.run(() -> {
 			client = new Client(roomAddress);
@@ -82,13 +91,11 @@ class GameClient {
     }
 
 	private static function _onJoin(err:Error, room:Room<GameRoom>, isHost:Bool, address:String, ?onJoin:(err:Dynamic)->Void) {
-		reconnecting = false;
 		if (err != null) {
 			trace(err.code + " - " + err.message);
 			Alert.alert("Couldn't connect!", "JOIN ERROR: " + ShitUtil.prettyStatus(err.code) + "\n" + ShitUtil.readableError(err.message));
-			client = null;
-			_pendingMessages = [];
 			onJoin(err);
+			leaveRoom();
 			LoadingScreen.toggle(false);
 			if (err.code == 5003)
 				Waiter.put(() -> {
@@ -137,6 +144,8 @@ class GameClient {
 		//	trace("onrender server detected");
 		Waiter.pingServer = address;
 		//}
+
+		reconnecting = false;
 	}
 
 	public static function reconnect(?debugReconnectDelay:Float = 0) {
@@ -144,7 +153,9 @@ class GameClient {
 			return;
 		reconnecting = true;
 
-		trace("Reconnecting with Token: " + room.reconnectionToken);
+		var reconnectToken = room.reconnectionToken;
+
+		trace("Reconnecting with Token: " + reconnectToken);
 		Alert.alert("Reconnecting...");
 
 		try {
@@ -156,27 +167,40 @@ class GameClient {
 		Thread.run(() -> {
 			if (debugReconnectDelay > 0)
 				Sys.sleep(debugReconnectDelay);
-			client.reconnect(room.reconnectionToken, GameRoom, (err, newRoom:Room<GameRoom>) -> {
-				if (err != null) {
-					trace(err.code + " - " + err.message);
+			client.reconnect(reconnectToken, GameRoom, (err, newRoom:Room<GameRoom>) -> {
+				try {
+					if (reconnectToken != room.reconnectionToken) {
+						reconnecting = false;
+						return;
+					}
+
+					if (err != null) {
+						trace(err.code + " - " + err.message);
+						Waiter.put(() -> {
+							Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + ShitUtil.prettyStatus(err.code) + " - " + ShitUtil.readableError(err.message));
+						});
+						leaveRoom();
+						return;
+					}
+
+					newRoom.onStateChange += _ -> {
+						newRoom.onStateChange = new EventHandler<Dynamic->Void>();
+
+						_onJoin(err, newRoom, GameClient.isOwner, GameClient.address);
+						if (addListeners != null)
+							addListeners();
+						sendPending();
+						Waiter.put(() -> {
+							Alert.alert("Reconnected!");
+						});
+					};
+				}
+				catch (exc) {
 					Waiter.put(() -> {
-						Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + ShitUtil.prettyStatus(err.code) + " - " + ShitUtil.readableError(err.message));
+						Alert.alert("Critically failed to reconnect!", "RECONNECT ERROR: " + ShitUtil.prettyStatus(err.code) + " - " + ShitUtil.readableError(err.message));
 					});
 					leaveRoom();
-					return;
 				}
-
-				newRoom.onStateChange += _ -> {
-					newRoom.onStateChange = new EventHandler<Dynamic->Void>();
-
-					_onJoin(err, newRoom, GameClient.isOwner, GameClient.address);
-					if (addListeners != null)
-						addListeners();
-					sendPending();
-					Waiter.put(() -> {
-						Alert.alert("Reconnected!");
-					});
-				};
 			});
 		});
 	}
@@ -278,6 +302,23 @@ class GameClient {
 		}
 
 		GameClient.room.onMessageHandlers.clear();
+		clearCallbacks(GameClient.room.state);
+		clearCallbacks(GameClient.room.state.diffList);
+		clearCallbacks(GameClient.room.state.gameplaySettings);
+		for (player in [GameClient.room.state.player1, GameClient.room.state.player2]) {
+			if (player == null)
+				continue;
+
+			clearCallbacks(player);
+			clearCallbacks(player.arrowColor0);
+			clearCallbacks(player.arrowColor1);
+			clearCallbacks(player.arrowColor2);
+			clearCallbacks(player.arrowColor3);
+			clearCallbacks(player.arrowColorP0);
+			clearCallbacks(player.arrowColorP1);
+			clearCallbacks(player.arrowColorP2);
+			clearCallbacks(player.arrowColorP3);
+		}
 		
 		ChatBox.tryRegisterLogs();
 
@@ -309,6 +350,15 @@ class GameClient {
 			DiscordClient.updateOnlinePresence();
 		});
 		#end
+	}
+
+	@:privateAccess static function clearCallbacks(schema:Dynamic) {
+		if (schema == null)
+			return;
+		if (schema._callbacks != null)
+			schema._callbacks.clear();
+		if (schema._propertyCallbacks != null)
+			schema._propertyCallbacks.clear();
 	}
 
 	private static var _pendingMessages:Array<Array<Dynamic>> = [];

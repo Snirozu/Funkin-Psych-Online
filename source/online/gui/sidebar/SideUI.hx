@@ -115,7 +115,7 @@ class SideUI extends WSprite {
 			tabButtonsUnderlay.push(tabIconUnderlay);
 			tabUI.addChild(tabIconUnderlay);
 
-			var tabIcon = new Bitmap(Paths.image('sidebar/' + daTab.icon, null, false).bitmap);
+			var tabIcon = new Bitmap(GAssets.image('sidebar/' + daTab.icon));
 			tabIcon.smoothing = false;
 			tabIcon.width = 50;
 			tabIcon.height = 50;
