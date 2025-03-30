@@ -78,6 +78,7 @@ class FunkinNetwork {
 		loggedIn = false;
 		nickname = null;
 		points = 0;
+		NetworkClient.leave();
 	}
 
 	public static function ping():Bool {
