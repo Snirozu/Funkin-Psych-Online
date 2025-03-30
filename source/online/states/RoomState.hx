@@ -639,7 +639,6 @@ class RoomState extends MusicBeatState {
 		}
 
 		positionCharacters();
-		updateTexts();
 		
 		Mods.currentModDirectory = oldModDir;
 	}
