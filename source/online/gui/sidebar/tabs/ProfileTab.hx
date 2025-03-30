@@ -223,9 +223,7 @@ class ProfileTab extends TabSprite {
 			loadFlag(loadingUser, user.country);
 		});
 
-		usernameTxt.setText(username, 160 + (!flag.visible ? 55 : 0));
-		flag.x = usernameTxt.x + usernameTxt.width + 20;
-		flag.y = usernameTxt.y + 8;
+		updateUsernameText();
 		role.setText(user.isBanned ? 'BANNED' : user.isMod ? 'Moderator' : 'Member');
 		var seenAgo = ShitUtil.timeAgo(ShitUtil.parseISODate(user.lastActive).getTime());
 		if (seenAgo == 'just now')
@@ -248,6 +246,13 @@ class ProfileTab extends TabSprite {
 		}
     }
 
+	function updateUsernameText() {
+		usernameTxt.setText(username, 150 + (!flag.visible ? 65 : 0));
+		flag.x = usernameTxt.x + usernameTxt.width + 20;
+		flag.y = avatar.y + 10 + 5;
+		usernameTxt.y = avatar.y + 10 + (40 / 2) - (40 * usernameTxt.scaleY) / 2;
+	}
+
 	override function __enterFrame(delta) {
 		super.__enterFrame(delta);
 
@@ -266,6 +271,7 @@ class ProfileTab extends TabSprite {
 				if (flag != null && loadingUser == username) {
 					flag.visible = true;
 					flag.bitmapData = BitmapData.fromBytes(flagResponse.getBytes());
+					updateUsernameText();
 				}
 			});
 		}

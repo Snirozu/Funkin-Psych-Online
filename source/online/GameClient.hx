@@ -254,7 +254,9 @@ class GameClient {
 
 			FlxG.autoPause = ClientPrefs.data.autoPause;
 
-			FlxG.switchState(() -> new OnlineState());
+			if (@:privateAccess FlxG.game._nextState == null) {
+				FlxG.switchState(() -> new OnlineState());
+			}
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 

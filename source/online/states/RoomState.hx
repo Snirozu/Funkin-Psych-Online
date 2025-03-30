@@ -1289,13 +1289,8 @@ class RoomState extends MusicBeatState {
 		}
 	}
 
-	override function stepHit() {
-		super.stepHit();
-
-		updateTexts();
-	}
-
 	override function beatHit() {
+		updateTexts();
 		danceLogic(p1, true);
 		danceLogic(p2, true);
 		

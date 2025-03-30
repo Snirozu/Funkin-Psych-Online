@@ -79,18 +79,16 @@ class NetworkClient {
 
 			Waiter.put(() -> {
 				Alert.alert(inviteData.name + ' has invited you to their room!', '(Click to Join)', () -> {
-					function onRoomJoin(err:Dynamic) {
-						if (err != null) {
-							Alert.alert(ShitUtil.prettyError(err));
-							return;
-						}
+					OnlineState.inviteRoomID = inviteData.roomid;
 
+					if (GameClient.isConnected()) {
+						GameClient.leaveRoom('Switching States');
+					}
+					else {
 						Waiter.put(() -> {
-							FlxG.switchState(() -> new RoomState());
+							FlxG.switchState(() -> new OnlineState());
 						});
 					}
-
-					GameClient.joinRoom(inviteData.roomid, onRoomJoin);
 				});
 			});
 		});

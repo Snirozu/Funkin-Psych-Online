@@ -251,7 +251,7 @@ class Main extends Sprite
 		});
 
 		FlxG.signals.postGameReset.add(() -> {
-			online.gui.Alert.alert('Warning!', 'The game has been resetted, and there may occur visual bugs with the sidebar!\n\nIt\'s recommended to restart the game instead.')
+			online.gui.Alert.alert('Warning!', 'The game has been resetted, and there may occur visual bugs with the sidebar!\n\nIt\'s recommended to restart the game instead.');
 		});
 		
 		#if HSCRIPT_ALLOWED
