@@ -51,6 +51,8 @@ class OnlineState extends MusicBeatState {
 		return null;
 	}
 
+	public static var inviteRoomID:String;
+
 	var daCoomCode:String = "";
 	var disableInput = false;
 
@@ -88,7 +90,20 @@ class OnlineState extends MusicBeatState {
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
 		if (online.GameClient.isConnected()) {
+			disableInput = true;
 			FlxG.switchState(() -> new online.states.RoomState());
+			return;
+		}
+
+		if (inviteRoomID != null) {
+			disableInput = true;
+			function onJoin(err:Dynamic) {
+				Waiter.put(() -> {
+					FlxG.switchState(() -> new OnlineState());
+				});
+			}
+			GameClient.joinRoom(inviteRoomID, onJoin);
+			inviteRoomID = null;
 			return;
 		}
 
