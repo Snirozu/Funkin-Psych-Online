@@ -86,6 +86,11 @@ class ChatTab extends TabSprite {
 				ClientPrefs.saveSettings();
 				addMessage('PM Notifications are now ${ClientPrefs.data.disablePMs ? 'OFF' : 'ON'}!');
 			}
+			else if (input.text.trim() == '/notify roominvite') {
+				ClientPrefs.data.disableRoomInvites = !ClientPrefs.data.disableRoomInvites;
+				ClientPrefs.saveSettings();
+				addMessage('Room Invite Notifications are now ${ClientPrefs.data.disableRoomInvites ? 'OFF' : 'ON'}!');
+			}
 			else if (input.text.trim() == '/notify') {
 				ClientPrefs.data.notifyOnChatMsg = !ClientPrefs.data.notifyOnChatMsg;
 				ClientPrefs.saveSettings();

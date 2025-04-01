@@ -82,7 +82,7 @@ class NetworkClient {
 		});
 
 		room.onMessage("roominvite", function(message:String) {
-			if (message == null)
+			if (message == null || ClientPrefs.data.disableRoomInvites)
 				return;
 			var inviteData = Json.parse(message);
 
