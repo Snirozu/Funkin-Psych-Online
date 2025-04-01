@@ -68,7 +68,7 @@ class ReplayRecorder extends FlxBasic {
 		data.safe_frames = ClientPrefs.data.safeFrames;
 		data.mod_url = OnlineMods.getModURL(Mods.currentModDirectory);
 		
-		data.chart_hash = Md5.encode(Song.loadRawSong(Highscore.formatSong(PlayState.SONG.song, PlayState.storyDifficulty), PlayState.SONG.song));
+		data.chart_hash = Md5.encode(PlayState.RAW_SONG);
 
 		for (id => binds in state.controls.keyboardBinds) {
 			if (binds != null)
@@ -190,7 +190,7 @@ class ReplayRecorder extends FlxBasic {
 		trace("Saved a replay!");
 		
 		if (!ClientPrefs.data.disableSubmiting) {
-			var res = Json.parse(Leaderboard.submitScore(replayData)?.getString() ?? "{}");
+			var res = Json.parse(Leaderboard.submitScore(replayData)?.getString(true) ?? "{}");
 			states.FreeplayState.gainedRanks += res.climbed_ranks ?? 0;
 			if (res.gained_points != null) {
 				return res.gained_points;

@@ -335,7 +335,7 @@ class GameClient {
 				Mods.currentModDirectory = GameClient.room.state.modDir;
 				Difficulty.list = CoolUtil.asta(GameClient.room.state.diffList);
 				PlayState.storyDifficulty = GameClient.room.state.diff;
-				PlayState.SONG = Song.loadFromJson(GameClient.room.state.song, GameClient.room.state.folder);
+				PlayState.loadSong(GameClient.room.state.song, GameClient.room.state.folder);
 				PlayState.isStoryMode = false;
 				LoadingState.loadAndSwitchState(new PlayState());
 

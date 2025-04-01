@@ -598,7 +598,7 @@ class OnlineState extends MusicBeatState {
 							PlayState.storyDifficulty = 0;
 
 							var songLowercase:String = Paths.formatToSongPath("Gold");
-							PlayState.SONG = Song.loadFromJson(Highscore.formatSong(songLowercase, PlayState.storyDifficulty), songLowercase);
+							PlayState.loadSong(Highscore.formatSong(songLowercase, PlayState.storyDifficulty), songLowercase);
 							PlayState.isStoryMode = false;
 
 							LoadingState.loadAndSwitchState(new PlayState());

@@ -126,22 +126,10 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
 		typeText = new InputText(0, 0, typeBg.width, text -> {
 			if (StringTools.startsWith(text, "/")) {
-				switch (text) {
-					case "/help":
-						ChatBox.addMessage("> Global Commands: /roll, /kick");
-
-						if (onCommand != null)
-							parseCommand(text);
-					case "/roll":
-						GameClient.send("command", ["roll"]);
-					case "/kick":
-						GameClient.send("command", ["kick"]);
-					default:
-						if (onCommand != null)
-							parseCommand(text);
-						else
-							addMessage("Unknown command; try /help to see the command list!");
-				}
+				if (onCommand != null && parseCommand(text) == true)
+					return;
+				
+				GameClient.send("command", text.trim().substr(1).split(' '));
 			}
 			else
 				GameClient.send("chat", text);
@@ -270,12 +258,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 	function parseCommand(text:String) {
 		var splitText:Array<String> = text.split(" ");
 		var command = splitText.shift().substr(1);
-		if (!onCommand(command, splitText)) {
-			if (command != "help") {
-				addMessage("Unknown command; try /help to see the command list!");
-				return;
-			}
-		}
+		return onCommand(command, splitText);
 	}
 }
 

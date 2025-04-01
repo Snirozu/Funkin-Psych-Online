@@ -217,7 +217,7 @@ class ChartingState extends MusicBeatState
 				stage: 'stage'
 			};
 			addSection();
-			PlayState.SONG = _song;
+			PlayState.loadSongFromSwag(_song);
 		}
 
 		// Paths.clearMemory();
@@ -433,7 +433,7 @@ class ChartingState extends MusicBeatState
 
 		var loadAutosaveBtn:FlxButton = new FlxButton(reloadSongJson.x, reloadSongJson.y + 30, 'Load Autosave', function()
 		{
-			PlayState.SONG = Song.parseJSONshit(FlxG.save.data.autosave);
+			PlayState.loadSongFromSwag(Song.parseJSONshit(FlxG.save.data.autosave));
 			FlxG.switchState(new ChartingState());
 		});
 
@@ -1759,7 +1759,7 @@ class ChartingState extends MusicBeatState
 			{
 				autosaveSong();
 				FlxG.mouse.visible = false;
-				PlayState.SONG = _song;
+				PlayState.loadSongFromSwag(_song);
 				FlxG.sound.music.stop();
 				for (v in [vocals, opponentVocals]) {
 					if (v == null) continue;
@@ -3092,12 +3092,12 @@ class ChartingState extends MusicBeatState
 		try {
 			if (Difficulty.getString() != Difficulty.getDefault()) {
 				if(Difficulty.getString() == null){
-					PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
+					PlayState.loadSong(song.toLowerCase(), song.toLowerCase());
 				}else{
-					PlayState.SONG = Song.loadFromJson(song.toLowerCase() + "-" + Difficulty.getString(), song.toLowerCase());
+					PlayState.loadSong(song.toLowerCase() + "-" + Difficulty.getString(), song.toLowerCase());
 				}
 			}
-			else PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
+			else PlayState.loadSong(song.toLowerCase(), song.toLowerCase());
 			FlxG.switchState(new ChartingState());
 		}
 		catch(e)

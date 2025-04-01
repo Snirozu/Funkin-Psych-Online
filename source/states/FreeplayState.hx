@@ -1284,7 +1284,6 @@ class FreeplayState extends MusicBeatState
 	}
 
 	var _ledSong:String = null;
-	var _rawSONG:String = null;
 	function generateLeaderboard() {
 		topShit.clearRows();
 
@@ -1294,8 +1293,7 @@ class FreeplayState extends MusicBeatState
 		try {
 			var formatSong = Highscore.formatSong(getSongName().toLowerCase(), curDifficulty);
 			if (_ledSong != formatSong) {
-				_rawSONG = Song.loadRawSong(formatSong, getSongName().toLowerCase());
-				PlayState.SONG = Song.parseRawJSON(formatSong, _rawSONG);
+				PlayState.loadSong(formatSong, getSongName().toLowerCase());
 			}
 			_ledSong = formatSong;
 			
@@ -1305,7 +1303,7 @@ class FreeplayState extends MusicBeatState
 				+ "-"
 				+ filterCharacters(Difficulty.getString(curDifficulty))
 				+ "-"
-				+ filterCharacters(Md5.encode(_rawSONG)), top -> {
+				+ filterCharacters(Md5.encode(PlayState.RAW_SONG)), top -> {
 				if (uhhPage != curPage || !topShit.exists)
 					return;
 
@@ -1494,7 +1492,7 @@ class FreeplayState extends MusicBeatState
 				FlxG.sound.music.volume = 0;
 				Mods.currentModDirectory = songs[curSelected].folder;
 				var poop:String = Highscore.formatSong(getSongName().toLowerCase(), curDifficulty);
-				PlayState.SONG = Song.loadFromJson(poop, getSongName().toLowerCase());
+				PlayState.loadSong(poop, getSongName().toLowerCase());
 				Conductor.bpm = PlayState.SONG.bpm;
 				Conductor.mapBPMChanges(PlayState.SONG);
 
@@ -1888,7 +1886,7 @@ class FreeplayState extends MusicBeatState
 		var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
 
 		try {
-			PlayState.SONG = Song.loadFromJson(poop, songLowercase);
+			PlayState.loadSong(poop, songLowercase);
 			PlayState.isStoryMode = false;
 			PlayState.storyDifficulty = curDifficulty;
 			var diff = Difficulty.getString(curDifficulty);

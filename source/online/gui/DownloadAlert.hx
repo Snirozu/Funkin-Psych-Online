@@ -24,23 +24,23 @@ class DownloadAlerts extends Sprite {
 
 		if (FlxG.keys.pressed.ALT) {
 			if (FlxG.keys.justPressed.ONE && ModDownloader.downloaders[0] != null)
-				ModDownloader.downloaders[0].client.close();
+				ModDownloader.downloaders[0].client.cancel();
 			if (FlxG.keys.justPressed.TWO && ModDownloader.downloaders[1] != null)
-				ModDownloader.downloaders[1].client.close();
+				ModDownloader.downloaders[1].client.cancel();
 			if (FlxG.keys.justPressed.THREE && ModDownloader.downloaders[2] != null)
-				ModDownloader.downloaders[2].client.close();
+				ModDownloader.downloaders[2].client.cancel();
 			if (FlxG.keys.justPressed.FOUR && ModDownloader.downloaders[3] != null)
-				ModDownloader.downloaders[3].client.close();
+				ModDownloader.downloaders[3].client.cancel();
 			if (FlxG.keys.justPressed.FIVE && ModDownloader.downloaders[4] != null)
-				ModDownloader.downloaders[4].client.close();
+				ModDownloader.downloaders[4].client.cancel();
 			if (FlxG.keys.justPressed.SIX && ModDownloader.downloaders[5] != null)
-				ModDownloader.downloaders[5].client.close();
+				ModDownloader.downloaders[5].client.cancel();
 			if (FlxG.keys.justPressed.SEVEN && ModDownloader.downloaders[6] != null)
-				ModDownloader.downloaders[6].client.close();
+				ModDownloader.downloaders[6].client.cancel();
 			if (FlxG.keys.justPressed.EIGHT && ModDownloader.downloaders[7] != null)
-				ModDownloader.downloaders[7].client.close();
+				ModDownloader.downloaders[7].client.cancel();
 			if (FlxG.keys.justPressed.NINE && ModDownloader.downloaders[8] != null)
-				ModDownloader.downloaders[8].client.close();
+				ModDownloader.downloaders[8].client.cancel();
 		}
 
 		var prevAlert:DownloadAlert = null;

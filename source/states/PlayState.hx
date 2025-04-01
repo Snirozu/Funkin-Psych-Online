@@ -166,7 +166,19 @@ class PlayState extends MusicBeatState
 	static function get_isPixelStage():Bool
 		return stageUI == "pixel";
 
-	public static var SONG:SwagSong = null;
+	public static var SONG(default, null):SwagSong;
+
+	public static function loadSong(jsonInput:String, ?folder:String):SwagSong {
+		RAW_SONG = Song.loadRawSong(jsonInput, folder);
+		return SONG = Song.parseRawJSON(jsonInput, RAW_SONG);
+	}
+
+	public static function loadSongFromSwag(v:SwagSong):SwagSong {
+		RAW_SONG = haxe.Json.stringify(v);
+		return SONG = Song.parseRawJSON('', RAW_SONG);
+	}
+	
+	public static var RAW_SONG:String = '';
 	public static var isStoryMode:Bool = false;
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
@@ -582,14 +594,14 @@ class PlayState extends MusicBeatState
 
 		preloadTasks.push(() -> {
 			if (SONG == null)
-				SONG = Song.loadFromJson('tutorial');
+				loadSong('tutorial');
 
 			Conductor.mapBPMChanges(SONG);
 			Conductor.bpm = SONG.bpm;
 
 			songId = FreeplayState.filterCharacters(PlayState.SONG.song) + "-" +
 				FreeplayState.filterCharacters(Difficulty.getString()) + "-" + 
-				Md5.encode(Song.loadRawSong(Highscore.formatSong(PlayState.SONG.song, PlayState.storyDifficulty), PlayState.SONG.song))
+				FreeplayState.filterCharacters(Md5.encode(PlayState.RAW_SONG))
 			;
 
 			#if DISCORD_ALLOWED
@@ -3553,7 +3565,7 @@ class PlayState extends MusicBeatState
 					FlxTransitionableState.skipNextTransOut = true;
 					prevCamFollow = camFollow;
 
-					PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0] + difficulty, PlayState.storyPlaylist[0]);
+					PlayState.loadSong(PlayState.storyPlaylist[0] + difficulty, PlayState.storyPlaylist[0]);
 					FlxG.sound.music.stop();
 
 					cancelMusicFadeTween();

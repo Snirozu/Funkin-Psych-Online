@@ -296,7 +296,7 @@ class StoryMenuState extends MusicBeatState
 	
 				PlayState.storyDifficulty = curDifficulty;
 	
-				PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
+				PlayState.loadSong(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
 				PlayState.campaignScore = 0;
 				PlayState.campaignMisses = 0;
 			}
