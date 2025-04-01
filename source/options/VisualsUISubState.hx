@@ -230,6 +230,12 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Mute Room Invites',
+			'If checked, room invites are muted, can be toggled with "/notify roominvite" in chat.',
+			'disableRoomInvites',
+			'bool');
+		addOption(option);
+
 		super();
 		add(notes);
 	}

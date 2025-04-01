@@ -97,6 +97,7 @@ class SaveVariables {
 	public var colorRating:Bool = false;
 	public var notifyOnChatMsg:Bool = false;
 	public var disablePMs:Bool = false;
+	public var disableRoomInvites:Bool = false;
 
 	public function new()
 	{
