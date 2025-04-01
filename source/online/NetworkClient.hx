@@ -62,7 +62,7 @@ class NetworkClient {
 
 		room.onMessage("log", function(message) {
 			Waiter.put(() -> {
-				ChatTab.addMessage(message);
+				ChatTab.addMessage(message, true);
 			});
 		});
 

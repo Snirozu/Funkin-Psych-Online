@@ -126,7 +126,7 @@ class FriendsTab extends TabSprite {
 			if (response != null && !response.isFailed()) {
 				Waiter.put(() -> {
 					loading = false;
-					data = Json.parse(response.getString());
+					data = Json.parse(response.getString(true));
 					renderData();
 				});
 			}

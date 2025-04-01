@@ -81,12 +81,24 @@ class ChatTab extends TabSprite {
 		super.keyDown(event);
 
 		if (stage.focus == input && event.keyCode == 13) {
-			if (NetworkClient.room != null) {
-				NetworkClient.room.send('chat', input.text);
+			if (input.text.trim() == '/notify pm') {
+				ClientPrefs.data.disablePMs = !ClientPrefs.data.disablePMs;
+				ClientPrefs.saveSettings();
+				addMessage('PM Notifications are now ${ClientPrefs.data.disablePMs ? 'OFF' : 'ON'}!');
+			}
+			else if (input.text.trim() == '/notify') {
+				ClientPrefs.data.notifyOnChatMsg = !ClientPrefs.data.notifyOnChatMsg;
+				ClientPrefs.saveSettings();
+				addMessage('Chat Notifications are now ${ClientPrefs.data.notifyOnChatMsg ? 'ON' : 'OFF'}!');
 			}
 			else {
-				addMessage("Not connected to the server! Trying to connect!");
-				NetworkClient.connect();
+				if (NetworkClient.room != null) {
+					NetworkClient.room.send('chat', input.text);
+				}
+				else {
+					addMessage("Not connected to the server! Trying to connect!");
+					NetworkClient.connect();
+				}
 			}
 			
 			input.text = '';
@@ -118,7 +130,7 @@ class ChatTab extends TabSprite {
 
 	public static var lastLogDate:Float = 0;
 	static var _nullInstanceMsgs:Array<Dynamic> = [];
-	public static function addMessage(raw:Dynamic) {
+	public static function addMessage(raw:Dynamic, ?isNew:Bool = false) {
 		var data = ShitUtil.parseLog(raw);
 		
 		var instance:ChatTab = cast(SideUI.instance.tabs[SideUI.instance.initTabs.indexOf(ChatTab)]);
@@ -149,11 +161,14 @@ class ChatTab extends TabSprite {
 		if (data.date != null) {
 			var lastDate = Date.fromTime(lastLogDate);
 			var date = Date.fromTime(data.date);
-			if (data.hue != null)
+			if (data.hue != null) {
 				prefix = ShitUtil.toBiDigitString(date.getHours()) + ":" + ShitUtil.toBiDigitString(date.getMinutes()) + " ";
+				if (!SideUI.instance.active && ((data.isPM && !ClientPrefs.data.disablePMs) || (isNew && ClientPrefs.data.notifyOnChatMsg))) {
+					Alert.alert('New Chat Message!', data.content);
+				}
+			}
 
-			if (data.date > lastLogDate)
-				lastLogDate = data.date;
+			lastLogDate = data.date;
 
 			if (date.getDate() > lastDate.getDate()
 				|| date.getMonth() > lastDate.getMonth()

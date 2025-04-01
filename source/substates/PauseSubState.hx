@@ -228,7 +228,7 @@ class PauseSubState extends MusicBeatSubstate
 						PlayState.replayData = null;
 						var name:String = PlayState.SONG.song;
 						var poop = Highscore.formatSong(name, curSelected);
-						PlayState.SONG = Song.loadFromJson(poop, name);
+						PlayState.loadSong(poop, name);
 						PlayState.storyDifficulty = curSelected;
 						FlxG.switchState(new PlayState());
 						FlxG.sound.music.volume = 0;
@@ -306,7 +306,7 @@ class PauseSubState extends MusicBeatSubstate
 					persistentUpdate = false;
 					persistentDraw = true;
 					PlayState.instance.paused = true;
-					PlayState.instance.openSubState(new PostTextSubstate('Post a comment at the current timestamp.', text -> {
+					PlayState.instance.openSubState(new PostTextSubstate('Post a comment at the current timestamp.\n(It will be displayed on every replay of this song.)', text -> {
 						online.network.FunkinNetwork.postSongComment(PlayState.instance.songId, text, Conductor.songPosition);
 					}));
 				case 'Options':

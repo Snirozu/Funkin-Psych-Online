@@ -241,7 +241,7 @@ class HTTPClient {
 			status = COMPLETED;
 		}
 		catch (exc) {
-			if (exc == null || (exc is ValueException && (cast exc).value == null))
+			if (cancelRequested || exc == null || (exc is ValueException && (cast exc).value == null))
 				exc = new Exception('Socket Closed');
 
 			if (ClientPrefs.isDebug())
@@ -262,7 +262,6 @@ class HTTPClient {
 	}
 
 	public function close() {
-		cancel();
 		if (socket != null) {
 			socket.close();
 			socket = null;
@@ -354,21 +353,26 @@ class HTTPResponse {
 		return exception != null || (status >= 400 && status <= 599);
 	}
 
-	public function getBytes():Bytes {
+	public function getBytes(?close:Bool = false):Bytes {
 		if (output != null && output is BytesOutput) {
-			var output:BytesOutput = cast output;
 			try { // yes this does crash for some reason, no matter the null checks lol
-				return output.getBytes();
+				var bytes:Bytes = cast(output, BytesOutput).getBytes();
+				if (close)
+					output.close();
+				return bytes;
 			} catch (_) {}
 		}
 		return null;
 	}
 
-	public function getString():String {
+	public function getString(?close:Bool = false):String {
 		if (output != null && output is BytesOutput) {
-			var byts = getBytes();
-			if (byts != null)
-				return byts.toString();
+			try {
+				var str = getBytes().toString();
+				if (close)
+					output.close();
+				return str;
+			} catch (_) {}
 		}
 		return null;
 	}

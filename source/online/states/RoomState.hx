@@ -380,9 +380,6 @@ class RoomState extends MusicBeatState {
 
 		chatBox = new ChatBox(camHUD, (cmd, args) -> {
 			switch (cmd) {
-				case "help":
-					ChatBox.addMessage("> Room Commands: /pa, /results, /restage");
-					return true;
 				case "pa":
 					if (args[0] != null && args[0].trim() != "")
 						playerAnim(args[0]);
@@ -390,7 +387,7 @@ class RoomState extends MusicBeatState {
 						var anims = "";
 						for (anim in @:privateAccess getPlayer().animation._animations)
 							anims += '"${anim.name}" ';
-						ChatBox.addMessage("Please enter the animation you want to play!\nAvailable animations: " + anims);
+						ChatBox.addMessage("> Please enter the animation you want to play!\nAvailable animations: " + anims);
 					}
 					return true;
 				case "results":
@@ -399,9 +396,10 @@ class RoomState extends MusicBeatState {
 				case "restage":
 					checkStage();
 					return true;
-				default:
-					return false;
+				case "help":
+					ChatBox.addMessage("> Room Commands: /pa <anim>, /results, /restage");
 			}
+			return false;
 		});
 		groupHUD.add(chatBox);
 
@@ -1225,7 +1223,7 @@ class RoomState extends MusicBeatState {
 		if (value) {
 			Mods.currentModDirectory = GameClient.room.state.modDir;
 			Difficulty.list = CoolUtil.asta(GameClient.room.state.diffList);
-			PlayState.SONG = Song.loadFromJson(GameClient.room.state.song, GameClient.room.state.folder);
+			PlayState.loadSong(GameClient.room.state.song, GameClient.room.state.folder);
 
 			var diff = Difficulty.getString(GameClient.room.state.diff);
 			var trackSuffix = diff == "Erect" || diff == "Nightmare" ? "-erect" : "";

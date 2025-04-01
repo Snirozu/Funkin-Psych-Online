@@ -12,18 +12,25 @@ class PostTextSubstate extends MusicBeatSubstate {
     }
 
 	var input:InputText;
+	var coolCam:FlxCamera;
 
     override function create() {
         super.create();
 
+		coolCam = new FlxCamera();
+		coolCam.bgColor.alpha = 0;
+		FlxG.cameras.add(coolCam, false);
+
+		cameras = [coolCam];
+
 		var bg = new FlxSprite();
 		bg.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
-		bg.alpha = 0.6;
+		bg.alpha = 0.7;
 		bg.scrollFactor.set(0, 0);
 		add(bg);
 
 		var title = new FlxText(0, 0, FlxG.width, this.title + "\n\n(Press ENTER to submit)");
-		title.setFormat("VCR OSD Mono", 26, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		title.setFormat("VCR OSD Mono", 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		title.y = FlxG.height / 2 - title.height / 2 - 150;
 		title.scrollFactor.set();
 		add(title);
@@ -58,4 +65,10 @@ class PostTextSubstate extends MusicBeatSubstate {
 			confirmBack = false;
         }
     }
+
+	override function destroy() {
+		super.destroy();
+
+		FlxG.cameras.remove(coolCam);
+	}
 }

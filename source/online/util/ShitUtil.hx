@@ -410,4 +410,5 @@ typedef LogData = {
 	var date:Null<Float>;
 	@:optional var color:Null<Int>;
 	@:optional var center:Null<Bool>;
+	@:optional var isPM:Null<Bool>;
 }
