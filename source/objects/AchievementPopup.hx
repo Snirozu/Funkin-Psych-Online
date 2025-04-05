@@ -33,7 +33,7 @@ class AchievementPopup extends FlxSpriteGroup {
 		add(achievementText);
 		add(achievementIcon);
 
-		var cam:Array<FlxCamera> = FlxCamera.defaultCameras;
+		var cam:Array<FlxCamera> = FlxG.cameras.list;
 		if(camera != null) {
 			cam = [camera];
 		}

@@ -1224,14 +1224,15 @@ class FreeplayState extends MusicBeatState
 		updateTexts(elapsed);
 		if (FlxG.keys.pressed.SHIFT && !selected) {
 			itemsCameraZoom = FlxMath.lerp(itemsCameraZoom, 0.65, elapsed * 10);
-			itemsCameraScrollX = FlxMath.lerp(itemsCameraScrollX, 300, elapsed * 10);
+			itemsCameraScrollX = FlxMath.lerp(itemsCameraScrollX, 150, elapsed * 10);
 		}
 		else {
 			itemsCameraZoom = FlxMath.lerp(itemsCameraZoom, 1, elapsed * 10);
 			itemsCameraScrollX = FlxMath.lerp(itemsCameraScrollX, 0, elapsed * 10);
 		}
 		itemsCamera.zoom = itemsCameraZoom;
-		itemsCamera.scroll.x = itemsCameraScrollX;
+		//itemsCamera.scroll.x = itemsCameraScrollX;
+		itemsCamera.x = -itemsCameraScrollX;
 		if (selected)
 			leaderboardTimer += elapsed;
 		super.update(elapsed);

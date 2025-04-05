@@ -137,13 +137,13 @@ class ResultsSoloState extends MusicBeatState {
 						if (imageData.scale != null)
 							coolAssAnim.scale.set(imageData.scale, imageData.scale);
 						coolAssAnim.visible = false;
-						coolAssAnim.anim.onComplete = () -> {
+						coolAssAnim.anim.onComplete.add(() -> {
 							if (imageData.loopFrameLabel != null)
 								coolAssAnim.anim.goToFrameLabel(imageData.loopFrameLabel);
 
 							if (imageData.loopFrame != null)
 								coolAssAnim.anim.play(null, true, false, imageData.loopFrame);
-						};
+						});
 						charAnimates.push(coolAssAnim);
 						charAnimatesDelay.push(imageData?.delay ?? 0);
 						add(coolAssAnim);

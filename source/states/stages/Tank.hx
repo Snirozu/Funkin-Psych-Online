@@ -369,12 +369,12 @@ class Tank extends BaseStage
 						}
 					};
 
-					picoCutscene.anim.onComplete = function()
+					picoCutscene.anim.onComplete.add(function()
 					{
 						picoCutscene.visible = false;
 						gfGroup.alpha = 1;
-						picoCutscene.anim.onComplete = null;
-					};
+						picoCutscene.anim.onComplete.removeAll();
+					});
 					gfCutscene.animation.finishCallback = null;
 				}
 			};

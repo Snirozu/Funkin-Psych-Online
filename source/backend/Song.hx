@@ -196,8 +196,10 @@ class Song
 		var parsed:Dynamic = Json.parse(rawJson);
 		
 		if (parsed.song != null) {
-			if (Std.isOfType(parsed.song, String))
+			if (Std.isOfType(parsed.song, String)) {
+				parsed.format ??= 'psych_v1';
 				return parsed;
+			}
 			
 			parsed.song.format = 'psych_legacy';
 			return parsed.song;

@@ -2736,7 +2736,7 @@ class PlayState extends MusicBeatState
 		// RESET = Quick Game Over Screen
 		if (!GameClient.isConnected() && !ClientPrefs.data.noReset && controls.RESET && canReset && !inCutscene && startedCountdown && !endingSong && canInput() && replayData == null && !cpuControlled)
 		{
-			health = playsAsBF() ? 0 : 1;
+			subsHealth(9999);
 			trace("RESET = True");
 		}
 		doDeathCheck();
