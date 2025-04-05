@@ -236,6 +236,15 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Disable SSL Verification',
+			'If checked, the game will no longer check for valid SSL certificates, which can lead to unsafe connections with downloads or rooms.\n(Use only if you know what you\'re doing!)',
+			'disableSSLVerify',
+			'bool');
+		option.onChange = () -> {
+			sys.ssl.Socket.DEFAULT_VERIFY_CERT = !ClientPrefs.data.disableSSLVerify;
+		};
+		addOption(option);
+
 		super();
 		add(notes);
 	}

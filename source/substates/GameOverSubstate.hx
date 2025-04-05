@@ -136,7 +136,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		loopSound = Paths.music(loopSoundName);
 		endSound = Paths.music(endSoundName);
 
-		if (/*FlxG.random.bool(0.1) && */ boyfriend.curCharacter == 'bf-dead') {
+		if (FlxG.random.bool(0.1) && boyfriend.curCharacter == 'bf-dead') {
 			boyfriend.visible = false;
 			fakeOut = new Character(boyfriend.x, boyfriend.y, 'bf-fakeout', true);
 			fakeOut.playAnim('fakeOut');

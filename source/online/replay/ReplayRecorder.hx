@@ -186,7 +186,7 @@ class ReplayRecorder extends FlxBasic {
 
 		trace("Saving replay...");
 		var replayData = Json.stringify(data);
-		File.saveContent("replays/MyReplay-" + PlayState.SONG.song + "-" + Difficulty.getString().toUpperCase() + "-" + DateTools.format(Date.now(), "%Y-%m-%d_%H'%M'%S") + ".funkinreplay", replayData);
+		File.saveContent("replays/MyReplay-" + Paths.formatToSongPath(PlayState.SONG.song) + "-" + Paths.formatToSongPath(Difficulty.getString().toUpperCase()) + "-" + DateTools.format(Date.now(), "%Y-%m-%d_%H'%M'%S") + ".funkinreplay", replayData);
 		trace("Saved a replay!");
 		
 		if (!ClientPrefs.data.disableSubmiting) {

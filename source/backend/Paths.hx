@@ -1,6 +1,9 @@
 package backend;
 
 
+import flixel.system.FlxAssets.FlxGraphicAsset;
+import flxanimate.data.SpriteMapData.FlxSpriteMap;
+import flxanimate.frames.FlxAnimateFrames;
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.graphics.FlxGraphic;
@@ -535,6 +538,8 @@ class Paths
 			animationJson = File.getContent(animationJson);
 		}
 
+		var frames:FlxAnimateFrames = new FlxAnimateFrames();
+
 		// is folder or image path
 		if (Std.isOfType(folderOrImg, String)) {
 			var originalPath:String = folderOrImg;
@@ -549,14 +554,14 @@ class Paths
 						// trace('found Sprite Json');
 						changedImage = true;
 						changedAtlasJson = true;
-						folderOrImg = Paths.image('$originalPath/spritemap$st');
+						loadSpriteMap(frames, spriteJson, folderOrImg = Paths.image('$originalPath/spritemap$st'));
 						break;
 					}
 				}
 				else if (Paths.fileExists('images/$originalPath/spritemap$st.png', IMAGE)) {
 					// trace('found Sprite PNG');
 					changedImage = true;
-					folderOrImg = Paths.image('$originalPath/spritemap$st');
+					loadSpriteMap(frames, spriteJson, folderOrImg = Paths.image('$originalPath/spritemap$st'));
 					break;
 				}
 			}
@@ -564,7 +569,7 @@ class Paths
 			if (!changedImage) {
 				// trace('Changing folderOrImg to FlxGraphic');
 				changedImage = true;
-				folderOrImg = Paths.image(originalPath);
+				loadSpriteMap(frames, spriteJson, folderOrImg = Paths.image(originalPath));
 			}
 
 			if (!changedAnimJson) {
@@ -577,6 +582,14 @@ class Paths
 		// trace(folderOrImg);
 		// trace(spriteJson);
 		// trace(animationJson);
-		spr.loadAtlasEx(folderOrImg, spriteJson, animationJson);
+
+		spr.loadSeparateAtlas(animationJson, frames);
+	}
+
+	static function loadSpriteMap(frames:FlxAnimateFrames, spritemap:FlxSpriteMap, ?image:FlxGraphicAsset) {
+		var spritemapFrames = FlxAnimateFrames.fromSpriteMap(spritemap, image);
+		if (spritemapFrames != null)
+			frames.addAtlas(spritemapFrames);
+		return spritemapFrames;
 	}
 }

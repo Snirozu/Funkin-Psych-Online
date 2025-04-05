@@ -3,7 +3,7 @@
     {
       "name": "hscript",
       "type": "haxelib",
-      "version": "2.5.0"
+      "version": "2.6.0"
     },
     {
       "name": "lime",
@@ -18,12 +18,12 @@
     {
       "name": "flixel",
       "type": "haxelib",
-      "version": "5.8.0"
+      "version": "6.0.0"
     },
     {
       "name": "flixel-addons",
       "type": "haxelib",
-      "version": "3.2.3"
+      "version": "3.3.2"
     },
     {
       "name": "flixel-tools",
@@ -33,7 +33,7 @@
     {
       "name": "flixel-ui",
       "type": "haxelib",
-      "version": "2.6.1"
+      "version": "2.6.4"
     },
     {
       "name": "hxcpp",
@@ -44,11 +44,6 @@
       "name": "tjson",
       "type": "haxelib",
       "version": "1.4.0"
-    },
-    {
-      "name": "hxjsonast",
-      "type": "haxelib",
-      "version": "1.1.0"
     },
     {
       "name": "SScript",
@@ -97,11 +92,16 @@
       "version": "3.11.0"
     },
     {
+      "name": "hxjsonast",
+      "type": "haxelib",
+      "version": "1.1.0"
+    },
+    {
       "name": "flxanimate",
       "type": "git",
       "dir": null,
-      "ref": "dev",
-      "url": "https://github.com/ShadowMario/flxanimate"
+      "ref": "v4.0.0",
+      "url": "https://github.com/Dot-Stuff/flxanimate"
     },
     {
       "name": "lumod",
