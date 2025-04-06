@@ -144,7 +144,7 @@ class OnlineOptionsState extends MusicBeatState {
 
 			var registerOption:InputOption;
 			items.add(registerOption = new InputOption("Register to the Network",
-				"Join the Psych Online Network and submit your song replays\nto the leaderboards!", ["Username", "Email"], (text, input) -> {
+					"Join the Psych Online Network and submit your song replays\nto the leaderboards!" + (!Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a unofficial build)' : ''), ["Username", "Email"], (text, input) -> {
 					if (input == 0) {
 						registerOption.inputs[0].hasFocus = false;
 						registerOption.inputs[1].hasFocus = true;
@@ -185,7 +185,7 @@ class OnlineOptionsState extends MusicBeatState {
 
 			var loginOption:InputOption;
 			items.add(loginOption = new InputOption("Login to the Network",
-				"Input your email address here and wait for your One-Time Login Code!", ["me@example.org"], (mail, _) -> {
+				"Input your email address here and wait for your One-Time Login Code!" + (!Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a unofficial build)' : ''), ["me@example.org"], (mail, _) -> {
 					if (FunkinNetwork.requestLogin(mail)) {
 						openSubState(new VerifyCodeSubstate(code -> {
 							if (FunkinNetwork.requestLogin(mail, code)) {

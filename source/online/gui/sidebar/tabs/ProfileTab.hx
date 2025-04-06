@@ -142,7 +142,7 @@ class ProfileTab extends TabSprite {
 			if (response != null && !response.isFailed()) {
 				Waiter.put(() -> {
 					if (v == username) {
-						user = Json.parse(response.getString(true));
+						user = Json.parse(response.getString());
 						renderData();
                     }
 				});
@@ -270,7 +270,7 @@ class ProfileTab extends TabSprite {
 			Waiter.put(() -> {
 				if (flag != null && loadingUser == username) {
 					flag.visible = true;
-					flag.bitmapData = BitmapData.fromBytes(flagResponse.getBytes(true));
+					flag.bitmapData = BitmapData.fromBytes(flagResponse.getBytes());
 					updateUsernameText();
 				}
 			});
