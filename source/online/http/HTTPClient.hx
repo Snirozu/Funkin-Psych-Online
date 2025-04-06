@@ -346,34 +346,28 @@ class HTTPResponse {
 	public var exception:Dynamic;
 	public var output:Output;
 
-	public function new() {
-	}
+	var __bytes:Bytes;
+
+	public function new() {}
 
 	public function isFailed() {
 		return exception != null || (status >= 400 && status <= 599);
 	}
 
-	public function getBytes(?close:Bool = false):Bytes {
+	public function getBytes():Bytes {
 		if (output != null && output is BytesOutput) {
 			try { // yes this does crash for some reason, no matter the null checks lol
-				var bytes:Bytes = cast(output, BytesOutput).getBytes();
-				if (close)
-					output.close();
-				return bytes;
+				__bytes = cast(output, BytesOutput).getBytes();
+				output.close();
 			} catch (_) {}
 		}
-		return null;
+		return __bytes;
 	}
 
-	public function getString(?close:Bool = false):String {
-		if (output != null && output is BytesOutput) {
-			try {
-				var str = getBytes().toString();
-				if (close)
-					output.close();
-				return str;
-			} catch (_) {}
-		}
+	public function getString():String {
+		getBytes(); //init __bytes
+		if (__bytes != null)
+			return __bytes.toString();
 		return null;
 	}
 }

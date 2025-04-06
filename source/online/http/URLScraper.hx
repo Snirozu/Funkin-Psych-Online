@@ -19,7 +19,7 @@ class URLScraper {
 				return;
 			}
 
-			var doc = new HtmlDocument(response.getString(true), true);
+			var doc = new HtmlDocument(response.getString(), true);
 			var titles = doc.find("#downloadButton");
 
 			Waiter.put(() -> {

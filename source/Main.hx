@@ -51,10 +51,11 @@ class Main extends Sprite
 	public static var stage3D:AwayStage;
 	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.11.4";
+	public static final PSYCH_ONLINE_VERSION:String = "0.11.5";
 	public static final CLIENT_PROTOCOL:Float = 8;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 	public static final LOW_STORAGE:Bool = online.backend.Macros.hasNoCapacity();
+	public static var UNOFFICIAL_BUILD:Bool = false;
 
 	public static var wankyUpdate:String = 'version';
 
@@ -331,16 +332,20 @@ class Main extends Sprite
 		var cookUrl = 'https://github.com/Snirozu/Funkin-Psych-Online/blob/$GIT_COMMIT/source/$daFile#L$daLine';
 
 		#if (windows && cpp)
-		alertMsg += "\nDo you wish to report this error on GitHub?";
-		alertMsg += "\nPress Yes to draft a new GitHub issue";
-		alertMsg += "\nPress No to jump into the origin error point (on GitHub)";
-		WinAPI.ask("Uncaught Exception!", alertMsg,
-		() -> { //yes
-			daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';
-			FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${exc}')}&body=${StringTools.urlEncode(daError)}');
-		}, () -> { //no
-			FlxG.openURL(cookUrl);
-		});
+		if (!Main.UNOFFICIAL_BUILD) {
+			alertMsg += "\nDo you wish to report this error on GitHub?";
+			alertMsg += "\nPress Yes to draft a new GitHub issue";
+			alertMsg += "\nPress No to jump into the origin error point (on GitHub)";
+			WinAPI.ask("Uncaught Exception!", alertMsg, () -> { // yes
+				daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';
+				FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${exc}')}&body=${StringTools.urlEncode(daError)}');
+			}, () -> { // no
+				FlxG.openURL(cookUrl);
+			});
+		}
+		else {
+			Application.current.window.alert(alertMsg, "Uncaught Exception!");
+		}
 		#else
 		Application.current.window.alert(alertMsg, "Uncaught Exception!");
 		#end

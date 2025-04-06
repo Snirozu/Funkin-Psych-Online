@@ -29,7 +29,7 @@ class Leaderboard {
 			}
 
 			Waiter.put(() -> {
-				callback(cast Json.parse(response.getString(true)));
+				callback(cast Json.parse(response.getString()));
 			});
 		});
 	}
@@ -44,7 +44,7 @@ class Leaderboard {
 			}
 
 			Waiter.put(() -> {
-				callback(Json.parse(response.getString(true)));
+				callback(Json.parse(response.getString()));
 			});
 		});
 	}
@@ -55,7 +55,7 @@ class Leaderboard {
 		if (response == null)
 			return null;
 
-		return response.getString(true);
+		return response.getString();
 	}
 
 	public static function reportScore(scoreID:String, desc:String) {
@@ -69,7 +69,7 @@ class Leaderboard {
 		if (response == null)
 			return null;
 
-		return response.getString(true);
+		return response.getString();
 	}
 }
 

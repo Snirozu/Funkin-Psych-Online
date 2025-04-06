@@ -124,7 +124,8 @@ class OnlineState extends MusicBeatState {
 		warp.makeGraphic(FlxG.width, FlxG.height, FlxColor.TRANSPARENT);
 		warp.updateHitbox();
 		warp.screenCenter();
-		add(new WarpEffect(warp));
+		if (!ClientPrefs.data.lowQuality && ClientPrefs.data.shaders)
+			add(new WarpEffect(warp));
 		warp.antialiasing = ClientPrefs.data.antialiasing;
 		add(warp);
 
@@ -176,7 +177,8 @@ class OnlineState extends MusicBeatState {
 		discord.x = 30;
 		discord.y = FlxG.height - discord.height - 30;
 		discord.alpha = 0.8;
-		add(discord);
+		if (!Main.UNOFFICIAL_BUILD)
+			add(discord);
 
 		github = new FlxSprite();
 		github.antialiasing = ClientPrefs.data.antialiasing;
@@ -189,7 +191,8 @@ class OnlineState extends MusicBeatState {
 		github.x = discord.x + discord.width + 20;
 		github.y = FlxG.height - github.height - 28;
 		github.alpha = 0.8;
-		add(github);
+		if (!Main.UNOFFICIAL_BUILD)
+			add(github);
 
 		if (twitterIsDead) {
 			bsky = new FlxSprite();
@@ -202,7 +205,8 @@ class OnlineState extends MusicBeatState {
 			bsky.x = github.x + github.width + 20;
 			bsky.y = FlxG.height - bsky.height - 28;
 			bsky.alpha = 0.8;
-			add(bsky);
+			if (!Main.UNOFFICIAL_BUILD)
+				add(bsky);
 		}
 		else {
 			twitter = new FlxSprite();
@@ -215,7 +219,8 @@ class OnlineState extends MusicBeatState {
 			twitter.x = github.x + github.width + 20;
 			twitter.y = FlxG.height - twitter.height - 28;
 			twitter.alpha = 0.8;
-			add(twitter);
+			if (!Main.UNOFFICIAL_BUILD)
+				add(twitter);
 		}
 		
 

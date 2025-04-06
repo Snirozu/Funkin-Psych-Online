@@ -175,9 +175,9 @@ class ChatTab extends TabSprite {
 
 			lastLogDate = data.date;
 
-			if (date.getDate() > lastDate.getDate()
-				|| date.getMonth() > lastDate.getMonth()
-				|| date.getFullYear() > lastDate.getFullYear()) 
+			if (date.getDate() != lastDate.getDate()
+				|| date.getMonth() != lastDate.getMonth()
+				|| date.getFullYear() != lastDate.getFullYear()) 
 			{
 				addMessage({
 					content: date.getDate() + ' ' + ShitUtil.getMonthName(date) + ' ' + date.getFullYear(), 
