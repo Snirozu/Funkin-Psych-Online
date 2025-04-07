@@ -63,8 +63,8 @@ class FunkinNetwork {
 		return true;
 	}
 
-	public static function deleteAccount() {
-		var response = requestAPI("/api/account/delete");
+	public static function deleteAccount(?code:String) {
+		var response = requestAPI("/api/account/delete" + (code != null ? '?code=' + code : ''));
 
 		if (response == null)
 			return false;
