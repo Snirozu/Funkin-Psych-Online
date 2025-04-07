@@ -319,7 +319,7 @@ class OnlineOptionsState extends MusicBeatState {
 							RequestSubstate.request('Are you sure you want to delete your account?\n(This action is irreversible!)', '', _ -> {
 								if (FunkinNetwork.deleteAccount()) {
 									openSubState(new VerifyCodeSubstate(code -> {
-										if (FunkinNetwork.deleteAccount()) {
+										if (FunkinNetwork.deleteAccount(code)) {
 											Alert.alert("Account Deleted");
 										}
 									}));
