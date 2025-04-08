@@ -162,6 +162,8 @@ class PlayState extends MusicBeatState
 	public static var stageUI:String = "normal";
 	public static var isPixelStage(get, never):Bool;
 
+	public static var chartMod:String = null;
+
 	@:noCompletion
 	static function get_isPixelStage():Bool
 		return stageUI == "pixel";
@@ -169,6 +171,7 @@ class PlayState extends MusicBeatState
 	public static var SONG(default, null):SwagSong;
 
 	public static function loadSong(jsonInput:String, ?folder:String):SwagSong {
+		chartMod = Mods.currentModDirectory;
 		RAW_SONG = Song.loadRawSong(jsonInput, folder);
 		return SONG = Song.parseRawJSON(jsonInput, RAW_SONG);
 	}
@@ -2058,17 +2061,27 @@ class PlayState extends MusicBeatState
 		vocals = new FlxSound();
 		opponentVocals = new FlxSound();
 		if (songData.needsVoices) {
-			try {
-				var playerVocals = Paths.voices(curSong, boyfriend.vocalsFile, songSuffix);
-				if (playerVocals == null) playerVocals = Paths.voices(curSong, 'Player', songSuffix);
-				vocals.loadEmbedded(playerVocals ?? Paths.voices(curSong, null, songSuffix));
-				
-				var oppVocals = Paths.voices(curSong, dad.vocalsFile, songSuffix);
-				if (oppVocals == null) oppVocals = Paths.voices(curSong, 'Opponent', songSuffix);
-				if(oppVocals != null) opponentVocals.loadEmbedded(oppVocals);
-			}
-			catch (exc:Dynamic) {
-				//vocals.loadEmbedded(Paths.voices(curSong, null, songSuffix));
+			for (lolMod in (chartMod != null ? [chartMod, Mods.currentModDirectory] : [Mods.currentModDirectory])) {
+				var succ = false;
+				online.util.ShitUtil.tempSwitchMod(lolMod, () -> {
+					try {
+						var playerVocals = Paths.voices(curSong, boyfriend.vocalsFile, songSuffix);
+						if (playerVocals == null) playerVocals = Paths.voices(curSong, 'Player', songSuffix);
+						vocals.loadEmbedded(playerVocals ?? Paths.voices(curSong, null, songSuffix));
+						
+						var oppVocals = Paths.voices(curSong, dad.vocalsFile, songSuffix);
+						if (oppVocals == null) oppVocals = Paths.voices(curSong, 'Opponent', songSuffix);
+						if(oppVocals != null) opponentVocals.loadEmbedded(oppVocals);
+
+						succ = playerVocals != null;
+					}
+					catch (exc:Dynamic) {
+						//vocals.loadEmbedded(Paths.voices(curSong, null, songSuffix));
+					}
+				});
+
+				if (!succ)
+					break;
 			}
 		}
 

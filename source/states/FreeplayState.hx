@@ -1093,6 +1093,7 @@ class FreeplayState extends MusicBeatState
 							Mods.currentModDirectory = songs[curSelected].folder;
 							trace('Song mod directory: "${Mods.currentModDirectory}"');
 							try {
+								//TODO turn into a json object, and add mod for the mix (chartMod)
 								GameClient.send("setFSD", [
 									songLowercase,
 									poop,
@@ -1883,37 +1884,43 @@ class FreeplayState extends MusicBeatState
 	}
 
 	function enterSong() {
-		var songLowercase:String = Paths.formatToSongPath(getSongName());
-		var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
+		var daMod = Mods.currentModDirectory;
+		if (overChartChar.length > 0 && overChartChar[0] != null) {
+			daMod = overChartChar[0];
+		}
 
-		try {
-			PlayState.loadSong(poop, songLowercase);
-			PlayState.isStoryMode = false;
-			PlayState.storyDifficulty = curDifficulty;
-			var diff = Difficulty.getString(curDifficulty);
-			//PlayState.isErect = diff == "Erect" || diff == "Nightmare";
+		ShitUtil.tempSwitchMod(daMod, () -> {
+			var songLowercase:String = Paths.formatToSongPath(getSongName());
+			var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
 
-			trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
-			if (colorTween != null) {
-				colorTween.cancel();
+			try {
+				PlayState.loadSong(poop, songLowercase);
+				PlayState.isStoryMode = false;
+				PlayState.storyDifficulty = curDifficulty;
+
+				trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
+				if (colorTween != null) {
+					colorTween.cancel();
+				}
 			}
-		}
-		catch (e:Dynamic) {
-			trace('ERROR! $e');
+			catch (e:Dynamic) {
+				trace('ERROR! $e');
 
-			PlayState.replayData = null;
+				PlayState.replayData = null;
 
-			var errorStr:String = e.toString();
-			if (errorStr.startsWith('[file_contents,assets/data/'))
-				errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length - 1); // Missing chart
-			missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
-			missingText.screenCenter(Y);
-			missingText.visible = true;
-			missingTextBG.visible = true;
-			FlxG.sound.play(Paths.sound('cancelMenu'));
-			
-			return;
-		}
+				var errorStr:String = e.toString();
+				if (errorStr.startsWith('[file_contents,assets/data/'))
+					errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length - 1); // Missing chart
+				missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
+				missingText.screenCenter(Y);
+				missingText.visible = true;
+				missingTextBG.visible = true;
+				FlxG.sound.play(Paths.sound('cancelMenu'));
+
+				return;
+			}
+		});
+
 		LoadingState.loadAndSwitchState(new PlayState());
 		transToPlayState = true;
 		FlxG.autoPause = prevPauseGame;
