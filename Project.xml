@@ -193,6 +193,13 @@
 	<haxeflag name="--macro" value="allowPackage('flash')" />
 	<haxeflag name="--macro" value="include('my.pack')" />
 
+	<section if='debugmon'>
+		<haxeflag name="--macro" value="addGlobalMetadata('online', '@:build(online.backend.MonitorMacro.build())')" />
+		<haxeflag name="--macro" value="addGlobalMetadata('states', '@:build(online.backend.MonitorMacro.build())')" />
+		<haxeflag name="--macro" value="addGlobalMetadata('flixel', '@:build(online.backend.MonitorMacro.build())')" />
+		<haxeflag name="--macro" value="addGlobalMetadata('backend', '@:build(online.backend.MonitorMacro.build())')" />
+	</section>
+
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
