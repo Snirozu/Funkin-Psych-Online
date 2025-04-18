@@ -84,6 +84,14 @@ class Character extends FlxSprite {
 
 	public var modDir:String = null;
 
+	public var Custom:Bool=false;
+	@:isVar public var custom(get,never):Bool=false;
+
+	function get_custom():Bool
+	{
+		return this.Custom;
+	}
+
 	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
 
 	public static function getCharacterFile(character:String, ?instance:Character):CharacterFile {
@@ -124,6 +132,7 @@ class Character extends FlxSprite {
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 		this.isSkin = isSkin;
+		this.Custom = isSkin;
 		var library:String = null;
 		switch (curCharacter) {
 			// case 'your character name in case you want to hardcode them instead':

@@ -71,8 +71,12 @@ class FunkinLua {
 		//load default lua libs
 		LuaL.openlibs(lua);
 		//ignore other libs (thanks vortex)
-		set('os', null);
-		set('require', null);
+		if(!ClientPrefs.data.trustScripts)
+		{
+			set('os', null);
+			set('os.clock', function(){return Main.getTime();});
+			set('require', null);
+		}
 
 		//trace('Lua version: ' + Lua.version());
 		//trace("LuaJIT version: " + Lua.versionJIT());
@@ -214,6 +218,15 @@ class FunkinLua {
 
 			return runningScripts;
 		});
+
+		//UMM Shit
+		set('online',GameClient.isConnected());
+		set('localPlay',false);
+		set('leftSide',GameClient.isConnected()?PlayState.playsAsBF():PlayState.opponentMode);
+        addLuaCallback("send", function(message:String, title:String) {
+			online.GameClient.send("custom", [title, message]);
+		});
+		//
 
 		addLuaCallback("sendMessage", function(type:String, message:Dynamic) {
 			online.GameClient.send("custom", [type, message]);

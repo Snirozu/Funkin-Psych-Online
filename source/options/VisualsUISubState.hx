@@ -245,6 +245,12 @@ class VisualsUISubState extends BaseOptionsMenu
 		};
 		addOption(option);
 
+		var option:Option = new Option('Trust Scripts',
+			'If checked, lua scripts will have access to potentionally dangerous libraries.\n(May cause glitches in mods if not checked)',
+			'trustScripts',
+			'bool');
+		addOption(option);
+
 		super();
 		add(notes);
 	}
