@@ -419,14 +419,17 @@ class Character extends FlxSprite {
 
 	final randomDirections:Array<String> = ['LEFT', 'DOWN', 'UP', 'RIGHT'];
 
+	var colorTransformBefore:Array<Float> = [1, 1, 1]; // red, green, blue
+	var colorTransformWasChanged:Bool = false;
+
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void {
 		if (AnimName == null)
 			return;
 
-		if(colorTransform != null) {
-			colorTransform.redMultiplier = 1;
-			colorTransform.greenMultiplier = 1;
-			colorTransform.blueMultiplier = 1;
+		if(colorTransform != null && colorTransformWasChanged) {
+			colorTransform.redMultiplier = colorTransformBefore[0];
+			colorTransform.greenMultiplier = colorTransformBefore[1];
+			colorTransform.blueMultiplier = colorTransformBefore[2];
 		}
 
 		noAnimationBullshit = false;
@@ -449,6 +452,10 @@ class Character extends FlxSprite {
 
 			if (AnimName.endsWith("miss") && colorTransform != null) {
 				AnimName = AnimName.substring(0, AnimName.length - "miss".length);
+
+				colorTransformBefore = [colorTransform.redMultiplier, colorTransform.greenMultiplier, colorTransform.blueMultiplier];
+				colorTransformWasChanged = true;
+
 				colorTransform.redMultiplier = 0.5;
 				colorTransform.greenMultiplier = 0.3;
 				colorTransform.blueMultiplier = 0.5;
