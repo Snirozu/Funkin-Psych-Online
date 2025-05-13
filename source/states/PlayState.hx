@@ -504,7 +504,6 @@ class PlayState extends MusicBeatState
 		}
 
 		Paths.clearStoredMemory();
-		new FlxTimer().start(1,function(t:FlxTimer){cpp.vm.Gc.compact();},0);
 
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = new FlxCamera();
