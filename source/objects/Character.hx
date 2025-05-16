@@ -100,7 +100,7 @@ class Character extends FlxSprite {
 
 	function get_custom():Bool
 	{
-		return this.Custom;
+		return this.isSkin;
 	}
 
 	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
