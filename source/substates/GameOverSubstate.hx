@@ -56,6 +56,9 @@ class GameOverSubstate extends MusicBeatSubstate
 	override function create()
 	{
 		instance = this;
+		Main.view3D.onDebug = (v) -> {
+			this.active = !v;
+		};
 		PlayState.instance.callOnScripts('onGameOverStart', []);
 
 		super.create();
@@ -70,7 +73,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		Conductor.songPosition = 0;
 
 		if (overCharacter == null) {
-			boyfriend = new Character(x, y, characterName, true);
+			boyfriend = new Character(x, y, characterName, true, false, 'bf-dead');
 			boyfriend.x += boyfriend.positionArray[0];
 			boyfriend.y += boyfriend.positionArray[1];
 		}
@@ -79,9 +82,9 @@ class GameOverSubstate extends MusicBeatSubstate
 			boyfriend.setPosition(x, y);
 			boyfriend.x += boyfriend.positionArray[0];
 			boyfriend.y += boyfriend.positionArray[1];
+			boyfriend.visible = true;
+			boyfriend.alpha = 1;
 		}
-		boyfriend.visible = true;
-		boyfriend.alpha = 1;
 		add(boyfriend);
 
 		var retryChar:String = null;

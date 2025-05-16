@@ -2,12 +2,13 @@ package online.states;
 
 import flixel.util.FlxStringUtil;
 import backend.WeekData;
-import lumod.Lumod;
 import flixel.effects.FlxFlicker;
 import sys.FileSystem;
 import objects.Character;
 
+#if lumod
 @:build(lumod.LuaScriptClass.build())
+#end
 class ResultsState extends MusicBeatState {
 	public static var gainedPoints:Float = 0;
 
@@ -57,8 +58,10 @@ class ResultsState extends MusicBeatState {
         
         FlxG.sound.music.stop();
 
+		#if lumod
 		if (luaValue == false)
 			return;
+		#end
 
 		FlxG.sound.playMusic(Paths.music('title'), 0);
 		FlxG.sound.music.onComplete = () -> {
@@ -423,6 +426,7 @@ class ResultsState extends MusicBeatState {
 	override function update(elapsed) {
         super.update(elapsed);
 
+		#if lumod
 		if (FlxG.keys.justPressed.F12) {
 			trace('reloading lumod');
 			Lumod.cache.scripts.clear();
@@ -431,6 +435,8 @@ class ResultsState extends MusicBeatState {
 
 		if (luaValue == false)
 			return;
+
+		#end
 
 		if (!disableInput) {
 			if (back.animation.curAnim.name != "press")

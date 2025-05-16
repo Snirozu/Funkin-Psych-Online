@@ -68,11 +68,14 @@ class FunkinLua {
 		#if LUA_ALLOWED
 		lua = LuaL.newstate();
 
+		Convert.enableUnsupportedTraces = true;
+
 		//load default lua libs
 		LuaL.openlibs(lua);
-		//ignore other libs (thanks vortex)
-		set('os', null);
-		set('require', null);
+
+		online.backend.LuaModuleSwap.doLua(lua, () -> {
+			stop();
+		});
 
 		//trace('Lua version: ' + Lua.version());
 		//trace("LuaJIT version: " + Lua.versionJIT());
@@ -89,7 +92,7 @@ class FunkinLua {
 		set('Function_StopAll', Function_StopAll);
 		set('Function_Stop', Function_Stop);
 		set('Function_Continue', Function_Continue);
-		set('luaDebugMode', false);
+		set('luaDebugMode', ClientPrefs.isDebug());
 		set('luaDeprecatedWarnings', true);
 		set('inChartEditor', false);
 
@@ -579,7 +582,7 @@ class FunkinLua {
 						{
 							luaInstance.stop();
 							if (ClientPrefs.isDebug())
-								Sys.println('Lua: Closing script ' + luaInstance.scriptName);
+								Sys.println('Lua (${scriptName}): Closing script ' + luaInstance.scriptName);
 							return true;
 						}
 			}
@@ -1190,6 +1193,10 @@ class FunkinLua {
 		Lua_helper.add_callback(lua, "playAnim", function(obj:String, name:String, forced:Bool = false, ?reverse:Bool = false, ?startFrame:Int = 0)
 		{
 			var obj:Dynamic = LuaUtils.getObjectDirectly(obj, false);
+
+			if (obj == null)
+				return false;
+
 			if(obj.playAnim != null)
 			{
 				obj.playAnim(name, forced, reverse, startFrame);
@@ -1607,7 +1614,7 @@ class FunkinLua {
 		addLocalCallback("close", function() {
 			closed = true;
 			if (ClientPrefs.isDebug())
-				Sys.println('Lua: Closing script $scriptName');
+				Sys.println('Lua (${scriptName}): Closing script $scriptName');
 			return closed;
 		});
 
@@ -1626,7 +1633,7 @@ class FunkinLua {
 			var resultStr:String = Lua.tostring(lua, result);
 			if(resultStr != null && result != 0) {
 				if (ClientPrefs.isDebug()) {
-					Sys.println("Lua: " + resultStr);
+					Sys.println('Lua (${scriptName}): ' + resultStr);
 					#if desktop
 					lime.app.Application.current.window.alert(resultStr, 'Error on lua script!');
 					#else
@@ -1637,11 +1644,11 @@ class FunkinLua {
 				return;
 			}
 		} catch(e:Dynamic) {
-			Sys.println("Lua: " + e);
+			luaTrace('Lua (${scriptName}): ' + e);
 			return;
 		}
 		if (ClientPrefs.isDebug())
-			Sys.println('Lua file loaded succesfully:' + scriptName);
+			Sys.println('Lua file loaded succesfully: ' + haxe.io.Path.join([Sys.getCwd(), scriptName]));
 
 		call('onCreate', []);
 		#end
@@ -1689,7 +1696,7 @@ class FunkinLua {
 			return result;
 		}
 		catch (e:Dynamic) {
-			Sys.println("Lua: " + e);
+			luaTrace('Lua (${scriptName}): ' + e);
 		}
 		#end
 		return Function_Continue;
@@ -1773,13 +1780,17 @@ class FunkinLua {
 		#end
 	}
 	
-	public static function luaTrace(text:String, ignoreCheck:Bool = false, deprecated:Bool = false, color:FlxColor = FlxColor.WHITE) {
+	public function luaTrace(text:String, ignoreCheck:Bool = false, deprecated:Bool = false, color:FlxColor = FlxColor.WHITE) {
+		FunkinLua.trace('Lua (${scriptName}): ${text}', ignoreCheck, deprecated, color);
+	}
+
+	public static function trace(text:String, ignoreCheck:Bool = false, deprecated:Bool = false, color:FlxColor = FlxColor.WHITE) {
 		if (!ClientPrefs.isDebug())
 			return;
 
 		#if LUA_ALLOWED
-		if(ignoreCheck || getBool('luaDebugMode')) {
-			if(deprecated && !getBool('luaDeprecatedWarnings')) {
+		if (ignoreCheck || getBool('luaDebugMode')) {
+			if (deprecated && !getBool('luaDeprecatedWarnings')) {
 				return;
 			}
 			PlayState.instance.addTextToDebug(text, color);
@@ -1865,7 +1876,7 @@ class FunkinLua {
 	#if (MODS_ALLOWED && !flash && sys)
 	public var runtimeShaders:Map<String, Array<String>> = new Map<String, Array<String>>();
 	#end
-	public function initLuaShader(name:String, ?glslVersion:Int = 120)
+	public function initLuaShader(name:String)
 	{
 		if(!ClientPrefs.data.shaders) return false;
 

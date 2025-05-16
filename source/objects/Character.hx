@@ -1,5 +1,6 @@
 package objects;
 
+import online.away.AnimatedSprite3D;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.util.FlxSort;
 import flixel.util.FlxDestroyUtil;
@@ -43,6 +44,8 @@ typedef AnimArray = {
 }
 
 class Character extends FlxSprite {
+	public var sprite3D:AnimatedSprite3D;
+
 	public var animOffsets:Map<String, Array<Dynamic>>;
 	public var debugMode:Bool = false;
 
@@ -68,7 +71,7 @@ class Character extends FlxSprite {
 	public var positionArray:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
 
-	// public var hasMissAnimations:Bool = true;
+	public var hasMissAnimations:Bool = true;
 	// Used on Character Editor
 	public var imageFile:String = '';
 	public var jsonScale:Float = 1;
@@ -115,7 +118,7 @@ class Character extends FlxSprite {
 		return cast Json.parse(rawJson);
 	}
 
-	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false, ?isSkin:Bool = false) {
+	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false, ?isSkin:Bool = false, ?charType:String) {
 		super(x, y);
 
 		modDir = Mods.currentModDirectory;
@@ -144,8 +147,9 @@ class Character extends FlxSprite {
 				#end
 				isAnimateAtlas = true;
 
-				if (!isAnimateAtlas)
+				if (!isAnimateAtlas) {
 					frames = Paths.getAtlas(imageFile);
+				}
 				#if flxanimate
 				else
 				{
@@ -164,6 +168,10 @@ class Character extends FlxSprite {
 				#end
 
 				if (frames != null) {
+					if (!loadFailed && graphic.bitmap != null && FlxG.state is PlayState && PlayState.instance.stage3D != null) {
+						sprite3D = PlayState.instance.stage3D.createSprite(charType, true, graphic.bitmap);
+					}
+
 					for (imgFile in split) {
 						if (!imageFile.contains(imgFile))
 							imageFile += ',$imgFile';
@@ -242,6 +250,18 @@ class Character extends FlxSprite {
 				else {
 					quickAnimAdd('idle', 'BF idle dance');
 				}
+
+				if (sprite3D != null) {
+					sprite3D.addAnimationsFromFlxSprite(this);
+					for (name => offset in animOffsets) {
+						sprite3D.animations.get(name).setOffset(offset[0], offset[1]);
+					}
+					sprite3D.scaleX = jsonScale;
+					sprite3D.scaleY = jsonScale;
+					sprite3D.antialiasing = !noAntialiasing;
+					visible = false;
+				}
+
 				#if flxanimate
 				if(isAnimateAtlas) copyAtlasValues();
 				#end
@@ -249,7 +269,7 @@ class Character extends FlxSprite {
 		}
 		originalFlipX = flipX;
 
-		// if(animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss')) hasMissAnimations = true;
+		if(animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss')) hasMissAnimations = true;
 		recalculateDanceIdle();
 		dance();
 
@@ -289,6 +309,9 @@ class Character extends FlxSprite {
 
 	override function update(elapsed:Float) {
 		if(isAnimateAtlas) atlas.update(elapsed);
+		if (sprite3D != null) {
+			sprite3D.play(animation.name, animation.curAnim.curFrame, true);
+		}
 
 		if (noAnimationBullshit) {
 			super.update(elapsed);

@@ -26,7 +26,7 @@ class SaveVariables {
 	public var holdAlpha:Float = 0.6;
 	public var lowQuality:Bool = false;
 	public var shaders:Bool = true;
-	public var cacheOnGPU:Bool = #if !switch false #else true #end; //From Stilic
+	// public var cacheOnGPU:Bool = #if !switch false #else true #end;
 	public var framerate:Int = 60;
 	public var camZooms:Bool = true;
 	public var hideHud:Bool = false;
@@ -279,6 +279,8 @@ class ClientPrefs {
 			}
 			reloadVolumeKeys();
 		}
+
+		//away3d.debug.Debug.active = ClientPrefs.isDebug();
 	}
 
 	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic = null, ?customDefaultValue:Bool = false):Dynamic {
@@ -318,7 +320,7 @@ class ClientPrefs {
 		if (PlayState.chartingMode)
 			return true;
 		
-		return data.debugMode;
+		return data?.debugMode ?? false;
 	}
 
 	public static function getNickname() {

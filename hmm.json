@@ -8,22 +8,22 @@
     {
       "name": "lime",
       "type": "haxelib",
-      "version": "8.2.2"
+      "version": "8.1.2"
     },
     {
       "name": "openfl",
       "type": "haxelib",
-      "version": "9.4.1"
+      "version": "9.3.3"
     },
     {
       "name": "flixel",
       "type": "haxelib",
-      "version": "6.0.0"
+      "version": "5.6.1"
     },
     {
       "name": "flixel-addons",
       "type": "haxelib",
-      "version": "3.3.2"
+      "version": "3.2.2"
     },
     {
       "name": "flixel-tools",
@@ -64,7 +64,7 @@
       "type": "git",
       "dir": null,
       "ref": "master",
-      "url": "https://github.com/superpowers04/linc_luajit"
+      "url": "https://github.com/Snirozu/linc_luajit"
     },
     {
       "name": "colyseus",
@@ -106,7 +106,7 @@
     {
       "name": "lumod",
       "type": "haxelib",
-      "version": "2.0.0"
+      "version": "2.1.0"
     },
     {
       "name": "actuate",
