@@ -8,7 +8,7 @@
     {
       "name": "lime",
       "type": "haxelib",
-      "version": "8.1.2"
+      "version": "8.1.3"
     },
     {
       "name": "openfl",
@@ -23,7 +23,7 @@
     {
       "name": "flixel-addons",
       "type": "haxelib",
-      "version": "3.2.2"
+      "version": "3.3.2"
     },
     {
       "name": "flixel-tools",
