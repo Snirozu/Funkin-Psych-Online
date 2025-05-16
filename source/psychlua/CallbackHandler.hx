@@ -6,7 +6,6 @@ class CallbackHandler
 	{
 		try
 		{
-			//trace('calling $fname');
 			var cbf:Dynamic = Lua_helper.callbacks.get(fname);
 
 			//Local functions have the lowest priority
@@ -45,9 +44,24 @@ class CallbackHandler
 		}
 		catch(e:Dynamic)
 		{
+			if (!ClientPrefs.isDebug() || e == null) {
+				return 0;
+			}
+			trace(fname);
+			var alertMsg:String = "";
+			var daError:String = "";
+			var callStack = haxe.CallStack.exceptionStack(true);
+			var dateNow = Date.now().toString();
+
+			alertMsg += e + "\n";
+			daError += haxe.CallStack.toString(callStack) + "\n";
+			if (e is haxe.Exception)
+				daError += "\n" + cast(e, haxe.Exception).stack.toString() + "\n";
+			alertMsg += daError;
+
+			trace(alertMsg);
 			if(Lua_helper.sendErrorsToLua) {LuaL.error(l, 'CALLBACK ERROR! ${if(e.message != null) e.message else e}');return 0;}
-			trace(e);
-			throw(e);
+			// throw(e);
 		}
 		return 0;
 	}

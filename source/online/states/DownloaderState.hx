@@ -10,7 +10,9 @@ import flixel.graphics.FlxGraphic;
 import online.mods.GameBanana.GBSub;
 import flixel.group.FlxGroup;
 
+#if lumod
 @:build(lumod.LuaScriptClass.build())
+#end
 class DownloaderState extends MusicBeatState {
 	var items:FlxTypedSpriteGroup<ModItem> = new FlxTypedSpriteGroup<ModItem>();
 	var itemsY:Int = FlxG.height - (3 * 190) - 50;

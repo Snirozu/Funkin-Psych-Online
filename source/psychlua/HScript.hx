@@ -64,6 +64,9 @@ class HScript extends SScript
 
 		notAllowedClasses = Deflection.classBlacklist.copy();
 
+		set('FlxVideo', hxcodec.flixel.FlxVideo);
+		set('MP4Handler', vlc.MP4Handler);
+
 		// Some very commonly used classes
 		set('FlxG', flixel.FlxG);
 		set('FlxSprite', flixel.FlxSprite);
@@ -83,6 +86,7 @@ class HScript extends SScript
 		set('Countdown', backend.BaseStage.Countdown);
 		#if (!flash && sys)
 		set('FlxRuntimeShader', flixel.addons.display.FlxRuntimeShader);
+		set('ErrorHandledRuntimeShader', shaders.ErrorHandledShader.ErrorHandledRuntimeShader);
 		#end
 		set('ShaderFilter', openfl.filters.ShaderFilter);
 		set('StringTools', StringTools);
@@ -131,7 +135,7 @@ class HScript extends SScript
 			if(funk == null) funk = parentLua;
 			
 			if(parentLua != null) funk.addLocalCallback(name, func);
-			else FunkinLua.luaTrace('createCallback ($name): 3rd argument is null', false, false, FlxColor.RED);
+			else funk.luaTrace('createCallback ($name): 3rd argument is null', false, false, FlxColor.RED);
 		});
 
 		set('addHaxeLibrary', function(libName:String, ?libPackage:String = '') {
@@ -150,7 +154,7 @@ class HScript extends SScript
 					msg = origin + ":" + parentLua.lastCalledFunction + " - " + msg;
 				}
 				else msg = '$origin - $msg';
-				FunkinLua.luaTrace(msg, parentLua == null, false, FlxColor.RED);
+				parentLua.luaTrace(msg, parentLua == null, false, FlxColor.RED);
 			}
 		});
 		set('parentLua', parentLua);
@@ -185,16 +189,12 @@ class HScript extends SScript
 
 	public function executeCode(?funcToRun:String = null, ?funcArgs:Array<Dynamic> = null):TeaCall
 	{
-		for (string in online.backend.Deflection.luaClassBlacklist){ //Block some packages
-			if(funcToRun.toLowerCase().contains(string) || funcToRun == null){
-				FunkinLua.luaTrace("Blacklisted keyword detected in: " + funcToRun, false, false, FlxColor.RED);
-				return null;
-			}
-		}
+		if (funcToRun == null)
+			return null;
 
 		if(!exists(funcToRun)) {
 			#if LUA_ALLOWED
-			FunkinLua.luaTrace(origin + ' - No HScript function named: $funcToRun', false, false, FlxColor.RED);
+			parentLua.luaTrace(origin + ' - No HScript function named: $funcToRun', false, false, FlxColor.RED);
 			#else
 			PlayState.instance.addTextToDebug(origin + ' - No HScript function named: $funcToRun', FlxColor.RED);
 			#end
@@ -210,7 +210,7 @@ class HScript extends SScript
 				#if LUA_ALLOWED
 				if(parentLua != null)
 				{
-					FunkinLua.luaTrace('$origin: ${parentLua.lastCalledFunction} - $msg', false, false, FlxColor.RED);
+					parentLua.luaTrace('$origin: ${parentLua.lastCalledFunction} - $msg', false, false, FlxColor.RED);
 					return null;
 				}
 				#end
@@ -243,7 +243,7 @@ class HScript extends SScript
 				final e = retVal.exceptions[0];
 				final calledFunc:String = if(funk.hscript.origin == funk.lastCalledFunction) funcToRun else funk.lastCalledFunction;
 				if (e != null)
-					FunkinLua.luaTrace(funk.hscript.origin + ":" + calledFunc + " - " + e, false, false, FlxColor.RED);
+					funk.luaTrace(funk.hscript.origin + ":" + calledFunc + " - " + e, false, false, FlxColor.RED);
 				return null;
 			}
 			else if (funk.hscript.returnValue != null)
@@ -251,67 +251,65 @@ class HScript extends SScript
 				return funk.hscript.returnValue;
 			}
 			#else
-			FunkinLua.luaTrace("runHaxeCode: HScript isn't supported on this platform!", false, false, FlxColor.RED);
+			funk.luaTrace("runHaxeCode: HScript isn't supported on this platform!", false, false, FlxColor.RED);
 			#end
 			return null;
 		});
 		
 		funk.addLocalCallback("runHaxeFunction", function(funcToRun:String, ?funcArgs:Array<Dynamic> = null) {
 			#if HSCRIPT_ALLOWED
-			for (string in online.backend.Deflection.luaClassBlacklist){ //Block some packages
-				if(funcToRun.toLowerCase().contains(string)){
-					FunkinLua.luaTrace("Blacklisted keyword detected in: " + funcToRun, false, false, FlxColor.RED);
-					return null;
-				}
-			}
 			var callValue = funk.hscript.executeFunction(funcToRun, funcArgs);
 			if (!callValue.succeeded)
 			{
 				var e = callValue.exceptions[0];
 				if (e != null)
-					FunkinLua.luaTrace('ERROR (${funk.hscript.origin}: ${callValue.calledFunction}) - ' + e.message.substr(0, e.message.indexOf('\n')), false, false, FlxColor.RED);
+					funk.luaTrace('ERROR (${funk.hscript.origin}: ${callValue.calledFunction}) - ' + e.message.substr(0, e.message.indexOf('\n')), false, false, FlxColor.RED);
 				return null;
 			}
 			else
 				return callValue.returnValue;
 			#else
-			FunkinLua.luaTrace("runHaxeFunction: HScript isn't supported on this platform!", false, false, FlxColor.RED);
+			funk.luaTrace("runHaxeFunction: HScript isn't supported on this platform!", false, false, FlxColor.RED);
 			#end
 		});
 		// This function is unnecessary because import already exists in SScript as a native feature
 		funk.addLocalCallback("addHaxeLibrary", function(libName:String, ?libPackage:String = '') {
-			for (string in online.backend.Deflection.luaClassBlacklist){ //Block some packages
-				if(libName.toLowerCase().contains(string) || libPackage.toLowerCase().contains(string)){
-					FunkinLua.luaTrace("Blacklisted keyword detected in CL: " + libName + (libPackage != null ? " PKG: " + libPackage : ""), false, false, FlxColor.RED);
-					return;
-				}
-			}
 			var str:String = '';
-			if(libPackage.length > 0)
+			if (libPackage.length > 0)
 				str = libPackage + '.';
-			else if(libName == null)
+			else if (libName == null)
 				libName = '';
+
+			// for (string in online.backend.Deflection.luaClassBlacklist){ //Block some packages
+			// 	if ((str + libName).toLowerCase().startsWith(string.toLowerCase())) {
+			// 		funk.luaTrace("Blacklisted keyword detected in CL: " + libName + (libPackage != null ? " PKG: " + libPackage : ""), false, false, FlxColor.RED);
+			// 		return;
+			// 	}
+			// }
 
 			var c = Deflection.resolveClass(str + libName);
 
+			if (c == null) {
+				funk.luaTrace('Class "${str + libName}" not found!', false, false, FlxColor.RED);
+				return;
+			}
+
 			#if HSCRIPT_ALLOWED
-			if (c != null)
-				SScript.globalVariables[libName] = c;
+			SScript.globalVariables[libName] = c;
 			#end
 
 			#if HSCRIPT_ALLOWED
 			if (funk.hscript != null)
 			{
 				try {
-					if (c != null)
-						funk.hscript.set(libName, c);
+					funk.hscript.set(libName, c);
 				}
 				catch (e:Dynamic) {
-					FunkinLua.luaTrace(funk.hscript.origin + ":" + funk.lastCalledFunction + " - " + e, false, false, FlxColor.RED);
+					funk.luaTrace(funk.hscript.origin + ":" + funk.lastCalledFunction + " - " + e, false, false, FlxColor.RED);
 				}
 			}
 			#else
-			FunkinLua.luaTrace("addHaxeLibrary: HScript isn't supported on this platform!", false, false, FlxColor.RED);
+			funk.luaTrace("addHaxeLibrary: HScript isn't supported on this platform!", false, false, FlxColor.RED);
 			#end
 		});
 		#end

@@ -122,7 +122,7 @@
 	<haxelib name="colyseus" />
 	<haxelib name="HtmlParser" />
 	<haxelib name="UnRAR" />
-	<haxelib name="away3d" /> <!-- exposing away so people can use it with lua/hscript or whatever -->
+	<haxelib name="away3d" />
 	<haxelib name="json2object" />
 	<haxelib name="hxjsonast" />
 	<haxelib name="flxanimate" />
@@ -131,6 +131,7 @@
 	<haxelib name="compiletime" />
 	<haxelib name="funkin.vis" />
 	<haxelib name="grig.audio" />
+	<haxelib name="away3d" />
 
 	<haxedef name="openflPos" />
 	<haxedef name="hscriptPos" />
