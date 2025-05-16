@@ -218,6 +218,15 @@ class FunkinLua {
 			return runningScripts;
 		});
 
+		//UMM Shit
+		set('online',GameClient.isConnected());
+		set('localPlay',false);
+		set('leftSide',GameClient.isConnected()?PlayState.playsAsBF():PlayState.opponentMode);
+        addLuaCallback("send", function(message:String, title:String) {
+			online.GameClient.send("custom", [title, message]);
+		});
+		//
+
 		addLuaCallback("sendMessage", function(type:String, message:Dynamic) {
 			online.GameClient.send("custom", [type, message]);
 		});

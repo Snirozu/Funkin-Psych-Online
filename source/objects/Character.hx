@@ -87,6 +87,29 @@ class Character extends FlxSprite {
 
 	public var modDir:String = null;
 
+	public var Custom(get, set):Bool;
+	
+	function set_Custom(value:Bool):Bool
+	{
+		return this.isSkin = value;
+	}
+
+	function get_Custom():Bool
+	{
+		return this.isSkin;
+	}
+
+	public var custom(get,never):Bool;
+
+	function get_custom():Bool
+	{
+		return this.isSkin;
+	}
+
+	function set_custom(value:Bool):Bool
+	{
+		return this.isSkin = value;
+	}
 	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
 
 	public static function getCharacterFile(character:String, ?instance:Character):CharacterFile {
@@ -442,14 +465,17 @@ class Character extends FlxSprite {
 
 	final randomDirections:Array<String> = ['LEFT', 'DOWN', 'UP', 'RIGHT'];
 
+	var colorTransformBefore:Array<Float> = [1, 1, 1]; // red, green, blue
+	var colorTransformWasChanged:Bool = false;
+
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void {
 		if (AnimName == null)
 			return;
 
-		if(colorTransform != null) {
-			colorTransform.redMultiplier = 1;
-			colorTransform.greenMultiplier = 1;
-			colorTransform.blueMultiplier = 1;
+		if(colorTransform != null && colorTransformWasChanged) {
+			colorTransform.redMultiplier = colorTransformBefore[0];
+			colorTransform.greenMultiplier = colorTransformBefore[1];
+			colorTransform.blueMultiplier = colorTransformBefore[2];
 		}
 
 		noAnimationBullshit = false;
@@ -472,6 +498,10 @@ class Character extends FlxSprite {
 
 			if (AnimName.endsWith("miss") && colorTransform != null) {
 				AnimName = AnimName.substring(0, AnimName.length - "miss".length);
+
+				colorTransformBefore = [colorTransform.redMultiplier, colorTransform.greenMultiplier, colorTransform.blueMultiplier];
+				colorTransformWasChanged = true;
+
 				colorTransform.redMultiplier = 0.5;
 				colorTransform.greenMultiplier = 0.3;
 				colorTransform.blueMultiplier = 0.5;
