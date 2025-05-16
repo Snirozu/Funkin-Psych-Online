@@ -4452,7 +4452,7 @@ class PlayState extends MusicBeatState
 
 		var compat:String = note.mustPress ? 'goodNoteHit' : 'opponentNoteHit';
 		var result:Dynamic = callOnLuas(compat, [notes.members.indexOf(note), Math.abs(note.noteData), note.noteType, note.isSustainNote]);
-		if(result != FunkinLua.Function_Stop && result != FunkinLua.Function_StopHScript && result != FunkinLua.Function_StopAll) callOnHScript(compat, [note]);
+		if(result != FunkinLua.Function_Stop && result != FunkinLua.Function_StopHScript && result != FunkinLua.Function_StopAll) callOnHScript(compat, [note]);	
 
 		spawnHoldSplashOnNote(note);
 
@@ -4522,7 +4522,7 @@ class PlayState extends MusicBeatState
 				addHealth(note.hitHealth * healthGain);
 			}
 
-			GameClient.send("noteHit", [note.strumTime, note.noteData, note.isSustainNote, rating?.image]);
+			GameClient.send("noteHit", [note.strumTime, note.noteData, note.isSustainNote, rating?.image, note.noteType, notes.members.indexOf(note), note.mustPress]);
 
 			if(!note.noAnimation) {
 				var altAnim:String = note.animSuffix;
@@ -5407,6 +5407,8 @@ class PlayState extends MusicBeatState
 					popUpScoreOP(message[3]);
 				}
 
+				callOnLuas(message[6] ? 'goodNoteHit' : 'opponentNoteHit', [message[5], message[1], message[4], message[2]]);
+				callOnHScript(message[6] ? 'goodNoteHit' : 'opponentNoteHit', [notes.members[message[5]]]);
 				RecalculateRatingOpponent(false);
 				getOpponentVocals().volume = 1;
 			});
