@@ -7,13 +7,13 @@
     },
     {
       "name": "lime",
-      "type": "git",
-      "url": "https://github.com/Adrim23/UMM-Lime"
+      "type": "haxelib",
+      "version": "8.2.2"
     },
     {
       "name": "openfl",
-      "type": "git",
-      "url": "https://github.com/CodenameCrew/cne-openfl"
+      "type": "haxelib",
+      "version": "9.4.1"
     },
     {
       "name": "flixel",
