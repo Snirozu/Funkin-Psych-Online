@@ -275,15 +275,15 @@ class Paths
 		if (bitmap != null)
 		{
 			localTrackedAssets.push(file);
-			if (allowGPU /*&& ClientPrefs.data.cacheOnGPU*/)
-			{
-				var texture:RectangleTexture = FlxG.stage.context3D.createRectangleTexture(bitmap.width, bitmap.height, BGRA, true);
-				texture.uploadFromBitmapData(bitmap);
-				bitmap.image.data = null;
-				bitmap.dispose();
-				bitmap.disposeImage();
-				bitmap = BitmapData.fromTexture(texture);
-			}
+			// if (allowGPU /*&& ClientPrefs.data.cacheOnGPU*/)
+			// {
+			// 	var texture:RectangleTexture = FlxG.stage.context3D.createRectangleTexture(bitmap.width, bitmap.height, BGRA, true);
+			// 	texture.uploadFromBitmapData(bitmap);
+			// 	bitmap.image.data = null;
+			// 	bitmap.dispose();
+			// 	bitmap.disposeImage();
+			// 	bitmap = BitmapData.fromTexture(texture);
+			// }
 			var newGraphic:FlxGraphic = FlxGraphic.fromBitmapData(bitmap, false, file);
 			newGraphic.persist = true;
 			newGraphic.destroyOnNoUse = false;
