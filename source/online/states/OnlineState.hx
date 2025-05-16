@@ -13,7 +13,9 @@ import states.MainMenuState;
 import openfl.events.KeyboardEvent;
 import flixel.addons.text.FlxTextField;
 
+#if lumod
 @:build(lumod.LuaScriptClass.build())
+#end
 class OnlineState extends MusicBeatState {
 	var items:FlxTypedSpriteGroup<FlxText>;
 
@@ -623,6 +625,13 @@ class OnlineState extends MusicBeatState {
 						image.updateHitbox();
 						FreeplayState.destroyFreeplayVocals();
 						add(image);
+						return;
+					}
+					else if (daCoomCode.toLowerCase() == "jackass") {
+						FlxG.sound.play(Paths.sound('jackass')).pitch = FlxG.random.float(0.8, 1.4);
+						disableInput = false;
+						FlxG.sound.music.stop();
+						FreeplayState.destroyFreeplayVocals();
 						return;
 					}
 					GameClient.joinRoom(daCoomCode, onRoomJoin);

@@ -14,6 +14,10 @@ import llua.Lua;
 import flxanimate.FlxAnimate;
 #end
 
+#if lumod
+import lumod.Lumod;
+#end
+
 import backend.Paths;
 import backend.Controls;
 import backend.CoolUtil;

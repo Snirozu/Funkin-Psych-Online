@@ -15,7 +15,9 @@ import objects.AchievementPopup;
 import states.editors.MasterEditorMenu;
 import options.OptionsState;
 
+#if lumod
 @:build(lumod.LuaScriptClass.build())
+#end
 class MainMenuState extends MusicBeatState
 {
 	public static var psychEngineVersion:String = '0.7.1h'; // This is also used for Discord RPC

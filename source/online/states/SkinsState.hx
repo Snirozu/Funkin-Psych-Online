@@ -11,7 +11,9 @@ import sys.FileSystem;
 import flixel.group.FlxGroup;
 import objects.Character;
 
+#if lumod
 @:build(lumod.LuaScriptClass.build())
+#end
 class SkinsState extends MusicBeatState {
 	var charactersWithWeeks:Array<String> = new Array<String>();
 	var charactersName:Array<String> = new Array<String>();
