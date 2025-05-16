@@ -87,6 +87,13 @@
       "version": "5.0.9"
     },
     {
+      "name": "away3d",
+      "type": "git",
+      "dir": null,
+      "ref": "master",
+      "url": "https://github.com/Snirozu/away3d"
+    },
+    {
       "name": "json2object",
       "type": "haxelib",
       "version": "3.11.0"
