@@ -84,7 +84,18 @@ class Character extends FlxSprite {
 
 	public var modDir:String = null;
 
-	public var Custom:Bool=false;
+	public var Custom(get, set):Bool;
+	
+	function set_Custom(value:Bool):Bool
+	{
+		return this.isSkin = value;
+	}
+
+	function get_Custom():Bool
+	{
+		return this.isSkin;
+	}
+
 	@:isVar public var custom(get,never):Bool=false;
 
 	function get_custom():Bool
