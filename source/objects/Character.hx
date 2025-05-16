@@ -147,7 +147,6 @@ class Character extends FlxSprite {
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 		this.isSkin = isSkin;
-		this.Custom = isSkin;
 		var library:String = null;
 		switch (curCharacter) {
 			// case 'your character name in case you want to hardcode them instead':
