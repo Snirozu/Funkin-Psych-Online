@@ -1,5 +1,6 @@
 package backend;
 
+import json2object.JsonParser;
 #if MODS_ALLOWED
 import sys.io.File;
 import sys.FileSystem;
@@ -15,15 +16,17 @@ typedef StageFile = {
 	var isPixelStage:Bool;
 	var stageUI:String;
 
-	var boyfriend:Array<Dynamic>;
-	var girlfriend:Array<Dynamic>;
-	var opponent:Array<Dynamic>;
+	var boyfriend:Array<Float>;
+	var girlfriend:Array<Float>;
+	var opponent:Array<Float>;
 	var hide_girlfriend:Bool;
 
 	var camera_boyfriend:Array<Float>;
 	var camera_opponent:Array<Float>;
 	var camera_girlfriend:Array<Float>;
 	var camera_speed:Null<Float>;
+
+	@:optional var stage3D:online.away.DataProps.StageData3D;
 }
 
 class StageData {
@@ -106,7 +109,7 @@ class StageData {
 		{
 			return null;
 		}
-		return cast Json.parse(rawJson);
+		return new JsonParser<StageFile>().fromJson(rawJson);
 	}
 
 	public static function vanillaSongStage(songName):String

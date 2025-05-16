@@ -2,7 +2,6 @@ package online.states;
 
 import flixel.util.FlxStringUtil;
 import states.stages.Spooky;
-import lumod.Lumod;
 import flixel.util.FlxAxes;
 import flixel.addons.display.FlxPieDial;
 import sys.FileSystem;
@@ -23,7 +22,9 @@ import states.FreeplayState;
 import states.ModsMenuState;
 import openfl.utils.Assets as OpenFlAssets;
 
+#if lumod
 @:build(lumod.LuaScriptClass.build())
+#end
 @:publicFields
 class RoomState extends MusicBeatState {
 	//this shit is messy
@@ -709,11 +710,13 @@ class RoomState extends MusicBeatState {
 			GameClient.reconnect();
 		}
 
+		#if lumod
 		if (FlxG.keys.justPressed.F12) {
 			trace('reloading lumod');
 			Lumod.cache.scripts.clear();
 			lmLoad();
 		}
+		#end
 		
 		if (!GameClient.isConnected())
 			return;

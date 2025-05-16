@@ -404,10 +404,12 @@ class TitleState extends MusicBeatState
 			);
 		}
 
+		#if lumod
 		if (FlxG.keys.justPressed.DELETE) {
 			lumod.Lumod.cache.scripts.clear();
 			trace("cleared lumod cache");
 		}
+		#end
 
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;

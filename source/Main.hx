@@ -1,10 +1,6 @@
 package;
 
 import online.GameClient;
-import lumod.Lumod;
-#if AWAY_TEST
-import states.stages.AwayStage;
-#end
 import states.MainMenuState;
 import externs.WinAPI;
 import haxe.Exception;
@@ -47,17 +43,16 @@ class Main extends Sprite
 	};
 
 	public static var fpsVar:FPS;
-	#if AWAY_TEST
-	public static var stage3D:AwayStage;
-	#end
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.11.5";
+	public static final PSYCH_ONLINE_VERSION:String = "0.11.6";
 	public static final CLIENT_PROTOCOL:Float = 8;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 	public static final LOW_STORAGE:Bool = online.backend.Macros.hasNoCapacity();
 	public static var UNOFFICIAL_BUILD:Bool = false;
 
 	public static var wankyUpdate:String = 'version';
+
+	public static var view3D:online.away.View3DHandler;
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
@@ -71,6 +66,7 @@ class Main extends Sprite
 			Sys.exit(1);
 		}
 		
+		Lib.current.addChild(view3D = new online.away.View3DHandler());
 		Lib.current.addChild(new Main());
 		Lib.current.addChild(new online.gui.sidebar.SideUI());
 		Lib.current.addChild(new online.gui.Alert());
@@ -117,6 +113,8 @@ class Main extends Sprite
 
 		CoolUtil.setDarkMode(true);
 
+		#if lumod
+		Lumod.addons.push(online.backend.LuaModuleSwap.LumodModuleAddon);
 		Lumod.scriptPathHandler = scriptPath -> {
 			var defaultPath:String = 'lumod/' + scriptPath;
 
@@ -128,13 +126,11 @@ class Main extends Sprite
 			return defaultPath;
 		}
 		Lumod.classResolver = Deflection.resolveClass;
+		Lumod.initializeLuaCallbacks = false;
+		#end
 
 		#if hl
 		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
-		#end
-
-		#if AWAY_TEST
-		addChild(stage3D = new AwayStage());
 		#end
 	
 		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
@@ -284,6 +280,8 @@ class Main extends Sprite
 
 	static function onCrash(exc:Dynamic):Void
 	{
+		trace(" . CRASHED . ");
+
 		if (exc == null)
 			exc = new Exception("Empty Uncaught Exception");
 

@@ -11,7 +11,9 @@ import online.states.ResultsSoloState.DA_ANGLE;
 
 // written everything based of my observations :ngNerd:
 
+#if lumod
 @:build(lumod.LuaScriptClass.build())
+#end
 class ResultsSoloState extends MusicBeatState {
     public var data:ResultsData;
 

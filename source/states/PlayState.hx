@@ -10,6 +10,7 @@ package states;
 // "function eventEarlyTrigger" - Used for making your event start a few MILLISECONDS earlier
 // "function triggerEvent" - Called when the song hits your event's timestamp, this is probably what you were looking for
 
+import online.away.AwayStage3D;
 import online.substates.PostTextSubstate;
 import haxe.crypto.Md5;
 import online.network.FunkinNetwork;
@@ -429,6 +430,8 @@ class PlayState extends MusicBeatState
 
 	static var swingMode:Bool = false;
 
+	public var stage3D:AwayStage3D;
+
 	function canInput() {
 		if (chatBox != null && chatBox.focused) {
 			return false;
@@ -490,6 +493,8 @@ class PlayState extends MusicBeatState
 
 	@:unreflective
 	public static var redditMod:Bool = false;
+
+	var forcePause = false;
 
 	override public function create()
 	{
@@ -707,23 +712,51 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
-			switch (curStage) {
-				case 'stage': new states.stages.StageWeek1(); // Week 1
-				case 'stage-erect': new states.stages.StageErect(); // Week 1 (Erect)
-				case 'spooky': new states.stages.Spooky(); // Week 2
-				case 'spooky-erect': new states.stages.SpookyErect(); // Week 2 (Erect)
-				case 'philly': new states.stages.Philly(); // Week 3
-				case 'philly-erect': new states.stages.PhillyErect(); // Week 3 (Erect)
-				case 'limo': new states.stages.Limo(); // Week 4
-				case 'mall': new states.stages.Mall(); // Week 5 - Cocoa, Eggnog
-				case 'mall-erect': new states.stages.MallErect(); // Week 5 (Erect)
-				case 'mallEvil': new states.stages.MallEvil(); // Week 5 - Winter Horrorland
-				case 'school': new states.stages.School(); // Week 6 - Senpai, Roses
-				#if !AWAY_TEST case 'schoolEvil': new states.stages.SchoolEvil(); #end // Week 6 - Thorns
-				case 'tank': new states.stages.Tank(); // Week 7 - Ugh, Guns, Stress
+			if (stage3D != null) {
+				Main.view3D.removeScene();
+				stage3D = null;
 			}
 
-			if (stages.length > 0)
+			if (stageData.stage3D == null)
+				return;
+
+			stage3D = Main.view3D.setupScene(stageData);
+
+			if (stage3D == null)
+				return;
+
+			Main.view3D.onDebug = (v) -> {
+				if (subState != null)
+					return;
+
+				forcePause = v;
+				if (v)
+					pause();
+				else
+					resume();
+			};
+		});
+
+		preloadTasks.push(() -> {
+			if (stage3D == null) {
+				switch (curStage) {
+					case 'stage': new states.stages.StageWeek1(); // Week 1
+					case 'stage-erect': new states.stages.StageErect(); // Week 1 (Erect)
+					case 'spooky': new states.stages.Spooky(); // Week 2
+					case 'spooky-erect': new states.stages.SpookyErect(); // Week 2 (Erect)
+					case 'philly': new states.stages.Philly(); // Week 3
+					case 'philly-erect': new states.stages.PhillyErect(); // Week 3 (Erect)
+					case 'limo': new states.stages.Limo(); // Week 4
+					case 'mall': new states.stages.Mall(); // Week 5 - Cocoa, Eggnog
+					case 'mall-erect': new states.stages.MallErect(); // Week 5 (Erect)
+					case 'mallEvil': new states.stages.MallEvil(); // Week 5 - Winter Horrorland
+					case 'school': new states.stages.School(); // Week 6 - Senpai, Roses
+					case 'schoolEvil': new states.stages.SchoolEvil(); // Week 6 - Thorns
+					case 'tank': new states.stages.Tank(); // Week 7 - Ugh, Guns, Stress
+				}
+			}
+
+			if (stage3D != null || stages.length > 0)
 				stageExists = true;
 
 			if (isPixelStage) {
@@ -805,9 +838,9 @@ class PlayState extends MusicBeatState
 				
 				if(SONG.gfVersion == null || SONG.gfVersion.length < 1) SONG.gfVersion = 'gf'; //Fix for the Chart Editor
 				if (!SONG.gfVersion.startsWith('nene'))
-					gf = new Character(0, 0, SONG.gfVersion);
+					gf = new Character(0, 0, SONG.gfVersion, false, false, 'gf');
 				else
-					gf = new Nene(0, 0, SONG.gfVersion);
+					gf = new Nene(0, 0, SONG.gfVersion, false, false, 'gf');
 				startCharacterPos(gf);
 				gf.scrollFactor.set(0.95, 0.95);
 				gfGroup.add(gf);
@@ -825,17 +858,17 @@ class PlayState extends MusicBeatState
 						Mods.currentModDirectory = roomDad.skinMod;
 
 					if (roomDad.skinName != null)
-						dad = new Character(0, 0, roomDad.skinName + skinsSuffix, !playsAsBF(), true);
+						dad = new Character(0, 0, roomDad.skinName + skinsSuffix, !playsAsBF(), true, 'dad');
 				}
 			}
 			else if (!playsAsBF() && ClientPrefs.data.modSkin != null) {
 				Mods.currentModDirectory = ClientPrefs.data.modSkin[0];
-				dad = new Character(0, 0, ClientPrefs.data.modSkin[1] + skinsSuffix, !playsAsBF(), true);
+				dad = new Character(0, 0, ClientPrefs.data.modSkin[1] + skinsSuffix, !playsAsBF(), true, 'dad');
 			}
 
 			if (dad == null || dad.loadFailed) {
 				Mods.currentModDirectory = oldModDir;
-				dad = new Character(0, 0, SONG.player2, !playsAsBF());
+				dad = new Character(0, 0, SONG.player2, !playsAsBF(), false, 'dad');
 			}
 			iconP2 = new HealthIcon(dad.healthIcon, false);
 			if (!playsAsBF()) {
@@ -858,17 +891,17 @@ class PlayState extends MusicBeatState
 						Mods.currentModDirectory = roomBf.skinMod;
 
 					if (roomBf.skinName != null)
-						boyfriend = new Character(0, 0, roomBf.skinName + skinsSuffix + "-player", playsAsBF(), true);
+						boyfriend = new Character(0, 0, roomBf.skinName + skinsSuffix + "-player", playsAsBF(), true, 'bf');
 				}
 			}
 			else if (playsAsBF() && ClientPrefs.data.modSkin != null) {
 				Mods.currentModDirectory = ClientPrefs.data.modSkin[0];
-				boyfriend = new Character(0, 0, ClientPrefs.data.modSkin[1] + skinsSuffix + "-player", playsAsBF(), true);
+				boyfriend = new Character(0, 0, ClientPrefs.data.modSkin[1] + skinsSuffix + "-player", playsAsBF(), true, 'bf');
 			}
 
 			if (boyfriend == null || boyfriend.loadFailed) {
 				Mods.currentModDirectory = oldModDir;
-				boyfriend = new Character(0, 0, SONG.player1, playsAsBF());
+				boyfriend = new Character(0, 0, SONG.player1, playsAsBF(), false, 'bf');
 			}
 			iconP1 = new HealthIcon(boyfriend.healthIcon, true);
 			if (!playsAsBF()) {
@@ -952,12 +985,6 @@ class PlayState extends MusicBeatState
 			opponentStrums = new FlxTypedGroup<StrumNote>();
 			playerStrums = new FlxTypedGroup<StrumNote>();
 		});
-
-		#if AWAY_TEST
-		preloadTasks.push(() -> {
-			Main.stage3D.setupOnlineStage();
-		});
-		#end
 
 		preloadTasks.push(() -> {
 			generateSong(SONG.song);
@@ -2415,30 +2442,7 @@ class PlayState extends MusicBeatState
 		if (isCreated) {
 			stagesFunc(function(stage:BaseStage) stage.closeSubState());
 			if (paused) {
-				if (FlxG.sound.music != null && !startingSong) {
-					resyncVocals();
-				}
-
-				if (startTimer != null && !startTimer.finished)
-					startTimer.active = true;
-				if (finishTimer != null && !finishTimer.finished)
-					finishTimer.active = true;
-				if (songSpeedTween != null)
-					songSpeedTween.active = true;
-
-				var chars:Array<Character> = [boyfriend, gf, dad];
-				for (char in chars)
-					if (char != null && char.colorTween != null)
-						char.colorTween.active = true;
-
-				#if LUA_ALLOWED
-				for (tween in modchartTweens)
-					tween.active = true;
-				for (timer in modchartTimers)
-					timer.active = true;
-				#end
-
-				paused = false;
+				resume();
 				callOnScripts('onResume');
 				resetRPC(startTimer != null && startTimer.finished);
 			}
@@ -2498,6 +2502,9 @@ class PlayState extends MusicBeatState
 
 	public var paused(default, set):Bool = false;
 	function set_paused(v) {
+		if (forcePause && !v)
+			return paused;
+
 		for (group in [boyfriendGroup, dadGroup, gfGroup]) {
 			if (group == null)
 				continue;
@@ -2530,6 +2537,9 @@ class PlayState extends MusicBeatState
 
 	override public function update(elapsed:Float)
 	{
+		if (forcePause)
+			return;
+
 		if (!isCreated) {
 			if (!asyncLoop.started) {
 				asyncLoop.start();
@@ -2556,7 +2566,8 @@ class PlayState extends MusicBeatState
 				&& !finishingSong
 				&& elapsed >= 0.1
 				&& Conductor.songPosition > lastLagPos
-				&& isPlayNoteNear) {
+				&& isPlayNoteNear) 
+			{
 				setSongTime(Conductor.songPosition - 2000);
 				lastLagPos = Conductor.songPosition + 3000; // don't tp for another 3s starting from last lag pos
 				Alert.alert("Mod Lag Detected (-2s)");
@@ -2568,8 +2579,10 @@ class PlayState extends MusicBeatState
 
 			if (FlxG.keys.justPressed.F8 && replayPlayer == null) {
 				opponentMode = !opponentMode;
-				remove(replayRecorder);
-				replayRecorder.destroy();
+				if (replayRecorder != null) {
+					remove(replayRecorder);
+					replayRecorder.destroy();
+				}
 				songScore = 0;
 				boyfriend.isPlayer = !boyfriend.isPlayer;
 				dad.isPlayer = !dad.isPlayer;
@@ -2813,7 +2826,7 @@ class PlayState extends MusicBeatState
 
 							if (isPlayerNote(daNote))
 							{
-								if (!isPlayNoteNear && daNote.strumTime - Conductor.songPosition < 500)
+								if (!isPlayNoteNear && Conductor.songPosition - daNote.strumTime < 500)
 									isPlayNoteNear = true;
 
 								if(cpuControlled && !daNote.blockHit && daNote.canBeHit && (daNote.isSustainNote || daNote.strumTime <= Conductor.songPosition))
@@ -2909,24 +2922,8 @@ class PlayState extends MusicBeatState
 		if (!canPause)
 			return;
 
-		FlxG.camera.followLerp = 0;
-		persistentUpdate = false;
-		persistentDraw = true;
-		paused = true;
+		pause();
 
-		// 1 / 1000 chance for Gitaroo Man easter egg
-		/*if (FlxG.random.bool(0.1))
-		{
-			// gitaroo man easter egg
-			cancelMusicFadeTween();
-			FlxG.switchState(() -> new GitarooPause());
-		}
-		else {*/
-		if(FlxG.sound.music != null) {
-			FlxG.sound.music.pause();
-			vocals.pause();
-			opponentVocals.pause();
-		}
 		if(!cpuControlled)
 		{
 			for (note in getPlayerStrums())
@@ -2936,12 +2933,56 @@ class PlayState extends MusicBeatState
 					note.resetAnim = 0;
 				}
 		}
+
 		openSubState(new PauseSubState(getPlayer().getScreenPosition().x, getPlayer().getScreenPosition().y));
 		//}
 
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")" + getPresencePoints(), iconP2.getCharacter());
 		#end
+	}
+
+	function pause() {
+		FlxG.camera.followLerp = 0;
+		persistentUpdate = false;
+		persistentDraw = true;
+		paused = true;
+
+		if(FlxG.sound.music != null) {
+			FlxG.sound.music.pause();
+			vocals.pause();
+			opponentVocals.pause();
+		}
+	}
+
+	function resume() {
+		if (forcePause)
+			return;
+
+		if (FlxG.sound.music != null && !startingSong) {
+			resyncVocals();
+		}
+
+		if (startTimer != null && !startTimer.finished)
+			startTimer.active = true;
+		if (finishTimer != null && !finishTimer.finished)
+			finishTimer.active = true;
+		if (songSpeedTween != null)
+			songSpeedTween.active = true;
+
+		var chars:Array<Character> = [boyfriend, gf, dad];
+		for (char in chars)
+			if (char != null && char.colorTween != null)
+				char.colorTween.active = true;
+
+		#if LUA_ALLOWED
+		for (tween in modchartTweens)
+			tween.active = true;
+		for (timer in modchartTimers)
+			timer.active = true;
+		#end
+
+		paused = false;
 	}
 
 	function openChartEditor()
@@ -3004,6 +3045,8 @@ class PlayState extends MusicBeatState
 				}
 				#end
 
+				if (stage3D != null)
+					stage3D.onDeath();
 				openSubState(new GameOverSubstate(
 					getPlayer().getScreenPosition().x - getPlayer().positionArray[0], 
 					getPlayer().getScreenPosition().y - getPlayer().positionArray[1], 
@@ -3328,6 +3371,10 @@ class PlayState extends MusicBeatState
 			case 'Play Sound':
 				if(flValue2 == null) flValue2 = 1;
 				FlxG.sound.play(Paths.sound(value1), flValue2);
+
+			case '3D Camera Follow Point':
+				if (stage3D != null)
+					stage3D.setFollowCamera(value1);
 		}
 		
 		stagesFunc(function(stage:BaseStage) stage.eventCalled(eventName, value1, value2, flValue1, flValue2, strumTime));
@@ -3361,6 +3408,8 @@ class PlayState extends MusicBeatState
 			camFollow.x += gf.cameraPosition[0] + girlfriendCameraOffset[0];
 			camFollow.y += gf.cameraPosition[1] + girlfriendCameraOffset[1];
 			tweenCamIn();
+			if (stage3D != null)
+				stage3D.setFollowCamera('gf');
 			callOnScripts('onMoveCamera', ['gf']);
 			return;
 		}
@@ -3372,6 +3421,8 @@ class PlayState extends MusicBeatState
 			camFollow.y += dad.cameraPosition[1] + opponentCameraOffset[1];
 			tweenCamIn();
 			aLookAt = 0;
+			if (stage3D != null)
+				stage3D.setFollowCamera('dad');
 			callOnScripts('onMoveCamera', ['dad']);
 		}
 		else
@@ -3392,6 +3443,8 @@ class PlayState extends MusicBeatState
 
 			aLookAt = 1;
 
+			if (stage3D != null)
+				stage3D.setFollowCamera('bf');
 			callOnScripts('onMoveCamera', ['boyfriend']);
 		}
 	}
@@ -4605,6 +4658,11 @@ class PlayState extends MusicBeatState
 		backend.NoteTypesConfig.clearNoteTypesData();
 		instance = null;
 		orderOffset = 0;
+		// if (stage3D != null) {
+		// 	Main.backSprite.removeChild(stage3D);
+		// 	//stage3D.dispose();
+		// 	stage3D = null;
+		// }
 		super.destroy();
 	}
 
@@ -4879,7 +4937,7 @@ class PlayState extends MusicBeatState
 				{
 					var e = callValue.exceptions[0];
 					if(e != null)
-						FunkinLua.luaTrace('ERROR (${script.origin}: ${callValue.calledFunction}) - ' + e.message.substr(0, e.message.indexOf('\n')), true, false, FlxColor.RED);
+						FunkinLua.trace('ERROR (${script.origin}: ${callValue.calledFunction}) - ' + e.message.substr(0, e.message.indexOf('\n')), true, false, FlxColor.RED);
 				}
 				else
 				{
@@ -5083,7 +5141,7 @@ class PlayState extends MusicBeatState
 		#end
 	}
 
-	public function initLuaShader(name:String, ?glslVersion:Int = 120)
+	public function initLuaShader(name:String)
 	{
 		if(!ClientPrefs.data.shaders) return false;
 

@@ -2,14 +2,250 @@
 	"directory": "week6",
 	"defaultZoom": 1.05,
 	"stageUI": "pixel",
-
-	"boyfriend": [970, 320],
-	"girlfriend": [580, 430],
-	"opponent": [100, 100],
+	"boyfriend": [
+		970,
+		320
+	],
+	"girlfriend": [
+		580,
+		430
+	],
+	"opponent": [
+		100,
+		100
+	],
 	"hide_girlfriend": false,
-
-	"camera_boyfriend": [-250, -150],
-	"camera_opponent": [0, 0],
-	"camera_girlfriend": [-200, -350],
-	"camera_speed": 1
+	"camera_boyfriend": [
+		-250,
+		-150
+	],
+	"camera_opponent": [
+		0,
+		0
+	],
+	"camera_girlfriend": [
+		-200,
+		-350
+	],
+	"camera_speed": 1,
+	"stage3D": {
+		"objects": {
+			"dad": {
+				"position": [
+					-946,
+					920,
+					0
+				]
+			},
+			"gf": {
+				"position": [
+					-316,
+					388,
+					234
+				]
+			},
+			"bf": {
+				"position": [
+					147,
+					204,
+					0
+				]
+			},
+			"walkway": {
+				"type": "sprite",
+				"image": "weeb/depthorns/evilWalkway",
+				"antialiasing": false,
+				"scale": 7,
+				"position": [
+					720,
+					-236,
+					200
+				],
+				"rotation": [
+					90,
+					0,
+					0
+				]
+			},
+			"school": {
+				"type": "sprite",
+				"image": "weeb/depthorns/evilSchool",
+				"antialiasing": false,
+				"scale": 21.37,
+				"position": [
+					212,
+					44,
+					3628
+				]
+			},
+			"backTrees": {
+				"type": "sprite",
+				"image": "weeb/depthorns/treesloop",
+				"antialiasing": false,
+				"geomWidth": 50000,
+				"repeat": true,
+				"scaleUV": 49,
+				"position": [
+					212,
+					155,
+					9720
+				]
+			},
+			"tree1": {
+				"type": "sprite",
+				"image": "weeb/depthorns/tree1",
+				"antialiasing": false,
+				"bothSides": true,
+				"scale": 7,
+				"position": [
+					1526.74,
+					148,
+					367.360000000001
+				]
+			},
+			"tree2": {
+				"type": "sprite",
+				"image": "weeb/depthorns/tree2",
+				"antialiasing": false,
+				"bothSides": true,
+				"scale": 7,
+				"position": [
+					1745.86,
+					-47,
+					1712
+				]
+			},
+			"tree3": {
+				"type": "sprite",
+				"image": "weeb/depthorns/tree3",
+				"antialiasing": false,
+				"bothSides": true,
+				"scale": 7,
+				"position": [
+					2623.6,
+					-26,
+					1683.82
+				]
+			},
+			"tree1flip": {
+				"type": "sprite",
+				"image": "weeb/depthorns/tree1",
+				"antialiasing": false,
+				"bothSides": true,
+				"scale": 7,
+				"position": [
+					-1576,
+					148,
+					558
+				],
+				"rotation": [
+					0,
+					180,
+					0
+				]
+			},
+			"tree2flip": {
+				"type": "sprite",
+				"image": "weeb/depthorns/tree2",
+				"antialiasing": false,
+				"bothSides": true,
+				"scale": 7,
+				"position": [
+					-2046.28,
+					-47,
+					1564
+				],
+				"rotation": [
+					0,
+					180,
+					0
+				]
+			},
+			"tree3flip": {
+				"type": "sprite",
+				"image": "weeb/depthorns/tree3",
+				"antialiasing": false,
+				"bothSides": true,
+				"scale": 7,
+				"position": [
+					-1628,
+					-26,
+					2398.68
+				],
+				"rotation": [
+					0,
+					180,
+					0
+				]
+			},
+			"alien": {
+				"type": "animatedSprite",
+				"image": "characters/alien",
+				"frameSize": [
+					132,
+					200
+				],
+				"animations": [
+					{
+						"id": "idle",
+						"loop": true,
+						"indices": [
+							0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76
+						]
+					}
+				],
+				"antialiasing": false,
+				"bothSides": true,
+				"scale": 1,
+				"position": [
+					-1549,
+					-26,
+					561
+				],
+				"rotation": [
+					0,
+					180,
+					0
+				]
+			}
+		},
+		"cameraPoints": {
+			"gf": {
+				"position": [
+					52.3001955351452,
+					145,
+					-761.99933796624
+				],
+				"rotation": [
+					0,
+					0,
+					0
+				]
+			},
+			"bf": {
+				"position": [
+					124,
+					115,
+					-525.941541559562
+				],
+				"rotation": [
+					9,
+					15,
+					0
+				]
+			},
+			"dad": {
+				"position": [
+					-30,
+					202,
+					-555.163841786804
+				],
+				"rotation": [
+					0.366666666666767,
+					-7,
+					0
+				]
+			}
+		}
+	}
 }

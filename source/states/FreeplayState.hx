@@ -1892,8 +1892,6 @@ class FreeplayState extends MusicBeatState
 			if (overChart.get(songName).contains(Difficulty.getString(curDifficulty)))
 				Mods.currentModDirectory = overChartChar[0];
 		}
-		trace(overChart);
-		trace(Mods.currentModDirectory);
 	}
 
 	function enterSong() {
