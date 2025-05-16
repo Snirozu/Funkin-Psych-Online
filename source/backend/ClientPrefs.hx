@@ -99,7 +99,6 @@ class SaveVariables {
 	public var disablePMs:Bool = false;
 	public var disableRoomInvites:Bool = false;
 	public var disableSSLVerify:Bool = false;
-	public var trustScripts:Bool = false;
 
 	public function new()
 	{

@@ -71,13 +71,9 @@ class FunkinLua {
 		//load default lua libs
 		LuaL.openlibs(lua);
 		//ignore other libs (thanks vortex)
-		if(!ClientPrefs.data.trustScripts)
-		{
-			set('os', null);
-			set('os.clock', function(){return Main.getTime();});
-			set('require', null);
-		}
-
+		set('os', null);
+		set('require', null);
+/
 		//trace('Lua version: ' + Lua.version());
 		//trace("LuaJIT version: " + Lua.versionJIT());
 
