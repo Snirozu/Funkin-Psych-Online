@@ -96,7 +96,7 @@ class Character extends FlxSprite {
 		return this.isSkin;
 	}
 
-	@:isVar public var custom(get,never):Bool=false;
+	public var custom(get,never):Bool;
 
 	function get_custom():Bool
 	{
