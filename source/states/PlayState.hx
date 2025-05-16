@@ -836,9 +836,8 @@ class PlayState extends MusicBeatState
 					gfGroup.add(abot);
 				}
 				
-				if (SONG.gfVersion == null) {
-					if (SONG.gfVersion.length < 1)
-						SONG.gfVersion = isPixelStage ? 'gf-pixel' : 'gf';
+				if (SONG.gfVersion == null || SONG.gfVersion.length < 1) {
+					SONG.gfVersion = isPixelStage ? 'gf-pixel' : 'gf';
 				}
 
 				if (!SONG.gfVersion.startsWith('nene'))
