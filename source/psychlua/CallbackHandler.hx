@@ -23,7 +23,9 @@ class CallbackHandler
 					}
 			}
 			
-			if(cbf == null) return 0;
+			if (cbf == null) {
+				return returnNil(l);
+			}
 
 			var nparams:Int = Lua.gettop(l);
 			var args:Array<Dynamic> = [];
@@ -44,25 +46,29 @@ class CallbackHandler
 		}
 		catch(e:Dynamic)
 		{
-			if (!ClientPrefs.isDebug() || e == null) {
-				return 0;
+			if (ClientPrefs.isDebug() && e != null) {
+				trace(fname);
+				var alertMsg:String = "";
+				var daError:String = "";
+				var callStack = haxe.CallStack.exceptionStack(true);
+	
+				alertMsg += e + "\n";
+				daError += haxe.CallStack.toString(callStack) + "\n";
+				if (e is haxe.Exception)
+					daError += "\n" + cast(e, haxe.Exception).stack.toString() + "\n";
+				alertMsg += daError;
+	
+				trace(alertMsg);
+				FunkinLua.trace('Lua: CALLBACK ERROR! ${if (e.message != null) e.message else e}');
+				//if(Lua_helper.sendErrorsToLua) {LuaL.error(l, 'CALLBACK ERROR! ${if(e.message != null) e.message else e}');return 0;}
+				// throw(e);
 			}
-			trace(fname);
-			var alertMsg:String = "";
-			var daError:String = "";
-			var callStack = haxe.CallStack.exceptionStack(true);
-			var dateNow = Date.now().toString();
-
-			alertMsg += e + "\n";
-			daError += haxe.CallStack.toString(callStack) + "\n";
-			if (e is haxe.Exception)
-				daError += "\n" + cast(e, haxe.Exception).stack.toString() + "\n";
-			alertMsg += daError;
-
-			trace(alertMsg);
-			if(Lua_helper.sendErrorsToLua) {LuaL.error(l, 'CALLBACK ERROR! ${if(e.message != null) e.message else e}');return 0;}
-			// throw(e);
 		}
-		return 0;
+		return returnNil(l);
+	}
+
+	static function returnNil(l:State) {
+		Convert.toLua(l, null);
+		return 1;
 	}
 }

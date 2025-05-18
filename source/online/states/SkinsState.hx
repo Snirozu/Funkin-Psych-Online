@@ -73,6 +73,8 @@ class SkinsState extends MusicBeatState {
 	var camFollow:FlxObject;
 	// static var introPlayed:Bool = false;
 
+	var stageObjects:Array<FlxSprite> = [];
+
     override function create() {
 		Paths.clearUnusedMemory();
 		Paths.clearStoredMemory();
@@ -149,6 +151,8 @@ class SkinsState extends MusicBeatState {
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		add(bg);
 
+		stageObjects = [bg];
+
 		if (!ClientPrefs.data.lowQuality) {
 			var stageBg = new FlxSprite(0, -220).loadGraphic(Paths.image('charSelect/charSelectBG'));
 			stageBg.setGraphicSize(Std.int(stageBg.width * 1.1));
@@ -209,6 +213,8 @@ class SkinsState extends MusicBeatState {
 			defaultGirlfriend.anim.play('beat');
 			defaultGirlfriend.scrollFactor.set(0.95, 0.95);
 			add(defaultGirlfriend);
+
+			stageObjects = [stageBg, stageCrowd, stage, swageLight1, swageLight2, stageCurtain, stageSpeakers];
 		}
 
         var i = 0;
@@ -363,6 +369,11 @@ class SkinsState extends MusicBeatState {
 		tip2.cameras = [hud];
 		add(tip2);
 
+		tweenColor(FlxColor.fromHSL(180, 1, 0.5));
+		if (colorTweens != null) {
+			for (tween in colorTweens)
+				tween.duration = 0;
+		}
 		setCharacter(0);
 
 		super.create();
@@ -722,21 +733,27 @@ class SkinsState extends MusicBeatState {
 				charInfo.text = 'This character has custom MIXES!';
 				charInfo.visible = true;
 			}
-
-			tweenColor(FlxColor.fromRGB(150, 150, 150));
         }
     }
 
-	var colorTween:FlxTween;
-	function tweenColor(color:FlxColor) {
-		if (colorTween != null) {
-			colorTween.cancel();
+	var colorTweens:Array<FlxTween> = [];
+	function tweenColor(hueColor:FlxColor) {
+		if (colorTweens != null) {
+			for (tween in colorTweens)
+				tween.cancel();
 		}
-		colorTween = FlxTween.color(bg, 1, bg.color, color, {
-			onComplete: function(twn:FlxTween) {
-				colorTween = null;
-			}
-		});
+
+		var color = new FlxColor(hueColor);
+		color.lightness = Math.min(0.7, color.lightness);
+
+		for (obj in stageObjects) {
+			colorTweens.push(FlxTween.color(obj, 1, obj.color, color, {
+				onComplete: function(twn:FlxTween) {
+					colorTweens.remove(twn);
+				},
+				ease: FlxEase.quadOut
+			}));
+		}
 	}
 
     function isEquiped(mod:String, skin:String) {

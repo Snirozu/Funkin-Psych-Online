@@ -496,6 +496,8 @@ class PlayState extends MusicBeatState
 
 	var forcePause = false;
 
+	var noteUnderlays:FlxTypedGroup<FlxSprite>;
+
 	override public function create()
 	{
 		theWorld = true;
@@ -969,6 +971,11 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
+			if (ClientPrefs.data.noteUnderlayOpacity > 0) {
+				noteUnderlays = new FlxTypedGroup<FlxSprite>();
+				noteGroup.add(noteUnderlays);
+			}
+
 			strumLineNotes = new FlxTypedGroup<StrumNote>();
 			noteGroup.add(strumLineNotes);
 			noteGroup.add(grpHoldSplashes);
@@ -2389,8 +2396,14 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-			if (player == 1)
+			if (player == 1) {
+				if (ClientPrefs.data.noteUnderlayOpacity > 0) {
+					var underlay = new FlxSprite().makeGraphic(Std.int(Note.swagWidth), FlxG.width * 2, FlxColor.BLACK);
+					underlay.alpha = ClientPrefs.data.noteUnderlayOpacity;
+					noteUnderlays.add(underlay);
+				}
 				playerStrums.add(babyArrow);
+			}
 			else
 			{
 				opponentStrums.add(babyArrow);
@@ -2875,6 +2888,21 @@ class PlayState extends MusicBeatState
 				}
 			}
 			checkEventNote();
+		}
+
+		if (ClientPrefs.data.noteUnderlayOpacity > 0) {
+			for (i in 0...playerStrums.length) {
+				var underlay = noteUnderlays.members[i];
+				var sturm = playerStrums.members[i];
+				if (!sturm.active || !sturm.visible) {
+					underlay.alpha = 0;
+				}
+				else {
+					underlay.x = sturm.x;
+					underlay.angle = sturm.direction - 90;
+					underlay.alpha = ClientPrefs.data.noteUnderlayOpacity * sturm.alpha;
+				}
+			}
 		}
 
 		if (!GameClient.isConnected() 

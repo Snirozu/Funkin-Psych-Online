@@ -511,16 +511,17 @@ class Character extends FlxSprite {
 				AnimName = "hey";
 			}
 
-			if (AnimName == "hey" && curCharacter.startsWith("tankman") && !animExists(AnimName)) {
-				AnimName = "singUP-alt";
-			}
-
 			if (!animExists(AnimName)) {
 				if (AnimName == "hey") {
-					specialAnim = false;
-					heyTimer = 0;
+					if (curCharacter.startsWith("tankman")) {
+						AnimName = "singUP-alt";
+					}
+					else {
+						AnimName = "singUP";
+						// specialAnim = false;
+						// heyTimer = 0;
+					}
 				}
-				return;
 			}
 		}
 
