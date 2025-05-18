@@ -346,8 +346,12 @@ class PauseSubState extends MusicBeatSubstate
 					close();
 				case "Save Replay":
 					var replayData = Json.stringify(PlayState.replayData);
-					File.saveContent("replays/" + FileUtils.formatFile(PlayState.replayData.player) + "Replay-" + PlayState.SONG.song + "-" + Difficulty.getString().toUpperCase() + ".funkinreplay", replayData);
-					Alert.alert("Replay Saved!", "replays/" + FileUtils.formatFile(PlayState.replayData.player) + "Replay-" + PlayState.SONG.song + "-" + Difficulty.getString().toUpperCase() + ".funkinreplay");
+					var path = FileUtils.joinFiles([
+						"replays", 
+						PlayState.replayData.player + "Replay-" + PlayState.SONG.song + "-" + Difficulty.getString().toUpperCase() + ".funkinreplay"
+					]);
+					File.saveContent(path, replayData);
+					Alert.alert("Replay Saved!", path);
 					close();
 			}
 		}
