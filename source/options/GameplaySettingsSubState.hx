@@ -145,7 +145,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.minValue = 0.0;
 		option.maxValue = 1;
 		option.changeValue = 0.05;
-		option.decimals = 1;
+		option.decimals = 2;
 
 		super();
 	}

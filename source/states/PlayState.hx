@@ -2367,6 +2367,7 @@ class PlayState extends MusicBeatState
 	{
 		var strumLineX:Float = ClientPrefs.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X;
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
+		var strumGroup = player == 1 ? playerStrums : opponentStrums;
 		for (i in 0...4)
 		{
 			// FlxG.log.add(i);
@@ -2396,17 +2397,11 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-			if (player == 1) {
-				if (ClientPrefs.data.noteUnderlayOpacity > 0) {
-					var underlay = new FlxSprite().makeGraphic(Std.int(Note.swagWidth), FlxG.width * 2, FlxColor.BLACK);
-					underlay.alpha = ClientPrefs.data.noteUnderlayOpacity;
-					noteUnderlays.add(underlay);
-				}
-				playerStrums.add(babyArrow);
-			}
-			else
-			{
-				opponentStrums.add(babyArrow);
+			strumGroup.add(babyArrow);
+			if (ClientPrefs.data.noteUnderlayOpacity > 0 && strumGroup == getPlayerStrums()) {
+				var underlay = new FlxSprite().makeGraphic(Std.int(Note.swagWidth), FlxG.width * 2, FlxColor.BLACK);
+				underlay.alpha = ClientPrefs.data.noteUnderlayOpacity;
+				noteUnderlays.add(underlay);
 			}
 
 			if (GameClient.isConnected()) {
@@ -2891,9 +2886,10 @@ class PlayState extends MusicBeatState
 		}
 
 		if (ClientPrefs.data.noteUnderlayOpacity > 0) {
-			for (i in 0...playerStrums.length) {
+			var playingStrums = getPlayerStrums();
+			for (i in 0...playingStrums.length) {
 				var underlay = noteUnderlays.members[i];
-				var sturm = playerStrums.members[i];
+				var sturm = playingStrums.members[i];
 				if (!sturm.active || !sturm.visible) {
 					underlay.alpha = 0;
 				}
