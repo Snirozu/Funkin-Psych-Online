@@ -221,7 +221,7 @@ class FunkinLua {
 		//UMM Shit
 		set('online',GameClient.isConnected());
 		set('localPlay',false);
-		set('leftSide',GameClient.isConnected()?PlayState.playsAsBF():PlayState.opponentMode);
+		set('leftSide',GameClient.isConnected()?!PlayState.playsAsBF():PlayState.opponentMode);
         addLuaCallback("send", function(message:String, title:String) {
 			online.GameClient.send("custom", [title, message]);
 		});
