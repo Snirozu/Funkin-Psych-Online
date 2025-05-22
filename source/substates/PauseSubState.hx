@@ -93,9 +93,11 @@ class PauseSubState extends MusicBeatSubstate
 			pauseMusic.loadEmbedded(Paths.music(songName), true, true);
 		} else if (songName != 'None') {
 			var msc = null;
-			ShitUtil.tempSwitchMod(ClientPrefs.data.modSkin[0], () -> {
-				msc = Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic + '-' + ClientPrefs.data.modSkin[1]));
-			});
+			if (ClientPrefs.data.modSkin != null) {
+			   ShitUtil.tempSwitchMod(ClientPrefs.data.modSkin[0], () -> {
+		              msc = Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic + '-' + ClientPrefs.data.modSkin[1]));
+			   });
+			}
 			msc ??= Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic));
 			pauseMusic.loadEmbedded(msc, true, true);
 		}
