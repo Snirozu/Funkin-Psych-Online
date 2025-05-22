@@ -73,8 +73,6 @@ class TitleState extends MusicBeatState
 
 	var titleJSON:TitleData;
 
-	public static var updateVersion:String = '';
-
 	override public function create():Void
 	{
 		Paths.clearStoredMemory();
@@ -103,15 +101,17 @@ class TitleState extends MusicBeatState
 		#if CHECK_FOR_UPDATES
 		if(ClientPrefs.data.checkForUpdates && !closedState) {
 			trace('checking for update');
-			var http = new haxe.Http("https://raw.githubusercontent.com/Snirozu/Funkin-Psych-Online/main/gitVersion.txt");
+			//should've done that earlier
+			var http = new haxe.Http("https://api.github.com/repos/Snirozu/Funkin-Psych-Online/releases/latest");
 
-			http.onData = function (data:String)
+			http.onData = function (raw:String)
 			{
-				updateVersion = data.split('\n')[0].trim();
+				Main.latestRelease = Json.parse(raw);
+				Main.updateVersion = Main.latestRelease.tag_name;
 				var curVersion:String = Main.PSYCH_ONLINE_VERSION.trim();
-				trace('version online: ' + updateVersion + ', your version: ' + curVersion);
+				trace('version online: ' + Main.updateVersion + ', your version: ' + curVersion);
 
-				var updatVer:Array<Int> = updateVersion.split('.').map(s -> {
+				var updatVer:Array<Int> = Main.updateVersion.split('.').map(s -> {
 					return Std.parseInt(s);
 				});
 				var curVer:Array<Int> = curVersion.split('.').map(s -> {

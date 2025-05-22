@@ -44,26 +44,27 @@ class DialogueBox extends FlxSpriteGroup
 		box = new FlxSprite(-20, 45);
 		
 		var hasDialog = true;
-		switch (PlayState.SONG.song.toLowerCase())
-		{
-			case 'senpai':
-				box.frames = Paths.getSparrowAtlas('weeb/pixelUI/dialogueBox-pixel');
-				box.animation.addByPrefix('normalOpen', 'Text Box Appear', 24, false);
-				box.animation.addByIndices('normal', 'Text Box Appear instance 1', [4], "", 24);
-			case 'roses':
-				box.frames = Paths.getSparrowAtlas('weeb/pixelUI/dialogueBox-senpaiMad');
-				box.animation.addByPrefix('normalOpen', 'SENPAI ANGRY IMPACT SPEECH', 24, false);
-				box.animation.addByIndices('normal', 'SENPAI ANGRY IMPACT SPEECH instance 1', [4], "", 24);
-			case 'thorns':
-				box.frames = Paths.getSparrowAtlas('weeb/pixelUI/dialogueBox-evil');
-				box.animation.addByPrefix('normalOpen', 'Spirit Textbox spawn', 24, false);
-				box.animation.addByIndices('normal', 'Spirit Textbox spawn instance 1', [11], "", 24);
+		if (PlayState.SONG.song.toLowerCase().startsWith('senpai')) {
+			box.frames = Paths.getSparrowAtlas('weeb/pixelUI/dialogueBox-pixel');
+			box.animation.addByPrefix('normalOpen', 'Text Box Appear', 24, false);
+			box.animation.addByIndices('normal', 'Text Box Appear instance 1', [4], "", 24);
+		}
+		else if (PlayState.SONG.song.toLowerCase().startsWith('roses')) {
+			box.frames = Paths.getSparrowAtlas('weeb/pixelUI/dialogueBox-senpaiMad');
+			box.animation.addByPrefix('normalOpen', 'SENPAI ANGRY IMPACT SPEECH', 24, false);
+			box.animation.addByIndices('normal', 'SENPAI ANGRY IMPACT SPEECH instance 1', [4], "", 24);
+		}
+		else if (PlayState.SONG.song.toLowerCase().startsWith('thorns')) {
+			box.frames = Paths.getSparrowAtlas('weeb/pixelUI/dialogueBox-evil');
+			box.animation.addByPrefix('normalOpen', 'Spirit Textbox spawn', 24, false);
+			box.animation.addByIndices('normal', 'Spirit Textbox spawn instance 1', [11], "", 24);
 
-				var face:FlxSprite = new FlxSprite(320, 170).loadGraphic(Paths.image('weeb/spiritFaceForward'));
-				face.setGraphicSize(Std.int(face.width * 6));
-				add(face);
-			default:
-				hasDialog = false;
+			var face:FlxSprite = new FlxSprite(320, 170).loadGraphic(Paths.image('weeb/spiritFaceForward'));
+			face.setGraphicSize(Std.int(face.width * 6));
+			add(face);
+		}
+		else {
+			hasDialog = false;
 		}
 
 		this.dialogueList = dialogueList;
@@ -128,9 +129,9 @@ class DialogueBox extends FlxSpriteGroup
 	override function update(elapsed:Float)
 	{
 		// HARD CODING CUZ IM STUPDI
-		if (PlayState.SONG.song.toLowerCase() == 'roses')
+		if (PlayState.SONG.song.toLowerCase().startsWith('roses'))
 			portraitLeft.visible = false;
-		if (PlayState.SONG.song.toLowerCase() == 'thorns')
+		if (PlayState.SONG.song.toLowerCase().startsWith('thorns'))
 		{
 			portraitLeft.visible = false;
 			swagDialogue.color = FlxColor.WHITE;
@@ -165,7 +166,7 @@ class DialogueBox extends FlxSpriteGroup
 						isEnding = true;
 						FlxG.sound.play(Paths.sound('clickText'), 0.8);	
 
-						if (PlayState.SONG.song.toLowerCase() == 'senpai' || PlayState.SONG.song.toLowerCase() == 'thorns')
+						if (PlayState.SONG.song.toLowerCase().startsWith('senpai') || PlayState.SONG.song.toLowerCase().startsWith('thorns'))
 							FlxG.sound.music.fadeOut(1.5, 0);
 
 						new FlxTimer().start(0.2, function(tmr:FlxTimer)
@@ -232,7 +233,7 @@ class DialogueBox extends FlxSpriteGroup
 				portraitRight.visible = false;
 				if (!portraitLeft.visible)
 				{
-					if (PlayState.SONG.song.toLowerCase() == 'senpai') portraitLeft.visible = true;
+					if (PlayState.SONG.song.toLowerCase().startsWith('senpai')) portraitLeft.visible = true;
 					portraitLeft.animation.play('enter');
 				}
 			case 'bf':

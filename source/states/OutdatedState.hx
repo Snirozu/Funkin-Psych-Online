@@ -17,7 +17,7 @@ class OutdatedState extends MusicBeatState
 		warnText = new FlxText(0, 0, FlxG.width,
 			"Sorry, but you have to update this mod
 			your current version is '" + Main.PSYCH_ONLINE_VERSION + "' while
-			the latest is '" + TitleState.updateVersion + "'\n
+			the latest is '" + Main.updateVersion + "'\n
 			ACCEPT - Jump into the download page!
 			BACK - Continue without updating.",
 			32);
@@ -30,7 +30,7 @@ class OutdatedState extends MusicBeatState
 	{
 		if(!leftState) {
 			if (controls.ACCEPT) {
-				CoolUtil.browserLoad("https://github.com/Snirozu/Funkin-Psych-Online/releases");
+				CoolUtil.browserLoad(Main.latestRelease.html_url);
 				online.network.Auth.saveClose();
 				Sys.exit(1);
 			}

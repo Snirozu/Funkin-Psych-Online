@@ -107,6 +107,7 @@ class MallErect extends BaseStage
 	}
 
 	function santaCutscene() {
+		inCutscene = true;
 		game.canPause = false;
 		game.canReset = false;
 

@@ -24,6 +24,17 @@
 		},
 		{
 			"offsets": [
+				25,
+				30
+			],
+			"loop": false,
+			"anim": "hey-alt",
+			"fps": 24,
+			"name": "Pico YEAH cheer",
+			"indices": []
+		},
+		{
+			"offsets": [
 				65,
 				9
 			],
@@ -112,7 +123,7 @@
 		}
 	],
 	"no_antialiasing": false,
-	"image": "characters/Pico_FNF_assetss,characters/Pico_Finger",
+	"image": "characters/Pico_FNF_assetss,characters/Pico_Finger,characters/pico-yeah",
 	"position": [
 		0,
 		300

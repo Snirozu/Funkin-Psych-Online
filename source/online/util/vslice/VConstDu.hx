@@ -60,6 +60,8 @@ typedef SongNoteData = {
 	public var t:Float;
 	public var d:Float;
 	public var l:Float;
+	public var k:String;
+	//public var p:Array<Dynamic>;
 }
 
 typedef SongEventData = {

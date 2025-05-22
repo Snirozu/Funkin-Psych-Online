@@ -21,7 +21,9 @@ class School extends BaseStage
 		if(_song.gameOverEnd == null || _song.gameOverEnd.trim().length < 1) GameOverSubstate.endSoundName = 'gameOverEnd-pixel';
 		if(_song.gameOverChar == null || _song.gameOverChar.trim().length < 1) GameOverSubstate.characterName = 'bf-pixel-dead';
 
-		var bgSky:BGSprite = new BGSprite('weeb/weebSky', 0, 0, 0.1, 0.1);
+		var bgSky:BGSprite = new BGSprite('weeb/weebSky', -130, -50, 0.1, 0.1);
+		bgSky.setGraphicSize(Std.int(bgSky.width * 1.1));
+		bgSky.updateHitbox();
 		add(bgSky);
 		bgSky.antialiasing = false;
 
@@ -44,11 +46,13 @@ class School extends BaseStage
 			fgTrees.antialiasing = false;
 		}
 
-		var bgTrees:FlxSprite = new FlxSprite(repositionShit - 380, -800);
+		var bgTrees:FlxSprite = new FlxSprite(repositionShit - 520, -920);
 		bgTrees.frames = Paths.getPackerAtlas('weeb/weebTrees');
 		bgTrees.animation.add('treeLoop', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], 12);
 		bgTrees.animation.play('treeLoop');
 		bgTrees.scrollFactor.set(0.85, 0.85);
+		bgTrees.setGraphicSize(Std.int(bgTrees.width * 1.1));
+		bgTrees.updateHitbox();
 		add(bgTrees);
 		bgTrees.antialiasing = false;
 
@@ -77,17 +81,20 @@ class School extends BaseStage
 		}
 		setDefaultGF('gf-pixel');
 
-		switch (songName)
-		{
-			case 'senpai':
-				FlxG.sound.playMusic(Paths.music('Lunchbox'), 0);
-				FlxG.sound.music.fadeIn(1, 0, 0.8);
-			case 'roses':
-				FlxG.sound.play(Paths.sound('ANGRY_TEXT_BOX'));
+		if (songName.startsWith('senpai')) {
+			FlxG.sound.playMusic(Paths.music('Lunchbox'), 0);
+			FlxG.sound.music.fadeIn(1, 0, 0.8);
 		}
-		if(isStoryMode && !seenCutscene)
-		{
-			if(songName == 'roses') FlxG.sound.play(Paths.sound('ANGRY'));
+		else if (songName.startsWith('roses')) {
+			FlxG.sound.play(Paths.sound('ANGRY_TEXT_BOX'));
+			if (isStoryMode && !seenCutscene) {
+				FlxG.sound.play(Paths.sound('ANGRY'));
+			}
+			if (bgGirls != null)
+				bgGirls.swapDanceType();
+		}
+
+		if(isStoryMode && !seenCutscene) {
 			initDoof();
 			setStartCallback(schoolIntro);
 		}
@@ -135,7 +142,7 @@ class School extends BaseStage
 		inCutscene = true;
 		var black:FlxSprite = new FlxSprite(-100, -100).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.BLACK);
 		black.scrollFactor.set();
-		if(songName == 'senpai') add(black);
+		if (songName.startsWith('senpai')) add(black);
 
 		new FlxTimer().start(0.3, function(tmr:FlxTimer)
 		{

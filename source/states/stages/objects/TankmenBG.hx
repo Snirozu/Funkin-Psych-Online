@@ -61,11 +61,8 @@ class TankmenBG extends FlxSprite
 		if(Conductor.songPosition > strumTime)
 		{
 			animation.play('shot');
-			if(goingRight)
-			{
-				offset.x = 300;
-				offset.y = 200;
-			}
+			offset.x = 300;
+			offset.y = 200;
 		}
 	}
 }
