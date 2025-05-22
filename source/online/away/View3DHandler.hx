@@ -22,7 +22,7 @@ class View3DHandler extends View3D {
 
 	public var onDebug:Bool->Void = null;
 
-	var debugMode(default, set):Bool = false;
+	public var debugMode(default, set):Bool = false;
 	function set_debugMode(v) {
 		debugMode = v;
 		updateDebugMode();

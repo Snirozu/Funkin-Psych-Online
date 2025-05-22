@@ -1,5 +1,6 @@
 package substates;
 
+import online.util.ShitUtil;
 import openfl.media.Sound;
 import backend.WeekData;
 
@@ -73,45 +74,84 @@ class GameOverSubstate extends MusicBeatSubstate
 		Conductor.songPosition = 0;
 
 		if (overCharacter == null) {
-			boyfriend = new Character(x, y, characterName, true, false, 'bf-dead');
-			boyfriend.x += boyfriend.positionArray[0];
-			boyfriend.y += boyfriend.positionArray[1];
+			boyfriend = new Character(x, y, characterName, true, false);
 		}
 		else {
-			boyfriend = overCharacter;
-			boyfriend.setPosition(x, y);
-			boyfriend.x += boyfriend.positionArray[0];
-			boyfriend.y += boyfriend.positionArray[1];
-			boyfriend.visible = true;
-			boyfriend.alpha = 1;
+			if (overCharacter.deadName != null) {
+				boyfriend = new Character(x, y, overCharacter.deadName, true, false);
+			}
+			else {
+				boyfriend = overCharacter;
+				boyfriend.setPosition(x, y);
+				boyfriend.visible = true;
+				boyfriend.alpha = 1;
+			}
 		}
+
+		if (boyfriend.isAnimateAtlas) {
+			boyfriend.onAtlasAnimationComplete = animName -> {
+				if (animName == "confirm") {
+					boyfriend.atlas.anim.play("confirm", true, false);
+				}
+				else {
+					boyfriend.atlas.anim.play("loop", true, false);
+				}
+			};
+		}
+		boyfriend.x += boyfriend.positionArray[0];
+		boyfriend.y += boyfriend.positionArray[1];
 		add(boyfriend);
 
 		var retryChar:String = null;
 		if (boyfriend.curCharacter.startsWith('pico')) {
-			retryChar = 'pico-retry-button';
 			deathSoundName = 'fnf_loss_sfx-pico';
 			loopSoundName = 'gameOver-pico';
 			endSoundName = 'gameOverEnd-pico';
 
-			var neneKill = new FlxSprite(x, y);
-			if (boyfriend.curCharacter.startsWith('pico-christmas')) {
-				neneKill.frames = Paths.getSparrowAtlas('characters/neneChristmas/neneChristmasKnife');
-				neneKill.animation.addByPrefix('idle', 'knife toss xmas', 24, false);
+			if (!boyfriend.curCharacter.contains('-nene') && !boyfriend.curCharacter.contains('-pixel')) {
+				retryChar = 'pico-retry-button';
+	
+				var neneKill = new FlxSprite(x, y);
+				if (boyfriend.curCharacter.startsWith('pico-christmas')) {
+					neneKill.frames = Paths.getSparrowAtlas('characters/neneChristmas/neneChristmasKnife');
+					neneKill.animation.addByPrefix('idle', 'knife toss xmas', 24, false);
+				}
+				else {
+					neneKill.frames = Paths.getSparrowAtlas('characters/NeneKnifeToss');
+					neneKill.animation.addByPrefix('idle', 'knife toss', 24, false);
+				}
+				neneKill.animation.finishCallback = _ -> {
+					FlxTween.tween(neneKill, {alpha: 0}, 0.5, {ease: FlxEase.quadOut});
+				};
+				neneKill.animation.play('idle');
+				neneKill.setPosition(
+					PlayState.instance.gf.getScreenPosition().x + PlayState.instance.gf.positionArray[0],
+					PlayState.instance.gf.getScreenPosition().y + PlayState.instance.gf.positionArray[1]
+				);
+				add(neneKill);
 			}
-			else {
-				neneKill.frames = Paths.getSparrowAtlas('characters/NeneKnifeToss');
-				neneKill.animation.addByPrefix('idle', 'knife toss', 24, false);
+
+			if (boyfriend.curCharacter == 'pico-pixel-dead') {
+				deathSoundName = 'fnf_loss_sfx-pixel-pico';
+				loopSoundName = 'gameOver-pixel-pico';
+				endSoundName = 'gameOverEnd-pixel-pico';
+
+				var neneKill = new FlxSprite(x, y);
+				neneKill.frames = Paths.getSparrowAtlas('characters/nenePixelKnifeToss');
+				neneKill.animation.addByPrefix('idle', 'knifetosscolor', 24, false);
+				neneKill.animation.finishCallback = _ -> {
+					FlxTween.tween(neneKill, {alpha: 0}, 0.5, {ease: FlxEase.quadOut});
+				};
+				neneKill.animation.play('idle');
+				neneKill.setPosition(
+					PlayState.instance.gf.getScreenPosition().x + PlayState.instance.gf.positionArray[0] - 100,
+					PlayState.instance.gf.getScreenPosition().y + PlayState.instance.gf.positionArray[1] - 200
+				);
+				neneKill.antialiasing = false;
+				neneKill.scale.set(6, 6);
+				neneKill.updateHitbox();
+				add(neneKill);
 			}
-			neneKill.animation.finishCallback = _ -> {
-				FlxTween.tween(neneKill, {alpha: 0}, 0.5, {ease: FlxEase.quadOut});
-			};
-			neneKill.animation.play('idle');
-			neneKill.setPosition(
-				PlayState.instance.gf.getScreenPosition().x + PlayState.instance.gf.positionArray[0],
-				PlayState.instance.gf.getScreenPosition().y + PlayState.instance.gf.positionArray[1]
-			);
-			add(neneKill);
 		}
 
 		if (retryChar != null) {
@@ -151,12 +191,18 @@ class GameOverSubstate extends MusicBeatSubstate
 			boyfriend.playAnim('firstDeath');
 		}
 
-		if (PlayState.curStage == 'tank') {
-			tankTalk = Paths.sound('jeffGameover/jeffGameover-' + FlxG.random.int(1, 25));
+		if (PlayState.instance.dad.curCharacter.startsWith('tankman')) {
+			ShitUtil.tempSwitchMod(ClientPrefs.data.modSkin[0], () -> {
+				tankTalk = Paths.sound('jeffGameover-${ClientPrefs.data.modSkin[1]}/jeffGameover-' + FlxG.random.int(1, 10));
+			});
+			tankTalk ??= Paths.sound('jeffGameover/jeffGameover-' + FlxG.random.int(1, 25));
 		}
 
 		camFollow = new FlxObject(0, 0, 1, 1);
-		camFollow.setPosition(boyfriend.getMidpoint().x, boyfriend.getMidpoint().y);
+		if (boyfriend.curCharacter.contains('-dead'))
+			camFollow.setPosition(boyfriend.getMidpoint().x + boyfriend.cameraPosition[0], boyfriend.getMidpoint().y + boyfriend.cameraPosition[1]);
+		else
+			camFollow.setPosition(boyfriend.getMidpoint().x, boyfriend.getMidpoint().y);
 		FlxG.camera.focusOn(new FlxPoint(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2)));
 		add(camFollow);
 

@@ -24,6 +24,17 @@
 		},
 		{
 			"offsets": [
+				60,
+				30
+			],
+			"loop": false,
+			"anim": "hey-alt",
+			"fps": 24,
+			"name": "Pico YEAH cheer",
+			"indices": []
+		},
+		{
+			"offsets": [
 				21,
 				27
 			],

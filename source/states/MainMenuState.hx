@@ -295,7 +295,7 @@ class MainMenuState extends MusicBeatState
 			#end
 
 			if (FlxG.mouse.justPressed && updatEBg != null && FlxG.mouse.overlaps(updatEBg)) {
-				online.substates.RequestSubstate.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/releases", true);
+				online.substates.RequestSubstate.requestURL(Main.latestRelease.html_url, true);
 			}
 		}
 

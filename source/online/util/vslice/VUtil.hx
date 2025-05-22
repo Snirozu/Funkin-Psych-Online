@@ -70,6 +70,27 @@ class VUtil {
 							]]
 						]
 						);
+					case "SetHealthIcon":
+						events.push(
+						[
+							event.t,
+							[[
+								"Set Health Icon",
+								event.v.char,
+								event.v.id
+							]]
+						]
+						);
+					case "EnableMask": // whatever this does!
+						events.push(
+						[
+							event.t,
+							[[
+								"Enable Mask",
+								event.v,
+							]]
+						]
+						);
 					default:
 						Sys.println("ignoring " + event.e);
 				}
@@ -79,7 +100,7 @@ class VUtil {
 			for (diff in song.notes.keys()) {
 				var data = convertDifficulty(song, meta, diff);
 				if (data == null) continue;
-				File.saveContent(Path.join([exportPath, '${songID}-${diff}.json']), data);
+				File.saveContent(Path.join([exportPath, '${songID}${diff == "normal" ? "" : '-${diff}'}.json']), data);
 			}
 		});
 		fileDialog.browse(OPEN_DIRECTORY, null, Sys.getCwd());
@@ -126,7 +147,18 @@ class VUtil {
 				curSection = calcSection;
 			}
 
-			sectionNotes.push([note.t, note.d, note.l]);
+			var noteArr:Array<Dynamic> = [note.t, note.d, note.l];
+
+			switch (note.k) {
+				case "mom":
+					noteArr.push("Alt Animation");
+				case "ugh":
+					swagSong.events.push([note.t, [["Play Animation", "dad", "ugh"]]]);
+				case "hehPrettyGood":
+					swagSong.events.push([note.t, [["Play Animation", "dad", "singDOWN-alt"]]]);
+			}
+
+			sectionNotes.push(noteArr);
 		}
 		if (sectionNotes.length > 0) {
 			// add the last section 

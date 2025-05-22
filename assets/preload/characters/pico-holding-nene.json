@@ -1,0 +1,156 @@
+{
+	"animations": [
+		{
+			"offsets": [
+				0,
+				0
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "idle",
+			"indices": [],
+			"name": "Pico Idle Dance"
+		},
+		{
+			"offsets": [
+				56,
+				3
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singUP",
+			"indices": [],
+			"name": "pico Up note0"
+		},
+		{
+			"offsets": [
+				93,
+				-70
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singDOWN",
+			"indices": [],
+			"name": "Pico Down Note0"
+		},
+		{
+			"offsets": [
+				95,
+				-74
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singDOWNmiss",
+			"indices": [],
+			"name": "note miss down pico nene0"
+		},
+		{
+			"offsets": [
+				60,
+				2
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "singUPmiss",
+			"indices": [],
+			"name": "note miss up piconene0"
+		},
+		{
+			"loop": false,
+			"offsets": [
+				-48,
+				-20
+			],
+			"anim": "singRIGHT",
+			"fps": 24,
+			"name": "Pico Note Right0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				27,
+				-16
+			],
+			"anim": "singLEFT",
+			"fps": 24,
+			"name": "Pico NOTE LEFT0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				-45,
+				-19
+			],
+			"anim": "singRIGHTmiss",
+			"fps": 24,
+			"name": "note miss right pico nene0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				28,
+				-11
+			],
+			"anim": "singLEFTmiss",
+			"fps": 24,
+			"name": "note miss left pico nene0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				28,
+				-11
+			],
+			"anim": "singLEFTmiss",
+			"fps": 24,
+			"name": "note miss left pico nene0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				14,
+				26
+			],
+			"anim": "knifeToss",
+			"fps": 24,
+			"name": "pico nene knife toss0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				5,
+				7
+			],
+			"fps": 24,
+			"anim": "laughEnd",
+			"indices": [],
+			"name": "pico nene laughing full0"
+		}
+	],
+	"no_antialiasing": false,
+	"image": "characters/picoAndNene",
+	"position": [
+		-10,
+		260
+	],
+	"healthicon": "pico",
+	"flip_x": true,
+	"healthbar_colors": [
+		183,
+		216,
+		85
+	],
+	"camera_position": [
+		50,
+		0
+	],
+	"sing_duration": 4,
+	"scale": 1,
+	"dead_character": "pico-holding-nene-dead"
+}

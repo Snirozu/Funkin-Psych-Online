@@ -8,6 +8,7 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [ main, experimental ]
+    tags: [ "*" ]
   pull_request:
     branches: [ main, experimental ]
 
@@ -26,18 +27,20 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Retrieve Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/haxelib
-            export/release/linux/haxe
-            export/release/linux/obj
-          key: ${{ runner.os }}-build-cache
-
       - uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
+
+      - name: Retrieve Cache
+        id: cache-linux
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/haxelib/**
+            export/release/linux/**
+            !export/release/linux/bin/**
+          key: ${{ runner.os }}-build-cache
+
       # Runs a set of commands using the runners shell
       - name: Install Haxelib
         run: |
@@ -62,19 +65,21 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2.3.0
-      
-      - name: Retrieve Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/haxelib
-            export/release/windows/haxe
-            export/release/windows/obj
-          key: ${{ runner.os }}-build-cache
 
       - uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
+
+      - name: Retrieve Cache
+        id: cache-windows
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:/haxelib/**
+            export/release/windows/**
+            !export/release/windows/bin/**
+          key: ${{ runner.os }}-build-cache
+
       # Runs a set of commands using the runners shell
       - name: Install Haxelib
         run: |
@@ -99,18 +104,20 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Retrieve Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/haxelib
-            export/release/macos/haxe
-            export/release/macos/obj
-          key: ${{ runner.os }}-build-cache
-
       - uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
+
+      - name: Retrieve Cache
+        id: cache-macos
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/haxelib/**
+            export/release/macos/**
+            !export/release/macos/bin/**
+          key: ${{ runner.os }}-build-cache
+
       # Runs a set of commands using the runners shell
       - name: Install Haxelib
         run: |
@@ -137,7 +144,7 @@ jobs:
   #     - uses: actions/checkout@v2
       
   #     - name: Retrieve Cache
-  #       uses: actions/cache@v3
+  #       uses: actions/cache@v4
   #       with:
   #         path: |
   #           ~/haxelib
@@ -193,7 +200,7 @@ jobs:
   #     - uses: actions/checkout@v2
 
   #     - name: Retrieve Cache
-  #       uses: actions/cache@v3
+  #       uses: actions/cache@v4
   #       with:
   #         path: |
   #           ~/haxelib
@@ -220,3 +227,62 @@ jobs:
   #       with:
   #         name: iOSBuild (experimental)
   #         path: export/release/ios/build/
+  release:
+    if: github.ref_type == 'tag'
+    needs:
+      - buildLinux
+      - buildMac
+      - buildWindows
+    
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Create Draft Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: v${{ github.ref_name }}
+        draft: true
+        prerelease: false
+
+    - name: Download all workflow run artifacts
+      uses: actions/download-artifact@v4
+
+    - name: Zip artifacts
+      run: |
+        zip -r windowsBuild.zip windowsBuild/
+        zip -r linuxBuild.zip linuxBuild/
+        zip -r macBuild.zip macBuild/
+
+    - name: Upload Windows build to the release
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: windowsBuild.zip
+        asset_name: windowsBuild.zip
+        asset_content_type: application/zip
+
+    - name: Upload Linux build to the release
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: linuxBuild.zip
+        asset_name: linuxBuild.zip
+        asset_content_type: application/zip
+
+    - name: Upload MacOS build to the release
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: macBuild.zip
+        asset_name: macBuild.zip
+        asset_content_type: application/zip
