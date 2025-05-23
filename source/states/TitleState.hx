@@ -102,10 +102,10 @@ class TitleState extends MusicBeatState
 		if(ClientPrefs.data.checkForUpdates && !closedState) {
 			trace('checking for update');
 			//should've done that earlier
-			var http = new haxe.Http("https://api.github.com/repos/Snirozu/Funkin-Psych-Online/releases/latest");
+			var response = new online.http.HTTPClient("https://api.github.com/repos/Snirozu/Funkin-Psych-Online/releases/latest").request();
 
-			http.onData = function (raw:String)
-			{
+			if (!response.isFailed()) {
+				var raw = response.getString();
 				Main.latestRelease = Json.parse(raw);
 				Main.updateVersion = Main.latestRelease.tag_name;
 				var curVersion:String = Main.PSYCH_ONLINE_VERSION.trim();
@@ -144,12 +144,9 @@ class TitleState extends MusicBeatState
 					}
 				}
 			}
-
-			http.onError = function (error) {
-				trace('error: $error');
+			else {
+				trace(response.getError());
 			}
-
-			http.request();
 		}
 		#end
 
