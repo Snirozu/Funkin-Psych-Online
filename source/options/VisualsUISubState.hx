@@ -245,6 +245,15 @@ class VisualsUISubState extends BaseOptionsMenu
 		};
 		addOption(option);
 
+		var option:Option = new Option('Favorite Tracks Menu Theme',
+			'If checked, the game will be picking your random favorite song as the main menu theme!',
+			'favsAsMenuTheme',
+			'bool');
+		option.onChange = () -> {
+			states.TitleState.playFreakyMusic();
+		};
+		addOption(option);
+
 		super();
 		add(notes);
 	}
@@ -302,7 +311,7 @@ class VisualsUISubState extends BaseOptionsMenu
 
 	override function destroy()
 	{
-		if(changedMusic && !OptionsState.onPlayState) FlxG.sound.playMusic(Paths.music('freakyMenu'), 1, true);
+		if(changedMusic && !OptionsState.onPlayState) states.TitleState.playFreakyMusic();
 		isOpened = false;
 		if (GameClient.isConnected()) {
 			var data:NoteSkinStructure = NoteSkinData.getCurrent(-1);

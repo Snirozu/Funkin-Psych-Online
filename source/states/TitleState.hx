@@ -231,7 +231,7 @@ class TitleState extends MusicBeatState
 		if (!initialized)
 		{
 			if(FlxG.sound.music == null) {
-				FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+				states.TitleState.playFreakyMusic(0);
 			}
 		}
 
@@ -546,6 +546,11 @@ class TitleState extends MusicBeatState
 			skipIntro();
 		}
 
+		if (controls.RESET) {
+			FlxG.sound.music.stop();
+			playFreakyMusic();
+		}
+
 		if(swagShader != null)
 		{
 			if(controls.UI_LEFT) swagShader.hue -= elapsed * 0.1;
@@ -631,7 +636,7 @@ class TitleState extends MusicBeatState
 			{
 				case 1:
 					//FlxG.sound.music.stop();
-					FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+					states.TitleState.playFreakyMusic(0);
 					FlxG.sound.music.fadeIn(4, 0, 0.7);
 				case 2:
 					#if PSYCH_WATERMARKS
@@ -725,7 +730,7 @@ class TitleState extends MusicBeatState
 						skippedIntro = true;
 						playJingle = false;
 
-						FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+						states.TitleState.playFreakyMusic(0);
 						FlxG.sound.music.fadeIn(4, 0, 0.7);
 						return;
 				}
@@ -747,7 +752,7 @@ class TitleState extends MusicBeatState
 					remove(credGroup);
 					FlxG.camera.flash(FlxColor.WHITE, 3);
 					sound.onComplete = function() {
-						FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+						states.TitleState.playFreakyMusic(0);
 						FlxG.sound.music.fadeIn(4, 0, 0.7);
 						transitioning = false;
 					};
@@ -777,4 +782,76 @@ class TitleState extends MusicBeatState
 			skippedIntro = true;
 		}
 	}
+
+	static var lastFreakyMusic:openfl.media.Sound = null;
+	public static var lastSong:TrackSong = null;
+	public static function playFreakyMusic(?volume:Float = 0.7, ?daSong:TrackSong) {
+		if (FlxG.sound.music != null && FlxG.sound.music.playing && lastFreakyMusic == @:privateAccess FlxG.sound.music._sound)
+			return;
+
+		if (FlxG.sound.music != null)
+			FlxG.sound.music.stop();
+
+		if (daSong == null && ClientPrefs.data.favsAsMenuTheme && ClientPrefs.data.favSongs != null && ClientPrefs.data.favSongs.length > 0) {
+			var songs:Array<TrackSong> = [];
+	
+			WeekData.reloadWeekFiles(false);
+			for (i in 0...WeekData.weeksList.length) {
+				var leWeek:WeekData = WeekData.weeksLoaded.get(WeekData.weeksList[i]);
+				WeekData.setDirectoryFromWeek(leWeek);
+	
+				for (song in leWeek.songs) {
+					if (!ClientPrefs.data.favSongs.contains(song[0] + '-' + (Mods.currentModDirectory ?? ''))) {
+						continue;
+					}
+	
+					songs.push({
+						name: song[0].toLowerCase(),
+						week: leWeek
+					});
+				}
+			}
+	
+			if (songs.length > 0) {
+				daSong = songs[FlxG.random.int(0, songs.length - 1)];
+
+			}
+		}
+
+		if (daSong != null) {
+			try {
+				WeekData.setDirectoryFromWeek(daSong.week);
+				Difficulty.loadFromWeek(daSong.week);
+				var diffI = 0;
+				while (diffI < Difficulty.list.length) {
+					try {
+						var poop:String = Highscore.formatSong(daSong.name, diffI);
+						PlayState.loadSong(poop, daSong.name);
+						Conductor.bpm = PlayState.SONG.bpm;
+						Conductor.mapBPMChanges(PlayState.SONG);
+		
+						FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), volume);
+						lastFreakyMusic = @:privateAccess FlxG.sound.music._sound;
+						lastSong = daSong;
+						return;
+					}
+					catch (_) {}
+					diffI++;
+				}
+			}
+			catch (exc) {
+				trace(exc);
+			}
+		}
+
+		if (FlxG.sound.music == null || !FlxG.sound.music.playing) {
+			FlxG.sound.playMusic(Paths.music('freakyMenu'), volume);
+			lastFreakyMusic = @:privateAccess FlxG.sound.music._sound;
+		}
+	}
+}
+
+typedef TrackSong = {
+	name:String,
+	week:WeekData
 }

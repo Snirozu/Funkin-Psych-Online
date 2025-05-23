@@ -3659,7 +3659,7 @@ class PlayState extends MusicBeatState
 
 			if (GameClient.isConnected()) {
 				Lib.application.window.resizable = true;
-				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				states.TitleState.playFreakyMusic();
 				if (isInvalidScore()) online.gui.Alert.alert("Calculated Points", "+" + songPoints);
 				online.states.ResultsState.gainedPoints = gainedPoints;
 				if (!skipResults)
@@ -3677,7 +3677,7 @@ class PlayState extends MusicBeatState
 				if (storyPlaylist.length <= 0)
 				{
 					Mods.loadTopMod();
-					FlxG.sound.playMusic(Paths.music('freakyMenu'));
+					states.TitleState.playFreakyMusic();
 					#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 
 					cancelMusicFadeTween();

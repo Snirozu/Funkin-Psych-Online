@@ -241,7 +241,7 @@ class GameOverSubstate extends MusicBeatSubstate
 				else
 					FlxG.switchState(() -> new FreeplayState());
 
-				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				states.TitleState.playFreakyMusic();
 				PlayState.instance.callOnScripts('onGameOverConfirm', [false]);
 			}
 		}

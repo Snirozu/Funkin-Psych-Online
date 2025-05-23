@@ -258,7 +258,7 @@ class GameClient {
 				FlxG.switchState(() -> new OnlineState());
 			}
 			FlxG.sound.play(Paths.sound('cancelMenu'));
-			FlxG.sound.playMusic(Paths.music('freakyMenu'));
+			states.TitleState.playFreakyMusic();
 
 			try {
 				if (GameClient.room?.connection != null) {
