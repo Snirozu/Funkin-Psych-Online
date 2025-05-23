@@ -1236,7 +1236,7 @@ class RoomState extends MusicBeatState {
 			Conductor.bpm = PlayState.SONG.bpm;
 		}
 		else {
-			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0.5);
+			states.TitleState.playFreakyMusic(0.5);
 			Conductor.bpm = 102;
 		}
 	}

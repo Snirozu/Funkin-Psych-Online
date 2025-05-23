@@ -100,6 +100,7 @@ class SaveVariables {
 	public var disableRoomInvites:Bool = false;
 	public var disableSSLVerify:Bool = false;
 	public var noteUnderlayOpacity:Float = 0;
+	public var favsAsMenuTheme:Bool = false;
 
 	public function new()
 	{

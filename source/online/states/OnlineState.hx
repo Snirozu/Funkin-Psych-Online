@@ -89,7 +89,7 @@ class OnlineState extends MusicBeatState {
         super.create();
 
 		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
-			FlxG.sound.playMusic(Paths.music('freakyMenu'));
+			states.TitleState.playFreakyMusic();
 
 		if (online.GameClient.isConnected()) {
 			disableInput = true;

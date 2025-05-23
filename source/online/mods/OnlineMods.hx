@@ -478,7 +478,7 @@ class OnlineMods {
 				onSuccess(modName);
 
 			if (modLink == null && !(FlxG.state is PlayState) && checkMods()) {
-				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				states.TitleState.playFreakyMusic();
 			}
 		});
 	}
