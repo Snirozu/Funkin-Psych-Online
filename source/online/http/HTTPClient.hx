@@ -1,5 +1,7 @@
 package online.http;
 
+import haxe.Json;
+import haxe.CallStack;
 import haxe.ValueException;
 import online.util.OneOf;
 import haxe.Exception;
@@ -71,6 +73,7 @@ class HTTPClient {
 			requestData.path = address.path;
 
 		response = new HTTPResponse();
+		response.request = requestData;
 
 		if (requestData.output != null)
 			response.output = requestData.output;
@@ -340,6 +343,7 @@ typedef HTTPRequest = {
 }
 
 class HTTPResponse {
+	public var request:HTTPRequest;
 	public var status:Int;
 	public var statusLine:String;
 	public var headers:Map<String, String>;
@@ -368,6 +372,33 @@ class HTTPResponse {
 		getBytes(); //init __bytes
 		if (__bytes != null)
 			return __bytes.toString();
+		return null;
+	}
+
+	public function getError():String {
+		if (isFailed()) {
+			return getErrorTitle() + "\n" + getErrorDetails();
+		}
+		return null;
+	}
+
+	public function getErrorTitle():String {
+		if (isFailed()) {
+			if (exception != null)
+				return "Exception: " + request.path;
+
+			return 'HTTP Error ${ShitUtil.prettyStatus(status)}: ' + request.path;
+		}
+		return null;
+	}
+
+	public function getErrorDetails():String {
+		if (isFailed()) {
+			if (exception != null)
+				return ShitUtil.readableError(exception) + (exception.stack != null ? "\n\n" + CallStack.toString(exception.stack) : "");
+
+			return this.getString();
+		}
 		return null;
 	}
 }

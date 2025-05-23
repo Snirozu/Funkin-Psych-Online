@@ -295,21 +295,16 @@ class FunkinNetwork {
 		var response = client.request(request);
 
 		if (response.isFailed()) {
-			if (response.exception != null) {
-				if (alertError)
-					Waiter.put(() -> {
-						Alert.alert("Exception: " + request.path, ShitUtil.readableError(response.exception) + (response.exception.stack != null ? "\n\n" + CallStack.toString(response.exception.stack) : ""));
-					});
-			}
-			else if (alertError) {
+			if (alertError)
 				Waiter.put(() -> {
-					Alert.alert('HTTP Error ${ShitUtil.prettyStatus(response.status)}: ' + request.path, response.getString() != null && 
-					response.getString()
-						.ltrim()
-						.startsWith("{") ? Json.parse(response.getString())
-						.error : response.getString());
+					var errorDetails = response.exception != null ? response.getErrorDetails() : (
+						response.getString() != null && response.getString()
+							.ltrim()
+							.startsWith("{") ? Json.parse(response.getString())
+							.error : response.getString()
+					);
+					Alert.alert(response.getErrorTitle(), errorDetails);
 				});
-			}
 			return null;
 		}
 
