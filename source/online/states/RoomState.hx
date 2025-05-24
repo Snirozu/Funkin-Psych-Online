@@ -90,8 +90,6 @@ class RoomState extends MusicBeatState {
 
 		instance = this;
 
-		registerMessages();
-
 		playMusic((GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).hasSong);
 		(GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).listen("hasSong", (value:Bool, prev) -> {
 			Waiter.put(() -> {
@@ -543,6 +541,8 @@ class RoomState extends MusicBeatState {
 			stage.createPost();
 
 		GameClient.send("status", "In the Lobby");
+
+		registerMessages();
 	}
 
 	var hasStage:Bool = false;

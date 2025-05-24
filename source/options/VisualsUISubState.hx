@@ -254,6 +254,18 @@ class VisualsUISubState extends BaseOptionsMenu
 		};
 		addOption(option);
 
+		var option:Option = new Option('Disable Combo Rating',
+			'If checked, the combo rating sprite will no longer show up.',
+			'disableComboRating',
+			'bool');
+		addOption(option);
+
+		var option:Option = new Option('Disable Combo Counter',
+			'If checked, the combo counter sprite will no longer show up.',
+			'disableComboCounter',
+			'bool');
+		addOption(option);
+
 		super();
 		add(notes);
 	}
