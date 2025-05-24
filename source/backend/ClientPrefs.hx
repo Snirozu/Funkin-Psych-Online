@@ -101,6 +101,8 @@ class SaveVariables {
 	public var disableSSLVerify:Bool = false;
 	public var noteUnderlayOpacity:Float = 0;
 	public var favsAsMenuTheme:Bool = false;
+	public var disableComboRating:Bool = false;
+	public var disableComboCounter:Bool = false;
 
 	public function new()
 	{

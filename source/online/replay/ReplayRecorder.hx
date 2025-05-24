@@ -129,7 +129,7 @@ class ReplayRecorder extends FlxBasic {
 
 			if (_gamepad != null)
 				for (id => ids in controllerIds) {
-					switch (@:privateAccess _gamepad.buttons[_gamepad.mapping.getRawID(id)].current) {
+					switch (@:privateAccess _gamepad.buttons[_gamepad.mapping.getRawID(id)]?.current) {
 						case JUST_PRESSED:
 							recordKey(Conductor.songPosition, ids, id, 0, false);
 						case JUST_RELEASED:

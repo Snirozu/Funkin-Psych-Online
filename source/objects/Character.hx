@@ -370,7 +370,8 @@ class Character extends FlxSprite {
 				finishAnimation();
 			}
 
-			if (animationNotes.length > 0) {
+			// apparently animationNotes can be null, great!
+			if (animationNotes != null && animationNotes.length > 0) {
 				if (Conductor.songPosition > animationNotes[0][0]) {
 					var noteData:Int = 1;
 					if (animationNotes[0][1] > 2)

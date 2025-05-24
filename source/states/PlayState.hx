@@ -3815,15 +3815,20 @@ class PlayState extends MusicBeatState
 			if (PlayState.isPixelStage) uiSuffix = '-pixel';
 		}
 
-		for (rating in ratingsData)
-			Paths.image(uiPrefix + rating.image + uiSuffix);
-		for (i in 0...10)
-			Paths.image(uiPrefix + 'num' + i + uiSuffix);
+		if (!ClientPrefs.data.disableComboRating)
+			for (rating in ratingsData)
+				Paths.image(uiPrefix + rating.image + uiSuffix);
+		if (!ClientPrefs.data.disableComboCounter)
+			for (i in 0...10)
+				Paths.image(uiPrefix + 'num' + i + uiSuffix);
 	}
 
 	function getComboOffset(isOP:Bool = false) {
 		if (!GameClient.isConnected()) {
-			return ClientPrefs.data.comboOffset;
+			if (!isOP)
+				return ClientPrefs.data.comboOffset;
+			else
+				return ClientPrefs.data.comboOffsetOP2;
 		}
 
 		var asBF = playsAsBF();
@@ -3854,97 +3859,133 @@ class PlayState extends MusicBeatState
 			antialias = !isPixelStage;
 		}
 
-		var rating:FlxSprite = new FlxSprite();
-		rating.loadGraphic(Paths.image(uiPrefix + ratingImage + uiSuffix));
-		rating.cameras = [camHUD];
-		rating.screenCenter();
-		rating.x = placement - 40;
-		rating.y -= 60;
-		rating.acceleration.y = 550 * playbackRate * playbackRate;
-		rating.velocity.y -= FlxG.random.int(140, 175) * playbackRate;
-		rating.velocity.x -= FlxG.random.int(0, 10) * playbackRate;
-		rating.visible = (!ClientPrefs.data.hideHud && showRating);
-		rating.x += getComboOffset(true)[0];
-		rating.y -= getComboOffset(true)[1];
-		rating.antialiasing = antialias;
+		var rating:FlxSprite = null;
+		if (!ClientPrefs.data.disableComboRating) {
+			rating = new FlxSprite();
+			rating.loadGraphic(Paths.image(uiPrefix + ratingImage + uiSuffix));
+			rating.cameras = [camHUD];
+			rating.screenCenter();
+			rating.x = placement - 40;
+			rating.y -= 60;
+			rating.acceleration.y = 550 * playbackRate * playbackRate;
+			rating.velocity.y -= FlxG.random.int(140, 175) * playbackRate;
+			rating.velocity.x -= FlxG.random.int(0, 10) * playbackRate;
+			rating.visible = (!ClientPrefs.data.hideHud && showRating);
+			rating.x += getComboOffset(true)[0];
+			rating.y -= getComboOffset(true)[1];
+			rating.antialiasing = antialias;
 
-		if (!ClientPrefs.data.comboStacking) {
-			if (lastRatingOP != null)
-				lastRatingOP.kill();
-			lastRatingOP = rating;
-		}
-		comboGroup.add(rating);
-
-		if (!PlayState.isPixelStage) {
-			rating.setGraphicSize(Std.int(rating.width * 0.7));
-		}
-		else {
-			rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.85));
-		}
-
-		rating.updateHitbox();
-
-		var seperatedScore:Array<Int> = [];
-
-		if (opCumboo >= 1000) {
-			seperatedScore.push(Math.floor(opCumboo / 1000) % 10);
-		}
-		seperatedScore.push(Math.floor(opCumboo / 100) % 10);
-		seperatedScore.push(Math.floor(opCumboo / 10) % 10);
-		seperatedScore.push(opCumboo % 10);
-
-		if (lastScoreOP != null) {
-			while (lastScoreOP.length > 0) {
-				lastScoreOP[0].kill();
-				lastScoreOP.remove(lastScoreOP[0]);
+			if (!ClientPrefs.data.comboStacking) {
+				if (lastRatingOP != null)
+					lastRatingOP.kill();
+				lastRatingOP = rating;
 			}
-		}
+			comboGroup.add(rating);
 
-		var daLoop:Int = 0;
-		var xThing:Float = 0;
-		for (i in seperatedScore) {
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiPrefix + 'num' + Std.int(i) + uiSuffix));
-			numScore.cameras = [camHUD];
-			numScore.screenCenter();
-			numScore.x = placement + (43 * daLoop) - 90 + getComboOffset(true)[2];
-			numScore.y += 80 - getComboOffset(true)[3];
+			if (!PlayState.isPixelStage) {
+				rating.setGraphicSize(Std.int(rating.width * 0.7));
+			}
+			else {
+				rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.85));
+			}
 
-			if (!ClientPrefs.data.comboStacking)
-				lastScoreOP.push(numScore);
+			rating.updateHitbox();
 
-			if (!PlayState.isPixelStage)
-				numScore.setGraphicSize(Std.int(numScore.width * 0.5));
-			else
-				numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
-			numScore.updateHitbox();
+			if (ClientPrefs.data.colorRating) {
+				switch (ratingImage) {
+					case 'shit':
+						rating.color = COLOR_SHIT;
+					case 'bad':
+						rating.color = COLOR_BAD;
+					case 'good':
+						rating.color = COLOR_GOOD;
+					case 'sick':
+						rating.color = COLOR_SICK;
+				}
+			}
 
-			numScore.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
-			numScore.velocity.y -= FlxG.random.int(140, 160) * playbackRate;
-			numScore.velocity.x = FlxG.random.float(-5, 5) * playbackRate;
-			numScore.visible = !ClientPrefs.data.hideHud;
-			numScore.antialiasing = antialias;
-
-			if (showComboNum)
-				comboGroup.add(numScore);
-
-			FlxTween.tween(numScore, {alpha: 0}, 0.2 / playbackRate, {
+			FlxTween.tween(rating, {alpha: 0}, 0.2 / playbackRate, {
+				startDelay: Conductor.crochet * 0.001 / playbackRate,
 				onComplete: function(tween:FlxTween) {
-					numScore.destroy();
-				},
-				startDelay: Conductor.crochet * 0.002 / playbackRate
+					rating.destroy();
+				}
 			});
-
-			daLoop++;
-			if (numScore.x > xThing)
-				xThing = numScore.x;
 		}
 
-		FlxTween.tween(rating, {alpha: 0}, 0.2 / playbackRate, {
-			startDelay: Conductor.crochet * 0.001 / playbackRate,
-			onComplete: function(tween:FlxTween) {
-				rating.destroy();
+		if (!ClientPrefs.data.disableComboCounter) {
+			var colorCombo:Null<FlxColor> = null;
+			if (ClientPrefs.data.colorRating && GameClient.isConnected()) {
+				var op = (GameClient.isOwner ? GameClient.room.state.player2 : GameClient.room.state.player1);
+				if (op.misses == 0) {
+					if (op.shits > 0)
+						colorCombo = COLOR_SHIT;
+					else if (op.bads > 0)
+						colorCombo = COLOR_BAD;
+					else if (op.goods > 0)
+						colorCombo = COLOR_GOOD;
+					else if (op.sicks > 0)
+						colorCombo = COLOR_SICK;
+				} 
 			}
-		});
+
+			var seperatedScore:Array<Int> = [];
+
+			if (opCumboo >= 1000) {
+				seperatedScore.push(Math.floor(opCumboo / 1000) % 10);
+			}
+			seperatedScore.push(Math.floor(opCumboo / 100) % 10);
+			seperatedScore.push(Math.floor(opCumboo / 10) % 10);
+			seperatedScore.push(opCumboo % 10);
+
+			if (lastScoreOP != null) {
+				while (lastScoreOP.length > 0) {
+					lastScoreOP[0].kill();
+					lastScoreOP.remove(lastScoreOP[0]);
+				}
+			}
+
+			var daLoop:Int = 0;
+			var xThing:Float = 0;
+			for (i in seperatedScore) {
+				var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiPrefix + 'num' + Std.int(i) + uiSuffix));
+				numScore.cameras = [camHUD];
+				numScore.screenCenter();
+				numScore.x = placement + (43 * daLoop) - 90 + getComboOffset(true)[2];
+				numScore.y += 80 - getComboOffset(true)[3];
+
+				if (!ClientPrefs.data.comboStacking)
+					lastScoreOP.push(numScore);
+
+				if (!PlayState.isPixelStage)
+					numScore.setGraphicSize(Std.int(numScore.width * 0.5));
+				else
+					numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
+				numScore.updateHitbox();
+
+				numScore.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
+				numScore.velocity.y -= FlxG.random.int(140, 160) * playbackRate;
+				numScore.velocity.x = FlxG.random.float(-5, 5) * playbackRate;
+				numScore.visible = !ClientPrefs.data.hideHud;
+				numScore.antialiasing = antialias;
+
+				if (showComboNum)
+					comboGroup.add(numScore);
+
+				FlxTween.tween(numScore, {alpha: 0}, 0.2 / playbackRate, {
+					onComplete: function(tween:FlxTween) {
+						numScore.destroy();
+					},
+					startDelay: Conductor.crochet * 0.002 / playbackRate
+				});
+
+				daLoop++;
+				if (numScore.x > xThing)
+					xThing = numScore.x;
+
+				if (colorCombo != null)
+					numScore.color = colorCombo;
+			}
+		}
 	}
 
 	private function popUpScore(note:Note = null):Rating
@@ -3957,7 +3998,7 @@ class PlayState extends MusicBeatState
 		if (GameClient.isConnected()) {
 			placement = FlxG.width * (0.30 + (playsAsBF() ? 0.1 : -0.1)); 
 		}
-		var rating:FlxSprite = new FlxSprite();
+		var rating:FlxSprite = null;
 		var score:Int = 350;
 
 		//tryna do MS based judgment due to popular demand
@@ -4010,202 +4051,215 @@ class PlayState extends MusicBeatState
 			antialias = !isPixelStage;
 		}
 
-		rating.loadGraphic(Paths.image(uiPrefix + daRating.image + uiSuffix));
-		rating.cameras = [camHUD];
-		rating.screenCenter();
-		rating.x = placement - 40;
-		rating.y -= 60;
-		rating.acceleration.y = 550 * playbackRate * playbackRate;
-		rating.velocity.y -= FlxG.random.int(140, 175) * playbackRate;
-		rating.velocity.x -= FlxG.random.int(0, 10) * playbackRate;
-		rating.visible = (!ClientPrefs.data.hideHud && showRating);
-		rating.x += getComboOffset()[0];
-		rating.y -= getComboOffset()[1];
-		rating.antialiasing = antialias;
+		if (!ClientPrefs.data.disableComboRating) {
+			rating = new FlxSprite();
+			rating.loadGraphic(Paths.image(uiPrefix + daRating.image + uiSuffix));
+			rating.cameras = [camHUD];
+			rating.screenCenter();
+			rating.x = placement - 40;
+			rating.y -= 60;
+			rating.acceleration.y = 550 * playbackRate * playbackRate;
+			rating.velocity.y -= FlxG.random.int(140, 175) * playbackRate;
+			rating.velocity.x -= FlxG.random.int(0, 10) * playbackRate;
+			rating.visible = (!ClientPrefs.data.hideHud && showRating);
+			rating.x += getComboOffset()[0];
+			rating.y -= getComboOffset()[1];
+			rating.antialiasing = antialias;
+			comboGroup.add(rating);
+			
+			if (!ClientPrefs.data.comboStacking)
+			{
+				if (lastRating != null) lastRating.kill();
+				lastRating = rating;
+			}
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiPrefix + 'combo' + uiSuffix));
-		comboSpr.cameras = [camHUD];
-		comboSpr.screenCenter();
-		comboSpr.x = placement;
-		comboSpr.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
-		comboSpr.velocity.y -= FlxG.random.int(140, 160) * playbackRate;
-		comboSpr.visible = !ClientPrefs.data.hideHud;
-		comboSpr.x += getComboOffset()[0];
-		comboSpr.y -= getComboOffset()[1];
-		comboSpr.antialiasing = antialias;
-		comboSpr.y += 60;
-		comboSpr.velocity.x += FlxG.random.int(1, 10) * playbackRate;
-		comboSpr.ID = combo;
+			if (ClientPrefs.data.colorRating) {
+				switch (daRating.name) {
+					case 'shit':
+						rating.color = COLOR_SHIT;
+					case 'bad':
+						rating.color = COLOR_BAD;
+					case 'good':
+						rating.color = COLOR_GOOD;
+					case 'sick':
+						rating.color = COLOR_SICK;
+				}
+			}
 
-		comboGroup.add(rating);
-		
-		if (!ClientPrefs.data.comboStacking)
-		{
-			if (lastRating != null) lastRating.kill();
-			lastRating = rating;
+			FlxTween.tween(rating, {alpha: 0}, 0.2 / playbackRate, {
+				startDelay: Conductor.crochet * 0.001 / playbackRate,
+				onComplete: function(tween:FlxTween)
+				{
+					rating.destroy();
+				}
+			});
+		}
+
+		var comboSpr:FlxSprite = null;
+		if (showCombo) {
+			comboSpr = new FlxSprite().loadGraphic(Paths.image(uiPrefix + 'combo' + uiSuffix));
+			comboSpr.cameras = [camHUD];
+			comboSpr.screenCenter();
+			comboSpr.x = placement;
+			comboSpr.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
+			comboSpr.velocity.y -= FlxG.random.int(140, 160) * playbackRate;
+			comboSpr.visible = !ClientPrefs.data.hideHud;
+			comboSpr.x += getComboOffset()[0];
+			comboSpr.y -= getComboOffset()[1];
+			comboSpr.antialiasing = antialias;
+			comboSpr.y += 60;
+			comboSpr.velocity.x += FlxG.random.int(1, 10) * playbackRate;
+			comboSpr.ID = combo;
+			comboGroup.add(comboSpr);
+
+			if (!ClientPrefs.data.comboStacking) {
+				if (lastCombo != null) lastCombo.kill();
+				lastCombo = comboSpr;
+			}
+
+			FlxTween.tween(comboSpr, {alpha: 0}, 0.1 / playbackRate, {
+				onComplete: function(tween:FlxTween)
+				{
+					comboSpr.destroy();
+				},
+				startDelay: Conductor.crochet * 0.002 / playbackRate
+			});
 		}
 
 		if (!PlayState.isPixelStage)
 		{
-			rating.setGraphicSize(Std.int(rating.width * 0.7));
-			comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.7));
+			if (rating != null)
+				rating.setGraphicSize(Std.int(rating.width * 0.7));
+			if (comboSpr != null)
+				comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.7));
 		}
 		else
 		{
-			rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.85));
-			comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.85));
+			if (rating != null)
+				rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.85));
+			if (comboSpr != null)
+				comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.85));
 		}
 
-		comboSpr.updateHitbox();
-		rating.updateHitbox();
+		if (comboSpr != null)
+			comboSpr.updateHitbox();
+		if (rating != null)
+			rating.updateHitbox();
 
 		// i miss kade engine
 		if (ClientPrefs.data.showNoteTiming && (!ClientPrefs.data.hideHud && showRating) && noteTimingRating == null) {
 			add(noteTimingRating = new FlxText(0, 0, 0, "0ms"));
 		}
-		else if (noteTimingRating == null) {
-			noteTimingRating = new FlxText(0, 0, 0, "0ms");
-		}
-		switch (daRating.name) {
-			case 'shit' | 'bad':
-				noteTimingRating.color = FlxColor.RED;
-			case 'good':
-				noteTimingRating.color = FlxColor.LIME;
-			case 'sick':
-				noteTimingRating.color = FlxColor.CYAN;
-		}
-		noteTimingRating.borderStyle = OUTLINE;
-		noteTimingRating.borderSize = 1;
-		noteTimingRating.borderColor = FlxColor.BLACK;
-		noteTimingRating.text = FlxMath.roundDecimal(noteDiffNoAbs / (Conductor.judgePlaybackRate ?? playbackRate), 3) + "ms";
-		noteTimingRating.size = 20;
-		noteTimingRating.camera = camHUD;
-		noteTimingRating.alpha = 1;
-		noteTimingRating.active = true;
-
-		if (noteTimingRatingTween != null) {
-			noteTimingRatingTween.cancel();
-		}
-
-		noteTimingRating.x = comboSpr.x + 100;
-		noteTimingRating.y = comboSpr.y + comboSpr.height;
-		noteTimingRating.acceleration.y = 600;
-		noteTimingRating.velocity.y -= 150;
-		noteTimingRating.velocity.x += comboSpr.velocity.x;
-
-		var colorCombo:Null<FlxColor> = null;
-		if (ClientPrefs.data.colorRating) {
-			if (songMisses == 0) {
-				if (songShits > 0)
-					colorCombo = COLOR_SHIT;
-				else if (songBads > 0)
-					colorCombo = COLOR_BAD;
-				else if (songGoods > 0)
-					colorCombo = COLOR_GOOD;
-				else if (songSicks > 0)
-					colorCombo = COLOR_SICK;
-			} 
-		}
-
-		var seperatedScore:Array<Int> = [];
-
-		if(combo >= 1000) {
-			seperatedScore.push(Math.floor(combo / 1000) % 10);
-		}
-		seperatedScore.push(Math.floor(combo / 100) % 10);
-		seperatedScore.push(Math.floor(combo / 10) % 10);
-		seperatedScore.push(combo % 10);
-
-		var daLoop:Int = 0;
-		var xThing:Float = 0;
-		if (showCombo)
-		{
-			comboGroup.add(comboSpr);
-		}
-		if (!ClientPrefs.data.comboStacking)
-		{
-			if (lastCombo != null) lastCombo.kill();
-			lastCombo = comboSpr;
-		}
-		if (lastScore != null)
-		{
-			while (lastScore.length > 0)
-			{
-				lastScore[0].kill();
-				lastScore.remove(lastScore[0]);
+		if (noteTimingRating != null) {
+			switch (daRating.name) {
+				case 'shit' | 'bad':
+					noteTimingRating.color = FlxColor.RED;
+				case 'good':
+					noteTimingRating.color = FlxColor.LIME;
+				case 'sick':
+					noteTimingRating.color = FlxColor.CYAN;
 			}
-		}
-		for (i in seperatedScore)
-		{
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiPrefix + 'num' + Std.int(i) + uiSuffix));
-			numScore.cameras = [camHUD];
-			numScore.screenCenter();
-			numScore.x = placement + (43 * daLoop) - 90 + getComboOffset()[2];
-			numScore.y += 80 - getComboOffset()[3];
-			
-			if (!ClientPrefs.data.comboStacking)
-				lastScore.push(numScore);
+			noteTimingRating.borderStyle = OUTLINE;
+			noteTimingRating.borderSize = 1;
+			noteTimingRating.borderColor = FlxColor.BLACK;
+			noteTimingRating.text = FlxMath.roundDecimal(noteDiffNoAbs / (Conductor.judgePlaybackRate ?? playbackRate), 3) + "ms";
+			noteTimingRating.size = 20;
+			noteTimingRating.camera = camHUD;
+			noteTimingRating.alpha = 1;
+			noteTimingRating.active = true;
 
-			if (!PlayState.isPixelStage) numScore.setGraphicSize(Std.int(numScore.width * 0.5));
-			else numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
-			numScore.updateHitbox();
+			if (noteTimingRatingTween != null) {
+				noteTimingRatingTween.cancel();
+			}
 
-			numScore.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
-			numScore.velocity.y -= FlxG.random.int(140, 160) * playbackRate;
-			numScore.velocity.x = FlxG.random.float(-5, 5) * playbackRate;
-			numScore.visible = !ClientPrefs.data.hideHud;
-			numScore.antialiasing = antialias;
+			noteTimingRating.screenCenter();
+			noteTimingRating.x = placement + getComboOffset()[0] + 100;
+			noteTimingRating.y += -getComboOffset()[1] + 60 + (comboSpr?.height ?? 0);
+			noteTimingRating.acceleration.y = 600;
+			noteTimingRating.velocity.y -= 150;
+			noteTimingRating.velocity.x += comboSpr?.velocity?.x ?? (FlxG.random.int(1, 10) * playbackRate);
 
-			//if (combo >= 10 || combo == 0)
-			if(showComboNum)
-				comboGroup.add(numScore);
-
-			FlxTween.tween(numScore, {alpha: 0}, 0.2 / playbackRate, {
-				onComplete: function(tween:FlxTween)
-				{
-					numScore.destroy();
-				},
-				startDelay: Conductor.crochet * 0.002 / playbackRate
-			});
-
-			daLoop++;
-			if(numScore.x > xThing) xThing = numScore.x;
-
-			if (colorCombo != null)
-				numScore.color = colorCombo;
-		}
-		comboSpr.x = xThing + 50;
-		FlxTween.tween(rating, {alpha: 0}, 0.2 / playbackRate, {
-			startDelay: Conductor.crochet * 0.001 / playbackRate
-		});
-
-		FlxTween.tween(comboSpr, {alpha: 0}, 0.1 / playbackRate, {
-			onComplete: function(tween:FlxTween)
-			{
-				comboSpr.destroy();
-				rating.destroy();
-			},
-			startDelay: Conductor.crochet * 0.002 / playbackRate
-		});
-
-		if (ClientPrefs.data.showNoteTiming) {
 			noteTimingRatingTween = FlxTween.tween(noteTimingRating, {alpha: 0}, 0.2 / playbackRate, {
 				startDelay: Conductor.crochet * 0.001 / playbackRate,
 				onComplete: (t) -> noteTimingRating.active = false
 			});
 		}
 
-		if (ClientPrefs.data.colorRating) {
-			switch (daRating.name) {
-				case 'shit':
-					rating.color = COLOR_SHIT;
-				case 'bad':
-					rating.color = COLOR_BAD;
-				case 'good':
-					rating.color = COLOR_GOOD;
-				case 'sick':
-					rating.color = COLOR_SICK;
+		if (!ClientPrefs.data.disableComboCounter) {
+			var colorCombo:Null<FlxColor> = null;
+			if (ClientPrefs.data.colorRating) {
+				if (songMisses == 0) {
+					if (songShits > 0)
+						colorCombo = COLOR_SHIT;
+					else if (songBads > 0)
+						colorCombo = COLOR_BAD;
+					else if (songGoods > 0)
+						colorCombo = COLOR_GOOD;
+					else if (songSicks > 0)
+						colorCombo = COLOR_SICK;
+				} 
 			}
+
+			var seperatedScore:Array<Int> = [];
+
+			if(combo >= 1000) {
+				seperatedScore.push(Math.floor(combo / 1000) % 10);
+			}
+			seperatedScore.push(Math.floor(combo / 100) % 10);
+			seperatedScore.push(Math.floor(combo / 10) % 10);
+			seperatedScore.push(combo % 10);
+
+			var daLoop:Int = 0;
+			var xThing:Float = 0;
+			if (lastScore != null)
+			{
+				while (lastScore.length > 0)
+				{
+					lastScore[0].kill();
+					lastScore.remove(lastScore[0]);
+				}
+			}
+			for (i in seperatedScore)
+			{
+				var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiPrefix + 'num' + Std.int(i) + uiSuffix));
+				numScore.cameras = [camHUD];
+				numScore.screenCenter();
+				numScore.x = placement + (43 * daLoop) - 90 + getComboOffset()[2];
+				numScore.y += 80 - getComboOffset()[3];
+				
+				if (!ClientPrefs.data.comboStacking)
+					lastScore.push(numScore);
+
+				if (!PlayState.isPixelStage) numScore.setGraphicSize(Std.int(numScore.width * 0.5));
+				else numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
+				numScore.updateHitbox();
+
+				numScore.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
+				numScore.velocity.y -= FlxG.random.int(140, 160) * playbackRate;
+				numScore.velocity.x = FlxG.random.float(-5, 5) * playbackRate;
+				numScore.visible = !ClientPrefs.data.hideHud;
+				numScore.antialiasing = antialias;
+
+				//if (combo >= 10 || combo == 0)
+				if(showComboNum)
+					comboGroup.add(numScore);
+
+				FlxTween.tween(numScore, {alpha: 0}, 0.2 / playbackRate, {
+					onComplete: function(tween:FlxTween)
+					{
+						numScore.destroy();
+					},
+					startDelay: Conductor.crochet * 0.002 / playbackRate
+				});
+
+				daLoop++;
+				if(numScore.x > xThing) xThing = numScore.x;
+
+				if (colorCombo != null)
+					numScore.color = colorCombo;
+			}
+			if (comboSpr != null)
+				comboSpr.x = xThing + 50;
 		}
 
 		return daRating;
@@ -4501,6 +4555,11 @@ class PlayState extends MusicBeatState
 
 	function opponentNoteHit(note:Note):Void
 	{
+		// var noteDiffNoAbs:Float = note.strumTime - (Conductor.judgeSongPosition ?? Conductor.songPosition) + ClientPrefs.getRatingOffset();
+		// var noteDiff:Float = Math.abs(noteDiffNoAbs);
+		// var daRating:Rating = Conductor.judgeNote(ratingsData, noteDiff / (Conductor.judgePlaybackRate ?? playbackRate));
+		// popUpScoreOP(daRating.image);
+
 		if (Paths.formatToSongPath(SONG.song) != 'tutorial')
 			camZooming = true;
 
@@ -4611,6 +4670,7 @@ class PlayState extends MusicBeatState
 				addHealth(note.hitHealth * healthGain);
 			}
 
+			// TODO: make it only provide the note.strumTime and Conductor.songPosition
 			GameClient.send("noteHit", [note.strumTime, note.noteData, note.isSustainNote, rating?.image, note.noteType, notes.members.indexOf(note), note.mustPress]);
 
 			if(!note.noAnimation) {
