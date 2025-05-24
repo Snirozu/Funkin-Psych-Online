@@ -271,6 +271,142 @@ class Main extends Sprite
 			online.backend.SyncScript.dispatch("init");
 		});
 		#end
+
+		online.network.URIData.generateSave();
+	}
+
+	public static function handleArguments():Void
+	{
+		var appArgs:Array<String> = Sys.args();
+
+		while(appArgs.length > 0)
+		{
+			var arg:String = appArgs.shift();
+			switch(arg)
+			{
+				case '--replay':
+					var id:Null<String> = appArgs.shift();
+
+					if(id == null)
+					{
+						online.gui.Alert.alert('Argument Error!', '--replay requires two arguments!');
+					}
+					else
+					{
+						var downloadModURL:Null<String> = null;
+						var playReplay:Void->Void = function() {
+							var piss = online.network.Leaderboard.fetchReplay(id);
+							var shit = haxe.Json.parse(piss);
+							PlayState.replayData = cast shit;
+							PlayState.replayData.gameplay_modifiers = online.replay.ReplayPlayer.objToMap(shit.gameplay_modifiers);
+							PlayState.replayID = id;
+
+							var gottaDownloadMod:Bool = true;
+							if(shit.mod_url == null || shit.mod_url == '')
+							{
+								gottaDownloadMod = false;
+								Mods.currentModDirectory = '';
+							}
+
+							if(gottaDownloadMod)
+							{
+								for(mod in Mods.parseList().enabled)
+								{
+									var url:Null<String> = online.mods.OnlineMods.getModURL(mod);
+									if(url != null && url == shit.mod_url)
+									{
+										gottaDownloadMod = false;
+										Mods.currentModDirectory = mod;
+										break;
+									}
+								}
+							}
+
+							if(gottaDownloadMod)
+							{
+								downloadModURL = shit.mod_url;
+								PlayState.replayData = null;
+								return;
+							}
+
+							var songLowercase:String = Paths.formatToSongPath(shit.song);
+
+							backend.WeekData.reloadWeekFiles(false);
+							for(i=>week in backend.WeekData.weeksList)
+							{
+								var data:backend.WeekData = backend.WeekData.weeksLoaded.get(week);
+								if(data == null || data.folder != Mods.currentModDirectory && data.folder != null)
+									continue;
+
+								var weGood:Bool = false;
+								for(song in data.songs)
+								{
+									var songID:String = Paths.formatToSongPath(song[0]);
+									if(songID == songLowercase)
+									{
+										weGood = true;
+										Difficulty.forceErect = song[3];
+										Difficulty.forceNightmare = song[4];
+										trace(song);
+										break;
+									}
+								}
+
+								if(weGood)
+								{
+									PlayState.storyWeek = i;
+									Difficulty.loadFromWeek();
+									break;
+								}
+							}
+
+							trace(Difficulty.list);
+							PlayState.storyDifficulty = Difficulty.list.indexOf(shit.difficulty);
+
+							var poop:String = backend.Highscore.formatSong(songLowercase, PlayState.storyDifficulty);
+							trace(poop);
+
+							if (PlayState.replayData.chart_hash == haxe.crypto.Md5.encode(backend.Song.loadRawSong(poop, songLowercase)))
+							{
+								try
+								{
+									PlayState.loadSong(poop, songLowercase);
+									PlayState.isStoryMode = false;
+								}
+								catch(e)
+								{
+									online.gui.Alert.alert('Replay Error!', 'Song could not be loaded.');
+									return;
+								}
+
+								LoadingState.loadAndSwitchState(new PlayState());
+
+								Difficulty.forceErect = false;
+								Difficulty.forceNightmare = false;
+							}
+							else
+							{
+								PlayState.replayData = null;
+
+								online.gui.Alert.alert('Replay Error!', 'Song could not be found, or the replay is invalid.');
+								return;
+							}
+						};
+
+						playReplay();
+
+						if(downloadModURL != null)
+						{
+							online.mods.OnlineMods.downloadMod(downloadModURL, true, function(_) { // technically is manually, cuz the user did open the game with this...
+								downloadModURL = null;
+								Mods.updatedOnState = false;
+								playReplay();
+							});
+							FlxG.switchState(flixel.FlxState.new); // no fun for you mister (also for safety)
+						}
+					}
+			}
+		}
 	}
 
 	static function resetSpriteCache(sprite:Sprite):Void {
