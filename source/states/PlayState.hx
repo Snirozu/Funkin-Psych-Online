@@ -2151,6 +2151,7 @@ class PlayState extends MusicBeatState
 		}
 
 		var playingNoteCount:Float = 0;
+		// var playingTime:Float = 0;
 		var lastStrumTime:Float = 0;
 
 		var isPsychRelease = songData.format == 'psych_v1';
@@ -2226,13 +2227,6 @@ class PlayState extends MusicBeatState
 
 				unspawnNotes.push(swagNote);
 
-				if (isPlayerNote(swagNote)) {
-					if (daStrumTime - lastStrumTime > 10)
-						playingNoteCount++;
-
-					lastStrumTime = daStrumTime;
-				}
-
 				var floorSus:Int = Math.floor(susLength);
 				if(floorSus > 0) {
 					for (susNote in 0...floorSus+1)
@@ -2279,6 +2273,21 @@ class PlayState extends MusicBeatState
 					}
 				}
 
+				if (isPlayerNote(swagNote)) {
+					if (daStrumTime - lastStrumTime > 10)
+						playingNoteCount++;
+
+					// var noteDiff = (daStrumTime - lastStrumTime) / playbackRate / 1000;
+					// if (noteDiff < 1)
+					// 	playingTime += noteDiff;
+					// //if (noteDiff > 0)
+					// 	//playingTime += noteDiff / (noteDiff * noteDiff) / 1000;
+					// // else
+					// // 	playingTime += noteDiff * 0.1;
+
+					lastStrumTime = daStrumTime;
+				}
+
 				if (swagNote.mustPress)
 				{
 					swagNote.followX += FlxG.width / 2; // general offset
@@ -2297,8 +2306,15 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
+		// songDensity = 1 + (playingNoteCount == 0 ? 0 : playingNoteCount / playingTime / 2);
+		// trace("note density score: " + songDensity + ' for total of ${playingNoteCount} notes');
+
 		songDensity = playingNoteCount == 0 ? 0 : playingNoteCount / (inst.length / playbackRate / 1000) / 2;
-		trace("note density score (w/ fp): " + (1 + songDensity));
+		trace("note density score (w/ fp): " + (1 + songDensity) + ' for total of ${playingNoteCount} notes');
+
+		var maxFP = online.FunkinPoints.calcFP(1, 0, songDensity, playingNoteCount, playingNoteCount);
+		trace("max points: ~" + maxFP + 'FP');
+
 		for (event in songData.events) //Event Notes
 			for (i in 0...event[1].length)
 				makeEvent(event, i);

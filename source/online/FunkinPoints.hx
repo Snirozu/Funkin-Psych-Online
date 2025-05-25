@@ -19,6 +19,7 @@ class FunkinPoints {
 		fp *= 1 + maxCombo / 2000;
 		// depends on player's note accuracy (weighted by power of 3; 95% = x0.85, 90% = x0.72, 80% = x0.512)
 		fp *= Math.pow(accuracy, 3) / (1 + misses * 0.25);
+		// we then floor the fp instead of rounding it, so you get less fp :)
 		return Math.ffloor(fp);
     }
 
@@ -30,3 +31,48 @@ class FunkinPoints {
 		return gained;
     }
 }
+
+/*
+ -- -- SCRAPPED -- --
+
+import js.html.Console;
+
+class Test {
+	static function main() {
+		traceSong('supersaiyaninc', 8.1, 1053);
+		traceSong('quadrupel', 6.2, 3448);
+		traceSong('sporting', 6.8, 1131);
+		traceSong('unbeatable', 5.3, 2487);
+		traceSong('ballistic', 5.4, 869);
+		traceSong('spookeezerect', 4.7, 913);
+		traceSong('fresherect', 3.3, 285);
+	}
+
+	static function calcFP(accuracy:Float, misses:Float, songDensity:Float, notesHit:Float, maxCombo:Float):Float {
+		if (accuracy <= 0 || notesHit <= 0)
+            return 0;
+
+		// example values for songs with playbackRate of 1.0x: 
+		// * density=5.3 notes=2487 (unbeatable) 6 39FP
+		// * density=5.4 notes=869 (ballistic)
+		// * density=4.7 notes=913 (spookeez nightmare) 4.8 3FP
+		// * density=6.8 notes=1131 (sporting)
+		// * density=8.1 notes=1053 (super saiyan (mystery inc mix)) 8.9 100FP
+		// * notes=3448 (quar) 6.6 117FP
+		// (density changes depending on the playbackRate of the song)
+		
+		// initial calculation
+		var fp:Float = (Math.pow(songDensity, 5) / 500) * (notesHit / 1000);
+		// adds a multiplying bonus depending on player's max combo (x2fp per 2000)
+		fp *= 1 + maxCombo / 2000;
+		// depends on player's note accuracy (weighted by power of 3; 98% = x0.96, 95% = x0.9, 90% = x0.81, 80% = x0.64)
+		fp *= Math.pow(accuracy, 2) / (1 + misses * 0.1);
+		// we then floor the fp instead of rounding it, so you get less fp :)
+		return Math.ffloor(fp);
+	}
+
+	static function traceSong(name:String, density:Float, notes:Float) {
+		Console.log(name + ": ................ " + calcFP(1, 0, density, notes, notes) + "FP");
+	}
+}
+*/
