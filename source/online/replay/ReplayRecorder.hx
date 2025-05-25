@@ -194,10 +194,23 @@ class ReplayRecorder extends FlxBasic {
 		trace("Saved a replay!");
 		
 		if (!ClientPrefs.data.disableSubmiting) {
-			var res = Json.parse(Leaderboard.submitScore(replayData)?.getString() ?? "{}");
-			states.FreeplayState.gainedRanks += res.climbed_ranks ?? 0;
-			if (res.gained_points != null) {
-				return res.gained_points;
+			var response = Leaderboard.submitScore(replayData);
+			final MAX_TRIES = 3;
+			var tries = MAX_TRIES;
+			while (response == null && tries > 0) {
+				tries--;
+				Sys.sleep(1);
+				response = Leaderboard.submitScore(replayData);
+			}
+			if (response != null) {
+				var res = Json.parse(response.getString() ?? "{}");
+				states.FreeplayState.gainedRanks += res.climbed_ranks ?? 0;
+				if (tries < MAX_TRIES) {
+					Alert.alert('Replay Uploaded!', 'After try #' + (MAX_TRIES - tries));
+				}
+				if (res.gained_points != null) {
+					return res.gained_points;
+				}
 			}
 		}
 		return 0;
