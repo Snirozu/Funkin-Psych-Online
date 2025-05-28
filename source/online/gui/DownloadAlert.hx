@@ -47,14 +47,39 @@ class DownloadAlerts extends Sprite {
 		var i = 1;
 		for (alert in instances) {
 			var downloader = ModDownloader.downloaders[i - 1];
-			if (downloader.client.cancelRequested) {
-				alert.cancelText.text = 'Cancelling...';
+
+			if (downloader != null) {
+				if (downloader.client.cancelRequested) {
+					alert.cancelText.text = 'Cancelling...';
+				}
+				else {
+					alert.cancelText.text = 'Cancel: ALT + $i ';
+					if (i >= 10) {
+						alert.cancelText.text = "";
+					}
+				}
+
+				switch (downloader.status) {
+					case CONNECTING:
+						alert.setStatus("Connecting...");
+					case READING_HEADERS:
+						alert.setStatus("Reading Headers...");
+					case READING_BODY:
+						alert.updateProgress(downloader.client.receivedBytes, downloader.client.contentLength);
+					case FAILED(exc):
+						alert.setStatus("Failed! " + exc);
+					case DOWNLOADED:
+						alert.setStatus("Preparing to instal...");
+					case INSTALLING:
+						alert.setStatus("Installing...");
+					case FINISHED:
+						alert.setStatus("Finished!");
+					default:
+						alert.setStatus("Initializing...");
+				}
 			}
 			else {
-				alert.cancelText.text = 'Cancel: ALT + $i ';
-				if (i >= 10) {
-					alert.cancelText.text = "";
-				}
+				alert.setStatus("...");
 			}
 
 			if (prevAlert?.bg != null)
@@ -77,23 +102,6 @@ class DownloadAlerts extends Sprite {
 
 			alert.cancelBg.scaleX = alert.cancelText.textWidth;
 			alert.cancelBg.scaleY = alert.cancelText.textHeight + 5;
-			
-			switch (downloader.status) {
-				case CONNECTING:
-					alert.setStatus("Connecting...");
-				case READING_HEADERS:
-					alert.setStatus("Reading Headers...");
-				case READING_BODY:
-					alert.updateProgress(downloader.client.receivedBytes, downloader.client.contentLength);
-				case FAILED(exc):
-					alert.setStatus("Failed! " + exc);
-				case DOWNLOADED:
-					alert.setStatus("Preparing to instal...");
-				case INSTALLING:
-					alert.setStatus("Installing...");
-				case FINISHED:
-					alert.setStatus("Finished!");
-			}
 
 			prevAlert = alert;
 			i++;

@@ -13,7 +13,7 @@ class ModDownloader {
 	public var client:HTTPClient;
 	public var alert:DownloadAlert;
 
-	public var status(default, set):DownloaderStatus;
+	public var status(default, set):Null<DownloaderStatus>;
 	function set_status(v) {
 		if (onStatus != null)
 			onStatus(v);
