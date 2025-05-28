@@ -224,7 +224,7 @@ class ProfileTab extends TabSprite {
 		});
 
 		updateUsernameText();
-		role.setText(user.isBanned ? 'BANNED' : user.isMod ? 'Moderator' : 'Member');
+		role.setText(user.role != null ? user.role : 'Member');
 		var seenAgo = ShitUtil.timeAgo(ShitUtil.parseISODate(user.lastActive).getTime());
 		if (seenAgo == 'just now')
 			seen.setText("ONLINE", null, FlxColor.LIME);
@@ -282,12 +282,11 @@ class ProfileTab extends TabSprite {
 }
 
 typedef UserDetailsData = {
-	var isMod:Bool;
+	var role:String;
 	var joined:String;
 	var lastActive:String;
 	var points:Float;
 	var isSelf:Bool;
-	var isBanned:Bool;
 	var bio:String;
 	var friends:Array<String>;
 	var canFriend:Bool;

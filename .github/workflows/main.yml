@@ -37,6 +37,7 @@ jobs:
         with:
           path: |
             ~/haxelib/**
+            .haxelib/**
             export/release/linux/**
             !export/release/linux/bin/**
           key: ${{ runner.os }}-build-cache
@@ -76,6 +77,7 @@ jobs:
         with:
           path: |
             C:/haxelib/**
+            .haxelib/**
             export/release/windows/**
             !export/release/windows/bin/**
           key: ${{ runner.os }}-build-cache
@@ -114,6 +116,7 @@ jobs:
         with:
           path: |
             ~/haxelib/**
+            .haxelib/**
             export/release/macos/**
             !export/release/macos/bin/**
           key: ${{ runner.os }}-build-cache
