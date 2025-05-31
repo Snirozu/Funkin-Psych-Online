@@ -31,6 +31,8 @@ class AwayStage3D extends ObjectContainer3D {
 
 	public function setup(stageData:StageFile) {
 		this.stageData = stageData;
+		stageData.stage3D.objects = cast ShitUtil.objToMap(stageData.stage3D.objects);
+		stageData.stage3D.cameraPoints = cast ShitUtil.objToMap(stageData.stage3D.cameraPoints);
 
 		camera.x = 52;
 		camera.y = 109;

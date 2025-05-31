@@ -124,7 +124,7 @@ class StageData {
 		{
 			return null;
 		}
-		return /*new JsonParser<StageFile>().fromJson(rawJson) ?? */cast Json.parse(rawJson);
+		return cast Json.parse(rawJson);
 	}
 
 	public static function vanillaSongStage(songName):String
