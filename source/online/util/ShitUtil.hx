@@ -402,6 +402,32 @@ class ShitUtil {
 	static function isSupportedImage(bytes:Bytes) {
 		return isPNG(bytes) || isJPEG(bytes);
 	}
+
+	// fuck you haxe
+	public static function buildClassFromObject<T>(obj:Dynamic, cls:Class<T>):T {
+		var inst:T = Type.createEmptyInstance(cls);
+		if (obj != null)
+			for (field in Reflect.fields(obj)) {
+				Reflect.setField(inst, field, Reflect.field(obj, field));
+			}
+		return inst;
+	}
+
+	public static function objToMap(obj:Dynamic):Map<String, Dynamic> {
+		var map:Map<String, Dynamic> = new Map();
+		for (field in Reflect.fields(obj)) {
+			map.set(field, Reflect.field(obj, field));
+		}
+		return map;
+	}
+
+	public static function mapToObj(map:Map<String, Dynamic>):Dynamic {
+		var obj:Dynamic = {};
+		for (key => value in map) {
+			Reflect.setField(obj, key, value);
+		}
+		return obj;
+	}
 }
 
 typedef LogData = {
