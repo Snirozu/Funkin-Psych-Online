@@ -48,6 +48,7 @@ class HScript extends SScript
 			file = '';
 	
 		super(file, false, false);
+		setSpecialObject(FlxG.state, true, []);
 		parentLua = parent;
 		if (parent != null)
 			origin = parent.scriptName;
@@ -69,7 +70,9 @@ class HScript extends SScript
 
 		// Some very commonly used classes
 		set('FlxG', flixel.FlxG);
+		set('FlxMath', flixel.math.FlxMath);
 		set('FlxSprite', flixel.FlxSprite);
+		set('FlxText', flixel.text.FlxText);
 		set('FlxCamera', flixel.FlxCamera);
 		set('FlxTimer', flixel.util.FlxTimer);
 		set('FlxTween', flixel.tweens.FlxTween);
@@ -90,6 +93,9 @@ class HScript extends SScript
 		#end
 		set('ShaderFilter', openfl.filters.ShaderFilter);
 		set('StringTools', StringTools);
+		#if flxanimate
+		set('FlxAnimate', FlxAnimate);
+		#end
 
 		// Functions & Variables
 		set('setVar', function(name:String, value:Dynamic)

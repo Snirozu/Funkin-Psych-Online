@@ -708,6 +708,27 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
+			if(stageData != null && stageData.preload != null)
+			{
+				for (asset in Reflect.fields(stageData.preload))
+				{
+					var filters:Int = Reflect.field(stageData.preload, asset);
+					var asset:String = asset.trim();
+
+					if(filters < 0 || StageData.validateVisibility(filters))
+					{
+						if(asset.startsWith('images/'))
+							precacheList.set(asset.substr('images/'.length), 'image');
+						else if(asset.startsWith('sounds/'))
+							precacheList.set(asset.substr('sounds/'.length), 'sound');
+						else if(asset.startsWith('music/'))
+							precacheList.set(asset.substr('music/'.length), 'music');
+					}
+				}
+			}
+		});
+
+		preloadTasks.push(() -> {
 			boyfriendGroup = new FlxSpriteGroup(BF_X, BF_Y);
 			dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
 			gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
@@ -775,9 +796,19 @@ class PlayState extends MusicBeatState
 				SONG.gfVersion = 'nene' + skinsSuffix;
 			}
 
-			add(gfGroup);
-			add(dadGroup);
-			add(boyfriendGroup);
+			if(stageData.objects != null && stageData.objects.length > 0)
+			{
+				var list:Map<String, FlxSprite> = StageData.addObjectsToState(stageData.objects, !stageData.hide_girlfriend ? gfGroup : null, dadGroup, boyfriendGroup, this);
+				for (key => spr in list)
+					if(!StageData.reservedNames.contains(key))
+						modchartSprites.set(key, spr);
+			}
+			else
+			{
+				add(gfGroup);
+				add(dadGroup);
+				add(boyfriendGroup);
+			}
 
 			#if LUA_ALLOWED
 			luaDebugGroup = new FlxTypedGroup<DebugLuaText>();
