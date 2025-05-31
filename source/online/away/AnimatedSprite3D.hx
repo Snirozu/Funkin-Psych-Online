@@ -135,7 +135,7 @@ class AnimatedSprite3D extends ObjectContainer3D {
 	}
 
 	public function addAnimation(props:AnimationData):AnimationData {
-		var animation = props ?? new AnimationData();
+		var animation:AnimationData = ShitUtil.buildClassFromObject(props, AnimationData) ?? new AnimationData();
 		animation.frames ??= [];
 		animations.set(animation.id, animation);
 
