@@ -635,6 +635,7 @@ class TitleState extends MusicBeatState
 					//FlxG.sound.music.stop();
 					states.TitleState.playFreakyMusic(0);
 					FlxG.sound.music.fadeIn(4, 0, 0.7);
+					Main.handleArguments(); // so everythin can get initialized
 				case 2:
 					#if PSYCH_WATERMARKS
 					createCoolText(['Psych Online by'], 40);
