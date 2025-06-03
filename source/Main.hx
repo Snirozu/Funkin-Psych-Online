@@ -45,7 +45,7 @@ class Main extends Sprite
 	public static var fpsVar:FPS;
 
 	public static final PSYCH_ONLINE_VERSION:String = "0.11.9";
-	public static final CLIENT_PROTOCOL:Float = 8;
+	public static final CLIENT_PROTOCOL:Float = 9;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 	public static final LOW_STORAGE:Bool = online.backend.Macros.hasNoCapacity();
 	public static var UNOFFICIAL_BUILD:Bool = false;
@@ -160,11 +160,13 @@ class Main extends Sprite
 		#end
 		
 		//haxe errors caught by openfl
+		#if !debug
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, (e) -> {
 			onCrash(e.error);
 		});
 		//internal c++ exceptions
 		untyped __global__.__hxcpp_set_critical_error_handler(onCrash);
+		#end
 
 		#if DISCORD_ALLOWED
 		DiscordClient.start();

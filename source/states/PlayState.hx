@@ -618,7 +618,7 @@ class PlayState extends MusicBeatState
 			// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
 			if (GameClient.isConnected()) {
 				if (!GameClient.room.state.isPrivate)
-					detailsText = "Playing against: " + (GameClient.isOwner ? GameClient.room.state.player2.name : GameClient.room.state.player1.name) + "!";
+					detailsText = "Playing against: " + GameClient.getOtherPlayers()[0].name + "!";
 				else
 					detailsText = "Playing a online private game!";
 			}
@@ -889,7 +889,7 @@ class PlayState extends MusicBeatState
 			Mods.currentModDirectory = "";
 
 			if (GameClient.isConnected()) {
-				var roomDad = !GameClient.room.state.swagSides ? GameClient.room.state.player1 : GameClient.room.state.player2;
+				var roomDad = getServerPlayer(!GameClient.room.state.swagSides ? 1 : 2);
 				if (FileSystem.exists(Paths.mods(roomDad.skinMod)) && !SONG.player2.startsWith(roomDad.skinName)) {
 					if (roomDad.skinMod != null)
 						Mods.currentModDirectory = roomDad.skinMod;
@@ -922,7 +922,7 @@ class PlayState extends MusicBeatState
 			Mods.currentModDirectory = "";
 
 			if (GameClient.isConnected()) {
-				var roomBf = !GameClient.room.state.swagSides ? GameClient.room.state.player2 : GameClient.room.state.player1;
+				var roomBf = getServerPlayer(!GameClient.room.state.swagSides ? 2 : 1);
 				if (FileSystem.exists(Paths.mods(roomBf.skinMod)) && !SONG.player1.startsWith(roomBf.skinName)) {
 					if (roomBf.skinMod != null)
 						Mods.currentModDirectory = roomBf.skinMod;
@@ -1348,11 +1348,11 @@ class PlayState extends MusicBeatState
 		botplayVisibility = cpuControlled;
 
 		if (GameClient.isConnected()) {
-			if (GameClient.room.state.player1.botplay && GameClient.room.state.player2.botplay)
+			if (getServerPlayer(1).botplay && getServerPlayer(2).botplay)
 				pos = 0;
-			else if (GameClient.room.state.player1.botplay)
+			else if (getServerPlayer(1).botplay)
 				pos = (GameClient.room.state.swagSides ? 2 : 1);
-			else if (GameClient.room.state.player2.botplay)
+			else if (getServerPlayer(2).botplay)
 				pos = (GameClient.room.state.swagSides ? 1 : 2);
 			else
 				pos = -1;
@@ -1978,11 +1978,11 @@ class PlayState extends MusicBeatState
 		}
 
 		if (GameClient.isConnected()) {
-			scoreTextObject.text = (GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).name
+			scoreTextObject.text = GameClient.getSelfPlayer().name
 				+ '\nScore: ' + FlxStringUtil.formatMoney(songScore, false)
 				+ '\nMisses: ' + songMisses
 				+ '\nRating: ' + str
-				+ "\nPing: " + (GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).ping;
+				+ "\nPing: " + GameClient.getSelfPlayer().ping;
 		}
 		else {
 			scoreTextObject.text = 'Score: ' + FlxStringUtil.formatMoney(songScore, false) + ' | Misses: ' + songMisses + ' | Rating: ' + str;
@@ -3962,7 +3962,7 @@ class PlayState extends MusicBeatState
 		if (!ClientPrefs.data.disableComboCounter) {
 			var colorCombo:Null<FlxColor> = null;
 			if (ClientPrefs.data.colorRating && GameClient.isConnected()) {
-				var op = (GameClient.isOwner ? GameClient.room.state.player2 : GameClient.room.state.player1);
+				var op = GameClient.getOtherPlayers()[0];
 				if (op.misses == 0) {
 					if (op.shits > 0)
 						colorCombo = COLOR_SHIT;
@@ -5487,14 +5487,31 @@ class PlayState extends MusicBeatState
 		return vocals;
 	}
 
+	static function getServerPlayer(num:Int) {
+		if(num == 1) {
+			if(GameClient.isOwner)
+				return GameClient.getSelfPlayer();
+			else
+				return GameClient.getOtherPlayers()[0];
+		}
+		else if(num == 2) {
+			if(!GameClient.isOwner)
+				return GameClient.getSelfPlayer();
+			else
+				return GameClient.getOtherPlayers()[0];
+		}
+
+		return null;
+	}
+
 	function registerMessages() {
 		GameClient.initStateListeners(this, this.registerMessages);
 
 		if (!GameClient.isConnected())
 			return;
 
-		var player = (GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2);
-		var op = (GameClient.isOwner ? GameClient.room.state.player2 : GameClient.room.state.player1);
+		var player = GameClient.getSelfPlayer();
+		var op = GameClient.getOtherPlayers()[0];
 
 		player.listen("ping", (value, prev) -> {
 			Waiter.put(() -> {
@@ -5678,7 +5695,7 @@ class PlayState extends MusicBeatState
 	var opCumboo:Int = 0;
 
 	public function RecalculateRatingOpponent(badHit:Bool = false) {
-		var op = (GameClient.isOwner ? GameClient.room.state.player2 : GameClient.room.state.player1);
+		var op = GameClient.getOtherPlayers()[0];
 
 		setOnScripts('scoreOP', op.score);
 		setOnScripts('missesOP', op.misses);
@@ -5727,7 +5744,7 @@ class PlayState extends MusicBeatState
 	}
 
 	public function updateScoreOpponent(miss:Bool) {
-		var op = (GameClient.isOwner ? GameClient.room.state.player2 : GameClient.room.state.player1);
+		var op = GameClient.getOtherPlayers()[0];
 
 		var str:String = opRatingName;
 		if (op.sicks + op.goods + op.bads + op.shits + op.misses != 0) {

@@ -358,53 +358,34 @@ class ClientPrefs {
 	}
 
 	public static function getRGBColor(player:Int = 0):Array<Array<FlxColor>> {
-		if (!GameClient.isConnected() || NotesSubState.isOpened)
+		if (!GameClient.isConnected() || NotesSubState.isOpened || GameClient.room.state.players[player] == null)
 			return data.arrowRGB;
 
-		if (player == 0)
-			return [ 
-				CoolUtil.asta(GameClient.room.state.player1.arrowColor0),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColor1),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColor2),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColor3),
-			];
-		
 		return [
-			CoolUtil.asta(GameClient.room.state.player2.arrowColor0),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColor1),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColor2),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColor3),
+			CoolUtil.asta(GameClient.room.state.players[player].arrowColor0),
+			CoolUtil.asta(GameClient.room.state.players[player].arrowColor1),
+			CoolUtil.asta(GameClient.room.state.players[player].arrowColor2),
+			CoolUtil.asta(GameClient.room.state.players[player].arrowColor3),
 		];
 	}
 
 	public static function getRGBPixelColor(player:Int = 0):Array<Array<FlxColor>> {
-		if (!GameClient.isConnected() || NotesSubState.isOpened)
+		if (!GameClient.isConnected() || NotesSubState.isOpened || GameClient.room.state.players[player] == null)
 			return data.arrowRGBPixel;
 
-		if (player == 0)
-			return [
-				CoolUtil.asta(GameClient.room.state.player1.arrowColorP0),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColorP1),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColorP2),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColorP3),
-			];
-
 		return [
-			CoolUtil.asta(GameClient.room.state.player2.arrowColorP0),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColorP1),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColorP2),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColorP3),
+			CoolUtil.asta(GameClient.room.state.players[player].arrowColorP0),
+			CoolUtil.asta(GameClient.room.state.players[player].arrowColorP1),
+			CoolUtil.asta(GameClient.room.state.players[player].arrowColorP2),
+			CoolUtil.asta(GameClient.room.state.players[player].arrowColorP3),
 		];
 	}
 
 	public static function getNoteSkin(player:Int = 0):String
 	{
-		if(!GameClient.isConnected() || NotesSubState.isOpened || VisualsUISubState.isOpened)
+		if(!GameClient.isConnected() || NotesSubState.isOpened || VisualsUISubState.isOpened || GameClient.room.state.players[player] == null)
 			return data.noteSkin;
 
-		if(player == 0)
-			return GameClient.room.state.player1.noteSkin;
-		else
-			return GameClient.room.state.player2.noteSkin;
+		return GameClient.room.state.players[player].noteSkin;
 	}
 }

@@ -30,6 +30,7 @@ class GameClient {
 	public static var address:String;
 	public static var reconnecting:Bool = false;
 	public static var rpcClientRoomID:String;
+	public static var clientIndex:Null<Int> = 0;
 
 	/**
 	 * the server address that the player set, if the player has set nothing then it returns `serverAddresses[0]`
@@ -144,6 +145,8 @@ class GameClient {
 		//	trace("onrender server detected");
 		Waiter.pingServer = address;
 		//}
+
+		room.send("queueClientIndexUpdate");
 
 		reconnecting = false;
 	}
@@ -307,7 +310,7 @@ class GameClient {
 		clearCallbacks(GameClient.room.state);
 		clearCallbacks(GameClient.room.state.diffList);
 		clearCallbacks(GameClient.room.state.gameplaySettings);
-		for (player in [GameClient.room.state.player1, GameClient.room.state.player2]) {
+		for (player in GameClient.room.state.players) {
 			if (player == null)
 				continue;
 
@@ -345,6 +348,10 @@ class GameClient {
 				DiscordClient.loadModRPC();
 				#end
 			});
+		});
+
+		GameClient.room.onMessage("updateClientIndex", function(message) {
+			clientIndex = message;
 		});
 
 		#if DISCORD_ALLOWED
@@ -526,9 +533,35 @@ class GameClient {
 		if (!GameClient.isConnected())
 			return 0;
 
-		if (GameClient.room.state.player2 != null && GameClient.room.state.player2.name != "")
-			return 2;
-		return 1;
+		var count:Int = 0;
+		for(player in GameClient.room.state.players)
+		{
+			if(player != null)
+				count++;
+		}
+
+		return count;
+	}
+
+	public static function getSelfPlayer():Null<Player> {
+		if (clientIndex == null)
+			return null;
+
+		return GameClient.room.state.players[clientIndex];
+	}
+
+	public static function getOtherPlayers():Null<Array<Player>> {
+		if (clientIndex == null)
+			return null;
+
+		var toReturn:Array<Player> = [];
+		for(i=>player in GameClient.room.state.players)
+		{
+			if(i != clientIndex)
+				toReturn.push(player);
+		}
+
+		return toReturn;
 	}
 
 	public static function getStaticPlayer(?self:Bool = true) {

@@ -90,8 +90,8 @@ class RoomState extends MusicBeatState {
 
 		instance = this;
 
-		playMusic((GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).hasSong);
-		(GameClient.isOwner ? GameClient.room.state.player1 : GameClient.room.state.player2).listen("hasSong", (value:Bool, prev) -> {
+		playMusic((GameClient.isOwner ? getServerPlayer(1) : getServerPlayer(2)).hasSong);
+		(GameClient.isOwner ? getServerPlayer(1) : getServerPlayer(2)).listen("hasSong", (value:Bool, prev) -> {
 			Waiter.put(() -> {
 				playMusic(value);
 			});
@@ -113,88 +113,51 @@ class RoomState extends MusicBeatState {
 			});
 		});
 
-		GameClient.room.state.player1.listen("ping", (value, prev) -> {
-			if (value == prev)
-				return;
-			Waiter.put(() -> {
-				updateTexts();
+		for(player in GameClient.room.state.players)
+		{
+			player.listen("ping", (value, prev) -> {
+				if (value == prev)
+					return;
+				Waiter.put(() -> {
+					updateTexts();
+				});
 			});
-		});
-		GameClient.room.state.player2.listen("ping", (value, prev) -> {
-			if (value == prev)
-				return;
-			Waiter.put(() -> {
-				updateTexts();
+			player.listen("status", (value, prev) -> {
+				if (value == prev)
+					return;
+				Waiter.put(() -> {
+					updateTexts();
+				});
 			});
-		});
-		GameClient.room.state.player1.listen("status", (value, prev) -> {
-			if (value == prev)
-				return;
-			Waiter.put(() -> {
-				updateTexts();
+			player.listen("name", (value, prev) -> {
+				if (value == prev)
+					return;
+				Waiter.put(() -> {
+					updateTexts();
+				});
 			});
-		});
-		GameClient.room.state.player2.listen("status", (value, prev) -> {
-			if (value == prev)
-				return;
-			Waiter.put(() -> {
-				updateTexts();
-			});
-		});
-		GameClient.room.state.player1.listen("name", (value, prev) -> {
-			if (value == prev)
-				return;
-			Waiter.put(() -> {
-				updateTexts();
-			});
-		});
-		GameClient.room.state.player2.listen("name", (value, prev) -> {
-			if (value == prev)
-				return;
-			Waiter.put(() -> {
-				updateTexts();
-			});
-		});
 
-		GameClient.room.state.player1.listen("skinName", (value, prev) -> {
-			if (value == prev)
-				return;
-			Waiter.put(() -> {
-				loadCharacter(true, true);
+			player.listen("skinName", (value, prev) -> {
+				if (value == prev)
+					return;
+				Waiter.put(() -> {
+					loadCharacter(getServerPlayer(1) == player, true);
+				});
 			});
-		});
-		GameClient.room.state.player2.listen("skinName", (value, prev) -> {
-			if (value == prev)
-				return;
-			Waiter.put(() -> {
-				loadCharacter(false, true);
-			});
-		});
 
-		GameClient.room.state.player1.listen("isReady", (value, prev) -> {
-			Waiter.put(() -> {
-				if (value) {
-					var sond = FlxG.sound.play(Paths.sound('scrollMenu'), 0.5);
-					sond.pitch = 1.1;
-				}
-				// else {
-				// 	var sond = FlxG.sound.play(Paths.sound('cancelMenu'));
-				// 	sond.pitch = 1.1;
-				// }
+			player.listen("isReady", (value, prev) -> {
+				Waiter.put(() -> {
+					if (value) {
+						var sond = FlxG.sound.play(Paths.sound('scrollMenu'), 0.5);
+						sond.pitch = 1.1;
+					}
+					// else {
+					// 	var sond = FlxG.sound.play(Paths.sound('cancelMenu'));
+					// 	sond.pitch = 1.1;
+					// }
+				});
 			});
-		});
-		GameClient.room.state.player2.listen("isReady", (value, prev) -> {
-			Waiter.put(() -> {
-				if (value) {
-					var sond = FlxG.sound.play(Paths.sound('scrollMenu'), 0.5);
-					sond.pitch = 1.1;
-				}
-				// else {
-				// 	var sond = FlxG.sound.play(Paths.sound('cancelMenu'));
-				// 	sond.pitch = 1.1;
-				// }
-			});
-		});
+		}
 
 		// GameClient.room.onMessage("ping", function(message) {
 		// 	Waiter.put(() -> {
@@ -240,21 +203,16 @@ class RoomState extends MusicBeatState {
 			});
 		});
 
-		GameClient.room.state.player1.listen("noteSkin", (value, prev) -> {
-			if (value == prev)
-				return;
-			Waiter.put(() -> {
-				checkNoteSkin(true);
+		for(player in GameClient.room.state.players)
+		{
+			player.listen("noteSkin", (value, prev) -> {
+				if (value == prev)
+					return;
+				Waiter.put(() -> {
+					checkNoteSkin(getServerPlayer(1) == player);
+				});
 			});
-		});
-
-		GameClient.room.state.player2.listen("noteSkin", (value, prev) -> {
-			if (value == prev)
-				return;
-			Waiter.put(() -> {
-				checkNoteSkin(false);
-			});
-		});
+		}
 
 		GameClient.room.state.gameplaySettings.onChange((o, n) -> {
 			FreeplayState.updateFreeplayMusicPitch();
@@ -581,22 +539,24 @@ class RoomState extends MusicBeatState {
 			p1 = null;
 			p1Layer.clear();
 
-			if (FileSystem.exists(Paths.mods(GameClient.room.state.player1.skinMod))) {
-				if (GameClient.room.state.player1.skinMod != null)
-					Mods.currentModDirectory = GameClient.room.state.player1.skinMod;
+			if(getServerPlayer(1) != null) {
+				if (FileSystem.exists(Paths.mods(getServerPlayer(1).skinMod))) {
+					if (getServerPlayer(1).skinMod != null)
+						Mods.currentModDirectory = getServerPlayer(1).skinMod;
 
-				if (GameClient.room.state.player1.skinName != null)
-					p1 = new Character(0, 0, GameClient.room.state.player1.skinName + (GameClient.room.state.swagSides ? "-player" : ''), GameClient.room.state.swagSides);
-			}
-			else if (enableDownload && GameClient.room.state.player1.skinURL != null) {
-				waitingForPlayer1Skin = true;
-				OnlineMods.downloadMod(GameClient.room.state.player1.skinURL, manualDownload, (_) -> {
-					if (destroyed)
-						return;
+					if (getServerPlayer(1).skinName != null)
+						p1 = new Character(0, 0, getServerPlayer(1).skinName + (GameClient.room.state.swagSides ? "-player" : ''), GameClient.room.state.swagSides);
+				}
+				else if (enableDownload && getServerPlayer(1).skinURL != null) {
+					waitingForPlayer1Skin = true;
+					OnlineMods.downloadMod(getServerPlayer(1).skinURL, manualDownload, (_) -> {
+						if (destroyed)
+							return;
 
-					loadCharacter(isP1, false);
-					waitingForPlayer1Skin = false;
-				});
+						loadCharacter(isP1, false);
+						waitingForPlayer1Skin = false;
+					});
+				}
 			}
 
 			if (p1 == null)
@@ -613,22 +573,24 @@ class RoomState extends MusicBeatState {
 			p2 = null;
 			p2Layer.clear();
 
-			if (FileSystem.exists(Paths.mods(GameClient.room.state.player2.skinMod))) {
-				if (GameClient.room.state.player2.skinMod != null)
-					Mods.currentModDirectory = GameClient.room.state.player2.skinMod;
+			if(getServerPlayer(2) != null) {
+				if (FileSystem.exists(Paths.mods(getServerPlayer(2).skinMod))) {
+					if (getServerPlayer(2).skinMod != null)
+						Mods.currentModDirectory = getServerPlayer(2).skinMod;
 
-				if (GameClient.room.state.player2.skinName != null)
-					p2 = new Character(0, 0, GameClient.room.state.player2.skinName + (GameClient.room.state.swagSides ? '' : "-player"), !GameClient.room.state.swagSides);
-			}
-			else if (enableDownload && GameClient.room.state.player2.skinURL != null) {
-				waitingForPlayer2Skin = true;
-				OnlineMods.downloadMod(GameClient.room.state.player2.skinURL, manualDownload, (_) -> {
-					if (destroyed)
-						return;
+					if (getServerPlayer(2).skinName != null)
+						p2 = new Character(0, 0, getServerPlayer(2).skinName + (GameClient.room.state.swagSides ? '' : "-player"), !GameClient.room.state.swagSides);
+				}
+				else if (enableDownload && getServerPlayer(2).skinURL != null) {
+					waitingForPlayer2Skin = true;
+					OnlineMods.downloadMod(getServerPlayer(2).skinURL, manualDownload, (_) -> {
+						if (destroyed)
+							return;
 
-					loadCharacter(isP1, false);
-					waitingForPlayer2Skin = false;
-				});
+						loadCharacter(isP1, false);
+						waitingForPlayer2Skin = false;
+					});
+				}
 			}
 
 			if (p2 == null)
@@ -673,7 +635,10 @@ class RoomState extends MusicBeatState {
 	}
 
 	function checkNoteSkin(isP1:Bool, ?manualDownload:Bool = false) {
-		var player = isP1 ? GameClient.room.state.player1 : GameClient.room.state.player2;
+		var player = isP1 ? getServerPlayer(1) : getServerPlayer(2);
+
+		if(player == null)
+			return;
 
 		if (!FileSystem.exists(Paths.mods(player.noteSkinMod)) && player.noteSkinURL != null) {
 			OnlineMods.downloadMod(player.noteSkinURL, manualDownload, function(_) {
@@ -776,7 +741,7 @@ class RoomState extends MusicBeatState {
 					item.angle = FlxMath.lerp(item.angle, 20, elapsed * 5);
 
 				if (item == playIcon) {
-					if (getSelfPlayer().hasSong) {
+					if (GameClient.getSelfPlayer().hasSong) {
 						item.scale.set(FlxMath.lerp(item.scale.x, 1.2, elapsed * 10), FlxMath.lerp(item.scale.y, 1.2, elapsed * 10));
 					}
 					else {
@@ -791,7 +756,7 @@ class RoomState extends MusicBeatState {
 				item.scale.set(FlxMath.lerp(item.scale.x, 1, elapsed * 10), FlxMath.lerp(item.scale.y, 1, elapsed * 10));
 			}
 		}
-		playIcon.alpha = getSelfPlayer().hasSong ? 1.0 : 0.5;
+		playIcon.alpha = GameClient.getSelfPlayer().hasSong ? 1.0 : 0.5;
 
 		if (!chatBox.focused) {
 			if (FlxG.mouse.justMoved) {
@@ -880,7 +845,7 @@ class RoomState extends MusicBeatState {
 					case 1:
 						chatBox.focused = true;
 					case 2:
-						var selfPlayer:Player = getSelfPlayer();
+						var selfPlayer:Player = GameClient.getSelfPlayer();
 
 						if (!selfPlayer.hasSong && GameClient.room.state.song != "" && (Mods.getModDirectories().contains(GameClient.room.state.modDir) || GameClient.room.state.modDir == "")) {
 							Mods.currentModDirectory = GameClient.room.state.modDir;
@@ -990,7 +955,7 @@ class RoomState extends MusicBeatState {
 				optionShake = FlxTween.shake(verifyMod, 0.05, 0.3, FlxAxes.X);
 				return false;
 			}
-			if (getSelfPlayer().hasSong) {
+			if (GameClient.getSelfPlayer().hasSong) {
 				if (ignoreAlert)
 					return false;
 
@@ -1062,7 +1027,7 @@ class RoomState extends MusicBeatState {
 		if (GameClient.room == null || !_textsInit)
 			return;
 
-		var selfPlayer:Player = getSelfPlayer();
+		var selfPlayer:Player = GameClient.getSelfPlayer();
 		
 		var daModName = GameClient.room.state.modDir ?? "";
 		if (daModName.length > 30) {
@@ -1097,9 +1062,9 @@ class RoomState extends MusicBeatState {
 		songNameBg.updateHitbox();
 		songNameBg.x = songName.x;
 
-		setPlayerText(playerBox1, GameClient.room.state.player1, waitingForPlayer1Skin);
+		setPlayerText(playerBox1, getServerPlayer(1), waitingForPlayer1Skin);
 
-		if (GameClient.room.state.player2 != null && GameClient.room.state.player2.name != "") {
+		if (getServerPlayer(2) != null && getServerPlayer(2).name != "") {
 			p2.colorTransform.redOffset = 0;
 			p2.colorTransform.greenOffset = 0;
 			p2.colorTransform.blueOffset = 0;
@@ -1107,7 +1072,7 @@ class RoomState extends MusicBeatState {
 			dlSkinTxt.visible = waitingForPlayer2Skin;
 			if (waitingForPlayer2Skin)
 				dlSkinTxt.setPosition(p2.x + p2.width / 2 - dlSkinTxt.width / 2, p2.y + p2.height / 2 - dlSkinTxt.height / 2);
-			setPlayerText(playerBox2, GameClient.room.state.player2, waitingForPlayer2Skin);
+			setPlayerText(playerBox2, getServerPlayer(2), waitingForPlayer2Skin);
         }
         else {
 			if (p2.curCharacter != "default-player")
@@ -1265,11 +1230,20 @@ class RoomState extends MusicBeatState {
 			GameClient.send("charPlay", [anim]);
 	}
 
-	function getSelfPlayer() {
-		if (GameClient.isOwner)
-			return GameClient.room.state.player1;
-		else
-			return GameClient.room.state.player2;
+	// if it works it works
+	static function getServerPlayer(num:Int) {
+		if(num == 1) {
+			if(GameClient.isOwner)
+				return GameClient.getSelfPlayer();
+			else
+				return GameClient.getOtherPlayers()[0];
+		}
+		else {
+			if(!GameClient.isOwner)
+				return GameClient.getSelfPlayer();
+			else
+				return GameClient.getOtherPlayers()[0];
+		}
 	}
 
 	function danceLogic(char:Character, ?isBeat = false) {

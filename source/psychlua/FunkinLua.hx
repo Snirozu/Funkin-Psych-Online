@@ -283,109 +283,82 @@ class FunkinLua {
 			return GameClient.room.state.anarchyMode;
 		});
 
+		function getServerPlayer(num:Int) {
+			if(num == 1) {
+				if(GameClient.isOwner)
+					return GameClient.getSelfPlayer();
+				else
+					return GameClient.getOtherPlayers()[0];
+			}
+			else if(num == 2) {
+				if(!GameClient.isOwner)
+					return GameClient.getSelfPlayer();
+				else
+					return GameClient.getOtherPlayers()[0];
+			}
+			else {
+				return GameClient.getOtherPlayers()[num - 2]; // whats gonna go wrong
+			}
+		}
+
 		addLuaCallback("getPlayerScore", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.score;
-			else
-				return GameClient.room.state.player2.score;
+			return getServerPlayer(player).score;
 		});
 
 		addLuaCallback("getPlayerMisses", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.misses;
-			else
-				return GameClient.room.state.player2.misses;
+			return getServerPlayer(player).misses;
 		});
 
 		addLuaCallback("getPlayerSicks", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.sicks;
-			else
-				return GameClient.room.state.player2.sicks;
+			return getServerPlayer(player).sicks;
 		});
 
 		addLuaCallback("getPlayerGoods", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.goods;
-			else
-				return GameClient.room.state.player2.goods;
+			return getServerPlayer(player).goods;
 		});
 
 		addLuaCallback("getPlayerBads", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.bads;
-			else
-				return GameClient.room.state.player2.bads;
+			return getServerPlayer(player).bads;
 		});
 
 		addLuaCallback("getPlayerShits", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.shits;
-			else
-				return GameClient.room.state.player2.shits;
+			return getServerPlayer(player).shits;
 		});
 
 		addLuaCallback("getPlayerName", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.name;
-			else
-				return GameClient.room.state.player2.name;
+			return getServerPlayer(player).name;
 		});
 
 		addLuaCallback("getPlayerHasLoaded", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.hasLoaded;
-			else
-				return GameClient.room.state.player2.hasLoaded;
+			return getServerPlayer(player).hasLoaded;
 		});
 
 		addLuaCallback("getPlayerHasEnded", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.hasEnded;
-			else
-				return GameClient.room.state.player2.hasEnded;
+			return getServerPlayer(player).hasEnded;
 		});
 
 		addLuaCallback("getPlayerPing", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.ping;
-			else
-				return GameClient.room.state.player2.ping;
+			return getServerPlayer(player).ping;
 		});
 
 		addLuaCallback("getPlayerSkinMod", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.skinMod;
-			else
-				return GameClient.room.state.player2.skinMod;
+			return getServerPlayer(player).skinMod;
 		});
 
 		addLuaCallback("getPlayerSkinName", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.skinName;
-			else
-				return GameClient.room.state.player2.skinName;
+			return getServerPlayer(player).skinName;
 		});
 
 		addLuaCallback("getPlayerSkinURL", function(player:Int) {
-			if (player == 1)
-				return GameClient.room.state.player1.skinURL;
-			else
-				return GameClient.room.state.player2.skinURL;
+			return getServerPlayer(player).skinURL;
 		});
 
 		addLuaCallback("getPlayerAccuracy", function(player:Int) {
-			if (player == 1)
-				return GameClient.getPlayerAccuracyPercent(GameClient.room.state.player1);
-			else
-				return GameClient.getPlayerAccuracyPercent(GameClient.room.state.player2);
+			return GameClient.getPlayerAccuracyPercent(getServerPlayer(player));
 		});
 
 		addLuaCallback("getPlayerRating", function(player:Int) {
-			if (player == 1)
-				return GameClient.getPlayerRating(GameClient.room.state.player1);
-			else
-				return GameClient.getPlayerRating(GameClient.room.state.player2);
+			return GameClient.getPlayerRating(getServerPlayer(player));
 		});
 		
 		addLocalCallback("setOnScripts", function(varName:String, arg:Dynamic, ?ignoreSelf:Bool = false, ?exclusions:Array<String> = null) {

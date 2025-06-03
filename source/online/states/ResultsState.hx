@@ -509,9 +509,23 @@ class ResultsState extends MusicBeatState {
 	}
 
 	static function getPlayer(num:Int) {
-		if (GameClient.isConnected())
-			return num == 2 ? GameClient.room.state.player2 : GameClient.room.state.player1;
-		else 
+		if(!GameClient.isConnected()) {
 			return num == 2 ? Debug.fakePlayer2 : Debug.fakePlayer1;
+		}
+
+		if(num == 1) {
+			if(GameClient.isOwner)
+				return GameClient.getSelfPlayer();
+			else
+				return GameClient.getOtherPlayers()[0];
+		}
+		else if(num == 2) {
+			if(!GameClient.isOwner)
+				return GameClient.getSelfPlayer();
+			else
+				return GameClient.getOtherPlayers()[0];
+		}
+
+		return null;
 	}
 }

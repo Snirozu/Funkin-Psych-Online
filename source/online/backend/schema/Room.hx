@@ -38,11 +38,8 @@ class Room extends Schema {
 	@:type("string")
 	public var modURL: String = "";
 
-	@:type("ref", Player)
-	public var player1: Player = new Player();
-
-	@:type("ref", Player)
-	public var player2: Player = new Player();
+	@:type("array", Player)
+	public var players: ArraySchema<Player> = new ArraySchema<Player>();
 
 	@:type("boolean")
 	public var isPrivate: Bool = false;
