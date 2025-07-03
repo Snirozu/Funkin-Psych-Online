@@ -63,6 +63,9 @@ class HScript extends SScript
 		#if HSCRIPT_ALLOWED
 		super.preset();
 
+		if (Deflection.classBlacklist == null)
+			Deflection.resolveClass('');
+
 		notAllowedClasses = Deflection.classBlacklist.copy();
 
 		set('FlxVideo', hxcodec.flixel.FlxVideo);
