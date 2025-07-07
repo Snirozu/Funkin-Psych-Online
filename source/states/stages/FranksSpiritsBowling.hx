@@ -1,6 +1,10 @@
 package states.stages;
 
+import openfl.filters.ShaderFilter;
+import shaders.DropShadow;
+import shaders.DropShadowScreenspace;
 import states.stages.objects.TankmenBG;
+import flixel.math.FlxPoint;
 import objects.Character;
 import openfl.media.Sound;
 import hxvlc.flixel.FlxVideoSprite;
@@ -10,6 +14,9 @@ class FranksSpiritsBowling extends BaseStage {
 
 	var tankmanEnd:FlxAnimate;
 	var stressEndAudio:Sound;
+	var rimlightCamera:FlxCamera;
+	var screenspaceRimlight:DropShadowScreenspace;
+
 	var tankmanRun:FlxTypedGroup<TankmenBG>;
 	var sniper:BGSprite;
 
@@ -39,10 +46,36 @@ class FranksSpiritsBowling extends BaseStage {
 
 	override function createPost() {
 		if (songName == 'stress-pico') {
+			rimlightCamera = new FlxCamera();
+
+			FlxG.cameras.remove(game.camHUD, false);
+			FlxG.cameras.remove(game.camOther, false);
+
+			FlxG.cameras.add(rimlightCamera, false);
+			FlxG.cameras.add(game.camHUD, false);
+			FlxG.cameras.add(game.camOther, false);
+
+			rimlightCamera.bgColor = 0x00FFFFFF; // Show the game scene behind the camera.
+
+			screenspaceRimlight = new DropShadowScreenspace();
+
+			screenspaceRimlight.baseBrightness = -46;
+			screenspaceRimlight.baseHue = -38;
+			screenspaceRimlight.baseContrast = -25;
+			screenspaceRimlight.baseSaturation = -20;
+
+			screenspaceRimlight.angle = 45;
+			screenspaceRimlight.threshold = 0.3;
+
+			var rimlightFilter:ShaderFilter = new ShaderFilter(screenspaceRimlight.shader);
+
+			rimlightCamera.filters = [rimlightFilter];
+
 			tankmanEnd = new FlxAnimate(778, 513);
 			tankmanEnd.antialiasing = ClientPrefs.data.antialiasing;
 			Paths.loadAnimateAtlas(tankmanEnd, 'erect/cutscene/tankmanEnding');
 			tankmanEnd.anim.addBySymbol('scene', 'tankman stress ending', 24, false);
+			tankmanEnd.cameras = [rimlightCamera];
 
 			if (!seenCutscene) {
 				setStartCallback(() -> {
@@ -82,6 +115,79 @@ class FranksSpiritsBowling extends BaseStage {
 					break;
 				}
 			}
+		}
+
+		if(ClientPrefs.data.shaders) {
+			for(character in boyfriendGroup.members) {
+				if(!Std.isOfType(character, objects.Character))
+					continue;
+
+				var rim:DropShadow = new DropShadow();
+				rim.setAdjustColor(-46, -38, -25, -20);
+				rim.color = 0xFFDFEF3C;
+				rim.attachedSprite = character;
+
+				rim.angle = 90;
+				character.shader = rim.shader;
+
+				character.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
+					if(name.endsWith('-bloody'))
+						rim.useAltMask = true;
+
+					rim.updateFrameInfo(character.frame);
+				};
+			}
+
+			for(character in gfGroup.members) {
+				if(!Std.isOfType(character, objects.Character))
+					continue;
+
+				var rim:DropShadow = new DropShadow();
+				rim.setAdjustColor(-46, -38, -25, -20);
+				rim.color = 0xFFDFEF3C;
+				rim.attachedSprite = character;
+
+				rim.angle = 90;
+				character.shader = rim.shader;
+
+				character.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
+					rim.updateFrameInfo(character.frame);
+				};
+			}
+
+			for(character in dadGroup.members) {
+				if(!Std.isOfType(character, objects.Character))
+					continue;
+
+				var rim:DropShadow = new DropShadow();
+				rim.setAdjustColor(-46, -38, -25, -20);
+				rim.color = 0xFFDFEF3C;
+				rim.attachedSprite = character;
+
+				rim.angle = 135;
+				rim.threshold = 0.3;
+				character.shader = rim.shader;
+
+				switch(cast(character, objects.Character)?.curCharacter) {
+					case 'tankman-bloody':
+						rim.loadAltMask('erect/masks/tankmanCaptainBloody_mask');
+				}
+
+				rim.maskThreshold = 1;
+				rim.useAltMask = false;
+
+				character.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
+					rim.updateFrameInfo(character.frame);
+				};
+			}
+		}
+	}
+
+	override function update(elapsed:Float) {
+		@:privateAccess
+		if (rimlightCamera != null) {
+			rimlightCamera.scroll.copyFrom(game.camGame.scroll);
+			rimlightCamera.zoom = game.camGame.zoom;
 		}
 	}
 
