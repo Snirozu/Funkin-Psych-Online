@@ -2,6 +2,7 @@ package states.stages;
 
 import openfl.media.Sound;
 import states.stages.objects.*;
+import shaders.AdjustColor;
 
 class MallErect extends BaseStage
 {
@@ -56,6 +57,24 @@ class MallErect extends BaseStage
 
 	override function createPost() {
 		add(santa);
+
+		if(ClientPrefs.data.shaders) {
+			var colorShader:AdjustColor = new AdjustColor();
+
+			for(bf in boyfriendGroup.members)
+				bf.shader = colorShader.shader;
+
+			for(daddy in dadGroup.members)
+				daddy.shader = colorShader.shader;
+
+			for(girlfriend in gfGroup.members)
+				girlfriend.shader = colorShader.shader;
+
+			santa.shader = colorShader.shader;
+
+			colorShader.hue = 5;
+			colorShader.saturation = 20;
+		}
 	}
 
 	override function countdownTick(count:Countdown, num:Int) everyoneDance();

@@ -659,7 +659,9 @@ class PlayState extends MusicBeatState
 				swagStage == 'stage' ||
 				swagStage == 'spooky' ||
 				swagStage == 'philly' ||
+				swagStage == 'limo' ||
 				swagStage == 'mall' ||
+				swagStage == 'school' ||
 				swagStage == 'tank'
 			)) {
 				swagStage = swagStage + '-erect';
@@ -770,10 +772,12 @@ class PlayState extends MusicBeatState
 					case 'philly': new states.stages.Philly(); // Week 3
 					case 'philly-erect': new states.stages.PhillyErect(); // Week 3 (Erect)
 					case 'limo': new states.stages.Limo(); // Week 4
+					case 'limo-erect': new states.stages.LimoErect(); // Week 4 (Erect)
 					case 'mall': new states.stages.Mall(); // Week 5 - Cocoa, Eggnog
 					case 'mall-erect': new states.stages.MallErect(); // Week 5 (Erect)
 					case 'mallEvil': new states.stages.MallEvil(); // Week 5 - Winter Horrorland
 					case 'school': new states.stages.School(); // Week 6 - Senpai, Roses
+					case 'school-erect': new states.stages.SchoolErect(); // Week 6 (Erect) - Senpai, Roses
 					case 'schoolEvil': new states.stages.SchoolEvil(); // Week 6 - Thorns
 					case 'tank': new states.stages.Tank(); // Week 7 - Ugh, Guns, Stress
 					case 'tank-erect': new states.stages.FranksSpiritsBowling(); // Week 7 (Erect)
