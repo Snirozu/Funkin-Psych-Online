@@ -46,36 +46,39 @@ class FranksSpiritsBowling extends BaseStage {
 
 	override function createPost() {
 		if (songName == 'stress-pico') {
-			rimlightCamera = new FlxCamera();
+			if(ClientPrefs.data.shaders) {
+				rimlightCamera = new FlxCamera();
 
-			FlxG.cameras.remove(game.camHUD, false);
-			FlxG.cameras.remove(game.camOther, false);
+				FlxG.cameras.remove(game.camHUD, false);
+				FlxG.cameras.remove(game.camOther, false);
 
-			FlxG.cameras.add(rimlightCamera, false);
-			FlxG.cameras.add(game.camHUD, false);
-			FlxG.cameras.add(game.camOther, false);
+				FlxG.cameras.add(rimlightCamera, false);
+				FlxG.cameras.add(game.camHUD, false);
+				FlxG.cameras.add(game.camOther, false);
 
-			rimlightCamera.bgColor = 0x00FFFFFF; // Show the game scene behind the camera.
+				rimlightCamera.bgColor = 0x00FFFFFF; // Show the game scene behind the camera.
 
-			screenspaceRimlight = new DropShadowScreenspace();
+				screenspaceRimlight = new DropShadowScreenspace();
 
-			screenspaceRimlight.baseBrightness = -46;
-			screenspaceRimlight.baseHue = -38;
-			screenspaceRimlight.baseContrast = -25;
-			screenspaceRimlight.baseSaturation = -20;
+				screenspaceRimlight.baseBrightness = -46;
+				screenspaceRimlight.baseHue = -38;
+				screenspaceRimlight.baseContrast = -25;
+				screenspaceRimlight.baseSaturation = -20;
 
-			screenspaceRimlight.angle = 45;
-			screenspaceRimlight.threshold = 0.3;
+				screenspaceRimlight.angle = 45;
+				screenspaceRimlight.threshold = 0.3;
 
-			var rimlightFilter:ShaderFilter = new ShaderFilter(screenspaceRimlight.shader);
+				var rimlightFilter:ShaderFilter = new ShaderFilter(screenspaceRimlight.shader);
 
-			rimlightCamera.filters = [rimlightFilter];
+				rimlightCamera.filters = [rimlightFilter];
+			}
 
 			tankmanEnd = new FlxAnimate(778, 513);
 			tankmanEnd.antialiasing = ClientPrefs.data.antialiasing;
 			Paths.loadAnimateAtlas(tankmanEnd, 'erect/cutscene/tankmanEnding');
 			tankmanEnd.anim.addBySymbol('scene', 'tankman stress ending', 24, false);
-			tankmanEnd.cameras = [rimlightCamera];
+			if(ClientPrefs.data.shaders)
+				tankmanEnd.cameras = [rimlightCamera];
 
 			if (!seenCutscene) {
 				setStartCallback(() -> {
