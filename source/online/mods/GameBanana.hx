@@ -1,18 +1,6 @@
 package online.mods;
 
 import online.substates.RequestSubstate;
-import openfl.utils.ByteArray;
-import openfl.display.PNGEncoderOptions;
-import openfl.geom.Rectangle;
-import openfl.display.BitmapData;
-import lime.system.System;
-import states.ModsMenuState.ModMetadata;
-import backend.Song;
-import haxe.crypto.Md5;
-import haxe.zip.Entry;
-import sys.FileSystem;
-import sys.io.File;
-import haxe.zip.Reader;
 import haxe.Http;
 import haxe.Json;
 
@@ -20,7 +8,7 @@ class GameBanana {
 	public static function searchMods(?search:String, page:Int, ?sortOrder:String = "default", response:(mods:Array<GBSub>, err:Dynamic) -> Void) {
 		Thread.run(() -> {
 			var http = new Http(
-			'https://gamebanana.com/apiv11/Game/8694/Subfeed?_nPage=${page}&_sSort=${sortOrder}&_csvModelInclusions=Mod' + (search != null ? '&_sName=$search' : '')
+			'https://gamebanana.com/apiv11/Game/8694/Subfeed?_nPage=${page}&_sSort=${sortOrder}&_csvModelInclusions=Mod' + (search != null ? '&_sName=${search.urlEncode()}' : '')
 			);
 
 			http.onData = function(data:String) {

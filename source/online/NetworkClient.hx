@@ -9,6 +9,7 @@ import io.colyseus.Client;
 import io.colyseus.Room;
 
 class NetworkClient {
+	@:unreflective
 	public static var client:Client;
 	public static var room:Room<NetworkSchema>;
     public static var connecting:Bool = false;
@@ -26,12 +27,14 @@ class NetworkClient {
 		if (connecting || NetworkClient.room != null)
             return;
 
+		GameClient.asyncUpdateAddresses();
+
 		connecting = true;
-		var client = new Client(GameClient.serverAddress);
+		var client = new Client(GameClient.networkServerAddress);
 
 		Thread.run(() -> {
 			client.joinById('0', [
-				"protocol" => Main.CLIENT_PROTOCOL,
+				"protocol" => Main.NETWORK_PROTOCOL,
 				"networkId" => Auth.authID,
 				"networkToken" => Auth.authToken,
 			], NetworkSchema, (err, room) -> {
@@ -47,28 +50,28 @@ class NetworkClient {
 		connecting = false;
 		NetworkClient.room = null;
         if (err != null) {
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				ChatTab.addMessage('Failed to connect to the network chatroom! (Reopen this tab to try again)');
 			});
             //trace(err);
             return;
         }
 
-		Waiter.put(() -> {
+		Waiter.putPersist(() -> {
 			ChatTab.addMessage('Connected to the network chatroom!');
         });
 
 		NetworkClient.room = room;
 
 		room.onMessage("log", function(message) {
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				ChatTab.addMessage(message, true);
 			});
 		});
 
 		room.onMessage("batchLog", function(message) {
 			var logs:Array<String> = Json.parse(message);
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				for (log in logs) {
 					ChatTab.addMessage(log);
 				}
@@ -76,7 +79,7 @@ class NetworkClient {
 		});
 
 		room.onMessage("notification", function(message) {
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				Alert.alert(message);
 			});
 		});
@@ -86,7 +89,7 @@ class NetworkClient {
 				return;
 			var inviteData = Json.parse(message);
 
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				Alert.alert(inviteData.name + ' has invited you to their room!', '(Click to Join)', () -> {
 					OnlineState.inviteRoomID = inviteData.roomid;
 
@@ -94,7 +97,7 @@ class NetworkClient {
 						GameClient.leaveRoom('Switching States');
 					}
 					else {
-						Waiter.put(() -> {
+						Waiter.putPersist(() -> {
 							FlxG.switchState(() -> new OnlineState());
 						});
 					}
@@ -104,7 +107,7 @@ class NetworkClient {
 
 		room.onError += (code:Int, e:String) -> {
 			Thread.safeCatch(() -> {
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					Alert.alert("Network Room error!", "room.onError: " + ShitUtil.prettyStatus(code) + "\n" + ShitUtil.readableError(e));
 				});
 				Sys.println("NetworkRoom.onError: " + code + " - " + e);
@@ -115,7 +118,7 @@ class NetworkClient {
 
 		room.onLeave += () -> {
 			Thread.safeCatch(() -> {
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					ChatTab.addMessage('Disconnected from the chatroom');
 				});
 

@@ -59,17 +59,21 @@ class Spooky extends BaseStage
 		lightningStrikeBeat = curBeat;
 		lightningOffset = FlxG.random.int(8, 24);
 
-		var boyfriend = room != null ? room.p1 : this.boyfriend;
-		var dad = room != null ? room.p2 : this.dad;
-		var dad = room != null ? room.p2 : this.dad;
+		if (room != null) {
+			for (sid => char in room.characters) {
+				char.character.playAnim('scared', true);
+			}
+		}
+		else {
+			if (boyfriend.animOffsets.exists('scared')) {
+				boyfriend.playAnim('scared', true);
+			}
 
-		if(boyfriend.animOffsets.exists('scared')) {
-			boyfriend.playAnim('scared', true);
+			if (dad.animOffsets.exists('scared')) {
+				dad.playAnim('scared', true);
+			}
 		}
 
-		if(dad.animOffsets.exists('scared')) {
-			dad.playAnim('scared', true);
-		}
 
 		if(gf != null && gf.animOffsets.exists('scared')) {
 			gf.playAnim('scared', true);

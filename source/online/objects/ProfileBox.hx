@@ -1,5 +1,6 @@
 package online.objects;
 
+import openfl.display.BitmapData;
 import flixel.util.FlxStringUtil;
 import online.network.FunkinNetwork;
 import flixel.util.FlxSpriteUtil;
@@ -15,7 +16,7 @@ class ProfileBox extends FlxSpriteGroup {
 	public var profileData:Dynamic;
 
     var bg:FlxSprite;
-	var avatar:FlxSprite;
+	public var avatar:FlxSprite;
 	public var text:FlxText;
 	public var desc:FlxText;
 	
@@ -31,7 +32,7 @@ class ProfileBox extends FlxSpriteGroup {
 		bg.alpha = 0.7;
         add(bg);
 
-        avatar = new FlxSprite(0, 0);
+		avatar = new FlxSprite(0, 0, FunkinNetwork.getDefaultAvatar());
 		avatar.antialiasing = ClientPrefs.data.antialiasing;
 		avatar.visible = false;
         add(avatar);
@@ -56,7 +57,7 @@ class ProfileBox extends FlxSpriteGroup {
 		user = leUser;
 		verified = leVerified;
 
-		avatar.makeGraphic(0, 0, FlxColor.TRANSPARENT);
+		//avatar.makeGraphic(0, 0, FlxColor.TRANSPARENT);
 		avatar.visible = false;
 
 		profileData = null;
@@ -103,9 +104,20 @@ class ProfileBox extends FlxSpriteGroup {
 					var avatarData = FunkinNetwork.getUserAvatar(user);
 
 					Waiter.put(() -> {
-						if (!destroyed && avatarData != null) {
-							avatar.visible = true;
-							avatar.loadGraphic(avatarData);
+						if (!destroyed) {
+							var prevAvatar = avatar;
+
+							if (avatarData == null)
+								avatar = new FlxSprite(0, 0, FunkinNetwork.getDefaultAvatar());
+							else if (!ShitUtil.isGIF(avatarData))
+								avatar = new FlxSprite(0, 0, BitmapData.fromBytes(avatarData));
+							else
+								avatar = new online.objects.FlxGifSprite(avatarData);
+
+							avatar.antialiasing = ClientPrefs.data.antialiasing;
+							insert(members.indexOf(prevAvatar), avatar);
+							remove(prevAvatar);
+							
 							fitAvatar();
 							updatePositions();
 						}

@@ -53,13 +53,13 @@ class DiscordClient
 	}
 
 	static function onJoin(secret:String) {
-		Waiter.put(() -> {
+		Waiter.putPersist(() -> {
 			GameClient.joinRoom(secret, (err) -> {
 				if (err != null) {
 					return;
 				}
 
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					FlxG.switchState(() -> new RoomState());
 				});
 			});
@@ -156,7 +156,7 @@ class DiscordClient
 
 	public static function updateOnlinePresence() {
 		if (GameClient.isConnected()) {
-			if (!GameClient.room.state.isPrivate) {
+			if (!(GameClient.room?.state?.isPrivate ?? true)) {
 				_options.partyID = GameClient.rpcClientRoomID;
 				_options.joinSecret = GameClient.getRoomSecret(true);
 				_options.state = "In a Public Room";

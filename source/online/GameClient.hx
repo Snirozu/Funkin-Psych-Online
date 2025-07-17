@@ -1,5 +1,6 @@
 package online;
 
+import online.http.HTTPHandler;
 import io.colyseus.serializer.schema.Schema;
 import backend.NoteSkinData;
 import flixel.FlxState;
@@ -26,19 +27,26 @@ typedef Error = #if (colyseus < "0.15.3") io.colyseus.error.MatchMakeError #else
 class GameClient {
     public static var client:Client;
 	public static var room:Room<GameRoom>;
-	public static var isOwner:Bool;
+	public static var isOwner(get, never):Bool;
 	public static var address:String;
 	public static var reconnecting:Bool = false;
 	public static var rpcClientRoomID:String;
 
 	/**
-	 * the server address that the player set, if the player has set nothing then it returns `serverAddresses[0]`
+	 * the game server address that the player set, if the player has set nothing then it returns `serverAddresses[0]`
 	 */
 	public static var serverAddress(get, set):String;
+
+	/**
+	 * the network server address that the player set, if the player has set nothing then it returns `serverAddresses[0]`
+	 */
+	public static var networkServerAddress(get, set):String;
+
 	/**
 	 * server list retrieved from github every launch
 	 */
-	public static var serverAddresses:Array<String> = [];
+	@:unreflective
+	public static var serverAddresses(default, null):Array<String> = [];
 
 	public static function createRoom(address:String, ?onJoin:(err:Dynamic)->Void) {
 		if (reconnecting)
@@ -53,7 +61,7 @@ class GameClient {
 			client = new Client(address);
 			_pendingMessages = [];
 
-			client.create("room", getOptions(true), GameRoom, (err, room) -> _onJoin(err, room, true, address, onJoin));
+			client.create("room", getOptions(true, address), GameRoom, (err, room) -> _onJoin(err, room, true, address, onJoin));
 		}, (exc) -> {
 			onJoin(exc);
 			LoadingScreen.toggle(false);
@@ -82,7 +90,7 @@ class GameClient {
 			client = new Client(roomAddress);
 			_pendingMessages = [];
 
-			client.joinById(roomID, getOptions(false), GameRoom, (err, room) -> _onJoin(err, room, false, roomAddress, onJoin));
+			client.joinById(roomID, getOptions(false, roomAddress), GameRoom, (err, room) -> _onJoin(err, room, false, roomAddress, onJoin));
 		}, (exc) -> {
 			onJoin(exc);
 			LoadingScreen.toggle(false);
@@ -98,7 +106,7 @@ class GameClient {
 			leaveRoom();
 			LoadingScreen.toggle(false);
 			if (err.code == 5003)
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					FlxG.switchState(() -> new OutdatedState());
 				});
 			return;
@@ -106,7 +114,6 @@ class GameClient {
 		LoadingScreen.toggle(false);
 
 		GameClient.room = room;
-		GameClient.isOwner = isHost;
 		GameClient.address = address;
 		GameClient.rpcClientRoomID = Md5.encode(FlxG.random.int(0, 1000000).hex());
 		clearOnMessage();
@@ -130,7 +137,7 @@ class GameClient {
 			}
 		}
 
-		Waiter.put(() -> {
+		Waiter.putPersist(() -> {
 			trace("Joined!");
 
 			FlxG.autoPause = false;
@@ -167,6 +174,8 @@ class GameClient {
 		Thread.run(() -> {
 			if (debugReconnectDelay > 0)
 				Sys.sleep(debugReconnectDelay);
+			if (client == null)
+				return;
 			client.reconnect(reconnectToken, GameRoom, (err, newRoom:Room<GameRoom>) -> {
 				try {
 					if (reconnectToken != room.reconnectionToken) {
@@ -176,7 +185,7 @@ class GameClient {
 
 					if (err != null) {
 						trace(err.code + " - " + err.message);
-						Waiter.put(() -> {
+						Waiter.putPersist(() -> {
 							Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + ShitUtil.prettyStatus(err.code) + " - " + ShitUtil.readableError(err.message));
 						});
 						leaveRoom();
@@ -190,13 +199,13 @@ class GameClient {
 						if (addListeners != null)
 							addListeners();
 						sendPending();
-						Waiter.put(() -> {
+						Waiter.putPersist(() -> {
 							Alert.alert("Reconnected!");
 						});
 					};
 				}
 				catch (exc) {
-					Waiter.put(() -> {
+					Waiter.putPersist(() -> {
 						Alert.alert("Critically failed to reconnect!", "RECONNECT ERROR: " + ShitUtil.prettyStatus(err.code) + " - " + ShitUtil.readableError(err.message));
 					});
 					leaveRoom();
@@ -205,7 +214,8 @@ class GameClient {
 		});
 	}
 
-	static function getOptions(asHost:Bool):Map<String, Dynamic> {
+	@:unreflective
+	static function getOptions(asHost:Bool, reqAddress:String):Map<String, Dynamic> {
 		var options:Map<String, Dynamic> = [
 			"name" => ClientPrefs.getNickname(), 
 			"protocol" => Main.CLIENT_PROTOCOL,
@@ -214,7 +224,7 @@ class GameClient {
 			"arrowRGBP" => ClientPrefs.data.arrowRGBPixel,
 		];
 
-		if (Auth.authID != null && Auth.authToken != null) {
+		if (reqAddress == networkServerAddress && Auth.authID != null && Auth.authToken != null) {
 			options.set("networkId", Auth.authID);
 			options.set("networkToken", Auth.authToken);
 		}
@@ -247,7 +257,7 @@ class GameClient {
 		
 		GameClient.client = null;
 		
-        Waiter.put(() -> {
+		Waiter.putPersist(() -> {
 			if (reason != null)
 				Alert.alert("Disconnected!", reason.trim() != "" ? reason : null);
 			trace("Leaving the Room, Reason: " + reason);
@@ -269,7 +279,6 @@ class GameClient {
 			catch (exc) {}
 
 			GameClient.room = null;
-			GameClient.isOwner = false;
 			GameClient.address = null;
 			GameClient.rpcClientRoomID = null;
 
@@ -307,7 +316,7 @@ class GameClient {
 		clearCallbacks(GameClient.room.state);
 		clearCallbacks(GameClient.room.state.diffList);
 		clearCallbacks(GameClient.room.state.gameplaySettings);
-		for (player in [GameClient.room.state.player1, GameClient.room.state.player2]) {
+		for (sid => player in GameClient.room.state.players) {
 			if (player == null)
 				continue;
 
@@ -321,6 +330,10 @@ class GameClient {
 			clearCallbacks(player.arrowColorP2);
 			clearCallbacks(player.arrowColorP3);
 		}
+
+		// clear waiter queue to avoid tasks that want to access stuff from the previous state
+		// and then lead to a crash
+		Waiter.stateQueue = [];
 		
 		ChatBox.tryRegisterLogs();
 
@@ -329,7 +342,7 @@ class GameClient {
 		});
 
 		GameClient.room.onMessage("gameStarted", function(message) {
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				FlxG.mouse.visible = false;
 
 				Mods.currentModDirectory = GameClient.room.state.modDir;
@@ -344,6 +357,54 @@ class GameClient {
 				#if (MODS_ALLOWED && DISCORD_ALLOWED)
 				DiscordClient.loadModRPC();
 				#end
+			});
+		});
+
+		GameClient.room.onMessage("alert", function(message:Dynamic) {
+			if (message == null)
+				return;
+
+			switch (Type.typeof(message)) {
+				case Type.ValueType.TClass(String):
+					Alert.alert(cast message);
+
+				case Type.ValueType.TClass(Array):
+					var arrMsg:Array<Dynamic> = cast message;
+					if (arrMsg.length >= 2)
+						Alert.alert(arrMsg[0], arrMsg[1]);
+
+				default:
+			}
+		});
+
+		GameClient.room.onMessage("requestSkin", function(?msg:Dynamic) {
+			Waiter.putPersist(() -> {
+				if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
+					GameClient.send("setSkin", [
+						ClientPrefs.data.modSkin[0],
+						ClientPrefs.data.modSkin[1],
+						OnlineMods.getModURL(ClientPrefs.data.modSkin[0])
+					]);
+				}
+				else {
+					GameClient.send("setSkin", null);
+				}
+			});
+		});
+
+		GameClient.room.onMessage("checkChart", function(message) {
+			Waiter.putPersist(() -> {
+				try {
+					var hash = Md5.encode(Song.loadRawSong(GameClient.room.state.song, GameClient.room.state.folder));
+					trace("verifying song: " + GameClient.room.state.song + " | " + GameClient.room.state.folder + " : " + hash);
+					GameClient.send("verifyChart", hash);
+					states.FreeplayState.destroyFreeplayVocals();
+					FlxG.switchState(() -> new RoomState());
+					FlxG.autoPause = ClientPrefs.data.autoPause;
+				}
+				catch (exc:Dynamic) {
+					Sys.println(exc);
+				}
 			});
 		});
 
@@ -377,7 +438,7 @@ class GameClient {
 
 	public static function send(type:Dynamic, ?message:Null<Dynamic>) {
 		if (GameClient.isConnected() && type != null)
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				try {
 					room.send(type, message);
 				}
@@ -392,6 +453,12 @@ class GameClient {
 			});
 	}
 
+	static function get_isOwner() {
+		if (GameClient.room == null || GameClient.room.state == null)
+			return false;
+		return GameClient.room.state.host == GameClient.room.sessionId;
+	}
+
 	public static function hasPerms() {
 		if (!GameClient.isConnected())
 			return false;
@@ -403,16 +470,34 @@ class GameClient {
 		if (ClientPrefs.data.serverAddress != null) {
 			return ClientPrefs.data.serverAddress;
 		}
-		return serverAddresses[0];
+		return getDefaultServer();
 	}
 
 	static function set_serverAddress(v:String):String {
 		if (v != null)
 			v = v.trim();
-		if (v == "" || v == serverAddresses[0] || v == "null")
+		if (v == "" || v == getDefaultServer() || v == "null")
 			v = null;
 
 		ClientPrefs.data.serverAddress = v;
+		ClientPrefs.saveSettings();
+		return serverAddress;
+	}
+
+	static function get_networkServerAddress():String {
+		if (ClientPrefs.data.networkServerAddress != null) {
+			return ClientPrefs.data.networkServerAddress;
+		}
+		return getDefaultServer();
+	}
+
+	static function set_networkServerAddress(v:String):String {
+		if (v != null)
+			v = v.trim();
+		if (v == "" || v == getDefaultServer() || v == "null")
+			v = null;
+
+		ClientPrefs.data.networkServerAddress = v;
 		ClientPrefs.saveSettings();
 		FunkinNetwork.client = new online.http.HTTPHandler(GameClient.addressToUrl(v));
 		if (NetworkClient.room != null) {
@@ -499,43 +584,92 @@ class GameClient {
 	}
 
 	public static function getRoomSecret(?forceAddress:Bool = false) {
-		if (forceAddress || GameClient.address != GameClient.serverAddresses[0])
+		if (forceAddress || GameClient.address != GameClient.getDefaultServer())
 			return '${GameClient.room.roomId};${GameClient.address}';
 		return GameClient.room.roomId;
 	}
 
 	public static function getGameplaySetting(key:String):Dynamic {
-		var daSetting:String = room.state.gameplaySettings.get(key);
-		if (daSetting == "true" || daSetting == "false") {
-			return daSetting == "true" ? true : false;
+		if (key == 'songspeed') {
+			var daSetting:String = room.state.gameplaySettings.get(key);
+			if (daSetting == "true" || daSetting == "false") {
+				return daSetting == "true" ? true : false;
+			}
+			var _tryNum:Null<Float> = Std.parseFloat(daSetting);
+			if (_tryNum != null && !Math.isNaN(_tryNum)) {
+				return _tryNum;
+			}
+			return daSetting;
 		}
-		var _tryNum:Null<Float> = Std.parseFloat(daSetting);
-		if (_tryNum != null && !Math.isNaN(_tryNum)) {
-			return _tryNum;
-		}
-		return daSetting;
-	}
 
-	public static function setGameplaySetting(key:String, value:Dynamic) {
-		if (GameClient.hasPerms()) {
-			GameClient.send("setGameplaySetting", [key, value]);
-		}
+		return ClientPrefs.data.gameplaySettings.get(key);
 	}
 
 	public static function getPlayerCount():Int {
 		if (!GameClient.isConnected())
 			return 0;
 
-		if (GameClient.room.state.player2 != null && GameClient.room.state.player2.name != "")
-			return 2;
-		return 1;
+		return GameClient.room?.state?.players?.length ?? 0;
 	}
 
-	public static function getStaticPlayer(?self:Bool = true) {
-		if (PlayState.instance != null) {
-			return self ? PlayState.instance.getPlayer() : PlayState.instance.getOpponent();
-		} else {
-			return online.states.RoomState.getStaticPlayer(self);
+	public static function getPlayerSelf() {
+		if (!GameClient.isConnected())
+			return null;
+
+		return GameClient.room.state.players.get(GameClient.room.sessionId);
+	}
+
+	public static function listPlayersBySide(isBf:Bool):Array<Player> {
+		if (!GameClient.isConnected())
+			return null;
+
+		var arr = [];
+		for (sid => player in GameClient.room.state.players) {
+			if (player.bfSide == isBf)
+				arr.push(player);
 		}
+		return arr;
+	}
+
+	public static function getDefaultServer() {
+		return serverAddresses[0];
+	}
+	
+	@:unreflective
+	public static var hasAddresses:Bool = false;
+	public static function asyncUpdateAddresses() {
+		if (hasAddresses)
+			return;
+
+		Thread.run(() -> {
+			if (hasAddresses)
+				return;
+
+			updateAddresses();
+		});
+	}
+
+	public static function updateAddresses() {
+		var http = new haxe.Http("https://raw.githubusercontent.com/Snirozu/Funkin-Psych-Online/main/server_addresses.txt");
+		http.onData = function(data:String) {
+			GameClient.serverAddresses = [];
+			for (address in data.split(',')) {
+				GameClient.serverAddresses.push(address.trim());
+				hasAddresses = true;
+			}
+		}
+		http.onError = function(error) {
+			GameClient.serverAddresses = [];
+			trace('error: $error');
+			hasAddresses = false;
+		}
+		http.request();
+		#if LOCAL
+		GameClient.serverAddresses.insert(0, "ws://localhost:2567");
+		#else
+		GameClient.serverAddresses.push("ws://localhost:2567");
+		#end
+
+		FunkinNetwork.client = new HTTPHandler(GameClient.addressToUrl(networkServerAddress));
 	}
 }

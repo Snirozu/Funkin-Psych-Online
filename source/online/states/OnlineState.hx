@@ -72,7 +72,7 @@ class OnlineState extends MusicBeatState {
 			return;
 		}
 
-		Waiter.put(() -> {
+		Waiter.putPersist(() -> {
 			FlxG.switchState(() -> new RoomState());
 		});
     }
@@ -100,7 +100,7 @@ class OnlineState extends MusicBeatState {
 		if (inviteRoomID != null) {
 			disableInput = true;
 			function onJoin(err:Dynamic) {
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					FlxG.switchState(() -> new OnlineState());
 				});
 			}
@@ -589,8 +589,6 @@ class OnlineState extends MusicBeatState {
 						ass.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 						add(ass);
 						
-						
-						#if hxCodec
 						var video = new hxcodec.flixel.FlxVideo();
 						video.play(Paths.video('enables'));
 						video.onEndReached.add(function() {
@@ -614,7 +612,6 @@ class OnlineState extends MusicBeatState {
 							DiscordClient.loadModRPC();
 							#end
 						}, true);
-						#end
 						return;
 					}
 					#end
@@ -625,13 +622,23 @@ class OnlineState extends MusicBeatState {
 						image.updateHitbox();
 						FreeplayState.destroyFreeplayVocals();
 						add(image);
+						FlxG.sound.music.onComplete = () -> {
+							remove(image);
+							image.destroy();
+							disableInput = false;
+							states.TitleState.playFreakyMusic();
+						};
 						return;
 					}
-					else if (daCoomCode.toLowerCase() == "jackass") {
+					else if (daCoomCode.toLowerCase() == "jackass" || daCoomCode.toLowerCase() == "mrbeansex") {
 						FlxG.sound.play(Paths.sound('jackass')).pitch = FlxG.random.float(0.8, 1.4);
 						disableInput = false;
 						FlxG.sound.music.stop();
 						FreeplayState.destroyFreeplayVocals();
+						return;
+					}
+					else if (daCoomCode.toLowerCase() == "3d") {
+						FlxG.switchState(() -> new online.flx3d.FlxScriptedState3D());
 						return;
 					}
 					GameClient.joinRoom(daCoomCode, onRoomJoin);

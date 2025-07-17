@@ -7,4 +7,5 @@ import online.replay.*;
 import online.states.*;
 import online.substates.*;
 import online.util.*;
+import online.backend.schema.*;
 #end

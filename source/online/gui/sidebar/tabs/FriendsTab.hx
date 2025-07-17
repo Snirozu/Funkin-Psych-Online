@@ -1,5 +1,8 @@
 package online.gui.sidebar.tabs;
 
+import com.yagp.GifDecoder;
+import com.yagp.GifPlayer;
+import com.yagp.GifPlayerWrapper;
 import openfl.geom.Rectangle;
 import online.gui.sidebar.obj.TabSprite.ITabInteractable;
 
@@ -124,7 +127,7 @@ class FriendsTab extends TabSprite {
 			var response = FunkinNetwork.requestAPI('/api/account/friends');
 
 			if (response != null && !response.isFailed()) {
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					loading = false;
 					data = Json.parse(response.getString());
 					renderData();
@@ -174,8 +177,10 @@ class SmolProfile extends Sprite implements ITabInteractable {
 		underlay = new Bitmap(new BitmapData(SideUI.DEFAULT_TAB_WIDTH, 100, true, FlxColor.fromHSL(0, 0.2, 0.3)));
 		addChild(underlay);
 
-		icon = new Bitmap(new BitmapData(80, 80, true, 0x00000000));
+		icon = new Bitmap(FunkinNetwork.getDefaultAvatar());
 		icon.smoothing = false;
+		icon.width = 80;
+		icon.height = 80;
 		icon.x = 10;
 		icon.y = 10;
 		addChild(icon);
@@ -206,7 +211,17 @@ class SmolProfile extends Sprite implements ITabInteractable {
 
 	public function create(data:FriendData) {
 		underlay.bitmapData = new BitmapData(SideUI.DEFAULT_TAB_WIDTH, 100, true, FlxColor.fromHSL(data.hue, 0.2, 0.3));
-		icon.bitmapData = new BitmapData(80, 80, true, 0x00000000);
+
+		var prevIcon = icon;
+		icon = new Bitmap(FunkinNetwork.getDefaultAvatar());
+
+		addChildAt(icon, getChildIndex(prevIcon));
+		removeChild(prevIcon);
+
+		icon.x = 10;
+		icon.y =  10;
+		icon.width = 80;
+		icon.height = 80;
 
 		status.visible = !data.isNotFriend;
 		invitePlay.visible = !data.isNotFriend;
@@ -244,12 +259,23 @@ class SmolProfile extends Sprite implements ITabInteractable {
 		Thread.run(() -> {
 			var avatarData = FunkinNetwork.getUserAvatar(data.name);
 
-			Waiter.put(() -> {
-				if (avatarData != null) {
-					icon.bitmapData = avatarData;
-					icon.width = 80;
-					icon.height = 80;
-				}
+			Waiter.putPersist(() -> {
+				var prevIcon = icon;
+
+				if (avatarData == null)
+					icon = new Bitmap(FunkinNetwork.getDefaultAvatar());
+				else if (!ShitUtil.isGIF(avatarData))
+					icon = new Bitmap(BitmapData.fromBytes(avatarData));
+				else
+					icon = new GifPlayerWrapper(new GifPlayer(GifDecoder.parseBytes(avatarData)));
+
+				addChildAt(icon, getChildIndex(prevIcon));
+				removeChild(prevIcon);
+
+				icon.x = 10;
+				icon.y =  10;
+				icon.width = 80;
+				icon.height = 80;
 			});
 		});
 	}

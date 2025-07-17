@@ -13,7 +13,7 @@ class URLScraper {
 			var response = new HTTPClient(url).request();
 
 			if (response.isFailed()) {
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					Alert.alert("Download failed!", "Couldn't connect to MediaFire!\n" + 'Status: ${ShitUtil.prettyStatus(response.status)}');
 				});
 				return;
@@ -22,9 +22,9 @@ class URLScraper {
 			var doc = new HtmlDocument(response.getString(), true);
 			var titles = doc.find("#downloadButton");
 
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				if (titles[0] == null) {
-					Waiter.put(() -> {
+					Waiter.putPersist(() -> {
 						Alert.alert("Download failed!", "Can't get the download link for this MediaFire file!");
 					});
 					return;

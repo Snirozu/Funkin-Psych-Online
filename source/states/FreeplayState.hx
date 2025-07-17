@@ -1074,26 +1074,10 @@ class FreeplayState extends MusicBeatState
 							var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
 
 							persistentUpdate = false;
-							// weird ass
-							GameClient.room.onMessage("checkChart", function(message) {
-								Waiter.put(() -> {
-									try {
-										var hash = Md5.encode(Song.loadRawSong(GameClient.room.state.song, GameClient.room.state.folder));
-										trace("verifying song: " + GameClient.room.state.song + " | " + GameClient.room.state.folder + " : " + hash);
-										GameClient.send("verifyChart", hash);
-										destroyFreeplayVocals();
-										FlxG.switchState(() -> new RoomState());
-										FlxG.autoPause = prevPauseGame;
-									}
-									catch (exc:Dynamic) {
-										Sys.println(exc);
-									}
-								});
-							});
 							updateMod();
 							trace('Song mod directory: "${Mods.currentModDirectory}"');
 							try {
-								GameClient.send("setFSD", [
+								GameClient.send("setSong", [
 									songLowercase,
 									poop,
 									curDifficulty,

@@ -81,9 +81,8 @@ class Paths
 	public static function clearStoredMemory(?cleanUnused:Bool = false) {
 		// clear anything not in the tracked assets list
 		@:privateAccess
-		for (key in FlxG.bitmap._cache.keys())
+		for (key => obj in FlxG.bitmap._cache)
 		{
-			var obj = FlxG.bitmap._cache.get(key);
 			if (obj != null && !currentTrackedAssets.exists(key) && !dumpExclusions.contains(key)) {
 				openfl.Assets.cache.removeBitmapData(key);
 				FlxG.bitmap._cache.remove(key);

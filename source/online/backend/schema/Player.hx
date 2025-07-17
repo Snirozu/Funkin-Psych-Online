@@ -2,7 +2,7 @@
 // THIS FILE HAS BEEN GENERATED AUTOMATICALLY
 // DO NOT CHANGE IT MANUALLY UNLESS YOU KNOW WHAT YOU'RE DOING
 // 
-// GENERATED USING @colyseus/schema 2.0.22
+// GENERATED USING @colyseus/schema 2.0.35
 // 
 
 package online.backend.schema;
@@ -10,7 +10,10 @@ package online.backend.schema;
 import io.colyseus.serializer.schema.Schema;
 import io.colyseus.serializer.schema.types.*;
 
-class Player extends Schema {
+class Player extends Person {
+	@:type("number")
+	public var ox: Dynamic = 0;
+
 	@:type("number")
 	public var score: Dynamic = 0;
 
@@ -33,77 +36,66 @@ class Player extends Schema {
 	public var songPoints: Dynamic = 0;
 
 	@:type("number")
-	public var maxCombo:Dynamic = 0;
+	public var maxCombo: Dynamic = 0;
+
+	@:type("boolean")
+	public var bfSide: Bool = false;
+
+	@:type("boolean")
+	public var hasEnded: Bool = false;
+
+	@:type("boolean")
+	public var isReady: Bool = false;
 
 	@:type("string")
-	public var name: String = "";
+	public var skinMod: String = "";
 
-	@:type("boolean")
-	public var hasSong:Bool = false;
+	@:type("string")
+	public var skinName: String = "";
 
-	@:type("boolean")
-	public var hasLoaded:Bool = false;
-
-	@:type("boolean")
-	public var hasEnded:Bool = false;
+	@:type("string")
+	public var skinURL: String = "";
 
 	@:type("number")
-	public var ping:Dynamic = 0;
+	public var points: Dynamic = 0;
 
 	@:type("boolean")
-	public var isReady:Bool = false;
-
-	@:type("string")
-	public var skinMod:String = null;
-
-	@:type("string")
-	public var skinName:String = null;
-
-	@:type("string")
-	public var skinURL:String = null;
-
-	@:type("number")
-	public var points:Dynamic = 0;
-
-	@:type("string")
-	public var status:String = null;
+	public var botplay: Bool = false;
 
 	@:type("boolean")
-	public var botplay:Bool = false;
-
-	@:type("boolean")
-	public var verified:Bool = false;
+	public var noteHold: Bool = false;
 
 	@:type("string")
-	public var noteSkin:String = null;
+	public var noteSkin: String = "";
 
 	@:type("string")
-	public var noteSkinMod:String = null;
+	public var noteSkinMod: String = "";
 
 	@:type("string")
-	public var noteSkinURL:String = null;
+	public var noteSkinURL: String = "";
 
 	@:type("array", "number")
-	public var arrowColor0:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColor0: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColor1:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColor1: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColor2:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColor2: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColor3:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColor3: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColorP0:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColorP0: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColorP1:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColorP1: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColorP2:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColorP2: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
 
 	@:type("array", "number")
-	public var arrowColorP3:ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	public var arrowColorP3: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+
 }

@@ -57,50 +57,6 @@ class OnlineOptionsState extends MusicBeatState {
 		nicknameOption.screenCenter(X);
 		nicknameOption.ID = i++;
 
-        var serverOption:InputOption;
-		var appendText = "";
-		if (GameClient.serverAddresses.length > 0) {
-			appendText += "\nOfficial Servers:";
-			for (address in GameClient.serverAddresses) {
-				if (address != "ws://localhost:2567")
-					appendText += "\n" + address;
-			}
-		}
-		items.add(serverOption = new InputOption("Server Address", "Set to empty if you want to use the default server\nLocal Address: 'localhost'" + appendText, [GameClient.serverAddresses[0]], (text, _) -> {
-			curOption.inputs[0].text = curOption.inputs[0].text.trim();
-			
-			if (curOption.inputs[0].text == "2567" || curOption.inputs[0].text == "0" || curOption.inputs[0].text == "local") {
-				curOption.inputs[0].text = "localhost";
-			}
-
-			if (curOption.inputs[0].text.length > 0 && !(curOption.inputs[0].text.startsWith('wss://') || curOption.inputs[0].text.startsWith('ws://')))
-				curOption.inputs[0].text = 'ws://' + curOption.inputs[0].text;
-
-			if (curOption.inputs[0].text == "ws://localhost") {
-				curOption.inputs[0].text += ":2567";
-			}
-
-			if (curOption.inputs[0].text == "ws://funkin.sniro.boo") {
-				curOption.inputs[0].text = "wss://funkin.sniro.boo";
-			}
-
-			if (curOption.inputs[0].text == "ws://gettinfreaky.onrender.com") {
-				curOption.inputs[0].text = "wss://gettinfreaky.onrender.com";
-			}
-
-			GameClient.serverAddress = curOption.inputs[0].text;
-			try {
-				online.network.FunkinNetwork.ping();
-			}
-			catch (exc) {
-				trace(exc);
-			}
-		}));
-		serverOption.inputs[0].text = GameClient.serverAddress;
-		serverOption.y = nicknameOption.y + nicknameOption.height + 50;
-		serverOption.screenCenter(X);
-		serverOption.ID = i++;
-
 		// var titleOption:InputOption;
 		// items.add(titleOption = new InputOption("Title", "This will be shown below your name! (Max 20 characters)", ClientPrefs.data.playerTitle, text -> {
 		// 	curOption.input.text = curOption.input.text.trim().substr(0, 20);
@@ -114,7 +70,7 @@ class OnlineOptionsState extends MusicBeatState {
 
 		var skinsOption:InputOption;
 		items.add(skinsOption = new InputOption("Skin", "Choose your skin here!"));
-		skinsOption.y = serverOption.y + serverOption.height + 50;
+		skinsOption.y = nicknameOption.y + nicknameOption.height + 50;
 		skinsOption.screenCenter(X);
 		skinsOption.ID = i++;
 
@@ -124,9 +80,70 @@ class OnlineOptionsState extends MusicBeatState {
 		modsOption.screenCenter(X);
 		modsOption.ID = i++;
 
+		function prepareAddress(address:String) {
+			address = address.trim();
+
+			if (address == "2567" || address == "0" || address == "local") {
+				address = "localhost";
+			}
+
+			if (address.length > 0
+				&& !(address.startsWith('wss://') || address.startsWith('ws://')))
+				address = 'ws://' + address;
+
+			if (address == "ws://localhost") {
+				address += ":2567";
+			}
+
+			if (address == "ws://funkin.sniro.boo") {
+				address = "wss://funkin.sniro.boo";
+			}
+
+			if (address == "ws://gettinfreaky.onrender.com") {
+				address = "wss://gettinfreaky.onrender.com";
+			}
+
+			return address;
+		}
+
+		var serverOption:InputOption;
+		var appendText = "";
+		if (GameClient.serverAddresses.length > 0) {
+			appendText += "\nOfficial Servers:";
+			for (address in GameClient.serverAddresses) {
+				if (address != "ws://localhost:2567")
+					appendText += "\n" + address;
+			}
+		}
+		items.add(serverOption = new InputOption("Server Address", "The server that hosts Game Rooms.\nSet to empty if you want to use the default server.\n\nLocal Address: 'localhost'" + appendText, [GameClient.getDefaultServer()], (text, _) -> {
+			curOption.inputs[0].text = prepareAddress(curOption.inputs[0].text);
+			GameClient.serverAddress = curOption.inputs[0].text;
+		}));
+		serverOption.inputs[0].text = GameClient.serverAddress;
+		serverOption.y = modsOption.y + modsOption.height + 50;
+		serverOption.screenCenter(X);
+		serverOption.ID = i++;
+
+		var networkServerOption:InputOption;
+		items.add(networkServerOption = new InputOption("Network Server Address", "The server for Network social features.\nSet to empty if you want to use the default server.\n\nDefault Server: " + GameClient.getDefaultServer()
+		, [GameClient.getDefaultServer()], (text, _) -> {
+			curOption.inputs[0].text = prepareAddress(curOption.inputs[0].text);
+			GameClient.networkServerAddress = curOption.inputs[0].text;
+			try {
+				online.network.FunkinNetwork.ping();
+			}
+			catch (exc) {
+				trace(exc);
+			}
+		}));
+		networkServerOption.inputs[0].text = GameClient.networkServerAddress;
+		networkServerOption.y = serverOption.y + serverOption.height + 50;
+		networkServerOption.screenCenter(X);
+		networkServerOption.ID = i++;
+
 		var trustedOption:InputOption;
 		items.add(trustedOption = new InputOption("Clear Trusted Domains", "Clear the list of all trusted domains!"));
-		trustedOption.y = modsOption.y + modsOption.height + 50;
+		trustedOption.y = networkServerOption.y + networkServerOption.height + 50;
 		trustedOption.screenCenter(X);
 		trustedOption.ID = i++;
 
@@ -144,7 +161,7 @@ class OnlineOptionsState extends MusicBeatState {
 
 			var registerOption:InputOption;
 			items.add(registerOption = new InputOption("Register to the Network",
-					"Join the Psych Online Network and submit your song replays\nto the leaderboards!" + (!Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a unofficial build)' : ''), ["Username", "Email"], (text, input) -> {
+					"Join the Psych Online Network and submit your song replays\nto the leaderboards!" + (!Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a NOT OFFICIAL build)' : ''), ["Username", "Email"], (text, input) -> {
 					if (input == 0) {
 						registerOption.inputs[0].hasFocus = false;
 						registerOption.inputs[1].hasFocus = true;
@@ -185,7 +202,7 @@ class OnlineOptionsState extends MusicBeatState {
 
 			var loginOption:InputOption;
 			items.add(loginOption = new InputOption("Login to the Network",
-				"Input your email address here and wait for your One-Time Login Code!" + (!Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a unofficial build)' : ''), ["me@example.org"], (mail, _) -> {
+				"Input your email address here and wait for your One-Time Login Code!" + (!Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a NOT OFFICIAL build)' : ''), ["me@example.org"], (mail, _) -> {
 					if (FunkinNetwork.requestLogin(mail)) {
 						openSubState(new VerifyCodeSubstate(code -> {
 							if (FunkinNetwork.requestLogin(mail, code)) {

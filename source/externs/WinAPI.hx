@@ -3,7 +3,6 @@ package externs;
 // class from another fnf mod that i made, bringing this here because my eyes burn
 // anyway some code from
 // https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
-// https://github.com/FNF-CNE-Devs/CodenameEngine/blob/main/source/funkin/backend/utils/native/Windows.hx
 
 #if (windows && cpp)
 @:buildXml('

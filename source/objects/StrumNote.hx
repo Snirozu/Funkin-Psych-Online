@@ -27,12 +27,15 @@ class StrumNote extends FlxSprite
 
 	public var useRGBShader:Bool = true;
 	public function new(x:Float, y:Float, leData:Int, player:Int) {
-		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData, player == 1));
+		var mustPress = player == 1;
+
+		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData, mustPress));
 		rgbShader.enabled = false;
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
 
-		var arr:Array<FlxColor> = ClientPrefs.getRGBColor(!GameClient.room?.state?.swagSides ?? false ? (player) : (player == 0 ? 1 : 0))[leData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor(!GameClient.room?.state?.swagSides ?? false ? (player) : (player == 0 ? 1 : 0))[leData];
+
+		var arr:Array<FlxColor> = ClientPrefs.getRGBColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[leData];
+		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[leData];
 		
 		if(leData <= arr.length)
 		{
@@ -53,7 +56,7 @@ class StrumNote extends FlxSprite
 		if(PlayState.SONG != null && PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1) skin = PlayState.SONG.arrowSkin;
 		else skin = Note.defaultNoteSkin;
 
-		var customSkin:String = skin + Note.getNoteSkinPostfix(player == 1);
+		var customSkin:String = skin + Note.getNoteSkinPostfix(mustPress);
 		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
 
 		texture = skin; //Load texture and anims

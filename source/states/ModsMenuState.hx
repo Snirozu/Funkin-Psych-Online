@@ -50,6 +50,7 @@ class ModsMenuState extends MusicBeatState
 	var buttonDelete:FlxButton;
 	var buttonUp:FlxButton;
 	var buttonToggle:FlxButton;
+	var buttonToggleGlobal:FlxButton;
 	var buttonsArray:Array<FlxButton> = [];
 
 	var installButton:FlxButton;
@@ -222,7 +223,7 @@ class ModsMenuState extends MusicBeatState
 		buttonsArray.push(buttonEnableAll);
 		visibleWhenHasMods.push(buttonEnableAll);
 
-		startX -= 190;
+		startX -= 140;
 		buttonVerify = new FlxButton(startX, 0, "VERIFY", function() {
 			var modURL = OnlineMods.getModURL(modsList[curSelected][0]);
 			if (modURL == null || modURL.trim() == "") {
@@ -247,17 +248,17 @@ class ModsMenuState extends MusicBeatState
 				}
 			});
 		});
-		buttonVerify.setGraphicSize(170, 50);
+		buttonVerify.setGraphicSize(120, 50);
 		buttonVerify.updateHitbox();
 		buttonVerify.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
-		buttonVerify.label.fieldWidth = 170;
+		buttonVerify.label.fieldWidth = 120;
 		setAllLabelsOffset(buttonVerify, 0, 10);
 		add(buttonVerify);
 		buttonsArray.push(buttonVerify);
 		visibleWhenHasMods.push(buttonVerify);
 
-		startX -= 190;
-		buttonDelete = new FlxButton(startX, 0, "DELETE", function() {
+		startX -= 100;
+		buttonDelete = new FlxButton(startX, 0, "DEL", function() {
 			var path = haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]]);
 			if(FileSystem.exists(path) && FileSystem.isDirectory(path))
 			{
@@ -291,15 +292,33 @@ class ModsMenuState extends MusicBeatState
 			}
 			FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
 		});
-		buttonDelete.setGraphicSize(170, 50);
+		buttonDelete.setGraphicSize(80, 50);
 		buttonDelete.updateHitbox();
 		buttonDelete.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
-		buttonDelete.label.fieldWidth = 170;
+		buttonDelete.label.fieldWidth = 80;
 		buttonDelete.color = FlxColor.RED;
 		setAllLabelsOffset(buttonDelete, 0, 10);
 		add(buttonDelete);
 		buttonsArray.push(buttonDelete);
 		visibleWhenHasMods.push(buttonDelete);
+
+		startX -= 140;
+		buttonToggleGlobal = new FlxButton(startX, 70, "GLOBAL", function() {
+			if (mods[curSelected].restart) {
+				needaReset = true;
+			}
+			toggleGlobal();
+			updateButtonToggleGlobal();
+			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+		});
+		buttonToggleGlobal.setGraphicSize(120, 50);
+		buttonToggleGlobal.updateHitbox();
+		buttonToggleGlobal.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
+		buttonToggleGlobal.label.fieldWidth = 120;
+		setAllLabelsOffset(buttonToggleGlobal, 0, 10);
+		add(buttonToggleGlobal);
+		buttonsArray.push(buttonToggleGlobal);
+		visibleWhenHasMods.push(buttonToggleGlobal);
 
 		// more buttons
 		var startX:Int = 1100;
@@ -453,6 +472,19 @@ class ModsMenuState extends MusicBeatState
 		}
 	}
 
+	function updateButtonToggleGlobal() {
+		if (mods[curSelected].runsGlobally)
+		{
+			buttonToggleGlobal.label.text = 'GLOBAL';
+			buttonToggleGlobal.color = FlxColor.GREEN;
+		}
+		else
+		{
+			buttonToggleGlobal.label.text = 'LOCAL';
+			buttonToggleGlobal.color = FlxColor.RED;
+		}
+	}
+
 	function moveMod(change:Int, skipResetCheck:Bool = false)
 	{
 		if(mods.length > 1)
@@ -498,6 +530,14 @@ class ModsMenuState extends MusicBeatState
 
 		var path:String = 'modsList.txt';
 		File.saveContent(path, fileStr);
+		Mods.pushGlobalMods();
+	}
+
+	function toggleGlobal() {
+		var file:Dynamic = Mods.getPack(modsList[curSelected][0]) ?? {};
+		file.runsGlobally = !(file.runsGlobally ?? false);
+		mods[curSelected].runsGlobally = file.runsGlobally;
+		File.saveContent('mods/${modsList[curSelected][0]}/pack.json', haxe.Json.stringify(file));
 		Mods.pushGlobalMods();
 	}
 
@@ -629,6 +669,7 @@ class ModsMenuState extends MusicBeatState
 			i++;
 		}
 		updateButtonToggle();
+		updateButtonToggleGlobal();
 	}
 
 	function updatePosition(elapsed:Float = -1)
@@ -764,6 +805,7 @@ class ModMetadata
 	public var restart:Bool;//trust me. this is very important
 	public var alphabet:Alphabet;
 	public var icon:AttachedSprite;
+	public var runsGlobally:Bool;
 
 	public function new(folder:String)
 	{
@@ -772,6 +814,7 @@ class ModMetadata
 		this.description = "No description provided.";
 		this.color = ModsMenuState.defaultColor;
 		this.restart = false;
+		this.runsGlobally = false;
 
 		//Try loading json
 		var pack:Dynamic = Mods.getPack(folder);
@@ -797,6 +840,8 @@ class ModMetadata
 											pack.color[1] != null ? pack.color[1] : 0,
 											pack.color[2] != null ? pack.color[2] : 255);
 			this.restart = pack.restart;
+
+			this.runsGlobally = pack.runsGlobally ?? false;
 		}
 	}
 }

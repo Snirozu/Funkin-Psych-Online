@@ -129,19 +129,21 @@ class MainMenuState extends MusicBeatState
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, "Psych Engine v" + psychEngineVersion + "*", 12);
+		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, !Main.UNOFFICIAL_BUILD ? "(OFFICIAL BUILD)" : "(NOT AN OFFICIAL BUILD)", 12);
+		if (Main.UNOFFICIAL_BUILD)
+			versionShit.color = FlxColor.RED;
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 24, 0, "Friday Night Funkin' v" + Application.current.meta.get('version'), 12);
+		var versionShit:FlxText = new FlxText(12, FlxG.height - 24, 0, "Psych Engine v" + psychEngineVersion + "*", 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
 
-		if (TitleState.mustUpdate) {
+		if (Main.wankyUpdate != null) {
 			FlxG.mouse.visible = true;
 
-			var updatE:FlxText = new FlxText(12, FlxG.height - 64, 0, 'A new ${Main.wankyUpdate} is available!\n(Click here to update)', 12);
+			var updatE:FlxText = new FlxText(12, FlxG.height - 64, 0, Main.wankyUpdate, 12);
 			updatE.scrollFactor.set();
 			updatE.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			updatE.setPosition(FlxG.width - updatE.width - 40, 40);
@@ -295,7 +297,10 @@ class MainMenuState extends MusicBeatState
 			#end
 
 			if (FlxG.mouse.justPressed && updatEBg != null && FlxG.mouse.overlaps(updatEBg)) {
-				online.substates.RequestSubstate.requestURL(Main.latestRelease.html_url, true);
+				if (TitleState.mustUpdate)
+					online.substates.RequestSubstate.requestURL(Main.latestRelease.html_url, true);
+				else
+					online.substates.RequestSubstate.requestURL('https://github.com/Snirozu/Funkin-Psych-Online/releases', true);
 			}
 		}
 

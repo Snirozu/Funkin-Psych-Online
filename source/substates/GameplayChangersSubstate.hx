@@ -488,15 +488,20 @@ class GameplayOption
 
 	public function getValue():Dynamic
 	{
-		if (GameClient.isConnected() && !GameClient.room.state.permitModifiers) {
+		if (GameClient.isConnected()) {
 			return GameClient.getGameplaySetting(variable);
 		}
 		return ClientPrefs.data.gameplaySettings.get(variable);
 	}
 	public function setValue(value:Dynamic)
 	{
-		if (GameClient.isConnected() && !GameClient.room.state.permitModifiers) {
-			return GameClient.setGameplaySetting(variable, value);
+		if (GameClient.isConnected()) {
+			if (GameClient.hasPerms()) {
+				GameClient.send("setGameplaySetting", [variable, value]);
+			}
+
+			if (variable == 'songspeed')
+				return;
 		}
 		ClientPrefs.data.gameplaySettings.set(variable, value);
 	}

@@ -59,7 +59,7 @@ class OnlineMods {
 		if (StringTools.startsWith(url, "https://gamebanana.com/mods/")) {
 			LoadingScreen.toggle(true);
 			GameBanana.getMod(url.substring("https://gamebanana.com/mods/".length), (mod, err) -> {
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					LoadingScreen.toggle(false);
 					if (err != null) {
 						Alert.alert("Failed to download!", "For mod: " + url + "\n" + ShitUtil.readableError(err));
@@ -161,7 +161,7 @@ class OnlineMods {
 				openPath: fileName,
 				mode: LIST,
 				onError: (code, type) -> {
-					Waiter.put(() -> {
+					Waiter.putPersist(() -> {
 						Alert.alert("Listing RAR failed!", '$code\n$type');
 					});
 					rarFailed = true;
@@ -172,7 +172,7 @@ class OnlineMods {
 				}
 			});
 			#else
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				Alert.alert("RAR is not supported on this platform!");
 			});
 			#end
@@ -188,7 +188,7 @@ class OnlineMods {
 			catch (exc) {
 				trace(exc, CallStack.toString(exc.stack));
 				file.close();
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					Alert.alert("Mod's data is corrupted or invalid!", exc + "\n" + CallStack.toString(exc.stack) + "\n\n" + fileName);
 				});
 				return;
@@ -204,7 +204,7 @@ class OnlineMods {
 				iterFunc(entry.fileName);
 			}
 			if (Math.min(fileSize, dataSize) < 0 || Math.max(fileSize, dataSize) >= 3000000000) {
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					Alert.alert("Downloading Cancelled",
 						'Mod\'s archive file is WAY too big!\n${FlxMath.roundDecimal(Math.max(fileSize, dataSize) / 1000000000, 4)}GB');
 				});
@@ -218,7 +218,7 @@ class OnlineMods {
 			beginFolder = '';
 
 		if (beginFolder == null) {
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				Alert.alert("Mod data not found inside of the archive!");
 			});
 			return;
@@ -229,7 +229,7 @@ class OnlineMods {
 				FileUtils.removeFiles(parentFolder);
 			}
 			catch (exc) {
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					Alert.alert("Installation Error!", "It seems this mod directory is already being accessed\nby the game or another program!\n\nPlease try again by re-opening the game!");
 				});
 				return;
@@ -244,7 +244,7 @@ class OnlineMods {
 				mode: EXTRACT,
 				onError: (code, type) -> {
 					trace("RAR FAILED: " + code + " - " + type);
-					Waiter.put(() -> {
+					Waiter.putPersist(() -> {
 						Alert.alert("Extracting RAR failed!", '$code\n$type');
 					});
 					rarFailed = true;
@@ -263,7 +263,7 @@ class OnlineMods {
 				}
 			});
 			#else
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				Alert.alert("RAR is not supported on this platform!");
 			});
 			#end
@@ -471,11 +471,18 @@ class OnlineMods {
 		var modLink = modURL;
 		OnlineMods.saveModURL(modName, modLink);
 
-		Waiter.put(() -> {
+		Waiter.putPersist(() -> {
 			if (!PlayState.redditMod)
 				Alert.alert("Mod Installation Successful!", "Downloaded mod: " + modName + "\nFrom: " + (modLink == null ? "Local Storage" : modLink));
-			if (onSuccess != null)
-				onSuccess(modName);
+
+			try {
+				// between states crash can occur
+				if (onSuccess != null)
+					onSuccess(modName);
+			}
+			catch (exc) {
+				Sys.println(exc);
+			}
 
 			if (modLink == null && !(FlxG.state is PlayState) && checkMods()) {
 				states.TitleState.playFreakyMusic();

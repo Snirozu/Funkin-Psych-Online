@@ -266,6 +266,18 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Nameplate Fade Time',
+			'After how many seconds should player nameplates be hidden?\nSet to 0 to instantly hide them.\nSet to -1 to never hide them.',
+			'nameplateFadeTime',
+			'int');
+		option.displayFormat = '%vs';
+		option.scrollSpeed = 20;
+		option.minValue = -1;
+		option.maxValue = 60;
+		option.changeValue = 1;
+		option.decimals = 0;
+		addOption(option);
+
 		super();
 		add(notes);
 	}

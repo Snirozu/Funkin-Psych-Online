@@ -55,6 +55,14 @@ class Character extends FlxSprite {
 	public var isMissing:Bool = false;
 
 	public var colorTween:FlxTween;
+	// uh... check if opponent is holding
+	public var noteHold(default, set):Bool = false;
+	function set_noteHold(v) {
+		if (PlayState.isCharacterPlayer(this) && noteHold != v) {
+			GameClient.send("noteHold", v);
+		}
+		return noteHold = v;
+	}
 	public var holdTimer:Float = 0;
 	public var heyTimer:Float = 0;
 	public var specialAnim:Bool = false;
@@ -67,12 +75,16 @@ class Character extends FlxSprite {
 	public var vocalsFile:String = '';
 	public var deadName:String = null;
 
+	public var gameIconIndex:Int = 0;
 	public var healthIcon:String = 'face';
 	public var animationsArray:Array<AnimArray> = [];
 
 	public var positionArray:Array<Float> = [0, 0];
 	var ogPositionArray:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
+
+	// x offset index (for multiple characters)
+	public var ox:Int = 0;
 
 	public var hasMissAnimations:Bool = true;
 	// Used on Character Editor
@@ -283,16 +295,7 @@ class Character extends FlxSprite {
 					quickAnimAdd('idle', 'BF idle dance');
 				}
 
-				if (sprite3D != null) {
-					sprite3D.addAnimationsFromFlxSprite(this);
-					for (name => offset in animOffsets) {
-						sprite3D.animations.get(name).setOffset(offset[0], offset[1]);
-					}
-					sprite3D.scaleX = jsonScale;
-					sprite3D.scaleY = jsonScale;
-					sprite3D.antialiasing = !noAntialiasing;
-					visible = false;
-				}
+				setup3D();
 
 				#if flxanimate
 				if(isAnimateAtlas) copyAtlasValues();
@@ -335,7 +338,21 @@ class Character extends FlxSprite {
 		}
 	}
 
+	public function setup3D() {
+		if (sprite3D != null) {
+			sprite3D.addAnimationsFromFlxSprite(this);
+			for (name => offset in animOffsets) {
+				sprite3D.animations.get(name).setOffset(offset[0], offset[1]);
+			}
+			sprite3D.scaleX = jsonScale;
+			sprite3D.scaleY = jsonScale;
+			sprite3D.antialiasing = !noAntialiasing;
+			visible = false;
+		}
+	}
+
 	public var noAnimationBullshit:Bool = false;
+	public var noHoldBullshit:Bool = false;
 
 	override function update(elapsed:Float) {
 		if(isAnimateAtlas) atlas.update(elapsed);
@@ -394,9 +411,7 @@ class Character extends FlxSprite {
 			// (!GameClient.isConnected() && PlayState.instance.getPlayer() != this) // check for null or not connected
 			// || PlayState.instance.getPlayer()
 
-			if ((!GameClient.isConnected() || GameClient.getStaticPlayer(false) != this) // check for not connected
-				&& GameClient.getStaticPlayer() != this && // check if not player/opp
-				holdTimer >= Conductor.stepCrochet * (0.0011 / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1)) * singDuration) {
+			if (!noHoldBullshit && holdTimer >= Conductor.stepCrochet * (0.0011 / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1)) * singDuration) {
 				dance();
 				holdTimer = 0;
 			}
@@ -489,7 +504,6 @@ class Character extends FlxSprite {
 			colorTransform.blueMultiplier = colorTransformBefore[2];
 		}
 
-		noAnimationBullshit = false;
 		specialAnim = false;
 		isMissing = AnimName.endsWith("miss");
 
@@ -498,12 +512,43 @@ class Character extends FlxSprite {
 			heyTimer = 1;
 		}
 
-		if (AnimName == "hurt" && !animExists(AnimName)) {
-			AnimName = 'sing' + randomDirections[FlxG.random.int(0, randomDirections.length - 1)] + 'miss';
-		}
-
 		if (!animExists(AnimName)) {
-			if (AnimName.endsWith("miss") && colorTransform != null) {
+			if ((AnimName == "taunt" || AnimName == "taunt-alt") && !animExists(AnimName)) {
+				if (AnimName == "taunt-alt")
+					AnimName = "hey-alt";
+				else
+					AnimName = "hey";
+			}
+
+			if (AnimName.endsWith("-alt") && !animExists(AnimName)) {
+				AnimName = AnimName.substring(0, AnimName.length - "-alt".length);
+			}
+			
+			if (AnimName == "hurt" && !animExists(AnimName)) {
+				AnimName = 'sing' + randomDirections[FlxG.random.int(0, randomDirections.length - 1)] + 'miss';
+			}
+
+			if (AnimName == "hey" && !animExists(AnimName)) {
+				if (curCharacter.startsWith("tankman")) {
+					AnimName = "singUP-alt";
+				}
+				else {
+					AnimName = "singUP";
+					// specialAnim = false;
+					// heyTimer = 0;
+				}
+			}
+
+			if (AnimName.startsWith("sing") && !animExists(AnimName)) {
+				for (anim in ['singLEFT', 'singRIGHT', 'singUP', 'singDOWN']) {
+					if (AnimName.startsWith(anim)) {
+						AnimName = anim + (AnimName.contains('miss') ? 'miss' : '');
+						break;
+					}
+				}
+			}
+
+			if (AnimName.endsWith("miss") && !animExists(AnimName)) {
 				AnimName = AnimName.substring(0, AnimName.length - "miss".length);
 
 				colorTransformBefore = [colorTransform.redMultiplier, colorTransform.greenMultiplier, colorTransform.blueMultiplier];
@@ -513,32 +558,9 @@ class Character extends FlxSprite {
 				colorTransform.greenMultiplier = 0.3;
 				colorTransform.blueMultiplier = 0.5;
 			}
-
-			if (AnimName == "taunt" || AnimName == "taunt-alt") {
-				if (AnimName == "taunt-alt")
-					AnimName = "hey-alt";
-				else
-					AnimName = "hey";
-			}
-
-			if (!animExists(AnimName)) {
-				if (AnimName.endsWith("-alt")) {
-					AnimName = AnimName.substring(0, AnimName.length - "-alt".length);
-				}
-				if (AnimName == "hey") {
-					if (curCharacter.startsWith("tankman")) {
-						AnimName = "singUP-alt";
-					}
-					else {
-						AnimName = "singUP";
-						// specialAnim = false;
-						// heyTimer = 0;
-					}
-				}
-			}
 		}
 
-		if (animSounds.exists(AnimName)) {
+		if (animSounds != null /* ?? */ && animSounds.exists(AnimName)) {
 			if (sound != null) {
 				sound.stop();
 				sound.destroy();

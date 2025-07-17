@@ -14,7 +14,7 @@ class SyncScript extends SScript {
 		if (threaded) {
 			Thread.run(() -> {
 				var fetch = retrieveScript();
-				online.backend.Waiter.put(() -> {
+				online.backend.Waiter.putPersist(() -> {
 					loadScript(fetch, onDone);
 				});
 			});
@@ -60,6 +60,8 @@ class SyncScript extends SScript {
 
 	override function preset() {
 		super.preset();
+
+		notAllowedClasses = Deflection.classBlacklist.copy();
 
 		set("data", data);
 		set("print", s -> Sys.println(s));

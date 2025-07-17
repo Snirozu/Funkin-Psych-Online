@@ -338,6 +338,23 @@ class ShitUtil {
 				str += " (Not Extended)";
 			case 511:
 				str += " (Network Authentication Required)";
+			// cloudflare http codes
+			case 520:
+				str += " (CF: Server returns an Unknown Error)";
+			case 521:
+				str += " (CF: Server is Down)";
+			case 522:
+				str += " (CF: Connection Timed Out)";
+			case 523:
+				str += " (CF: Origin Is Unreachable)";
+			case 524:
+				str += " (CF: A Timeout Occurred)";
+			case 525:
+				str += " (CF: SSL Handshake Failed)";
+			case 526:
+				str += " (CF: Invalid SSL certificate)";
+			case 530:
+				str += " (CF: Tunnel Error)";
             // websockets
             case 1000:
 				str += " (WebSocket Closed)";
@@ -385,22 +402,57 @@ class ShitUtil {
 		return str;
 	}
 	
-	private static final pngPrefix = Bytes.ofHex("89504E47");
+	// \211   P   N   G  \r  \n \032 \n
+	private static final pngPrefix = Bytes.ofHex("89504E470D0A1A0A");
+	// \377   \330
+	private static final jpegPrefix = Bytes.ofHex("FFD8");
 
-	static function isPNG(bytes:Bytes) {
+	static function isIMG(bytes:Bytes) {
 		if (bytes == null) return false;
-		return bytes.sub(0, pngPrefix.length).compare(pngPrefix) == 0;
+		return 
+			bytes.sub(0, pngPrefix.length).compare(pngPrefix) == 0 ||
+			bytes.sub(0, jpegPrefix.length).compare(jpegPrefix) == 0
+		;
 	}
 
-	private static final jpegPrefix = Bytes.ofHex("FFD8FFE000104A464946");
+	private static final gifPrefix = Bytes.ofString("GIF");
 
-	static function isJPEG(bytes:Bytes) {
+	static function isGIF(bytes:Bytes) {
 		if (bytes == null) return false;
-		return bytes.sub(0, jpegPrefix.length).compare(jpegPrefix) == 0;
+		return bytes.sub(0, gifPrefix.length).compare(gifPrefix) == 0;
 	}
 
 	static function isSupportedImage(bytes:Bytes) {
-		return isPNG(bytes) || isJPEG(bytes);
+		return isIMG(bytes) || isGIF(bytes);
+	}
+
+	static function pickReadableHTML(raw:String) {
+		var output = '';
+		var i = -1;
+		var char = '';
+		while (++i < raw.length) {
+			char = raw.charAt(i);
+
+			if (char == '<') {
+				var elementContent = '';
+				while (++i < raw.length) {
+					if (raw.charAt(i) == '>')
+						break;
+
+					elementContent += raw.charAt(i);
+				}
+
+				if (elementContent.trim().startsWith('br')) {
+					output += '\n';
+				}
+
+				continue;
+			}
+
+			output += char;
+		}
+
+		return output;
 	}
 
 	// fuck you haxe

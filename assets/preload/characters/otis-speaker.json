@@ -3,7 +3,7 @@
         {
             "offsets": [
                 0,
-                0
+                20
             ],
             "loop": false,
             "fps": 24,
@@ -14,7 +14,7 @@
         {
             "offsets": [
                 0,
-                13
+                33
             ],
             "loop": false,
             "fps": 24,
@@ -25,7 +25,7 @@
         {
             "offsets": [
                 -35,
-                21
+                41
             ],
             "loop": false,
             "fps": 24,
@@ -36,7 +36,7 @@
         {
             "offsets": [
                 238,
-                96
+                116
             ],
             "loop": false,
             "fps": 24,
@@ -47,7 +47,7 @@
         {
             "offsets": [
                 260,
-                23
+                43
             ],
             "loop": false,
             "fps": 24,

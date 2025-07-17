@@ -118,29 +118,42 @@ class TitleState extends MusicBeatState
 					return Std.parseInt(s);
 				});
 
-				trace('comparing ' + updatVer + ' > ' + curVer);
-				for (i => num in updatVer) {
-					if (num > curVer[i] ?? 0) {
-						switch (i) {
-							case 0:
-								Main.wankyUpdate = 'PSYCH ENGINE 1.0.0 WHAT';
-							case 1:
-								Main.wankyUpdate = 'major release';
-							default:
-								Main.wankyUpdate = 'minor patch';
+				if (curVersion.contains('-rc.')) {
+					var candiVer = curVersion.split('-rc.');
+					Main.wankyUpdate = 'Runnning on a\nRelease Candidate No. ' + candiVer[1] + '\nto version: ' + candiVer[0];
+					lime.app.Application.current.window.title = lime.app.Application.current.window.title + ' [DEV]';
+					inDev = true;
+				}
+				else {
+					trace('comparing ' + updatVer + ' > ' + curVer);
+					for (i => num in updatVer) {
+						if (num < curVer[i] ?? 0) {
+							inDev = true;
+							trace('running on indev build! [' + i + "]");
+							lime.app.Application.current.window.title = lime.app.Application.current.window.title + ' [DEV]';
+							break;
 						}
-						mustUpdate = true;
-						trace('update version is newer! [' + i + "]");
-						break;
-					}
-					if (num < curVer[i] ?? 0) {
-						inDev = true;
-						trace('running on indev build! [' + i + "]");
-						lime.app.Application.current.window.title = lime.app.Application.current.window.title + ' [DEV]';
-						break;
-					}
-					if (i == updatVer.length - 1) {
-						trace('running on latest version!');
+						if (num > curVer[i] ?? 0) {
+							var updateTitle = '';
+							switch (i) {
+								case 0:
+									// api breaking functionality or overhauls
+									updateTitle = 'HUGE update';
+								case 1:
+									// new features with non breaking changes 
+									updateTitle = 'major version';
+								default:
+									// bug fixes and patches
+									updateTitle = 'minor version';
+							}
+							Main.wankyUpdate = 'A new ${updateTitle} is available!\n(Click here to update)';
+							mustUpdate = true;
+							trace('update version is newer! [' + i + "]");
+							break;
+						}
+						if (i == updatVer.length - 1) {
+							trace('running on latest version!');
+						}
 					}
 				}
 			}
@@ -788,6 +801,8 @@ class TitleState extends MusicBeatState
 
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
+
+		FreeplayState.destroyFreeplayVocals();
 
 		if (daSong == null && ClientPrefs.data.favsAsMenuTheme && ClientPrefs.data.favSongs != null && ClientPrefs.data.favSongs.length > 0) {
 			var songs:Array<TrackSong> = [];
