@@ -38,7 +38,7 @@ class ModDownloader {
 		}
 
 		if (downloaders.length >= 6) {
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				Alert.alert('Downloading failed!', 'Too many files are downloading right now! (Max 6)');
 			});
 			return;
@@ -61,7 +61,7 @@ class ModDownloader {
 					status = READING_BODY;
 					if (!isMediaTypeAllowed(client.response.headers.get("content-type"))) {
 						client.cancel();
-						Waiter.put(() -> {
+						Waiter.putPersist(() -> {
 							Alert.alert('Downloading failed!', client.response.headers.get("content-type") + " may be invalid or unsupported file type!");
 							RequestSubstate.requestURL(url, "The following mod needs to be installed from this source", true);
 						});
@@ -85,7 +85,7 @@ class ModDownloader {
 			} 
 			catch (exc) {
 				if (!client.cancelRequested) {
-					Waiter.put(() -> {
+					Waiter.putPersist(() -> {
 						Alert.alert('Error!', id + ': ' + ShitUtil.prettyError(exc));
 					});
 				}
@@ -95,12 +95,12 @@ class ModDownloader {
 
 			if (client.response.isFailed()) {
 				if (client.cancelRequested) {
-					Waiter.put(() -> {
+					Waiter.putPersist(() -> {
 						Alert.alert('Download canceled!');
 					});
 				}
 				else {
-					Waiter.put(() -> {
+					Waiter.putPersist(() -> {
 						Alert.alert('Downloading failed!', 
 							ShitUtil.prettyStatus(client.response.status) + "\n" +
 							(client?.response?.exception != null ? ShitUtil.prettyError(client.response.exception) : '')

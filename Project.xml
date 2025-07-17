@@ -132,6 +132,11 @@
 	<haxelib name="funkin.vis" />
 	<haxelib name="grig.audio" />
 	<haxelib name="away3d" />
+	<haxelib name="yagp" />
+	<!-- <haxelib name="interpret" /> -->
+
+	<haxedef name="interpretable" />
+	<haxedef name="interpret_watch" />
 
 	<haxedef name="openflPos" />
 	<haxedef name="hscriptPos" />

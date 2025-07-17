@@ -194,7 +194,7 @@ class EditorPlayState extends MusicBeatSubstate
 				var strum:StrumNote = strumGroup.members[daNote.noteData];
 				daNote.followStrumNote(strum, fakeCrochet, songSpeed / playbackRate);
 
-				if (!daNote.mustPress && daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote)
+				if (!daNote.canBeHit && daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote)
 					opponentNoteHit(daNote);
 
 				if(daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumNote(strum);
@@ -202,7 +202,7 @@ class EditorPlayState extends MusicBeatSubstate
 				// Kill extremely late notes and cause misses
 				if (Conductor.songPosition - daNote.strumTime > noteKillOffset)
 				{
-					if (daNote.mustPress && !daNote.ignoreNote && (daNote.tooLate || !daNote.wasGoodHit))
+					if (!daNote.ignoreNote && (daNote.tooLate || !daNote.wasGoodHit))
 						noteMiss(daNote);
 
 					daNote.active = false;
@@ -415,28 +415,12 @@ class EditorPlayState extends MusicBeatSubstate
 						}
 
 						if (sustainNote.mustPress) sustainNote.x += FlxG.width / 2; // general offset
-						else if(ClientPrefs.data.middleScroll)
-						{
-							sustainNote.x += 310;
-							if(daNoteData > 1) //Up and Right
-							{
-								sustainNote.x += FlxG.width / 2 + 25;
-							}
-						}
 					}
 				}
 
 				if (swagNote.mustPress)
 				{
 					swagNote.x += FlxG.width / 2; // general offset
-				}
-				else if(ClientPrefs.data.middleScroll)
-				{
-					swagNote.x += 310;
-					if(daNoteData > 1) //Up and Right
-					{
-						swagNote.x += FlxG.width / 2 + 25;
-					}
 				}
 			}
 		}
@@ -446,16 +430,15 @@ class EditorPlayState extends MusicBeatSubstate
 	
 	private function generateStaticArrows(player:Int):Void
 	{
-		var strumLineX:Float = ClientPrefs.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X;
+		var strumLineX:Float = /* ClientPrefs.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : */ PlayState.STRUM_X;
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
 		for (i in 0...4)
 		{
 			// FlxG.log.add(i);
 			var targetAlpha:Float = 1;
-			if (player < 1)
+			if ((player == 1) != PlayState.playsAsBF())
 			{
 				if(!ClientPrefs.data.opponentStrums) targetAlpha = 0;
-				else if(ClientPrefs.data.middleScroll) targetAlpha = 0.35;
 			}
 
 			var babyArrow:StrumNote = new StrumNote(strumLineX, strumLineY, i, player);
@@ -465,16 +448,7 @@ class EditorPlayState extends MusicBeatSubstate
 			if (player == 1)
 				playerStrums.add(babyArrow);
 			else
-			{
-				if(ClientPrefs.data.middleScroll)
-				{
-					babyArrow.x += 310;
-					if(i > 1) { //Up and Right
-						babyArrow.x += FlxG.width / 2 + 25;
-					}
-				}
 				opponentStrums.add(babyArrow);
-			}
 
 			strumLineNotes.add(babyArrow);
 			babyArrow.postAddedToGroup();
@@ -698,7 +672,7 @@ class EditorPlayState extends MusicBeatSubstate
 			var sortedNotesList:Array<Note> = [];
 			notes.forEachAlive(function(daNote:Note)
 			{
-				if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate &&
+				if (daNote.canBeHit && !daNote.tooLate &&
 					!daNote.wasGoodHit && !daNote.isSustainNote && !daNote.blockHit)
 				{
 					if(daNote.noteData == key)
@@ -731,7 +705,7 @@ class EditorPlayState extends MusicBeatSubstate
 			Conductor.songPosition = lastTime;
 		}
 
-		var spr:StrumNote = playerStrums.members[key];
+		var spr:StrumNote = (PlayState.playsAsBF() ? playerStrums : opponentStrums).members[key];
 		if(spr != null && spr.animation.curAnim.name != 'confirm')
 		{
 			spr.playAnim('pressed');
@@ -750,7 +724,7 @@ class EditorPlayState extends MusicBeatSubstate
 
 	private function keyReleased(key:Int)
 	{
-		var spr:StrumNote = playerStrums.members[key];
+		var spr:StrumNote = (PlayState.playsAsBF() ? playerStrums : opponentStrums).members[key];
 		if(spr != null)
 		{
 			spr.playAnim('static');
@@ -782,8 +756,7 @@ class EditorPlayState extends MusicBeatSubstate
 		notes.forEachAlive(function(daNote:Note)
 		{
 			// hold note functions
-			if (daNote.isSustainNote && holdArray[daNote.noteData] && daNote.canBeHit
-				&& daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.blockHit)
+			if (daNote.isSustainNote && holdArray[daNote.noteData] && daNote.canBeHit && !daNote.tooLate && !daNote.wasGoodHit && !daNote.blockHit)
 				goodNoteHit(daNote);
 		});
 
@@ -800,7 +773,7 @@ class EditorPlayState extends MusicBeatSubstate
 		if (PlayState.SONG.needsVoices)
 			vocals.volume = 1;
 
-		var strum:StrumNote = opponentStrums.members[Std.int(Math.abs(note.noteData))];
+		var strum:StrumNote = (note.mustPress ? playerStrums : opponentStrums).members[Std.int(Math.abs(note.noteData))];
 		if(strum != null) {
 			strum.playAnim('confirm', true);
 			strum.resetAnim = Conductor.stepCrochet * 1.25 / 1000 / playbackRate;
@@ -844,7 +817,7 @@ class EditorPlayState extends MusicBeatSubstate
 				popUpScore(note);
 			}
 
-			var spr:StrumNote = playerStrums.members[note.noteData];
+			var spr:StrumNote = (note.mustPress ? playerStrums : opponentStrums).members[note.noteData];
 			if(spr != null) spr.playAnim('confirm', true);
 			vocals.volume = 1;
 
@@ -860,7 +833,7 @@ class EditorPlayState extends MusicBeatSubstate
 	function noteMiss(daNote:Note):Void { //You didn't hit the key and let it go offscreen, also used by Hurt Notes
 		//Dupe note remove
 		notes.forEachAlive(function(note:Note) {
-			if (daNote != note && daNote.mustPress && daNote.noteData == note.noteData && daNote.isSustainNote == note.isSustainNote && Math.abs(daNote.strumTime - note.strumTime) < 1) {
+			if (daNote != note && note.mustPress == daNote.mustPress && daNote.noteData == note.noteData && daNote.isSustainNote == note.isSustainNote && Math.abs(daNote.strumTime - note.strumTime) < 1) {
 				note.kill();
 				notes.remove(note, true);
 				note.destroy();
@@ -877,7 +850,7 @@ class EditorPlayState extends MusicBeatSubstate
 
 	function spawnNoteSplashOnNote(note:Note) {
 		if(note != null) {
-			var strum:StrumNote = playerStrums.members[note.noteData];
+			var strum:StrumNote = (note.mustPress ? playerStrums : opponentStrums).members[note.noteData];
 			if(strum != null)
 				spawnNoteSplash(strum.x, strum.y, note.noteData, note);
 		}

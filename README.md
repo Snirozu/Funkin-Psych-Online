@@ -4,6 +4,7 @@
 
 ## Features
 * Online Multiplayer (Public and LAN)
+* 2v2 PvP
 * Built-In Mod Downloader
 * No Port Forwarding needed
 * Game Modifiers
@@ -13,9 +14,7 @@
 * Erect/Nightmare Difficulty Support
 
 ### Planned
-* Up to 8 players support
-* Online Lua API rework
-* Move to Psych Engine 1.0
+* Further Psych Engine 1.0 Mod Support (1.0.0 is no longer planned sorry, too much work!) 
 
 ## Links 
 * [Documentation](https://github.com/Snirozu/Funkin-Psych-Online/wiki)

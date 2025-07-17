@@ -209,7 +209,7 @@ class RoomBox extends FlxSpriteGroup {
 			FindRoomState.instance.camFollow.setPosition(hitbox.getMidpoint().x, hitbox.getMidpoint().y);
 
 			if (FindRoomState.instance.controls.ACCEPT || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(hitbox))) {
-				GameClient.joinRoom('$code;${FindRoomState.instance.getAddress()}', (err) -> Waiter.put(() -> {
+				GameClient.joinRoom('$code;${FindRoomState.instance.getAddress()}', (err) -> Waiter.putPersist(() -> {
 					if (err != null) {
 						return;
 					}

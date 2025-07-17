@@ -96,6 +96,9 @@ class ChatTab extends TabSprite {
 				ClientPrefs.saveSettings();
 				addMessage('Chat Notifications are now ${ClientPrefs.data.notifyOnChatMsg ? 'ON' : 'OFF'}!');
 			}
+			else if (input.text.trim().startsWith('/profile')) {
+				online.gui.sidebar.tabs.ProfileTab.view(input.text.substr('/profile'.length).trim());
+			}
 			else {
 				if (NetworkClient.room != null) {
 					NetworkClient.room.send('chat', input.text);

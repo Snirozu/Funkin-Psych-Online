@@ -9,7 +9,7 @@ class Thread {
                 func();
             }
             catch (exc) {
-                Waiter.put(() -> { // waiter more errors please!
+				Waiter.putPersist(() -> { // waiter more errors please!
 					if (onException != null)
                         onException(exc);
                     else
@@ -30,7 +30,7 @@ class Thread {
 			}
 			catch (exc) {
 				running = false;
-				Waiter.put(() -> { // waiter more errors please!
+				Waiter.putPersist(() -> { // waiter more errors please!
 					if (onException != null)
 						onException(exc);
 					else
@@ -45,7 +45,7 @@ class Thread {
 			task();
 		}
 		catch (exc:Dynamic) {
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				if (onException != null)
 					onException(exc);
 				else

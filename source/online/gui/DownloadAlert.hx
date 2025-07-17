@@ -203,7 +203,7 @@ class DownloadAlert extends Sprite {
 
 	public function destroy() {
 		DownloadAlerts.instances.remove(this);
-		Waiter.put(() -> {
+		Waiter.putPersist(() -> {
 			bg = null;
 			text = null;
 			DownloadAlerts.instance.removeChild(this);

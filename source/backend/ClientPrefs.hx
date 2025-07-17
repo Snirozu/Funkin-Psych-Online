@@ -103,6 +103,10 @@ class SaveVariables {
 	public var favsAsMenuTheme:Bool = false;
 	public var disableComboRating:Bool = false;
 	public var disableComboCounter:Bool = false;
+	public var networkServerAddress:String = null;
+	public var hiddenTips:Array<String> = null;
+	public var nameplateFadeTime:Float = 10;
+	public var verticalRatingPos:Bool = false;
 
 	public function new()
 	{
@@ -289,7 +293,7 @@ class ClientPrefs {
 
 	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic = null, ?customDefaultValue:Bool = false):Dynamic {
 		if(!customDefaultValue) defaultValue = defaultData.gameplaySettings.get(name);
-		var daGameplaySetting:Dynamic = GameClient.isConnected() && !GameClient.room.state.permitModifiers ? GameClient.getGameplaySetting(name) : data.gameplaySettings.get(name);
+		var daGameplaySetting:Dynamic = GameClient.isConnected() ? GameClient.getGameplaySetting(name) : data.gameplaySettings.get(name);
 		if (PlayState.replayData?.gameplay_modifiers != null) {
 			daGameplaySetting = PlayState.replayData?.gameplay_modifiers?.get(name);
 		}
@@ -363,17 +367,20 @@ class ClientPrefs {
 
 		if (player == 0)
 			return [ 
-				CoolUtil.asta(GameClient.room.state.player1.arrowColor0),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColor1),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColor2),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColor3),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor0),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor1),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor2),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor3),
 			];
+
+		if (PlayState.instance?.opponentPlayer == null)
+			return defaultData.arrowRGB;
 		
 		return [
-			CoolUtil.asta(GameClient.room.state.player2.arrowColor0),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColor1),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColor2),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColor3),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor0),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor1),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor2),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor3),
 		];
 	}
 
@@ -383,17 +390,20 @@ class ClientPrefs {
 
 		if (player == 0)
 			return [
-				CoolUtil.asta(GameClient.room.state.player1.arrowColorP0),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColorP1),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColorP2),
-				CoolUtil.asta(GameClient.room.state.player1.arrowColorP3),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP0),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP1),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP2),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP3),
 			];
 
+		if (PlayState.instance?.opponentPlayer == null)
+			return defaultData.arrowRGBPixel;
+
 		return [
-			CoolUtil.asta(GameClient.room.state.player2.arrowColorP0),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColorP1),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColorP2),
-			CoolUtil.asta(GameClient.room.state.player2.arrowColorP3),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP0),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP1),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP2),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP3),
 		];
 	}
 
@@ -403,8 +413,8 @@ class ClientPrefs {
 			return data.noteSkin;
 
 		if(player == 0)
-			return GameClient.room.state.player1.noteSkin;
+			return GameClient.getPlayerSelf().noteSkin;
 		else
-			return GameClient.room.state.player2.noteSkin;
+			return PlayState.instance?.opponentPlayer?.noteSkin ?? defaultData.noteSkin;
 	}
 }

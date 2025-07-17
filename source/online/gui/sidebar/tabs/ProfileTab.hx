@@ -1,5 +1,9 @@
 package online.gui.sidebar.tabs;
 
+import com.yagp.GifPlayerWrapper;
+import com.yagp.GifPlayer;
+import com.yagp.GifDecoder;
+import com.yagp.Gif;
 import online.http.HTTPHandler;
 
 class ProfileTab extends TabSprite {
@@ -19,14 +23,16 @@ class ProfileTab extends TabSprite {
 	var seen:TextField;
 	var stats:TextField;
 	var loadingTxt:TextField;
+	var desc:TextField;
+	var line1:Bitmap;
+	var line2:Bitmap;
+	var statsTitle:TextField;
 
 	var addFriend:TabButton;
 	var removeFriend:TabButton;
 	var invitePlay:TabButton;
 	var settings:TabButton;
 	var web:TabButton;
-
-	// RequestSubstate.requestURL(GameClient.addressToUrl() + "/user/" + StringTools.urlEncode(user), true);
 
     public function new() {
         super('Profile', 'profile');
@@ -49,7 +55,9 @@ class ProfileTab extends TabSprite {
 		loadingTxt.visible = false;
 		addChild(loadingTxt);
 
-		avatar = new Bitmap(new BitmapData(125, 125, true, 0x00000000));
+		avatar = new Bitmap(FunkinNetwork.getDefaultAvatar());
+		avatar.width = 125;
+		avatar.height = 125;
 		avatar.x = 20;
 		avatar.y = 20;
 		addChild(avatar);
@@ -66,18 +74,22 @@ class ProfileTab extends TabSprite {
 		seen = this.createText(role.x, role.y + 30, 20, 0xFF7C7C7C);
 		addChild(seen);
 
-		var line1 = new Bitmap(new BitmapData(1, 2, true, 0xFFFFFFFF));
-		line1.x = avatar.x;
-		line1.y = avatar.y + avatar.height + 10;
+		desc = this.createText(avatar.x, avatar.y + avatar.height + 10, 15);
+		desc.setText("");
+		addChild(desc);
+
+		line1 = new Bitmap(new BitmapData(1, 2, true, 0xFFFFFFFF));
+		line1.x = desc.x;
+		line1.y = desc.y + desc.height + 10;
 		line1.scaleX = tabBg.width - 40;
 		addChild(line1);
 
-		var statsTitle = this.createText(0, line1.y + 20, 30);
+		statsTitle = this.createText(0, line1.y + 20, 30);
 		statsTitle.setText("Statistics");
 		statsTitle.x = tabBg.width / 2 - statsTitle.textWidth / 2;
 		addChild(statsTitle);
 
-		var line2 = new Bitmap(new BitmapData(1, 2, true, 0xFFFFFFFF));
+		line2 = new Bitmap(new BitmapData(1, 2, true, 0xFFFFFFFF));
 		line2.x = line1.x;
 		line2.y = statsTitle.y + 50;
 		line2.scaleX = line1.scaleX;
@@ -140,7 +152,7 @@ class ProfileTab extends TabSprite {
 			var response = FunkinNetwork.requestAPI('/api/user/details?name=' + StringTools.urlEncode(username));
 
 			if (response != null && !response.isFailed()) {
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					if (v == username) {
 						user = Json.parse(response.getString());
 						renderData();
@@ -173,7 +185,7 @@ class ProfileTab extends TabSprite {
 			LoadingScreen.toggle(false);
 
 			if (response != null && !response.isFailed()) {
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					Alert.alert('Removed ' + daUsername + " from friends");
 					if (username == daUsername)
 						username = username;
@@ -192,7 +204,7 @@ class ProfileTab extends TabSprite {
 			LoadingScreen.toggle(false);
 
 			if (response != null && !response.isFailed()) {
-				Waiter.put(() -> {
+				Waiter.putPersist(() -> {
 					Alert.alert('Friend invite has been sent to ' + daUsername + "!");
 					if (username == daUsername)
 						username = username;
@@ -206,15 +218,39 @@ class ProfileTab extends TabSprite {
         var loadingUser = username;
 		
 		tabBg.bitmapData = new BitmapData(tabBg.bitmapData.width, tabBg.bitmapData.height, true, FlxColor.fromHSL(user.profileHue, 0.2, 0.2));
-		avatar.bitmapData = new BitmapData(125, 125, true, 0x00000000);
+
+		var prevAvatar = avatar;
+		avatar = new Bitmap(FunkinNetwork.getDefaultAvatar());
+
+		addChildAt(avatar, getChildIndex(prevAvatar));
+		removeChild(prevAvatar);
+
+		avatar.x = 20;
+		avatar.y = 20;
+		avatar.width = 125;
+		avatar.height = 125;
+
 		flag.bitmapData = new BitmapData(1, 1, true, 0x00000000);
 		flag.visible = false;
 		Thread.run(() -> {
 			var avatarData = FunkinNetwork.getUserAvatar(loadingUser);
 
-			Waiter.put(() -> {
-				if (loadingUser == username && avatarData != null) {
-					avatar.bitmapData = avatarData;
+			Waiter.putPersist(() -> {
+				if (loadingUser == username) {
+					var prevAvatar = avatar;
+
+					if (avatarData == null)
+						avatar = new Bitmap(FunkinNetwork.getDefaultAvatar());
+					else if (!ShitUtil.isGIF(avatarData))
+						avatar = new Bitmap(BitmapData.fromBytes(avatarData));
+					else
+						avatar = new GifPlayerWrapper(new GifPlayer(GifDecoder.parseBytes(avatarData)));
+
+					addChildAt(avatar, getChildIndex(prevAvatar));
+					removeChild(prevAvatar);
+
+					avatar.x = 20;
+					avatar.y = 20;
 					avatar.width = 125;
 					avatar.height = 125;
 				}
@@ -230,6 +266,21 @@ class ProfileTab extends TabSprite {
 			seen.setText("ONLINE", null, FlxColor.LIME);
 		else
 			seen.setText("Seen " + seenAgo, null, 0xFF7C7C7C);
+
+		desc.setText(ShitUtil.pickReadableHTML(user.bio ?? '').wrapText());
+		desc.selectable = true;
+
+		line1.x = desc.x;
+		line1.y = desc.y + desc.height + 10;
+
+		statsTitle.x = tabBg.width / 2 - statsTitle.textWidth / 2;
+		statsTitle.y = line1.y + 20;
+
+		line2.x = line1.x;
+		line2.y = statsTitle.y + 50;
+
+		stats.y = line2.y + 20;
+
 		var joinDate = ShitUtil.parseISODate(user.joined);
 		stats.setText("Rank: " + ShitUtil.toOrdinalNumber(user.rank) + '\n' + "Points: " + FlxStringUtil.formatMoney(user.points, false) + "FP\n" + "Avg. Accuracy: "
 			+ FlxMath.roundDecimal((user.avgAccuracy * 100), 2) + "%\n" + "Joined: " + joinDate.getDate() + '/' + (joinDate.getMonth() + 1) + '/'
@@ -267,7 +318,7 @@ class ProfileTab extends TabSprite {
 		});
 
 		if (!flagResponse.isFailed()) {
-			Waiter.put(() -> {
+			Waiter.putPersist(() -> {
 				if (flag != null && loadingUser == username) {
 					flag.visible = true;
 					flag.bitmapData = BitmapData.fromBytes(flagResponse.getBytes());

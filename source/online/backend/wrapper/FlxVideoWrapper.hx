@@ -111,6 +111,8 @@ class FlxVideoWrapper extends DisplayObject { // as DisplayObject so scripts thi
 
 	function play(location:String, ?shouldLoop:Bool = false):Bool {
 		_video.load(location, shouldLoop ? ["input-repeat=65535"] : []);
+		if (parent == null)
+			FlxG.stage.addChild(this);
 		return _video.play();
 	}
 

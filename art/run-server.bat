@@ -6,7 +6,7 @@ echo If the server is outdated delete the '_server' directory and run this file 
 WHERE npm /Q
 if %ERRORLEVEL% NEQ 0 (
 echo Downloading node.js
-curl.exe https://nodejs.org/dist/v20.10.0/node-v20.10.0-x64.msi -L -o node.msi
+curl.exe https://nodejs.org/dist/v21.6.2/node-v21.6.2-x64.msi -L -o node.msi
 echo Installing node.js
 msiexec.exe /i node.msi /quiet
 del node.msi
@@ -35,7 +35,7 @@ echo Done!
     cd _server
 )
 
-npm start
+npm test
 
 cd ..
 PAUSE

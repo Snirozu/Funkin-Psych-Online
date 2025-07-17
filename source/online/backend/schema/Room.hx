@@ -2,7 +2,7 @@
 // THIS FILE HAS BEEN GENERATED AUTOMATICALLY
 // DO NOT CHANGE IT MANUALLY UNLESS YOU KNOW WHAT YOU'RE DOING
 // 
-// GENERATED USING @colyseus/schema 2.0.26
+// GENERATED USING @colyseus/schema 2.0.35
 // 
 
 package online.backend.schema;
@@ -21,16 +21,16 @@ class Room extends Schema {
 	public var diff: Dynamic = 0;
 
 	@:type("array", "string")
-	public var diffList:ArraySchema<String> = new ArraySchema<String>();
+	public var diffList: ArraySchema<String> = new ArraySchema<String>();
 
 	@:type("string")
 	public var stageName: String = "";
 
 	@:type("string")
-	public var stageMod:String = "";
+	public var stageMod: String = "";
 
 	@:type("string")
-	public var stageURL:String = "";
+	public var stageURL: String = "";
 
 	@:type("string")
 	public var modDir: String = "";
@@ -38,20 +38,20 @@ class Room extends Schema {
 	@:type("string")
 	public var modURL: String = "";
 
-	@:type("ref", Player)
-	public var player1: Player = new Player();
+	@:type("string")
+	public var host: String = "";
 
-	@:type("ref", Player)
-	public var player2: Player = new Player();
+	@:type("map", Person)
+	public var spectators: MapSchema<Person> = new MapSchema<Person>();
+
+	@:type("map", Player)
+	public var players: MapSchema<Player> = new MapSchema<Player>();
 
 	@:type("boolean")
 	public var isPrivate: Bool = false;
 
 	@:type("boolean")
 	public var isStarted: Bool = false;
-
-	@:type("boolean")
-	public var swagSides: Bool = false;
 
 	@:type("boolean")
 	public var anarchyMode: Bool = false;
@@ -63,14 +63,15 @@ class Room extends Schema {
 	public var gameplaySettings: MapSchema<String> = new MapSchema<String>();
 
 	@:type("boolean")
-	public var permitModifiers:Bool = false;
-	
-	@:type("boolean")
-	public var hideGF:Bool = false;
+	public var hideGF: Bool = false;
 
 	@:type("number")
 	public var winCondition: Dynamic = 0;
 
 	@:type("boolean")
-	public var disableSkins:Bool = false;
+	public var teamMode:Bool = false;
+
+	@:type("boolean")
+	public var disableSkins: Bool = false;
+
 }

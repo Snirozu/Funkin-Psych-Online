@@ -67,7 +67,7 @@ class ChartingState extends MusicBeatState
 	var eventStuff:Array<Dynamic> =
 	[
 		['', "Nothing. Yep, that's right."],
-		['Must Hit Camera', "This event moves the camera to a specified character.\nValue 1: dad, bf or gf\nValue 2: {null, ease, x, y}\n (PSYCH ONLINE ONLY)\n(EXPERIMENTAL)"],
+		['Must Hit Camera', "Moves the camera to a character.\nValue 1: dad, bf or gf\nValue 2: {null, ease, x, y}\n (PSYCH ONLINE ONLY)\n(EXPERIMENTAL)"],
 		['Tween Camera Zoom', "Tweens a camera zoom to a value.\nValue 1: {zoom, duration}\nValue 2: {ease, mode}\n (PSYCH ONLINE ONLY)"],
 		['Change Camera Bop', "Changes the rate and intensity of camera bopping.\nValue 1: rate\nValue 2: intensity\n (PSYCH ONLINE ONLY)"],
 		['Dadbattle Spotlight', "Used in Dad Battle,\nValue 1: 0/1 = ON/OFF,\n2 = Target Dad\n3 = Target BF"],
@@ -87,7 +87,8 @@ class ChartingState extends MusicBeatState
 		['Set Property', "Value 1: Variable name\nValue 2: New value"],
 		['Play Sound', "Value 1: Sound file name\nValue 2: Volume (Default: 1), ranges from 0 to 1"],
 		['3D Camera Follow Point', "Value 1: The point name defined in stage file"],
-		['Set Health Icon', "Value 1: 1 - Dad\n2 - BF\nValue 2: New Icon"]
+		['Set Health Icon', "Value 1: 1 - Dad\n2 - BF\nValue 2: New Icon"],
+		['Focus Camera', "Less advanced version of Must Hit Camera.\nThis Focuses Camera on a character.\nThis disables Must Hit Section camera movement.\nValue 1: 0 - BF\n1 - Dad\n2 - GF"]
 	];
 
 	var _file:FileReference;

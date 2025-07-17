@@ -44,13 +44,23 @@ class Main extends Sprite
 
 	public static var fpsVar:FPS;
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.11.9";
-	public static final CLIENT_PROTOCOL:Float = 8;
+	public static final PSYCH_ONLINE_VERSION:String = "0.12.0-rc.4";
+	public static final CLIENT_PROTOCOL:Float = 9;
+	public static final NETWORK_PROTOCOL:Float = 8;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 	public static final LOW_STORAGE:Bool = online.backend.Macros.hasNoCapacity();
+	
+	/**
+	 * ! ! ! ! ! !
+	 * 
+	 * ANY TRY TO CIRCUMVENT THE PROPER WORKING OF THIS VARIABLE
+	 * WILL RESULT IN THE SOURCE/BUILD TO BE REPORTED
+	 * 
+	 * ! ! ! ! ! !
+	 */
 	public static var UNOFFICIAL_BUILD:Bool = false;
 
-	public static var wankyUpdate:String = 'version';
+	public static var wankyUpdate:String = null;
 	public static var latestRelease:Dynamic = {};
 	public static var updateVersion:String = '';
 
@@ -61,11 +71,12 @@ class Main extends Sprite
 	public static function main():Void
 	{
 		if (Path.normalize(Sys.getCwd()) != Path.normalize(lime.system.System.applicationDirectory)) {
-			Lib.application.window.alert("Your path is either not run from the game directory,\nor contains illegal UTF-8 characters!\n\nRun from: "
-				+ Sys.getCwd()
-				+ "\nExpected path: " + lime.system.System.applicationDirectory, 
-			"Invalid Runtime Path!");
-			Sys.exit(1);
+			// Lib.application.window.alert("Your path is either not run from the game directory,\nor contains illegal UTF-8 characters!\n\nRun from: "
+			// 	+ Sys.getCwd()
+			// 	+ "\nExpected path: " + lime.system.System.applicationDirectory, 
+			// "Invalid Runtime Path!");
+			// Sys.exit(1);
+			Sys.setCwd(lime.system.System.applicationDirectory);
 		}
 		
 		Lib.current.addChild(view3D = new online.away.View3DHandler());
@@ -186,22 +197,7 @@ class Main extends Sprite
 
 		//ONLINE STUFF, BELOW CODE USE FOR BACKPORTING
 
-		var http = new haxe.Http("https://raw.githubusercontent.com/Snirozu/Funkin-Psych-Online/main/server_addresses.txt");
-		http.onData = function(data:String) {
-			for (address in data.split(',')) {
-				online.GameClient.serverAddresses.push(address.trim());
-			}
-		}
-		http.onError = function(error) {
-			trace('error: $error');
-		}
-		http.request();
-		#if LOCAL
-		online.GameClient.serverAddresses.insert(0, "ws://localhost:2567");
-		#else
-		online.GameClient.serverAddresses.push("ws://localhost:2567");
-		#end
-		online.network.FunkinNetwork.client = new online.http.HTTPHandler(online.GameClient.addressToUrl());
+		GameClient.updateAddresses();
 
 		online.mods.ModDownloader.checkDeleteDlDir();
 
@@ -226,6 +222,9 @@ class Main extends Sprite
 			online.mods.ModDownloader.cancelAll();
 			online.mods.ModDownloader.checkDeleteDlDir();
 			online.network.Auth.saveClose();
+			try {
+				GameClient.leaveRoom();
+			} catch (exc) {}
 		});
 
 		Lib.application.window.onDropFile.add(path -> {
@@ -270,6 +269,10 @@ class Main extends Sprite
 		online.backend.SyncScript.resyncScript(false, () -> {
 			online.backend.SyncScript.dispatch("init");
 		});
+
+		#if interpret
+		online.backend.InterpretLiveReload.init();
+		#end
 		#end
 	}
 
@@ -350,6 +353,9 @@ class Main extends Sprite
 		Application.current.window.alert(alertMsg, "Uncaught Exception!");
 		#end
 		online.network.Auth.saveClose();
+		try {
+			GameClient.leaveRoom();
+		} catch (exc) {}
 		Sys.exit(1);
 	}
 

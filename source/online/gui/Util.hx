@@ -79,4 +79,62 @@ class Util {
 		}
 		return maxHeight;
 	}
+
+	static function wrapText(text:String, ?everyCharacters:Int = 45, ?stopAtLine:Int = 10) {
+		var output = '';
+		var i = -1;
+		var score = 0;
+		var lineScore = 0;
+		var char = '';
+
+		while (++i < text.length) {
+			if (char == '\n' && char == text.charAt(i)) {
+				//skip double newlines
+				continue;
+			}
+			char = text.charAt(i);
+			score++;
+
+			if (score >= everyCharacters) {
+				score = 0;
+				output += '[...]\n';
+				lineScore++;
+				if (lineScore >= stopAtLine) {
+					break;
+				}
+
+				while (++i < text.length) {
+					if (text.charAt(i) == ' ' || text.charAt(i) == '\n') {
+						break;
+					}
+				}
+				continue;
+			}
+			else if (score >= everyCharacters - 10 && char == ' ') {
+				score = 0;
+				output += '\n';
+				lineScore++;
+				if (lineScore >= stopAtLine) {
+					break;
+				}
+				continue;
+			}
+
+			if (char == '\n') {
+				score = 0;
+				lineScore++;
+				if (lineScore >= stopAtLine) {
+					break;
+				}
+			}
+
+			output += char;
+		}
+
+		if (lineScore >= stopAtLine) {
+			output += '\n...';
+		}
+
+		return output;
+	}
 }
