@@ -23,20 +23,12 @@ class PersonCameraController extends Sprite {
 	}
 
 	private function init(?_:Event):Void {
-		stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 
 		addEventListener(Event.REMOVED_FROM_STAGE, _ -> {
-			stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 		});
     }
-
-	var _keysJustPressed:Array<Int> = [];
-	function onKeyDown(e:KeyboardEvent) {
-		if (!_keysJustPressed.contains(e.keyCode))
-			_keysJustPressed.push(e.keyCode);
-	}
 
 	function onMouseMove(e:MouseEvent) {
 		if (!enabled)
