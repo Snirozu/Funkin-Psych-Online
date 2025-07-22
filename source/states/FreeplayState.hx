@@ -1134,7 +1134,7 @@ class FreeplayState extends MusicBeatState
 				}
 			}
 
-			if (controls.UI_UP_P) {
+			if (controls.UI_UP_P || FlxG.mouse.wheel > 0) {
 				if (selectedItem == 4 && selectedScore != 0) {
 					selectedScore--;
 				}
@@ -1152,7 +1152,7 @@ class FreeplayState extends MusicBeatState
 
 				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 			}
-			else if (controls.UI_DOWN_P) {
+			else if (controls.UI_DOWN_P || FlxG.mouse.wheel < 0) {
 				if (selectedItem == 4 && selectedScore != 14) {
 					selectedScore++;
 				}

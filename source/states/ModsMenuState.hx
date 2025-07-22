@@ -596,6 +596,11 @@ class ModsMenuState extends MusicBeatState
 			changeSelection(1);
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
+
+		if (FlxG.mouse.wheel != 0) {
+			changeSelection(-FlxG.mouse.wheel);
+		}
+
 		updatePosition(elapsed);
 		super.update(elapsed);
 	}

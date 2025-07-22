@@ -181,7 +181,6 @@ class DownloadBox extends FlxSpriteGroup {
 			name.color = FlxColor.LIME;
 		}
 		else if (url.startsWith('https://gamebanana.com/') 
-			|| url.startsWith('https://www.mediafire.com/file/')
 			|| (url.startsWith('https://github.com/') && FileUtils.isArchiveSupported(url))) {
 			name.color = FlxColor.YELLOW;
 		}
@@ -189,7 +188,8 @@ class DownloadBox extends FlxSpriteGroup {
 			|| url.startsWith('https://gamejolt.com/')
 			|| url.startsWith('https://mega.nz/')
 			|| url.startsWith('https://mega.io/')
-			|| url.startsWith('https://github.com/')) {
+			|| url.startsWith('https://github.com/')
+			|| url.startsWith('https://www.mediafire.com/file/')) {
 			name.color = FlxColor.RED;
 		}
 
