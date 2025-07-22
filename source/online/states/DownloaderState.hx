@@ -393,8 +393,6 @@ class DownloaderState extends MusicBeatState {
 		items.clear();
 		curSelected = 0;
 
-		trace("loading page " + page);
-
 		var i:Int = 0;
 		for (mod in mods) {
 			if (mod._sModelName != "Mod" || (mod._aGame != null && mod._aGame._idRow != 8694)) {

@@ -12,6 +12,7 @@ class OptionsState extends MusicBeatState
 	public static var menuBG:FlxSprite;
 	public static var onPlayState:Bool = false;
 	public static var onOnlineRoom:Bool = false;
+	public static var hadMouseVisible:Bool = false;
 	public static var loadedMod:String = '';
 
 	function openSelectedSubstate(label:String) {
@@ -35,6 +36,9 @@ class OptionsState extends MusicBeatState
 	var selectorRight:Alphabet;
 
 	override function create() {
+		hadMouseVisible = FlxG.mouse.visible;
+		FlxG.mouse.visible = true;
+
 		OptionsState.loadedMod = Mods.currentModDirectory;
 		
 		#if DISCORD_ALLOWED
@@ -75,6 +79,7 @@ class OptionsState extends MusicBeatState
 
 	override function closeSubState() {
 		super.closeSubState();
+		FlxG.mouse.visible = true;
 		ClientPrefs.saveSettings();
 	}
 
@@ -87,8 +92,21 @@ class OptionsState extends MusicBeatState
 		if (controls.UI_DOWN_P) {
 			changeSelection(1);
 		}
+		
+		if (FlxG.mouse.deltaScreenY != 0) {
+			for (i => spr in grpOptions) {
+				if (FlxG.mouse.overlaps(spr, spr.camera) && i - curSelected != 0) {
+					changeSelection(i - curSelected);
+				}
+			}
+		}
+
+		if (FlxG.mouse.wheel != 0) {
+			changeSelection(-FlxG.mouse.wheel);
+		}
 
 		if (controls.BACK) {
+			FlxG.mouse.visible = hadMouseVisible;
 			Mods.currentModDirectory = OptionsState.loadedMod;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			if(onPlayState)
@@ -102,7 +120,7 @@ class OptionsState extends MusicBeatState
 			}
 			else FlxG.switchState(() -> new MainMenuState());
 		}
-		else if (controls.ACCEPT) openSelectedSubstate(options[curSelected]);
+		else if (controls.ACCEPT || FlxG.mouse.justPressed) openSelectedSubstate(options[curSelected]);
 	}
 	
 	function changeSelection(change:Int = 0) {

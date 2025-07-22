@@ -113,13 +113,13 @@ class TopPlayerSubstate extends MusicBeatSubstate {
 				leaderboardTimer.cancel();
 			leaderboardTimer = new FlxTimer().start(0.5, t -> { generateLeaderboard(); });
         }
-		else if (controls.UI_UP_P) {
+		else if (controls.UI_UP_P || FlxG.mouse.wheel > 0) {
 			curSelected--;
 			if (curSelected < 0)
 				curSelected = 14;
 			topShit.selectRow(curSelected);
 		}
-		else if (controls.UI_DOWN_P) {
+		else if (controls.UI_DOWN_P || FlxG.mouse.wheel < 0) {
 			curSelected++;
 			if (curSelected > 14)
 				curSelected = 0;
@@ -129,7 +129,7 @@ class TopPlayerSubstate extends MusicBeatSubstate {
 			LoadingScreen.toggle(false);
             close();
         }
-        else if (controls.ACCEPT) {
+        else if (controls.ACCEPT || FlxG.mouse.justPressed) {
 			if (top[curSelected] != null)
 				online.gui.sidebar.tabs.ProfileTab.view(top[curSelected].player);
         }

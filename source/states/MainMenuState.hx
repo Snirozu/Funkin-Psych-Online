@@ -219,6 +219,19 @@ class MainMenuState extends MusicBeatState
 				changeItem(1);
 			}
 
+			if (FlxG.mouse.deltaScreenY != 0) {
+				menuItems.forEach(function(spr:FlxSprite) {
+					if (FlxG.mouse.overlaps(spr, spr.camera) && spr.ID - curSelected != 0) {
+						changeItem(spr.ID - curSelected);
+						FlxG.sound.play(Paths.sound('scrollMenu'));
+					}
+				});
+			}
+
+			if (FlxG.mouse.wheel != 0) {
+				changeItem(-FlxG.mouse.wheel);
+			}
+
 			if (controls.BACK)
 			{
 				selectedSomethin = true;
@@ -226,7 +239,7 @@ class MainMenuState extends MusicBeatState
 				FlxG.switchState(() -> new TitleState());
 			}
 
-			if (controls.ACCEPT)
+			if (controls.ACCEPT || FlxG.mouse.justPressed)
 			{
 				if (optionShit[curSelected] == 'donate')
 				{

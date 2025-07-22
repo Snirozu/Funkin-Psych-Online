@@ -9,12 +9,16 @@ class URLScraper {
     }
 
 	public static function downloadFromMediaFire(url:String, ?onSuccess:String->Void) {
+		Alert.alert("Download failed!", "MediaFire downloads are no longer supported.");
+
+		return;
+
 		Thread.run(() -> {
 			var response = new HTTPClient(url).request();
 
 			if (response.isFailed()) {
 				Waiter.putPersist(() -> {
-					Alert.alert("Download failed!", "Couldn't connect to MediaFire!\n" + 'Status: ${ShitUtil.prettyStatus(response.status)}');
+					Alert.alert("MediaFire Download failed!", "Couldn't connect to MediaFire!\n" + 'Status: ${ShitUtil.prettyStatus(response.status)}');
 				});
 				return;
 			}
@@ -25,7 +29,7 @@ class URLScraper {
 			Waiter.putPersist(() -> {
 				if (titles[0] == null) {
 					Waiter.putPersist(() -> {
-						Alert.alert("Download failed!", "Can't get the download link for this MediaFire file!");
+						Alert.alert("MediaFire Download failed!", "Can't get the download link for this MediaFire file!");
 					});
 					return;
 				}

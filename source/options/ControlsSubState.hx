@@ -35,7 +35,7 @@ class ControlsSubState extends MusicBeatSubstate
 		[true, 'Back', 'back', 'Back'],
 		[true, 'Pause', 'pause', 'Pause'],
 		[true, 'Sidebar', 'sidebar', 'Sidebar'],
-		[true, 'Favorite', 'fav', 'Favorite'],
+		[true, 'Favor', 'fav', 'Favor'],
 		[false],
 		[false, 'VOLUME'],
 		[false, 'Mute', 'volume_mute', 'Volume Mute'],
@@ -67,6 +67,8 @@ class ControlsSubState extends MusicBeatSubstate
 	{
 		super();
 
+		FlxG.mouse.visible = false;
+
 		options.push([true]);
 		options.push([true]);
 		options.push([true, defaultKey]);
@@ -78,7 +80,7 @@ class ControlsSubState extends MusicBeatSubstate
 		add(bg);
 
 		var grid:FlxBackdrop = new FlxBackdrop(FlxGridOverlay.createGrid(80, 80, 160, 160, true, 0x33FFFFFF, 0x0));
-		grid.velocity.set(40, 40);
+		grid.velocity.set(10, 10);
 		grid.alpha = 0;
 		FlxTween.tween(grid, {alpha: 1}, 0.5, {ease: FlxEase.quadOut});
 		add(grid);
@@ -287,7 +289,11 @@ class ControlsSubState extends MusicBeatSubstate
 			if(FlxG.keys.justPressed.UP || FlxG.gamepads.anyJustPressed(DPAD_UP) || FlxG.gamepads.anyJustPressed(LEFT_STICK_DIGITAL_UP)) updateText(-1);
 			else if(FlxG.keys.justPressed.DOWN || FlxG.gamepads.anyJustPressed(DPAD_DOWN) || FlxG.gamepads.anyJustPressed(LEFT_STICK_DIGITAL_DOWN)) updateText(1);
 
-			if(FlxG.keys.justPressed.ENTER || FlxG.gamepads.anyJustPressed(START) || FlxG.gamepads.anyJustPressed(A))
+			if (FlxG.mouse.wheel != 0) {
+				updateText(-FlxG.mouse.wheel);
+			}
+
+			if(FlxG.keys.justPressed.ENTER || FlxG.gamepads.anyJustPressed(START) || FlxG.gamepads.anyJustPressed(A) || FlxG.mouse.justPressed)
 			{
 				if(options[curOptions[curSelected]][1] != defaultKey)
 				{

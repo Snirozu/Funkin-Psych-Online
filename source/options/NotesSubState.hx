@@ -188,7 +188,6 @@ class NotesSubState extends MusicBeatSubstate
 			if (GameClient.isConnected()) {
 				GameClient.send('updateArrColors', [ClientPrefs.data.arrowRGB, ClientPrefs.data.arrowRGBPixel]);
 			}
-			FlxG.mouse.visible = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			isOpened = false;
 			close();

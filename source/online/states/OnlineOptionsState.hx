@@ -1,5 +1,7 @@
 package online.states;
 
+import flixel.input.keyboard.FlxKey;
+import backend.InputFormatter;
 import online.network.Auth;
 import lime.ui.FileDialog;
 import flixel.util.FlxSpriteUtil;
@@ -228,7 +230,7 @@ class OnlineOptionsState extends MusicBeatState {
 			sezOption.ID = i++;
 
 			var sidebarOption:InputOption;
-			items.add(sidebarOption = new InputOption("Open Sidebar", "Open the Network Sidebar, if you aren't able to.\n(Press ` (Tilde) to open it at any time!)"));
+			items.add(sidebarOption = new InputOption("Open Sidebar", "Open the Network Sidebar, if you aren't able to.\n(Press " + InputFormatter.getKeyName(cast(ClientPrefs.keyBinds.get('sidebar')[0], FlxKey)) + " to open it at any time!)"));
 			sidebarOption.y = sezOption.y + sezOption.height + 50;
 			sidebarOption.screenCenter(X);
 			sidebarOption.ID = i++;
