@@ -1,6 +1,7 @@
 package online.http;
 
 import htmlparser.HtmlDocument;
+import htmlparser.HtmlNodeElement;
 
 class URLScraper {
     public static function downloadFromGDrive(url:String, ?onSuccess:String->Void) {
@@ -9,10 +10,6 @@ class URLScraper {
     }
 
 	public static function downloadFromMediaFire(url:String, ?onSuccess:String->Void) {
-		Alert.alert("Download failed!", "MediaFire downloads are no longer supported.");
-
-		return;
-
 		Thread.run(() -> {
 			var response = new HTTPClient(url).request();
 
@@ -23,17 +20,36 @@ class URLScraper {
 				return;
 			}
 
-			var doc = new HtmlDocument(response.getString(), true);
-			var titles = doc.find("#downloadButton");
+			var doc:HtmlDocument = new HtmlDocument(response.getString(), true);
+
+			var scrambledURL:Null<String> = null;
+
+			var nodesToSearch:Array<HtmlNodeElement> = [doc];
+			while(nodesToSearch.length > 0)
+			{
+				var node:HtmlNodeElement = nodesToSearch.shift();
+				var id:String = node.getAttribute('id');
+				if(id != null && id == 'downloadButton')
+				{
+					scrambledURL = node.getAttribute('data-scrambled-url');
+					break;
+				}
+
+				for(child in node.children)
+					nodesToSearch.push(child);
+			}
+
+			if (scrambledURL == null) {
+				Waiter.putPersist(() -> {
+					Alert.alert("MediaFire Download failed!", "Can't get the download link for this MediaFire file!");
+				});
+				return;
+			}
+
+			var unscrambledURL:String = haxe.crypto.Base64.decode(scrambledURL).toString();
 
 			Waiter.putPersist(() -> {
-				if (titles[0] == null) {
-					Waiter.putPersist(() -> {
-						Alert.alert("MediaFire Download failed!", "Can't get the download link for this MediaFire file!");
-					});
-					return;
-				}
-				OnlineMods.startDownloadMod(url, titles[0].getAttribute("href"), null, onSuccess, [], url);
+				OnlineMods.startDownloadMod(url, unscrambledURL, null, onSuccess, [], url);
 			});
 		});
 	}
