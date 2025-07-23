@@ -23,20 +23,10 @@ class URLScraper {
 			var doc:HtmlDocument = new HtmlDocument(response.getString(), true);
 
 			var scrambledURL:Null<String> = null;
-
-			var nodesToSearch:Array<HtmlNodeElement> = [doc];
-			while(nodesToSearch.length > 0)
+			for(node in doc.find('#downloadButton'))
 			{
-				var node:HtmlNodeElement = nodesToSearch.shift();
-				var id:String = node.getAttribute('id');
-				if(id != null && id == 'downloadButton')
-				{
+				if(node.hasAttribute('data-scrambled-url'))
 					scrambledURL = node.getAttribute('data-scrambled-url');
-					break;
-				}
-
-				for(child in node.children)
-					nodesToSearch.push(child);
 			}
 
 			if (scrambledURL == null) {
