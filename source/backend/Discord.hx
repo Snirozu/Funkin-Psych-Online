@@ -1,60 +1,84 @@
 package backend;
 
+#if DISCORD_ALLOWED
+import Sys.sleep;
+import sys.thread.Thread;
+import lime.app.Application;
+
+import hxdiscord_rpc.Discord;
+import hxdiscord_rpc.Types;
+
+import flixel.util.FlxStringUtil;
+
 import online.states.RoomState;
 import online.backend.Waiter;
-import haxe.crypto.Md5;
 import online.GameClient;
-import Sys.sleep;
-import discord_rpc.DiscordRpc;
-import lime.app.Application;
 
 class DiscordClient
 {
 	public static var isInitialized:Bool = false;
-	private static var _defaultID:String = "1185697129717583982";
+	private inline static final _defaultID:String = "1185697129717583982";
 	public static var clientID(default, set):String = _defaultID;
+	private static var presence:DiscordPresence = new DiscordPresence();
+	// hides this field from scripts and reflection in general
+	@:unreflective private static var __thread:Thread;
 
-	private static var _options:DiscordPresenceOptions = {
-		details: "In the Menus",
-		state: null,
-		largeImageKey: 'icon',
-		largeImageText: "Psych Engine",
-		smallImageKey : null,
-		startTimestamp : null,
-		endTimestamp : null
-	};
-
-	public function new()
+	public static function check()
 	{
-		trace("Discord Client starting...");
-		DiscordRpc.start({
-			clientID: clientID,
-			onReady: onReady,
-			onError: onError,
-			onDisconnected: onDisconnected,
-			onRequest: onRequest,
-			onJoin: onJoin
+		if(ClientPrefs.data.discordRPC) initialize();
+		else if(isInitialized) shutdown();
+	}
+	
+	public static function prepare()
+	{
+		if (!isInitialized && ClientPrefs.data.discordRPC)
+			initialize();
+
+		Application.current.window.onClose.add(function() {
+			if(isInitialized) shutdown();
 		});
-		trace("Discord Client started.");
-
-		var localID:String = clientID;
-		while (localID == clientID)
-		{
-			DiscordRpc.process();
-			sleep(2);
-			//trace('Discord Client Update $localID');
-		}
-
-		//DiscordRpc.shutdown();
 	}
 
-	static function onRequest(req:Dynamic) {
-		DiscordRpc.respond(req.userId, !GameClient.room.state.isPrivate ? Reply.Yes : Reply.No);
+	public dynamic static function shutdown()
+	{
+		isInitialized = false;
+		Discord.Shutdown();
+	}
+	
+	private static function onReady(request:cpp.RawConstPointer<DiscordUser>):Void
+	{
+		final user = cast (request[0].username, String);
+		final discriminator = cast (request[0].discriminator, String);
+
+		var message = '(Discord) Connected to User ';
+		if (discriminator != '0') //Old discriminators
+			message += '($user#$discriminator)';
+		else //New Discord IDs/Discriminator system
+			message += '($user)';
+
+		trace(message);
+		changePresence();
 	}
 
-	static function onJoin(secret:String) {
+	private static function onError(errorCode:Int, message:cpp.ConstCharStar):Void
+	{
+		trace('Discord: Error ($errorCode: ${cast(message, String)})');
+	}
+
+	private static function onDisconnected(errorCode:Int, message:cpp.ConstCharStar):Void
+	{
+		trace('Discord: Disconnected ($errorCode: ${cast(message, String)})');
+	}
+
+	private static function onRequest(user:cpp.RawConstPointer<DiscordUser>):Void
+	{
+		Discord.Respond(cast (user[0].userId, String), !GameClient.room.state.isPrivate ? DiscordActivityJoinRequestReply_Yes : DiscordActivityJoinRequestReply_No);
+	}
+
+	private static function onJoin(secret:cpp.ConstCharStar):Void
+	{
 		Waiter.putPersist(() -> {
-			GameClient.joinRoom(secret, (err) -> {
+			GameClient.joinRoom(cast(secret, String), (err) -> {
 				if (err != null) {
 					return;
 				}
@@ -66,34 +90,99 @@ class DiscordClient
 		});
 	}
 
-	public static function check()
+	public static function initialize()
 	{
-		if(!ClientPrefs.data.discordRPC)
+		var discordHandlers:DiscordEventHandlers = new DiscordEventHandlers();
+		discordHandlers.ready = cpp.Function.fromStaticFunction(onReady);
+		discordHandlers.disconnected = cpp.Function.fromStaticFunction(onDisconnected);
+		discordHandlers.errored = cpp.Function.fromStaticFunction(onError);
+		discordHandlers.joinGame = cpp.Function.fromStaticFunction(onJoin);
+		discordHandlers.joinRequest = cpp.Function.fromStaticFunction(onRequest);
+		Discord.Initialize(clientID, cpp.RawPointer.addressOf(discordHandlers), true, null);
+
+		if(!isInitialized) trace("Discord Client initialized");
+
+		if (__thread == null)
 		{
-			if(isInitialized) shutdown();
-			isInitialized = false;
-		}
-		else start();
-	}
-	
-	public static function start()
-	{
-		if (!isInitialized && ClientPrefs.data.discordRPC) {
-			initialize();
-			Application.current.window.onClose.add(function() {
-				shutdown();
+			__thread = Thread.create(() ->
+			{
+				while (true)
+				{
+					if (isInitialized)
+					{
+						#if DISCORD_DISABLE_IO_THREAD
+						Discord.UpdateConnection();
+						#end
+						Discord.RunCallbacks();
+					}
+
+					// Wait 1 second until the next loop...
+					Sys.sleep(1.0);
+				}
 			});
 		}
+		isInitialized = true;
 	}
 
-	public static function shutdown()
+	static var state:String = null;
+
+	public static function changePresence(details:String = 'In the Menus', ?state:String, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float, largeImageKey:String = 'icon')
 	{
-		DiscordRpc.shutdown();
+		var startTimestamp:Float = 0;
+		if (hasStartTimestamp) startTimestamp = Date.now().getTime();
+		if (endTimestamp > 0) endTimestamp = startTimestamp + endTimestamp;
+
+		presence.state = DiscordClient.state = state;
+		presence.details = details;
+		presence.smallImageKey = smallImageKey;
+		presence.largeImageKey = largeImageKey;
+		presence.largeImageText = "Engine Version: " + states.MainMenuState.psychEngineVersion;
+		// Obtained times are in milliseconds so they are divided so Discord can use it
+		presence.startTimestamp = Std.int(startTimestamp / 1000);
+		presence.endTimestamp = Std.int(endTimestamp / 1000);
+		updateOnlinePresence();
+
+		//trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp, $largeImageKey');
+	}
+
+	public static function updateOnlinePresence():Void
+	{
+		if (GameClient.isConnected())
+		{
+			if (!GameClient.room.state.isPrivate)
+			{
+				presence.partyId = GameClient.rpcClientRoomID;
+				presence.joinSecret = GameClient.getRoomSecret(true);
+				presence.state = "In a Public Room";
+			}
+			else
+			{
+				presence.partyId = null;
+				presence.joinSecret = null;
+				presence.state = "In a Private Room";
+			}
+			presence.partySize = GameClient.getPlayerCount();
+			presence.partyMax = 2;
+		}
+		else
+		{
+			presence.partyId = null;
+			presence.joinSecret = null;
+			presence.partySize = 0;
+			presence.partyMax = 0;
+			presence.state = state;
+		}
+		updatePresence();
+	}
+
+	public static function updatePresence()
+	{
+		Discord.UpdatePresence(cpp.RawConstPointer.addressOf(presence.__presence));
 	}
 	
-	static function onReady()
+	inline public static function resetClientID()
 	{
-		DiscordRpc.presence(_options);
+		clientID = _defaultID;
 	}
 
 	private static function set_clientID(newID:String)
@@ -104,83 +193,11 @@ class DiscordClient
 		if(change && isInitialized)
 		{
 			shutdown();
-			isInitialized = false;
-			start();
-			DiscordRpc.process();
+			initialize();
+			updatePresence();
 		}
 		return newID;
 	}
-
-	static function onError(_code:Int, _message:String)
-	{
-		trace('Error! $_code : $_message');
-	}
-
-	static function onDisconnected(_code:Int, _message:String)
-	{
-		trace('Disconnected! $_code : $_message');
-	}
-
-	public static function initialize()
-	{
-		
-		online.backend.Thread.run(() -> {
-			new DiscordClient();
-		});
-		trace("Discord Client initialized");
-		isInitialized = true;
-	}
-
-
-	static var state:String = null;
-
-	public static function changePresence(details:String, state:Null<String>, ?smallImageKey : String, ?hasStartTimestamp : Bool, ?endTimestamp: Float)
-	{
-		var startTimestamp:Float = 0;
-		if (hasStartTimestamp) startTimestamp = Date.now().getTime();
-		if (endTimestamp > 0) endTimestamp = startTimestamp + endTimestamp;
-
-		_options.details = details;
-		_options.state = DiscordClient.state = state;
-		_options.largeImageKey = 'icon';
-		_options.largeImageText = "Engine Version: " + states.MainMenuState.psychEngineVersion + "*";
-		_options.smallImageKey = smallImageKey;
-		// Obtained times are in milliseconds so they are divided so Discord can use it
-		_options.startTimestamp = Std.int(startTimestamp / 1000);
-		_options.endTimestamp = Std.int(endTimestamp / 1000);
-		updateOnlinePresence();
-		//DiscordRpc.presence(_options);
-
-		//trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp');
-	}
-
-	public static function updateOnlinePresence() {
-		if (GameClient.isConnected()) {
-			if (!(GameClient.room?.state?.isPrivate ?? true)) {
-				_options.partyID = GameClient.rpcClientRoomID;
-				_options.joinSecret = GameClient.getRoomSecret(true);
-				_options.state = "In a Public Room";
-			}
-			else {
-				_options.partyID = null;
-				_options.joinSecret = null;
-				_options.state = "In a Private Room";
-			}
-			_options.partySize = GameClient.getPlayerCount();
-			_options.partyMax = 2;
-		}
-		else {
-			_options.partyID = null;
-			_options.joinSecret = null;
-			_options.partySize = 0;
-			_options.partyMax = 0;
-			_options.state = state;
-		}
-		DiscordRpc.presence(_options);
-	}
-	
-	public static function resetClientID()
-		clientID = _defaultID;
 
 	#if MODS_ALLOWED
 	public static function loadModRPC()
@@ -195,15 +212,162 @@ class DiscordClient
 	#end
 
 	#if LUA_ALLOWED
-	public static function addLuaCallbacks(lua:State) {
-		Lua_helper.add_callback(lua, "changeDiscordPresence", function(details:String, state:Null<String>, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float) {
-			changePresence(details, state, smallImageKey, hasStartTimestamp, endTimestamp);
-		});
-
-		Lua_helper.add_callback(lua, "changeDiscordClientID", function(?newID:String = null) {
+	public static function addLuaCallbacks(lua:State)
+	{
+		Lua_helper.add_callback(lua, "changeDiscordPresence", changePresence);
+		Lua_helper.add_callback(lua, "changeDiscordClientID", function(?newID:String) {
 			if(newID == null) newID = _defaultID;
 			clientID = newID;
 		});
 	}
 	#end
 }
+
+@:allow(backend.DiscordClient)
+private final class DiscordPresence
+{
+	public var state(get, set):String;
+	public var details(get, set):String;
+	public var smallImageKey(get, set):String;
+	public var largeImageKey(get, set):String;
+	public var largeImageText(get, set):String;
+	public var startTimestamp(get, set):Int;
+	public var endTimestamp(get, set):Int;
+
+	public var partyId(get, set):String;
+	public var joinSecret(get, set):String;
+	public var partySize(get, set):Int;
+	public var partyMax(get, set):Int;
+
+	@:noCompletion private var __presence:DiscordRichPresence;
+
+	function new()
+	{
+		__presence = new DiscordRichPresence();
+	}
+
+	public function toString():String
+	{
+		return FlxStringUtil.getDebugString([
+			LabelValuePair.weak("state", state),
+			LabelValuePair.weak("details", details),
+			LabelValuePair.weak("smallImageKey", smallImageKey),
+			LabelValuePair.weak("largeImageKey", largeImageKey),
+			LabelValuePair.weak("largeImageText", largeImageText),
+			LabelValuePair.weak("startTimestamp", startTimestamp),
+			LabelValuePair.weak("endTimestamp", endTimestamp)
+		]);
+	}
+
+	@:noCompletion inline function get_state():String
+	{
+		return __presence.state;
+	}
+
+	@:noCompletion inline function set_state(value:String):String
+	{
+		return __presence.state = value;
+	}
+
+	@:noCompletion inline function get_details():String
+	{
+		return __presence.details;
+	}
+
+	@:noCompletion inline function set_details(value:String):String
+	{
+		return __presence.details = value;
+	}
+
+	@:noCompletion inline function get_smallImageKey():String
+	{
+		return __presence.smallImageKey;
+	}
+
+	@:noCompletion inline function set_smallImageKey(value:String):String
+	{
+		return __presence.smallImageKey = value;
+	}
+
+	@:noCompletion inline function get_largeImageKey():String
+	{
+		return __presence.largeImageKey;
+	}
+	
+	@:noCompletion inline function set_largeImageKey(value:String):String
+	{
+		return __presence.largeImageKey = value;
+	}
+
+	@:noCompletion inline function get_largeImageText():String
+	{
+		return __presence.largeImageText;
+	}
+
+	@:noCompletion inline function set_largeImageText(value:String):String
+	{
+		return __presence.largeImageText = value;
+	}
+
+	@:noCompletion inline function get_startTimestamp():Int
+	{
+		return __presence.startTimestamp;
+	}
+
+	@:noCompletion inline function set_startTimestamp(value:Int):Int
+	{
+		return __presence.startTimestamp = value;
+	}
+
+	@:noCompletion inline function get_endTimestamp():Int
+	{
+		return __presence.endTimestamp;
+	}
+
+	@:noCompletion inline function set_endTimestamp(value:Int):Int
+	{
+		return __presence.endTimestamp = value;
+	}
+
+
+	@:noCompletion inline function get_partyId():String
+	{
+		return cast __presence.partyId;
+	}
+
+	@:noCompletion inline function set_partyId(value:String):String
+	{
+		return __presence.partyId = value;
+	}
+
+	@:noCompletion inline function get_joinSecret():String
+	{
+		return cast __presence.joinSecret;
+	}
+
+	@:noCompletion inline function set_joinSecret(value:String):String
+	{
+		return __presence.joinSecret = value;
+	}
+
+	@:noCompletion inline function get_partySize():Int
+	{
+		return cast __presence.partySize;
+	}
+
+	@:noCompletion inline function set_partySize(value:Int):Int
+	{
+		return __presence.partySize = value;
+	}
+
+	@:noCompletion inline function get_partyMax():Int
+	{
+		return cast __presence.partySize;
+	}
+
+	@:noCompletion inline function set_partyMax(value:Int):Int
+	{
+		return __presence.partyMax = value;
+	}
+}
+#end
