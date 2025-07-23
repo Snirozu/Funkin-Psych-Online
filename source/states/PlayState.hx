@@ -497,8 +497,7 @@ class PlayState extends MusicBeatState
 
 	var noteUnderlays:FlxTypedGroup<FlxSprite>;
 
-	var noDad = false;
-	var noBf = false;
+	public var playOtherSide:Bool = false;
 
 	var nameplates:FlxTypedGroup<FlxText> = new FlxTypedGroup<FlxText>();
 
@@ -982,22 +981,16 @@ class PlayState extends MusicBeatState
 					nameplate.visible = ClientPrefs.data.nameplateFadeTime != 0;
 					nameplates.add(nameplate);
 				}
+
+				playOtherSide = (dad == null || boyfriend == null);
 			}
 
 			if (dad == null) {
 				initPlayCharacter(false);
-				if (GameClient.isConnected()) {
-					dad.visible = false;
-					noDad = true;
-				}
 			}
 
 			if (boyfriend == null) {
 				initPlayCharacter(true);
-				if (GameClient.isConnected()) {
-					boyfriend.visible = false;
-					noBf = true;
-				}
 			}
 
 			function sortByOX(a:FlxSprite, b:FlxSprite) {
@@ -2277,12 +2270,6 @@ class PlayState extends MusicBeatState
 				var oppVocals = Paths.voices(curSong, dad.vocalsFile, songSuffix);
 				if (oppVocals == null) oppVocals = Paths.voices(curSong, 'Opponent', songSuffix);
 				if(oppVocals != null) opponentVocals.loadEmbedded(oppVocals);
-
-				if (noBf && playerVocals != null)
-					vocals.volume = 0;
-
-				if (noDad && oppVocals != null)
-					opponentVocals.volume = 0;
 			}
 			catch (exc:Dynamic) {
 				//vocals.loadEmbedded(Paths.voices(curSong, null, songSuffix));
@@ -2783,6 +2770,9 @@ class PlayState extends MusicBeatState
 			updateScore();
 		}
 
+		if(FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.P)
+			playOtherSide = !playOtherSide;
+
 		if (FlxG.keys.justPressed.F2) {
 			ClientPrefs.data.disableSubmiting = !ClientPrefs.data.disableSubmiting;
 			ClientPrefs.saveSettings();
@@ -3086,7 +3076,7 @@ class PlayState extends MusicBeatState
 								if(cpuControlled && !daNote.blockHit && daNote.canBeHit && (daNote.isSustainNote || daNote.strumTime <= Conductor.songPosition))
 									goodNoteHit(daNote);
 							}
-							else if (daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote && !GameClient.isConnected())
+							else if (daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote && (!GameClient.isConnected() || playOtherSide))
 								opponentNoteHit(daNote);
 
 							if(daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumNote(strum);
@@ -4950,7 +4940,7 @@ class PlayState extends MusicBeatState
 	}
 
 	function countOpponents() {
-		if (!GameClient.isConnected())
+		if (!GameClient.isConnected() || playOtherSide)
 			return 1;
 
 		var count = 0;
