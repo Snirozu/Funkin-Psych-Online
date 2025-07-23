@@ -147,8 +147,8 @@ class Note extends FlxSprite
 
 	public function defaultRGB()
 	{
-		var arr:Array<FlxColor> = ClientPrefs.getRGBColor()[noteData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor()[noteData];
+		var arr:Array<FlxColor> = ClientPrefs.getRGBColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData];
+		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData];
 
 		if (noteData > -1 && noteData <= arr.length)
 		{
@@ -226,7 +226,7 @@ class Note extends FlxSprite
 
 		if(noteData > -1) {
 			texture = '';
-			rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData));
+			rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData, mustPress));
 			if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
 
 			x += swagWidth * (noteData);
@@ -291,14 +291,14 @@ class Note extends FlxSprite
 		x += offsetX;
 	}
 
-	public static function initializeGlobalRGBShader(noteData:Int)
+	public static function initializeGlobalRGBShader(noteData:Int, mustPress:Bool)
 	{
 		if(globalRgbShaders[noteData] == null)
 		{
 			var newRGB:RGBPalette = new RGBPalette();
 			globalRgbShaders[noteData] = newRGB;
 
-			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.getRGBColor()[noteData] : ClientPrefs.getRGBPixelColor()[noteData];
+			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.getRGBColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData] : ClientPrefs.getRGBPixelColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData];
 			if (noteData > -1 && noteData <= arr.length)
 			{
 				newRGB.r = arr[0];
@@ -322,7 +322,16 @@ class Note extends FlxSprite
 			skin = PlayState.SONG != null ? PlayState.SONG.arrowSkin : null;
 			if(skin == null || skin.length < 1) {
 				skin = defaultNoteSkin + postfix;
+
+				lastTexture = defaultNoteSkin;
+				lastPostfix = postfix;
+			} else {
+				lastTexture = '';
+				lastPostfix = '';
 			}
+		} else {
+			lastTexture = texture;
+			lastPostfix = postfix;
 		}
 
 		var animName:String = null;
@@ -332,7 +341,7 @@ class Note extends FlxSprite
 
 		var skinPixel:String = skin;
 		var lastScaleY:Float = scale.y;
-		var skinPostfix:String = getNoteSkinPostfix();
+		var skinPostfix:String = getNoteSkinPostfix(mustPress);
 		var customSkin:String = skin + skinPostfix;
 		var path:String = PlayState.isPixelStage ? 'pixelUI/' : '';
 		if(customSkin == _lastValidChecked || Paths.fileExists('images/' + path + customSkin + '.png', IMAGE))
@@ -379,10 +388,10 @@ class Note extends FlxSprite
 			animation.play(animName, true);
 	}
 
-	public static function getNoteSkinPostfix()
+	public static function getNoteSkinPostfix(?mustPress:Bool = true)
 	{
 		var skin:String = '';
-		var noteSkin:String = NoteSkinData.getCurrent().skin;
+		var noteSkin:String = NoteSkinData.getCurrent(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1).skin;
 		if(noteSkin != ClientPrefs.defaultData.noteSkin)
 			skin = '-' + noteSkin.trim().toLowerCase().replace(' ', '_');
 		return skin;

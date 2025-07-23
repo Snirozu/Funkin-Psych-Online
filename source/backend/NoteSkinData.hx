@@ -49,9 +49,14 @@ class NoteSkinData {
 		noteSkinArray.insert(0, ClientPrefs.defaultData.noteSkin);
 	}
 
-	public static function getCurrent(?sid:Null<String> = null):NoteSkinStructure
+	public static function getCurrent(?player:Int = 0):NoteSkinStructure
 	{
-		var toReturn:NoteSkinStructure = NoteSkinData.noteSkins[NoteSkinData.noteSkinArray.indexOf(ClientPrefs.getNoteSkin(sid))];
+		var toReturn:NoteSkinStructure = null;
+		
+		if(player == -1)
+			toReturn = NoteSkinData.noteSkins[NoteSkinData.noteSkinArray.indexOf(ClientPrefs.data.noteSkin)];
+		else
+			toReturn = NoteSkinData.noteSkins[NoteSkinData.noteSkinArray.indexOf(ClientPrefs.getNoteSkin(player))];
 
 		if(toReturn == null)
 			toReturn = NoteSkinData.noteSkins[0];
