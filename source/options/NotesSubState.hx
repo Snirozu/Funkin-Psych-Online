@@ -640,7 +640,7 @@ class NotesSubState extends MusicBeatSubstate
 		Note.globalRgbShaders = [];
 		for (i in 0...dataArray.length)
 		{
-			Note.initializeGlobalRGBShader(i, true);
+			Note.initializeGlobalRGBShader(i);
 			var newNote:StrumNote = new StrumNote(150 + (480 / dataArray.length * i), 200, i, 0);
 			newNote.useRGBShader = true;
 			newNote.setGraphicSize(102);
