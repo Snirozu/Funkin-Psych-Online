@@ -434,7 +434,7 @@ class Note extends FlxSprite
 		{
 			canBeHit = false;
 
-			if (!GameClient.isConnected()) {
+			if (!GameClient.isConnected() || (PlayState.instance?.playOtherSide ?? false)) {
 				if (strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * earlyHitMult))
 				{
 					if((isSustainNote && prevNote.wasGoodHit) || strumTime <= Conductor.songPosition)
