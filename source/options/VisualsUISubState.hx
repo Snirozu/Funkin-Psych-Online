@@ -338,7 +338,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		if(changedMusic && !OptionsState.onPlayState) states.TitleState.playFreakyMusic();
 		isOpened = false;
 		if (GameClient.isConnected()) {
-			var data:NoteSkinStructure = NoteSkinData.getCurrent();
+			var data:NoteSkinStructure = NoteSkinData.getCurrent(-1);
 			GameClient.send('updateNoteSkinData', [data.skin, data.folder, data.url]);
 		}
 		Mods.currentModDirectory = '';

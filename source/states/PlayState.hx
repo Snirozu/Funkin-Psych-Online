@@ -10,7 +10,6 @@ package states;
 // "function eventEarlyTrigger" - Used for making your event start a few MILLISECONDS earlier
 // "function triggerEvent" - Called when the song hits your event's timestamp, this is probably what you were looking for
 
-import backend.NoteSkinData;
 import haxe.ds.HashMap;
 import online.away.AwayStage3D;
 import online.substates.PostTextSubstate;
@@ -2376,25 +2375,6 @@ class PlayState extends MusicBeatState
 					continue;
 				}
 
-				if(GameClient.isConnected() && swagNote.rgbShader.parent == Note.globalRgbShaders[daNoteData] && !isPlayerNote(swagNote))
-				{
-					for (sid => otherPlayer in GameClient.room.state.players) {
-						if(GameClient.getPlayerSelf().ox == otherPlayer.ox && GameClient.getPlayerSelf().bfSide != otherPlayer.bfSide) {
-							var colors:Array<FlxColor> = (isPixelStage ? ClientPrefs.getRGBPixelColor(sid) : ClientPrefs.getRGBColor(sid))[daNoteData];
-							swagNote.rgbShader.r = colors[0];
-							swagNote.rgbShader.g = colors[1];
-							swagNote.rgbShader.b = colors[2];
-
-							var skin:String = '';
-							var noteSkin:String = NoteSkinData.getCurrent(sid).skin;
-							if(noteSkin != ClientPrefs.defaultData.noteSkin)
-								skin = '-' + noteSkin.trim().toLowerCase().replace(' ', '_');
-							swagNote.reloadNote(swagNote.texture, skin);
-							break;
-						}
-					}
-				}
-
 				swagNote.scrollFactor.set();
 
 				var susLength:Float = swagNote.sustainLength;
@@ -2605,25 +2585,6 @@ class PlayState extends MusicBeatState
 					babyArrow.x += FlxG.width / 2 + 25;
 				}
 			}
-
-			for (sid => otherPlayer in GameClient.room.state.players) {
-				if(GameClient.getPlayerSelf().ox == otherPlayer.ox && GameClient.getPlayerSelf().bfSide != otherPlayer.bfSide) {
-					var colors:Array<FlxColor> = (isPixelStage ? ClientPrefs.getRGBPixelColor(sid) : ClientPrefs.getRGBColor(sid))[i];
-					babyArrow.rgbShader.r = colors[0];
-					babyArrow.rgbShader.g = colors[1];
-					babyArrow.rgbShader.b = colors[2];
-
-					var skin:String = '';
-					if(SONG != null && SONG.arrowSkin != null && SONG.arrowSkin.length > 1) skin = SONG.arrowSkin;
-					else skin = Note.defaultNoteSkin;
-
-					var noteSkin:String = NoteSkinData.getCurrent(sid).skin;
-					if(noteSkin != ClientPrefs.defaultData.noteSkin)
-						skin += '-' + noteSkin.trim().toLowerCase().replace(' ', '_');
-						babyArrow.texture = skin;
-						break;
-					}
-				}
 
 			strumGroup.add(babyArrow);
 			if (ClientPrefs.data.noteUnderlayOpacity > 0 && strumGroup == getPlayerStrums()) {

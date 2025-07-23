@@ -235,7 +235,7 @@ class GameClient {
 			options.set("skinURL", OnlineMods.getModURL(ClientPrefs.data.modSkin[0]));
 		}
 
-		var data:NoteSkinStructure = NoteSkinData.getCurrent();
+		var data:NoteSkinStructure = NoteSkinData.getCurrent(-1);
 		options.set('noteSkin', data.skin);
 		options.set('noteSkinMod', data.folder);
 		options.set('noteSkinURL', data.url);

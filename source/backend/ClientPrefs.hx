@@ -361,58 +361,60 @@ class ClientPrefs {
 		return PlayState.replayData?.safe_frames ?? data.safeFrames;
 	}
 
-	public static function getRGBColor(sid:Null<String> = null):Array<Array<FlxColor>> {
+	public static function getRGBColor(player:Int = 0):Array<Array<FlxColor>> {
 		if (!GameClient.isConnected() || NotesSubState.isOpened)
 			return data.arrowRGB;
 
-		var player:online.backend.schema.Player = null;
+		if (player == 0)
+			return [ 
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor0),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor1),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor2),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor3),
+			];
 
-		if (sid == null)
-			player = GameClient.getPlayerSelf();
-		else
-			player = GameClient.room.state.players.get(sid);
-
-		if(player == null)
+		if (PlayState.instance?.opponentPlayer == null)
 			return defaultData.arrowRGB;
-
+		
 		return [
-			CoolUtil.asta(player.arrowColor0),
-			CoolUtil.asta(player.arrowColor1),
-			CoolUtil.asta(player.arrowColor2),
-			CoolUtil.asta(player.arrowColor3),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor0),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor1),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor2),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor3),
 		];
 	}
 
-	public static function getRGBPixelColor(sid:Null<String> = null):Array<Array<FlxColor>> {
+	public static function getRGBPixelColor(player:Int = 0):Array<Array<FlxColor>> {
 		if (!GameClient.isConnected() || NotesSubState.isOpened)
 			return data.arrowRGBPixel;
 
-		var player:online.backend.schema.Player = null;
+		if (player == 0)
+			return [
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP0),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP1),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP2),
+				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP3),
+			];
 
-		if (sid == null)
-			player = GameClient.getPlayerSelf();
-		else
-			player = GameClient.room.state.players.get(sid);
-
-		if(player == null)
+		if (PlayState.instance?.opponentPlayer == null)
 			return defaultData.arrowRGBPixel;
 
 		return [
-			CoolUtil.asta(player.arrowColorP0),
-			CoolUtil.asta(player.arrowColorP1),
-			CoolUtil.asta(player.arrowColorP2),
-			CoolUtil.asta(player.arrowColorP3),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP0),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP1),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP2),
+			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP3),
 		];
 	}
 
-	public static function getNoteSkin(sid:Null<String> = null):String
+	public static function getNoteSkin(player:Int = 0):String
 	{
 		if(!GameClient.isConnected() || NotesSubState.isOpened || VisualsUISubState.isOpened)
 			return data.noteSkin;
 
-		if(sid == null)
-			return data.noteSkin;
+		if(player == 0)
+			return GameClient.getPlayerSelf().noteSkin;
 		else
-			return GameClient.room.state.players.get(sid)?.noteSkin ?? defaultData.noteSkin;
+			return PlayState.instance?.opponentPlayer?.noteSkin ?? defaultData.noteSkin;
 	}
 }
