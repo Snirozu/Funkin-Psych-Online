@@ -178,7 +178,7 @@ class Main extends Sprite
 		untyped __global__.__hxcpp_set_critical_error_handler(onCrash);
 
 		#if DISCORD_ALLOWED
-		DiscordClient.start();
+		DiscordClient.initialize();
 		#end
 
 		// shader coords fix
