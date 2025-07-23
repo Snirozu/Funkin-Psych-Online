@@ -389,6 +389,9 @@ class ResultsState extends MusicBeatState {
 
 				if (winnerBfSide == characters.get(GameClient.room.sessionId).player.bfSide) {
 					rank = charData.GOOD;
+					if (winnerSID == GameClient.room.sessionId) {
+						rank = charData.EXCELLENT;
+					}
 				}
 				else {
 					rank = charData.SHIT;
