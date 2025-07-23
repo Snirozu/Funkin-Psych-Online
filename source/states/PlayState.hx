@@ -4208,20 +4208,12 @@ class PlayState extends MusicBeatState
 		return v;
 	}
 
-	function getComboOffset(isOP:Bool = false) {
+	function getComboOffset(bfSide:Bool) {
 		if (!GameClient.isConnected()) {
-			if (!isOP)
-				return ClientPrefs.data.comboOffset;
-			else
-				return ClientPrefs.data.comboOffsetOP2;
+			return ClientPrefs.data.comboOffset;
 		}
 
-		var asBF = playsAsBF();
-		if (isOP) {
-			asBF = !asBF;
-		}
-
-		if (!asBF)
+		if (!bfSide)
 			return ClientPrefs.data.comboOffsetOP1;
 		else
 			return ClientPrefs.data.comboOffsetOP2;
@@ -4274,8 +4266,8 @@ class PlayState extends MusicBeatState
 			rating.velocity.x = -(FlxG.random.int(0, 10) * playbackRate);
 			rating.alpha = 1.0;
 			rating.visible = (!ClientPrefs.data.hideHud && showRating);
-			rating.x += getComboOffset(true)[0];
-			rating.y -= getComboOffset(true)[1];
+			rating.x += getComboOffset(playerStats?.player?.bfSide ?? false)[0];
+			rating.y -= getComboOffset(playerStats?.player?.bfSide ?? false)[1];
 			rating.antialiasing = antialias;
 
 			if (!ClientPrefs.data.comboStacking) {
@@ -4361,8 +4353,8 @@ class PlayState extends MusicBeatState
 					numScore.loadGraphic(Paths.image(uiPrefix + 'num' + Std.int(i) + uiSuffix));
 					numScore.cameras = [camHUD];
 					numScore.screenCenter();
-					numScore.x = placement[0] + (43 * daLoop) - 90 + getComboOffset(true)[2];
-					numScore.y += placement[1] + 80 - getComboOffset(true)[3];
+					numScore.x = placement[0] + (43 * daLoop) - 90 + getComboOffset(playerStats?.player?.bfSide ?? false)[2];
+					numScore.y += placement[1] + 80 - getComboOffset(playerStats?.player?.bfSide ?? false)[3];
 
 					if (!ClientPrefs.data.comboStacking) {
 						var lastOPScore = lastOtherScore.get(forSID) ?? [];
@@ -4476,8 +4468,8 @@ class PlayState extends MusicBeatState
 			rating.velocity.x = -(FlxG.random.int(0, 10) * playbackRate);
 			rating.alpha = 1.0;
 			rating.visible = (!ClientPrefs.data.hideHud && showRating);
-			rating.x += getComboOffset()[0];
-			rating.y -= getComboOffset()[1];
+			rating.x += getComboOffset(playsAsBF())[0];
+			rating.y -= getComboOffset(playsAsBF())[1];
 			rating.antialiasing = antialias;
 
 			comboGroup.remove(rating, true);
@@ -4523,8 +4515,8 @@ class PlayState extends MusicBeatState
 			comboSpr.velocity.y = -(FlxG.random.int(140, 160) * playbackRate);
 			comboSpr.alpha = 1.0;
 			comboSpr.visible = !ClientPrefs.data.hideHud;
-			comboSpr.x += getComboOffset()[0];
-			comboSpr.y -= getComboOffset()[1];
+			comboSpr.x += getComboOffset(playsAsBF())[0];
+			comboSpr.y -= getComboOffset(playsAsBF())[1];
 			comboSpr.antialiasing = antialias;
 			comboSpr.y += 60 + placement[1];
 			comboSpr.velocity.x = FlxG.random.int(1, 10) * playbackRate;
@@ -4594,8 +4586,8 @@ class PlayState extends MusicBeatState
 			}
 
 			noteTimingRating.screenCenter();
-			noteTimingRating.x = placement[0] + getComboOffset()[0] + 100;
-			noteTimingRating.y += placement[1] + -getComboOffset()[1] + 60 + (comboSpr?.height ?? 0);
+			noteTimingRating.x = placement[0] + getComboOffset(playsAsBF())[0] + 100;
+			noteTimingRating.y += placement[1] + -getComboOffset(playsAsBF())[1] + 60 + (comboSpr?.height ?? 0);
 			noteTimingRating.acceleration.y = 600;
 			noteTimingRating.velocity.y -= 150;
 			noteTimingRating.velocity.x += comboSpr?.velocity?.x ?? (FlxG.random.int(1, 10) * playbackRate);
@@ -4648,8 +4640,8 @@ class PlayState extends MusicBeatState
 					numScore.loadGraphic(Paths.image(uiPrefix + 'num' + Std.int(i) + uiSuffix));
 					numScore.cameras = [camHUD];
 					numScore.screenCenter();
-					numScore.x = placement[0] + (43 * daLoop) - 90 + getComboOffset()[2];
-					numScore.y += placement[1] + 80 - getComboOffset()[3];
+					numScore.x = placement[0] + (43 * daLoop) - 90 + getComboOffset(playsAsBF())[2];
+					numScore.y += placement[1] + 80 - getComboOffset(playsAsBF())[3];
 					
 					if (!ClientPrefs.data.comboStacking)
 						lastScore.push(numScore);
