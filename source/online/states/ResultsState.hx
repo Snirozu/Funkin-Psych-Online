@@ -19,6 +19,10 @@ class ResultsState extends MusicBeatState {
 	var tie:FlxSprite;
 	var back:FlxSprite;
 
+	var selfCharName = 'bf';
+	var selfCharMod = null;
+	var rank:Dynamic = null;
+
 	var characters:Map<String, LobbyCharacter> = new Map();
 	var charactersLayer:FlxTypedGroup<LobbyCharacter> = new FlxTypedGroup<LobbyCharacter>();
 	var winnerSID:String = null;
@@ -30,8 +34,10 @@ class ResultsState extends MusicBeatState {
 	var dim:FlxSprite;
 	var spotlight:FlxSprite;
 
-	var camBG:FlxCamera = new FlxCamera();
+	var camScrollOrigin:Array<Float> = [120, 130];
+
 	var cam:FlxCamera = new FlxCamera();
+	var camZoomedHUD:FlxCamera = new FlxCamera();
 	var camHUD:FlxCamera = new FlxCamera();
 
 	//required for lumod
@@ -40,14 +46,17 @@ class ResultsState extends MusicBeatState {
 	}
 
     override function create() {
-        super.create();
-
-		FlxG.cameras.reset(camBG);
-		FlxG.cameras.add(cam, false);
+		FlxG.cameras.reset(cam);
+		FlxG.cameras.add(camZoomedHUD, false);
 		FlxG.cameras.add(camHUD, false);
 		FlxG.cameras.setDefaultDrawTarget(cam, true);
 		cam.bgColor.alpha = 0;
 		camHUD.bgColor.alpha = 0;
+		camZoomedHUD.bgColor.alpha = 0;
+
+		CustomFadeTransition.nextCamera = camHUD;
+
+        super.create();
 
 		CustomFadeTransition.nextCamera = camHUD;
 
@@ -69,23 +78,45 @@ class ResultsState extends MusicBeatState {
 			return;
 		#end
 
-		FlxG.sound.playMusic(Paths.music('title'), 0);
-		FlxG.sound.music.onComplete = () -> {
-			FlxG.sound.playMusic(Paths.music('breakfast'), 0);
-			FlxG.sound.music.fadeIn(5, 0, 0.7);
-		};
-		FlxG.sound.music.fadeIn(5, 0, 0.7);
+		// var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+		// bg.color = 0xff1f1f1f;
+		// bg.updateHitbox();
+		// bg.screenCenter();
+		// bg.antialiasing = ClientPrefs.data.antialiasing;
+		// bg.cameras = [camBG];
+		// add(bg);
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.color = 0xff1f1f1f;
-		bg.updateHitbox();
-		bg.screenCenter();
-		bg.antialiasing = ClientPrefs.data.antialiasing;
-		bg.cameras = [camBG];
-		add(bg);
+		var stageFloor:FlxSprite = new FlxSprite().loadGraphic(Paths.image('stageFloor'));
+		stageFloor.setGraphicSize(stageFloor.width * 1.05);
+		stageFloor.updateHitbox();
+		stageFloor.x = -1390;
+		stageFloor.y = 600;
+		stageFloor.cameras = [cam];
+		add(stageFloor);
 
-		cam.scroll.set(120, 130);
+		var curtains:FlxSprite = new FlxSprite().loadGraphic(Paths.image('curtains'));
+		curtains.setGraphicSize(curtains.width * 1.05);
+		curtains.updateHitbox();
+		curtains.x = -1020;
+		curtains.y = -270;
+		curtains.cameras = [cam];
+		curtains.scrollFactor.set(0.95, 0.85);
+		add(curtains);
+
+		var lights:FlxSprite = new FlxSprite().loadGraphic(Paths.image('lights'));
+		lights.setGraphicSize(lights.width * 0.9);
+		lights.updateHitbox();
+		lights.x = -250;
+		lights.y = -180;
+		lights.angle = 1.0;
+		lights.cameras = [cam];
+		lights.scrollFactor.set(0.6, 0.7);
+		add(lights);
+
+		cam.scroll.set(camScrollOrigin[0], camScrollOrigin[1]);
 		cam.zoom = 0.75;
+		camZoomedHUD.scroll.set(cam.scroll.x, cam.scroll.y);
+		camZoomedHUD.zoom = cam.zoom;
 
 		charactersLayer.cameras = [cam];
 		add(charactersLayer);
@@ -99,7 +130,7 @@ class ResultsState extends MusicBeatState {
 		win.updateHitbox();
 		win.y = 50;
         win.alpha = 0;
-		win.cameras = [cam];
+		win.cameras = [camZoomedHUD];
 		add(win);
 
 		lose = new FlxSprite();
@@ -111,7 +142,7 @@ class ResultsState extends MusicBeatState {
 		lose.updateHitbox();
 		lose.y = win.y + 10;
 		lose.alpha = 0;
-		lose.cameras = [cam];
+		lose.cameras = [camZoomedHUD];
 		add(lose);
 
 		tie = new FlxSprite();
@@ -121,10 +152,10 @@ class ResultsState extends MusicBeatState {
 		tie.animation.play('idle');
 		tie.scale.set(0.6, 0.6);
 		tie.updateHitbox();
+		tie.x = 680;
 		tie.y = win.y + 10;
 		tie.alpha = 0;
-		tie.cameras = [camHUD];
-		tie.screenCenter(X);
+		tie.cameras = [camZoomedHUD];
 		add(tie);
 
 		back = new FlxSprite();
@@ -142,7 +173,7 @@ class ResultsState extends MusicBeatState {
 		back.cameras = [camHUD];
 		add(back);
 
-		gainedText = new FlxText(0, 0, 0, '+ ${gainedPoints}FP');
+		gainedText = new FlxText(0, 0, 0, '');
 		gainedText.setFormat(null, 40, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		//gainedText.setPosition(FlxG.width - gainedText.width - 20, FlxG.height - gainedText.height - 20);
 		gainedText.setPosition(30, FlxG.height - gainedText.height - 25);
@@ -166,7 +197,7 @@ class ResultsState extends MusicBeatState {
 		var playersBySide = [0, 0];
 
 		for (sid => player in GameClient.room.state.players) {
-			var char = new LobbyCharacter(player, cam, player.verified, 5);
+			var char = new LobbyCharacter(player, camZoomedHUD, player.verified, 5);
 			char.yBoxStepOffset = 0;
 			char.xBoxStepOffset = 380;
 			char.xCharStepOffset = 300;
@@ -327,6 +358,23 @@ class ResultsState extends MusicBeatState {
 
 		var avgWinTeamMidX = 0.0;
 		var avgWinTeamMidXNums = 0;
+
+		var curSkin = ClientPrefs.data.modSkin ?? [null, null];
+		var charData:Dynamic = null;
+
+		if (curSkin[1] != null) {
+			selfCharMod = curSkin[0];
+			ShitUtil.tempSwitchMod(selfCharMod, () -> {
+				selfCharName = curSkin[1];
+				charData = ShitUtil.getJson('characters_results/${selfCharName}');
+			});
+		}
+
+		if (charData == null) {
+			selfCharMod = null;
+			selfCharName = 'bf';
+			charData = ShitUtil.getJson('characters_results/${selfCharName}');
+		}
 		
 		if (!isTie) {
 			if (GameClient.room.state.teamMode) {
@@ -338,11 +386,28 @@ class ResultsState extends MusicBeatState {
 				}
 
 				win.x = (avgWinTeamMidX / avgWinTeamMidXNums) - win.width / 2;
+
+				if (winnerBfSide == characters.get(GameClient.room.sessionId).player.bfSide) {
+					rank = charData.GOOD;
+				}
+				else {
+					rank = charData.SHIT;
+				}
 			}
 			else {
 				win.x = characters.get(winnerSID).profileBox.getMidpoint().x - win.width / 2;
+
+				if (winnerSID == GameClient.room.sessionId) {
+					rank = charData.GOOD;
+				}
+				else {
+					rank = charData.SHIT;
+				}
 			}
 		}
+
+		playResultsMusic();
+		FlxG.sound.music.stop();
 
 		// #if DISCORD_ALLOWED
 		// DiscordClient.changePresence(
@@ -367,8 +432,10 @@ class ResultsState extends MusicBeatState {
 		add(dim);
 
 		Paths.setCurrentLevel('week1');
-		spotlight = new FlxSprite(0, -50).loadGraphic(Paths.image('spotlight'));
-		spotlight.alpha = 0.375;
+		spotlight = new FlxSprite(0, 200).loadGraphic(Paths.image('erect/brightLightSmall'));
+		spotlight.setGraphicSize(spotlight.width * 1.3);
+		spotlight.updateHitbox();
+		spotlight.alpha = 0.35;
 		spotlight.blend = ADD;
 		spotlight.visible = false;
 		if (!isTie) {
@@ -379,6 +446,7 @@ class ResultsState extends MusicBeatState {
 				spotlight.x = characters.get(winnerSID).profileBox.getMidpoint().x - spotlight.width / 2;
 			}
 		}
+		spotlight.x -= 20;
 		spotlight.cameras = [cam];
 		add(spotlight);
 
@@ -386,14 +454,14 @@ class ResultsState extends MusicBeatState {
 		chatBox.cameras = [camHUD];
 		add(chatBox);
 
-		FlxTween.tween(dim, {alpha: 0.25}, 2, {ease: FlxEase.quadInOut});
+		FlxTween.tween(dim, {alpha: 0.15}, 2, {ease: FlxEase.quadInOut});
 		FlxTween.tween(back, {alpha: 1}, 1, {ease: FlxEase.quartInOut, startDelay: 2.0});
 
 		new FlxTimer().start(3, (t) -> {
 			disableInput = false;
 		});
 
-		new FlxTimer().start(2, (t) -> {
+		new FlxTimer().start(1, (t) -> {
 			for (sid => player in characters) {
 				player.profileBox.visible = true;
 				player.profileBox.avatar.visible = player.player.verified;
@@ -458,6 +526,8 @@ class ResultsState extends MusicBeatState {
 				FlxTween.tween(tie, {alpha: 1}, 0.5, {ease: FlxEase.quadInOut});
 			}
 
+			playResultsMusic();
+
 			// FlxTween.tween(p1Text, {alpha: 1}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
 			// FlxTween.tween(p2Text, {alpha: 1}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
 			// FlxTween.tween(p1Bg, {alpha: 0.5}, 1, {ease: FlxEase.quartInOut, startDelay: 1});
@@ -479,6 +549,7 @@ class ResultsState extends MusicBeatState {
 
 			if (gainedPoints > 0) {
 				gainedText.visible = true;
+				gainedText.text = '+ ${gainedPoints}FP';
 				FlxG.sound.play(Paths.sound('fap'));
 				if (ClientPrefs.data.flashing)
 					FlxFlicker.flicker(gainedText, 0.4, 0.05, true);
@@ -495,6 +566,10 @@ class ResultsState extends MusicBeatState {
 
 		registerMessages();
 		FlxG.mouse.visible = true;
+
+		var debugPoser = new online.objects.DebugPosHelper();
+		debugPoser.cameras = [camHUD];
+		add(debugPoser);
     }
 
 	function registerMessages() {
@@ -526,8 +601,43 @@ class ResultsState extends MusicBeatState {
 		});
 	}
 
+	function playResultsMusic() {
+		if (rank == null) {
+			FlxG.sound.playMusic(Paths.music('title'), 0);
+			FlxG.sound.music.onComplete = () -> {
+				var msc = null;
+				if (ClientPrefs.data.modSkin != null) {
+					ShitUtil.tempSwitchMod(ClientPrefs.data.modSkin[0], () -> {
+						msc = Paths.music(Paths.formatToSongPath('breakfast-' + ClientPrefs.data.modSkin[1]));
+					});
+				}
+				msc ??= Paths.music(Paths.formatToSongPath('breakfast'));
+				FlxG.sound.playMusic(msc, 0);
+				FlxG.sound.music.fadeIn(5, 0, 0.7);
+			};
+			FlxG.sound.music.fadeIn(5, 0, 0.7);
+			return;
+		}
+
+		var msc = null;
+		ShitUtil.tempSwitchMod(selfCharMod, () -> {
+			msc = Paths.music('${rank.sound}/${rank.sound}-${selfCharName}');
+		});
+		if (msc == null)
+			msc = Paths.music('${rank.sound}/${rank.sound}');
+
+		FlxG.sound.playMusic(msc, 0);
+		FlxG.sound.music.fadeIn(5, 0, 0.7);
+	}
+
 	override function update(elapsed) {
         super.update(elapsed);
+
+		cam.scroll.set(
+			FlxMath.lerp(cam.scroll.x, camScrollOrigin[0] + (FlxG.mouse.screenX - FlxG.width / 2) * 0.1, elapsed * 2), 
+			FlxMath.lerp(cam.scroll.y, camScrollOrigin[1] + (FlxG.mouse.screenY - FlxG.height / 2) * 0.05, elapsed * 2)
+		);
+		camZoomedHUD.scroll.set(cam.scroll.x, cam.scroll.y);
 
 		#if lumod
 		if (FlxG.keys.justPressed.F12) {
