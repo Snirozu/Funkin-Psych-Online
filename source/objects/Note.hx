@@ -480,19 +480,15 @@ class Note extends FlxSprite
 		if(copyX)
 			followX = strumX + offsetX + Math.cos(angleDir) * distance;
 
-		if(copyY)
-		{
+		if (copyY) {
 			followY = strumY + offsetY + correctionOffset + Math.sin(angleDir) * distance;
-			if(myStrum.downScroll && isSustainNote)
-			{
-				if(PlayState.isPixelStage)
-				{
-					followY = y - PlayState.daPixelZoom * 9.5;
+			if (myStrum.downScroll && isSustainNote) {
+				if (PlayState.isPixelStage) {
+					followY -= PlayState.daPixelZoom * 9.5;
 				}
-				followY = y - (frameHeight * scale.y) - (Note.swagWidth / 2);
+				followY -= (frameHeight * scale.y) - (Note.swagWidth / 2);
 			}
 		}
-
 	}
 
 	public function clipToStrumNote(myStrum:StrumNote)
