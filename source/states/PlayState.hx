@@ -670,7 +670,7 @@ class PlayState extends MusicBeatState
 				swagStage = StageData.vanillaSongStage(songName);
 			}
 
-			if (isErect && ( //sorry
+			if ((isErect || (SONG.song.endsWith(' Pico'))) && ( //sorry
 				swagStage == 'stage' ||
 				swagStage == 'spooky' ||
 				swagStage == 'philly' ||
