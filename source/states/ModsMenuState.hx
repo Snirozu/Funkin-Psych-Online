@@ -1,5 +1,6 @@
 package states;
 
+import options.ModSettingsSubState;
 import online.gui.Alert;
 import online.gui.LoadingScreen;
 import online.mods.OnlineMods;
@@ -51,6 +52,7 @@ class ModsMenuState extends MusicBeatState
 	var buttonUp:FlxButton;
 	var buttonToggle:FlxButton;
 	var buttonToggleGlobal:FlxButton;
+	var buttonSettings:FlxButton;
 	var buttonsArray:Array<FlxButton> = [];
 
 	var installButton:FlxButton;
@@ -320,6 +322,21 @@ class ModsMenuState extends MusicBeatState
 		buttonsArray.push(buttonToggleGlobal);
 		visibleWhenHasMods.push(buttonToggleGlobal);
 
+		buttonSettings = new FlxButton(startX, 70, "SETTINGS", function() {
+			if(mods[curSelected].settings != null && mods[curSelected].settings.length > 0)
+			{
+				openSubState(new ModSettingsSubState(mods[curSelected].settings, mods[curSelected].folder, mods[curSelected].name));
+			}
+		});
+		buttonSettings.setGraphicSize(120, 50);
+		buttonSettings.updateHitbox();
+		buttonSettings.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
+		buttonSettings.label.fieldWidth = 120;
+		setAllLabelsOffset(buttonSettings, 0, 10);
+		add(buttonSettings);
+		buttonsArray.push(buttonSettings);
+		visibleWhenHasMods.push(buttonSettings);
+
 		// more buttons
 		var startX:Int = 1100;
 
@@ -483,6 +500,10 @@ class ModsMenuState extends MusicBeatState
 			buttonToggleGlobal.label.text = 'LOCAL';
 			buttonToggleGlobal.color = FlxColor.RED;
 		}
+	}
+
+	function updateButtonSettings() {
+		buttonSettings.visible = (mods[curSelected].settings != null && mods[curSelected].settings.length > 0);
 	}
 
 	function moveMod(change:Int, skipResetCheck:Bool = false)
@@ -675,6 +696,7 @@ class ModsMenuState extends MusicBeatState
 		}
 		updateButtonToggle();
 		updateButtonToggleGlobal();
+		updateButtonSettings();
 	}
 
 	function updatePosition(elapsed:Float = -1)
@@ -699,6 +721,9 @@ class ModsMenuState extends MusicBeatState
 				for (button in buttonsArray)
 				{
 					button.y = mod.alphabet.y + 320;
+
+					if(button == buttonSettings)
+						button.y -= 60;
 				}
 			}
 			i++;
@@ -811,6 +836,7 @@ class ModMetadata
 	public var alphabet:Alphabet;
 	public var icon:AttachedSprite;
 	public var runsGlobally:Bool;
+	public var settings:Array<Dynamic> = null;
 
 	public function new(folder:String)
 	{
@@ -847,6 +873,22 @@ class ModMetadata
 			this.restart = pack.restart;
 
 			this.runsGlobally = pack.runsGlobally ?? false;
+
+			var path:String = Paths.mods('$folder/data/settings.json');
+			if(FileSystem.exists(path))
+			{
+				var data:String = File.getContent(path);
+				try
+				{
+					settings = tjson.TJSON.parse(data);
+				}
+				catch(e:Dynamic)
+				{
+					var errorTitle = 'Mod name: ' + name;
+					var errorMsg = 'An error occurred: $e';
+					trace('$errorTitle - $errorMsg');
+				}
+			}
 		}
 	}
 }

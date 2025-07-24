@@ -48,7 +48,7 @@ class CreditsState extends MusicBeatState
 			['Snirozu', 'snirozu', 'Developer', 'https://sniro.boo', 'FFCC33'],
 			[''],
 			['Contributors'],
-			['Til', 'til', 'Awesome Code Contributor!', 'https://github.com/TechnikTil', 'FFFF00'],
+			['Til', 'til', 'Awesome Code Contributor!', 'https://techniktil.tilnotdrip.org', 'FFFF00'],
 			['Poyo', 'pojo', '2v2 Update Playtester and Network Helper', 'https://twitter.com/_Poyo_09', 'B462DD'],
 			['Mad!', 'mad', 'Results Screen Re-Assets', 'https://twitter.com/MadWolfAround', 'BF53D1'],
 			['Magniill', 'notmagniill', 'Redrew the Online Menu Button', 'https://twitter.com/magniill', '910000'],
