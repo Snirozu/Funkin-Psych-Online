@@ -42,6 +42,7 @@ class HScript extends SScript
 	}
 
 	public var origin:String;
+	public var modFolder:String;
 	override public function new(?parent:FunkinLua, ?file:String)
 	{
 		if (file == null)
@@ -51,7 +52,10 @@ class HScript extends SScript
 		setSpecialObject(FlxG.state, true, []);
 		parentLua = parent;
 		if (parent != null)
+		{
 			origin = parent.scriptName;
+			modFolder = parent.modFolder;
+		}
 		if (scriptFile != null && scriptFile.length > 0)
 			origin = scriptFile;
 		preset();
@@ -120,6 +124,18 @@ class HScript extends SScript
 		set('debugPrint', function(text:String, ?color:FlxColor = null) {
 			if(color == null) color = FlxColor.WHITE;
 			PlayState.instance.addTextToDebug(text, color);
+		});
+		set('getModSetting', function(saveTag:String, ?modName:String = null) {
+			if(modName == null)
+			{
+				if(this.modFolder == null)
+				{
+					PlayState.instance.addTextToDebug('getModSetting: Argument #2 is null and script is not inside a packed Mod folder!', FlxColor.RED);
+					return null;
+				}
+				modName = this.modFolder;
+			}
+			return LuaUtils.getModSetting(saveTag, modName);
 		});
 
 		// For adding your own callbacks

@@ -129,6 +129,12 @@ class ReflectionFunctions
 				return value;
 			}
 
+			if(realObject == null)
+			{
+				funk.luaTrace('setPropertyFromGroup: Object $obj is not valid!', false, false, FlxColor.RED);
+				return null;
+			}
+
 			var leArray:Dynamic = realObject[index];
 			if(leArray != null) {
 				if(Type.typeof(variable) == ValueType.TInt) {

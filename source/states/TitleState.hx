@@ -95,6 +95,7 @@ class TitleState extends MusicBeatState
 		online.network.Auth.load();
 
 		ClientPrefs.loadPrefs();
+		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
 
 		backend.NoteSkinData.reloadNoteSkins();
 
