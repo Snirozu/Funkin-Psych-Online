@@ -183,7 +183,17 @@
 	<haxedef name="HXCPP_CATCH_SEGV" />
 	<haxedef name="HXCPP_DEBUG_LINK" />
 
-	<!-- <haxedef name="message.reporting" value="pretty" /> -->
+		<!-- Do whatever you want I'm tired uninstall and install everytime -->
+	<certificate path="key.keystore" password="psychonline" alias="psychonlineport" alias-password="psychonline" if="android" unless="debug" />
+
+	<!-- Category Type for Apple Systems -->
+	<config:ios category_type="public.app-category.music-games" />
+	<config:mac category_type="public.app-category.music-games" />
+
+	<!-- Allow Access to Engine Files in mobile -->
+	<haxedef name="SHARE_MOBILE_FILES" if="mobile" />
+
+	<haxedef name="message.reporting" value="pretty" />
 	<haxedef name='no-deprecation-warnings' />
 
 	<!--Avoid memory leaks with for loops in HScript-->
