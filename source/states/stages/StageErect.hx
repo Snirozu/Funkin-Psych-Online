@@ -1,5 +1,6 @@
 package states.stages;
 
+import shaders.AdjustColor;
 import states.stages.objects.*;
 
 class StageErect extends BaseStage
@@ -14,6 +15,7 @@ class StageErect extends BaseStage
 
 		if (!ClientPrefs.data.lowQuality) {
             var lightSmall:BGSprite = new BGSprite('erect/brightLightSmall', 967, -103, 1.2, 1.2);
+			lightSmall.blend = ADD;
             add(lightSmall);
         }
 
@@ -27,13 +29,17 @@ class StageErect extends BaseStage
 
 		if (!ClientPrefs.data.lowQuality) {
             var greenLight:BGSprite = new BGSprite('erect/lightgreen', -171, 242, 1, 1);
+			greenLight.blend = ADD;
             add(greenLight);
 
-            // haha scuid games
+            // haha scuid games -snirozu
+			// what is ur issue -til
             var redLight:BGSprite = new BGSprite('erect/lightred', -101, 560, 1, 1);
+			redLight.blend = ADD;
             add(redLight);
 
             var orangeLight:BGSprite = new BGSprite('erect/orangeLight', 189, -195, 1, 1);
+			orangeLight.blend = ADD;
             add(orangeLight);
         }
 	}
@@ -44,7 +50,38 @@ class StageErect extends BaseStage
 
 		if (!ClientPrefs.data.lowQuality) {
 			var lightAbove:BGSprite = new BGSprite('erect/lightAbove', 804, -117, 1, 1);
+			lightAbove.blend = ADD;
 			add(lightAbove);
+		}
+
+		if(ClientPrefs.data.shaders) {
+			var colorShaderBf:AdjustColor = new AdjustColor();
+			var colorShaderDad:AdjustColor = new AdjustColor();
+			var colorShaderGf:AdjustColor = new AdjustColor();
+
+			colorShaderBf.brightness = -23;
+			colorShaderBf.hue = 12;
+			colorShaderBf.contrast = 7;
+			colorShaderBf.saturation = 0;
+
+			colorShaderGf.brightness = -30;
+			colorShaderGf.hue = -9;
+			colorShaderGf.contrast = -4;
+			colorShaderGf.saturation = 0;
+
+			colorShaderDad.brightness = -33;
+			colorShaderDad.hue = -32;
+			colorShaderDad.contrast = -23;
+			colorShaderDad.saturation = 0;
+
+			for(bf in boyfriendGroup.members)
+				bf.shader = colorShaderBf.shader;
+
+			for(daddy in dadGroup.members)
+				daddy.shader = colorShaderDad.shader;
+
+			for(girlfriend in gfGroup.members)
+				girlfriend.shader = colorShaderGf.shader;
 		}
 	}
 }
