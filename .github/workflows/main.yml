@@ -36,6 +36,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
+            ~/haxelib/**
+            .haxelib/**
             export/release/linux/**
             !export/release/linux/bin/**
           key: ${{ runner.os }}-build-cache
@@ -74,6 +76,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
+            C:/haxelib/**
+            .haxelib/**
             export/release/windows/**
             !export/release/windows/bin/**
           key: ${{ runner.os }}-build-cache
@@ -111,6 +115,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
+            ~/haxelib/**
+            .haxelib/**
             export/release/macos/**
             !export/release/macos/bin/**
           key: ${{ runner.os }}-build-cache
@@ -144,6 +150,7 @@ jobs:
   #       uses: actions/cache@v4
   #       with:
   #         path: |
+  #           ~/haxelib
   #           export/release/android/haxe
   #           export/release/android/obj
   #         key: ${{ runner.os }}-cache
@@ -199,6 +206,7 @@ jobs:
   #       uses: actions/cache@v4
   #       with:
   #         path: |
+  #           ~/haxelib
   #           export/release/ios/haxe
   #           export/release/ios/obj
   #         key: ${{ runner.os }}-cache
