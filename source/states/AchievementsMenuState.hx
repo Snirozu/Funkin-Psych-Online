@@ -175,6 +175,10 @@ class AchievementsMenuState extends MusicBeatState
 				if (controls.UI_UP_P) add = -1;
 				else if (controls.UI_DOWN_P) add = 1;
 
+				if (FlxG.mouse.wheel != 0) {
+					add = -FlxG.mouse.wheel;
+				}
+
 				if(add != 0)
 				{
 					var diff:Int = curSelected - (Math.floor(curSelected / MAX_PER_ROW) * MAX_PER_ROW);
