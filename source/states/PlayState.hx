@@ -1129,6 +1129,8 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
+			scoreTxtOriginY = ClientPrefs.data.downScroll ? 120 : 700;
+			
 			scoreTxt = new FlxText(0, healthBar.y + 40, FlxG.width, "", 20);
 			scoreTxt.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', !isPixelStage ? 20 : 18, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			scoreTxt.scrollFactor.set();
