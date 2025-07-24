@@ -349,6 +349,7 @@ class PlayState extends MusicBeatState
 	public var scoreTxtOthersTween:Map<String, FlxTween> = new Map();
 	public var scoreTxtP1:FlxText;
 	public var scoreTxtP2:FlxText;
+	var scoreTxtOriginY:Float = 700;
 	var timeTxt:FlxText;
 	var scoreTxtTween:FlxTween;
 
@@ -1149,7 +1150,7 @@ class PlayState extends MusicBeatState
 					scoreTxtPlayer.camera = camOther;
 					uiGroup.add(scoreTxtPlayer);
 					
-					scoreTxtPlayer.y = healthBar.y + 60 - (ox * 20) - scoreTxtPlayer.height;
+					scoreTxtPlayer.y = scoreTxtOriginY - (ox * 20) - scoreTxtPlayer.height;
 	
 					if (isRight)
 						scoreTxtPlayer.offset.x += 30;
@@ -4913,7 +4914,7 @@ class PlayState extends MusicBeatState
 				char = gf;
 		}
 		
-		if(char != null /*&& char.hasMissAnimations*/)
+		if(char != null && !(GameClient.isConnected() && char == gf && GameClient.getPlayerSelf().ox != 0) /*&& char.hasMissAnimations*/)
 		{
 			var suffix:String = '';
 			if(note != null) suffix = note.animSuffix;
@@ -4928,6 +4929,7 @@ class PlayState extends MusicBeatState
 				gf.specialAnim = true;
 			}
 		}
+
 		getPlayerVocals().volume = 0;
 	}
 
@@ -4990,7 +4992,7 @@ class PlayState extends MusicBeatState
 				char = gf;
 			}
 
-			if(char != null)
+			if(char != null && !(GameClient.isConnected() && char == gf && sid != null && playersStats.get(sid).player.ox != 0))
 			{
 				char.playAnim(animToPlay, true);
 				char.holdTimer = 0;
@@ -5103,7 +5105,7 @@ class PlayState extends MusicBeatState
 					animCheck = 'cheer';
 				}
 				
-				if(char != null)
+				if(char != null && !(GameClient.isConnected() && char == gf && GameClient.getPlayerSelf().ox != 0))
 				{
 					char.playAnim(animToPlay, true);
 					char.holdTimer = 0;
@@ -6127,7 +6129,7 @@ class PlayState extends MusicBeatState
 			"\nPing: " + sidePing.join('ms & ') + 'ms'
 		;
 
-		daText.y = healthBar.y + 60 - daText.height;
+		daText.y = scoreTxtOriginY - daText.height;
 
 		if (!miss) {
 			doTweenScore(isRight ? 'RIGHTSIDE' : 'LEFTSIDE', isRight);
@@ -6193,7 +6195,7 @@ class PlayState extends MusicBeatState
 			;
 		}
 
-		daText.y = healthBar.y + 60 - (op.player.ox * 20) - daText.height;
+		daText.y = scoreTxtOriginY - (op.player.ox * 20) - daText.height;
 
 		if (!miss) {
 			doTweenScore(sid);
