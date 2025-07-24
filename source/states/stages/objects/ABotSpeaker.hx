@@ -194,13 +194,22 @@ class ABotSpeaker extends FlxSpriteGroup {
 	#if funkin.vis
 	public function initAnalyzer() {
 		@:privateAccess
-		analyzer = new SpectralAnalyzer(snd._channel.__audioSource, 7, 0.1, 40);
+		analyzer = new SpectralAnalyzer(snd._channel.__audioSource, VIZ_MAX, 0.1, 40);
+    	// A-Bot tuning...
+		analyzer.minDb = -65;
+		analyzer.maxDb = -25;
+		analyzer.maxFreq = 22000;
+		// we use a very low minFreq since some songs use low low subbass like a boss
+		analyzer.minFreq = 10;
 
-		#if desktop
-		// On desktop it uses FFT stuff that isn't as optimized as the direct browser stuff we use on HTML5
+		#if sys
+		// On native it uses FFT stuff that isn't as optimized as the direct browser stuff we use on HTML5
 		// So we want to manually change it!
 		analyzer.fftN = 256;
 		#end
+
+		// analyzer.maxDb = -35;
+		// analyzer.fftN = 2048;
 	}
 	#end
 
