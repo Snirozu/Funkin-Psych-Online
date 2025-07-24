@@ -5,9 +5,11 @@ spooky-erect
 philly
 philly-erect
 limo
+limo-erect
 mall
 mall-erect
 mallEvil
 school
+school-erect
 schoolEvil
 tank

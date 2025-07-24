@@ -1,5 +1,6 @@
 package states.stages;
 
+import shaders.AdjustColor;
 import states.stages.objects.*;
 
 class PhillyErect extends BaseStage {
@@ -34,7 +35,25 @@ class PhillyErect extends BaseStage {
 		add(street);
 	}
 
-	override function createPost() {}
+	override function createPost() {
+		if(ClientPrefs.data.shaders) {
+			var colorShader:AdjustColor = new AdjustColor();
+
+			colorShader.hue = -26;
+			colorShader.saturation = -16;
+			colorShader.contrast = 0;
+			colorShader.brightness = -5;
+
+			for(bf in boyfriendGroup.members)
+				bf.shader = colorShader.shader;
+
+			for(daddy in dadGroup.members)
+				daddy.shader = colorShader.shader;
+
+			for(girlfriend in gfGroup.members)
+				girlfriend.shader = colorShader.shader;
+		}
+	}
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
