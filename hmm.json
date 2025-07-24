@@ -7,18 +7,24 @@
     },
     {
       "name": "lime",
-      "type": "haxelib",
-      "version": "8.1.3"
+      "type": "git",
+      "dir": null,
+      "ref": null,
+      "url": "https://github.com/th2l-devs/lime"
     },
     {
       "name": "openfl",
-      "type": "haxelib",
-      "version": "9.3.3"
+      "type": "git",
+      "dir": null,
+      "ref": null,
+      "url": "https://github.com/th2l-devs/openfl"
     },
     {
       "name": "flixel",
-      "type": "haxelib",
-      "version": "5.8.0"
+      "type": "git",
+      "dir": null,
+      "ref": null,
+      "url": "https://github.com/HomuHomu833/flixel"
     },
     {
       "name": "flixel-addons",
@@ -37,8 +43,10 @@
     },
     {
       "name": "hxcpp",
-      "type": "haxelib",
-      "version": "4.3.2"
+      "type": "git",
+      "dir": null,
+      "ref": null,
+      "url": "https://github.com/th2l-devs/hxcpp"
     },
     {
       "name": "tjson",
@@ -49,22 +57,20 @@
       "name": "SScript",
       "type": "git",
       "dir": null,
-      "ref": "main",
-      "url": "https://github.com/Snirozu/SScript-7.7.0"
+      "ref": null,
+      "url": "https://github.com/th2l-devs/SScript"
     },
     {
-      "name": "discord_rpc",
-      "type": "git",
-      "dir": null,
-      "ref": "master",
-      "url": "https://github.com/Aidan63/linc_discord-rpc"
+      "name": "hxdiscord_rpc",
+      "type": "haxelib",
+      "version": null
     },
     {
       "name": "linc_luajit",
       "type": "git",
       "dir": null,
-      "ref": "master",
-      "url": "https://github.com/Snirozu/linc_luajit"
+      "ref": null,
+      "url": "https://github.com/th2l-devs/linc_luajit"
     },
     {
       "name": "colyseus",
@@ -80,11 +86,6 @@
       "name": "UnRAR",
       "type": "haxelib",
       "version": "1.0.0"
-    },
-    {
-      "name": "away3d",
-      "type": "haxelib",
-      "version": "5.0.9"
     },
     {
       "name": "away3d",
@@ -146,8 +147,10 @@
     },
     {
       "name": "hxvlc",
-      "type": "haxelib",
-      "version": "2.0.1"
+      "type": "git",
+      "dir": null,
+      "ref": null,
+      "url": "https://github.com/th2l-devs/hxvlc"
     }
   ]
 }
