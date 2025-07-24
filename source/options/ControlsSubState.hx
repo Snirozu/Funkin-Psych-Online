@@ -67,6 +67,7 @@ class ControlsSubState extends MusicBeatSubstate
 	{
 		super();
 
+		FlxG.mouse.visible = false;
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Controls Menu", null);
 		#end
@@ -290,6 +291,10 @@ class ControlsSubState extends MusicBeatSubstate
 
 			if(FlxG.keys.justPressed.UP || FlxG.gamepads.anyJustPressed(DPAD_UP) || FlxG.gamepads.anyJustPressed(LEFT_STICK_DIGITAL_UP)) updateText(-1);
 			else if(FlxG.keys.justPressed.DOWN || FlxG.gamepads.anyJustPressed(DPAD_DOWN) || FlxG.gamepads.anyJustPressed(LEFT_STICK_DIGITAL_DOWN)) updateText(1);
+
+			if (FlxG.mouse.wheel != 0) {
+				updateText(-FlxG.mouse.wheel);
+			}
 
 			if(FlxG.keys.justPressed.ENTER || FlxG.gamepads.anyJustPressed(START) || FlxG.gamepads.anyJustPressed(A))
 			{

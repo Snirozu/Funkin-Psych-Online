@@ -141,8 +141,6 @@ class MainMenuState extends MusicBeatState
 		add(versionShit);
 
 		if (Main.wankyUpdate != null) {
-			FlxG.mouse.visible = true;
-
 			var updatE:FlxText = new FlxText(12, FlxG.height - 64, 0, Main.wankyUpdate, 12);
 			updatE.scrollFactor.set();
 			updatE.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -157,6 +155,8 @@ class MainMenuState extends MusicBeatState
 			add(updatE);
 		}
 
+		FlxG.mouse.visible = true;
+
 		// NG.core.calls.event.logEvent('swag').send();
 
 		changeItem();
@@ -165,8 +165,10 @@ class MainMenuState extends MusicBeatState
 
 		#if ACHIEVEMENTS_ALLOWED
 		// Unlocks "Freaky on a Friday Night" achievement if it's a Friday and between 18:00 PM and 23:59 PM
-		if (leDate.getDay() == 5 && leDate.getHours() >= 18)
+		if (leDate.getDay() == 5 && leDate.getHours() >= 18) {
+			online.backend.DateEvent.isFridayNight = true;
 			Achievements.unlock('friday_night_play');
+		}
 
 		#if MODS_ALLOWED
 		Achievements.reloadList();
