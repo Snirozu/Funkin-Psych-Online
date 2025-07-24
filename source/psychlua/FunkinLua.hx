@@ -55,6 +55,7 @@ class FunkinLua {
 	#end
 	public var camTarget:FlxCamera;
 	public var scriptName:String = '';
+	public var modFolder:String = null;
 	public var closed:Bool = false;
 
 	#if HSCRIPT_ALLOWED
@@ -85,6 +86,12 @@ class FunkinLua {
 		this.scriptName = scriptName;
 		var game:PlayState = PlayState.instance;
 		game.luaArray.push(this);
+
+		var myFolder:Array<String> = this.scriptName.split('/');
+		#if MODS_ALLOWED
+		if(myFolder[0] + '/' == Paths.mods() && (Mods.currentModDirectory == myFolder[1] || Mods.getGlobalMods().contains(myFolder[1]))) //is inside mods folder
+			this.modFolder = myFolder[1];
+		#end
 
 		// Lua shit
 		set('Function_StopLua', Function_StopLua);
@@ -1455,7 +1462,7 @@ class FunkinLua {
 			{
 				if(this.modFolder == null)
 				{
-					FunkinLua.luaTrace('getModSetting: Argument #2 is null and script is not inside a packed Mod folder!', false, false, FlxColor.RED);
+					luaTrace('getModSetting: Argument #2 is null and script is not inside a packed Mod folder!', false, false, FlxColor.RED);
 					return null;
 				}
 				modName = this.modFolder;
