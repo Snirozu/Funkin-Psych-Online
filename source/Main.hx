@@ -71,12 +71,16 @@ class Main extends Sprite
 	public static function main():Void
 	{
 		if (Path.normalize(Sys.getCwd()) != Path.normalize(lime.system.System.applicationDirectory)) {
-			// Lib.application.window.alert("Your path is either not run from the game directory,\nor contains illegal UTF-8 characters!\n\nRun from: "
-			// 	+ Sys.getCwd()
-			// 	+ "\nExpected path: " + lime.system.System.applicationDirectory, 
-			// "Invalid Runtime Path!");
-			// Sys.exit(1);
 			Sys.setCwd(lime.system.System.applicationDirectory);
+
+			if (Path.normalize(Sys.getCwd()) != Path.normalize(lime.system.System.applicationDirectory)) {
+				Lib.application.window.alert("Your path is either not run from the game directory,\nor contains illegal UTF-8 characters!\n\nRun from: "
+					+ Sys.getCwd()
+					+ "\nExpected path: "
+					+ lime.system.System.applicationDirectory,
+					"Invalid Runtime Path!");
+				Sys.exit(1);
+			}
 		}
 		
 		Lib.current.addChild(view3D = new online.away.View3DHandler());
@@ -221,10 +225,10 @@ class Main extends Sprite
 			#end
 			online.mods.ModDownloader.cancelAll();
 			online.mods.ModDownloader.checkDeleteDlDir();
-			online.network.Auth.saveClose();
 			try {
 				GameClient.leaveRoom();
 			} catch (exc) {}
+			online.network.Auth.saveClose();
 		});
 
 		Lib.application.window.onDropFile.add(path -> {
@@ -352,10 +356,10 @@ class Main extends Sprite
 		#else
 		Application.current.window.alert(alertMsg, "Uncaught Exception!");
 		#end
-		online.network.Auth.saveClose();
 		try {
 			GameClient.leaveRoom();
 		} catch (exc) {}
+		online.network.Auth.saveClose();
 		Sys.exit(1);
 	}
 
