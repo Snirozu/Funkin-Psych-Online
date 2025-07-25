@@ -167,12 +167,14 @@ class RoomState extends MusicBeatState #if interpret implements interpret.Interp
 		}
 
 		function initPlayer(sid:String, player:Player) {
-			var char = new LobbyCharacter(player, camHUD);
-			characters.set(sid, char);
-			//HOW THE FUCK DOES THIS EVEN HAPPEN??!!??!
-			if (charactersLayer.members == null)
-				charactersLayer = new FlxTypedGroup<LobbyCharacter>();
-			charactersLayer.add(char);
+			if (!characters.exists(sid)) {
+				var char = new LobbyCharacter(player, camHUD);
+				characters.set(sid, char);
+				// HOW THE FUCK DOES THIS EVEN HAPPEN??!!??!
+				if (charactersLayer.members == null)
+					charactersLayer = new FlxTypedGroup<LobbyCharacter>();
+				charactersLayer.add(char);
+			}
 
 			listenUpdate(sid, player);
 			checkNoteSkin(player);
@@ -1069,12 +1071,16 @@ class LobbyCharacter extends FlxTypedGroup<FlxObject> {
 	}
 
 	var _prevNoSkin:Bool = false;
+	var _changedNoSkin:Bool = false;
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
+		_changedNoSkin = _prevNoSkin != noSkin;
+		_prevNoSkin = noSkin;
+
 		if (noSkin) {
-			if (_prevNoSkin != noSkin) {
+			if (_changedNoSkin) {
 				character.colorTransform.redOffset = -255;
 				character.colorTransform.greenOffset = -255;
 				character.colorTransform.blueOffset = -255;
@@ -1090,15 +1096,13 @@ class LobbyCharacter extends FlxTypedGroup<FlxObject> {
 			if (FlxG.mouse.justPressed && FlxG.mouse.overlaps(character, character.camera))
 				loadCharacter(true, true);
 		}
-		else if (_prevNoSkin != noSkin) {
+		else if (_changedNoSkin) {
 			character.colorTransform.redOffset = 0;
 			character.colorTransform.greenOffset = 0;
 			character.colorTransform.blueOffset = 0;
 			character.alpha = 1;
 			remove(dlSkinTxt);
 		}
-
-		_prevNoSkin = noSkin;
 
 		danceLogic();
 	}
@@ -1172,16 +1176,20 @@ class LobbyCharacter extends FlxTypedGroup<FlxObject> {
 		else if (enableDownload && player.skinURL != null) {
 			noSkin = true;
 			OnlineMods.downloadMod(player.skinURL, manualDownload, (_) -> {
-				if (RoomState.instance != null && RoomState.instance.destroyed)
+				if (RoomState.instance == null || RoomState.instance.destroyed)
 					return;
 
 				loadCharacter(false);
-				noSkin = false;
 			});
 		}
 
-		if (character == null)
+		// we loaded the skin ayyy
+		if (character != null) {
+			noSkin = false;
+		}
+		else {
 			character = new Character(0, 0, "default" + (player.bfSide ? "-player" : ''), player.bfSide);
+		}
 
 		character.noHoldBullshit = true;
 		add(character);
