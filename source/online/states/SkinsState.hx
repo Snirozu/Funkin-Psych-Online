@@ -697,21 +697,28 @@ class SkinsState extends MusicBeatState {
 
 				Mods.currentModDirectory = charactersMod.get(curCharName);
 
-				var daCharacter = new Character(0, 0, curCharName, flipped);
-				daCharacter.scrollFactor.set(1.2, 1.2);
-				if (daCharacter?.graphic?.bitmap != null)
-					daCharacter.graphic.bitmap.disposeImage();
-				if (daCharacter.animExists('spawn')) {
-					daCharacter.playAnim('spawn');
+				try {
+					var daCharacter = new Character(0, 0, curCharName, flipped);
+					daCharacter.scrollFactor.set(1.2, 1.2);
+					if (daCharacter?.graphic?.bitmap != null)
+						daCharacter.graphic.bitmap.disposeImage();
+					if (daCharacter.animExists('spawn')) {
+						daCharacter.playAnim('spawn');
+					}
+
+					character.add(daCharacter);
+
+					character.members[0].x = 420 + character.members[0].positionArray[0];
+					character.members[0].y = -100 + character.members[0].positionArray[1];
+
+					var hca = character.members[0].healthColorArray;
+					tweenColor(FlxColor.fromRGB(hca[0], hca[1], hca[2]));
 				}
-				
-				character.add(daCharacter);
-
-				character.members[0].x = 420 + character.members[0].positionArray[0];
-				character.members[0].y = -100 + character.members[0].positionArray[1];
-
-				var hca = character.members[0].healthColorArray;
-				tweenColor(FlxColor.fromRGB(hca[0], hca[1], hca[2]));
+				catch (exc) {
+					staticSound.play(true);
+					staticMan.visible = true;
+					Alert.alert('Failed to load the skin!', 'exc: ' + exc);
+				}
 			});
 
 			curCharName = !flipped ? curCharName : curCharName.substring(0, curCharName.length - "-player".length);

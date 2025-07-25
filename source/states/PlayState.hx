@@ -4700,7 +4700,7 @@ class PlayState extends MusicBeatState
 			}
 
 			var spr:StrumNote = getPlayerStrums().members[key];
-			if(strumsBlocked[key] != true && spr != null && spr.animation.curAnim.name != 'confirm')
+			if(strumsBlocked[key] != true && spr != null && spr?.animation?.curAnim?.name != 'confirm')
 			{
 				GameClient.send("strumPlay", ["pressed", key, 0]);
 				spr.playAnim('pressed');

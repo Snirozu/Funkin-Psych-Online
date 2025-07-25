@@ -160,6 +160,11 @@ class GameClient {
 			return;
 		reconnecting = true;
 
+		if (room == null) {
+			leaveRoom('Room Disposed?');
+			return;
+		}
+
 		var reconnectToken = room.reconnectionToken;
 
 		trace("Reconnecting with Token: " + reconnectToken);
