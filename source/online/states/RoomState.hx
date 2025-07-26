@@ -890,6 +890,8 @@ class RoomState extends MusicBeatState #if interpret implements interpret.Interp
 			return;
 
 		var selfPlayer:Player = GameClient.getPlayerSelf();
+		if (selfPlayer == null)
+			return;
 		
 		var daModName = GameClient.room.state.modDir ?? "";
 		if (daModName.length > 30) {
