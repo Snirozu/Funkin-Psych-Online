@@ -11,36 +11,43 @@ class URLScraper {
 
 	public static function downloadFromMediaFire(url:String, ?onSuccess:String->Void) {
 		Thread.run(() -> {
-			var response = new HTTPClient(url).request();
+			try {
+				var response = new HTTPClient(url).request();
 
-			if (response.isFailed()) {
+				if (response.isFailed()) {
+					Waiter.putPersist(() -> {
+						Alert.alert("MediaFire Download failed!", "Couldn't connect to MediaFire!\n" + 'Status: ${ShitUtil.prettyStatus(response.status)}');
+					});
+					return;
+				}
+
+				var doc:HtmlDocument = new HtmlDocument(response.getString(), true);
+
+				var scrambledURL:Null<String> = null;
+				for(node in doc.find('#downloadButton'))
+				{
+					if(node.hasAttribute('data-scrambled-url'))
+						scrambledURL = node.getAttribute('data-scrambled-url');
+				}
+
+				if (scrambledURL == null) {
+					Waiter.putPersist(() -> {
+						Alert.alert("MediaFire Download failed!", "Can't get the download link for this MediaFire file!");
+					});
+					return;
+				}
+
+				var unscrambledURL:String = haxe.crypto.Base64.decode(scrambledURL).toString();
+
 				Waiter.putPersist(() -> {
-					Alert.alert("MediaFire Download failed!", "Couldn't connect to MediaFire!\n" + 'Status: ${ShitUtil.prettyStatus(response.status)}');
+					OnlineMods.startDownloadMod(url, unscrambledURL, null, onSuccess, [], url);
 				});
-				return;
 			}
-
-			var doc:HtmlDocument = new HtmlDocument(response.getString(), true);
-
-			var scrambledURL:Null<String> = null;
-			for(node in doc.find('#downloadButton'))
-			{
-				if(node.hasAttribute('data-scrambled-url'))
-					scrambledURL = node.getAttribute('data-scrambled-url');
-			}
-
-			if (scrambledURL == null) {
+			catch (exc) {
 				Waiter.putPersist(() -> {
-					Alert.alert("MediaFire Download failed!", "Can't get the download link for this MediaFire file!");
+					Alert.alert("MediaFire Download failed!", ShitUtil.prettyError(exc));
 				});
-				return;
 			}
-
-			var unscrambledURL:String = haxe.crypto.Base64.decode(scrambledURL).toString();
-
-			Waiter.putPersist(() -> {
-				OnlineMods.startDownloadMod(url, unscrambledURL, null, onSuccess, [], url);
-			});
 		});
 	}
 

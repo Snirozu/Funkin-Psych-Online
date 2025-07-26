@@ -1618,7 +1618,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	function startCharacterScripts(name:String, ?sid:String = null, ?isBF:Null<Bool> = null)
+	function startCharacterScripts(name:String, ?sid:String = null, ?isBF:Null<Bool> = null, ?forcePush:Bool = false)
 	{
 		// Lua
 		#if LUA_ALLOWED
@@ -1644,14 +1644,15 @@ class PlayState extends MusicBeatState
 
 		if(doPush)
 		{
-			for (script in luaArray)
-			{
-				if(script.scriptName == luaFile)
+			if (!forcePush)
+				for (script in luaArray)
 				{
-					doPush = false;
-					break;
+					if(script.scriptName == luaFile)
+					{
+						doPush = false;
+						break;
+					}
 				}
-			}
 			if(doPush) {
 				var lua = new FunkinLua(luaFile);
 				lua.set('charTag', getCharPlayTag(isBF, sid));
@@ -1678,8 +1679,9 @@ class PlayState extends MusicBeatState
 		
 		if(doPush)
 		{
-			if(SScript.global.exists(scriptFile))
-				doPush = false;
+			if (!forcePush)
+				if(SScript.global.exists(scriptFile))
+					doPush = false;
 
 			if(doPush) { 
 				var hscript = initHScript(scriptFile);
@@ -2150,6 +2152,7 @@ class PlayState extends MusicBeatState
 		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, songDensity, totalNotesHit, maxCombo);
 		if (points != songPoints) {
 			songPoints = points;
+			GameClient.send("updateSongFP", songPoints);
 			if (totalPlayed != 0) {
 				var maxPoints = online.FunkinPoints.calcFP(1, 0, songDensity, totalPlayed, totalPlayed);
 				pointsPercent = Math.min(1, Math.max(0, points / maxPoints));
@@ -4408,6 +4411,7 @@ class PlayState extends MusicBeatState
 		}
 
 		if (!practiceMode && !cpuControlled) {
+			//todo:  maybe replace with set? idk 
 			GameClient.send("addScore", score);
 			GameClient.send("addHitJudge", note.rating);
 		}
@@ -5087,6 +5091,7 @@ class PlayState extends MusicBeatState
 
 			// TODO: make it only provide the note.strumTime and Conductor.songPosition
 			GameClient.send("noteHit", [note.strumTime, note.noteData, note.isSustainNote, rating?.image, note.noteType, notes.members.indexOf(note), note.mustPress]);
+			GameClient.send("updateMaxCombo", maxCombo);
 
 			if(!note.noAnimation) {
 				var altAnim:String = note.animSuffix;
@@ -5845,7 +5850,7 @@ class PlayState extends MusicBeatState
 	}
 
 	function get_self() {
-		if (GameClient.isConnected()) {
+		if (GameClient.isConnected() && GameClient.room != null) {
 			return characters.get(GameClient.room.sessionId);
 		}
 		if (!playsAsBF()) {
