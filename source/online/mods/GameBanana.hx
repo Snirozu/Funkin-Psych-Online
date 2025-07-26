@@ -1,5 +1,6 @@
 package online.mods;
 
+import haxe.Exception;
 import online.substates.RequestSubstate;
 import haxe.Http;
 import haxe.Json;
@@ -60,7 +61,12 @@ class GameBanana {
 
 			http.onData = function(data:String) {
 				var arr:Array<Dynamic> = Json.parse(data);
-				
+
+				if (arr == null || arr.length < 11) {
+					response(null, new Exception('Faulty Mod Response'));
+					return;
+				}
+	
 				response({
 					_id: id,
 					name: arr[0],

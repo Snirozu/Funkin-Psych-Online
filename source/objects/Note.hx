@@ -461,6 +461,10 @@ class Note extends FlxSprite
 	{
 		following = myStrum;
 
+		if (myStrum == null) {
+			return;
+		}
+
 		var strumX:Float = myStrum.x;
 		var strumY:Float = myStrum.y;
 		var strumAngle:Float = myStrum.angle;

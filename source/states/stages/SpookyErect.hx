@@ -66,20 +66,22 @@ class SpookyErect extends BaseStage
 				addBehindDad(dadDark);
 			});
 
-			online.util.ShitUtil.tempSwitchMod(gf.modDir, () -> {
-				gfDark = new Character(gf.x, gf.y, gf.curCharacter + '-dark', gf.isPlayer);
-				if (gfDark.loadFailed) {
-					gfDark = new Character(gf.x, gf.y, gf.curCharacter, gf.isPlayer);
-					gfDark.colorTransform.redOffset = -245;
-					gfDark.colorTransform.greenOffset = -240;
-					gfDark.colorTransform.blueOffset = -230;
-				}
-				gfDark.flipX = gf.flipX;
-				gfDark.debugMode = true;
-				gfDark.x -= gfGroup.x;
-				gfDark.y -= gfGroup.y;
-				addBehindGF(gfDark, true);
-			});
+			if (gf != null) {
+				online.util.ShitUtil.tempSwitchMod(gf.modDir, () -> {
+					gfDark = new Character(gf.x, gf.y, gf.curCharacter + '-dark', gf.isPlayer);
+					if (gfDark.loadFailed) {
+						gfDark = new Character(gf.x, gf.y, gf.curCharacter, gf.isPlayer);
+						gfDark.colorTransform.redOffset = -245;
+						gfDark.colorTransform.greenOffset = -240;
+						gfDark.colorTransform.blueOffset = -230;
+					}
+					gfDark.flipX = gf.flipX;
+					gfDark.debugMode = true;
+					gfDark.x -= gfGroup.x;
+					gfDark.y -= gfGroup.y;
+					addBehindGF(gfDark, true);
+				});
+			}
 		}
 
 		for (sprite in lightList) {
