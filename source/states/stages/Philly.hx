@@ -119,7 +119,11 @@ class Philly extends BaseStage
 				if(flValue1 == null || flValue1 <= 0) flValue1 = 0;
 				var lightId:Int = Math.round(flValue1);
 
-				var chars:Array<Character> = [boyfriend, gf, dad];
+				var chars:Array<Character> = [boyfriend, dad];
+				if (gf != null) {
+					chars.push(gf);
+				}
+
 				switch(lightId)
 				{
 					case 0:

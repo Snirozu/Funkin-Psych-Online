@@ -147,7 +147,7 @@ class DiscordClient
 
 	public static function updateOnlinePresence():Void
 	{
-		if (GameClient.isConnected())
+		if (GameClient.isConnected() && GameClient.room?.state != null)
 		{
 			if (!GameClient.room.state.isPrivate)
 			{

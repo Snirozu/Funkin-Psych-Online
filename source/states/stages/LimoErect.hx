@@ -198,7 +198,7 @@ class LimoErect extends BaseStage
 					spr.shader = colorShader.shader;
 				}
 
-				if(spr.animation.curAnim.finished) {
+				if (spr.animation.curAnim != null && spr.animation.curAnim.finished) {
 					spr.kill();
 					grpLimoParticles.remove(spr, true);
 					spr.destroy();
