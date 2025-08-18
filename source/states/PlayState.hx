@@ -526,6 +526,7 @@ class PlayState extends MusicBeatState
 		}
 		setOnScripts('isDuel', isDuel);
 
+		Paths.clearUnusedMemory();
 		Paths.clearStoredMemory();
 
 		// var gameCam:FlxCamera = FlxG.camera;
@@ -3201,12 +3202,14 @@ class PlayState extends MusicBeatState
 		setOnScripts('botPlay', cpuControlled);
 		callOnScripts('onUpdatePost', [elapsed]);
 
-		if (botplayTxt.visible != botplayVisibility)
-			botplayTxt.visible = botplayVisibility;
+		if (botplayTxt != null) {
+			if (botplayTxt.visible != botplayVisibility)
+				botplayTxt.visible = botplayVisibility;
 
-		if (botplayTxt.visible) {
-			botplaySine += 180 * elapsed;
-			botplayTxt.alpha = 1 - Math.sin((Math.PI * botplaySine) / 180);
+			if (botplayTxt.visible) {
+				botplaySine += 180 * elapsed;
+				botplayTxt.alpha = 1 - Math.sin((Math.PI * botplaySine) / 180);
+			}
 		}
 
 		if (Conductor.songPosition >= FlxG.sound.music.length) {
@@ -5804,7 +5807,7 @@ class PlayState extends MusicBeatState
 	}
 
 	public static function playsAsBF() {
-		if (GameClient.isConnected()) {
+		if (GameClient.getPlayerSelf() != null) {
 			return GameClient.getPlayerSelf().bfSide;
 		}
 		return !opponentMode;

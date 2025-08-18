@@ -204,6 +204,10 @@
 		<haxeflag name="--macro" value="addGlobalMetadata('states', '@:build(online.backend.MonitorMacro.build())')" />
 		<haxeflag name="--macro" value="addGlobalMetadata('flixel', '@:build(online.backend.MonitorMacro.build())')" />
 		<haxeflag name="--macro" value="addGlobalMetadata('backend', '@:build(online.backend.MonitorMacro.build())')" />
+		<haxeflag name="--macro" value="addGlobalMetadata('io', '@:build(online.backend.MonitorMacro.build())')" />
+		<haxeflag name="--macro" value="addGlobalMetadata('objects', '@:build(online.backend.MonitorMacro.build())')" />
+		<haxeflag name="--macro" value="addGlobalMetadata('psychlua', '@:build(online.backend.MonitorMacro.build())')" />
+		<haxeflag name="--macro" value="addGlobalMetadata('llua', '@:build(online.backend.MonitorMacro.build())')" />
 	</section>
 
 	<!-- _________________________________ Custom _______________________________ -->

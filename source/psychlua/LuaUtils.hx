@@ -82,6 +82,7 @@ class LuaUtils
 		Reflect.setProperty(instance, variable, value);
 		return value;
 	}
+	//todo: laggy
 	public static function getVarInArray(instance:Dynamic, variable:String, allowMaps:Bool = true):Any
 	{
 		var splitProps:Array<String> = variable.split('[');
