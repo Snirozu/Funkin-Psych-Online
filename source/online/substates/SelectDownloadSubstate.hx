@@ -158,7 +158,17 @@ class DownloadBox extends FlxSpriteGroup {
 		bg.makeGraphic(600, 1, 0xD3000000);
 		add(bg);
 
-		name = new FlxText(0, 0, bg.width - 20, daName);
+		if (daName.trim().length <= 0) {
+			if (daDescription.trim().length > 0) {
+				daName = daDescription;
+				daDescription = '';
+			}
+			else {
+				daName = '(unknown)';
+			}
+		}
+
+		name = new FlxText(0, 0, bg.width - 20, daName.trim());
 		name.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT);
 		name.setPosition(10, 10);
 		add(name);
@@ -181,15 +191,15 @@ class DownloadBox extends FlxSpriteGroup {
 			name.color = FlxColor.LIME;
 		}
 		else if (url.startsWith('https://gamebanana.com/') 
-			|| (url.startsWith('https://github.com/') && FileUtils.isArchiveSupported(url))) {
+			|| (url.startsWith('https://github.com/') && FileUtils.isArchiveSupported(url))
+			|| url.startsWith('https://www.mediafire.com/file/')) {
 			name.color = FlxColor.YELLOW;
 		}
 		else if (url.startsWith('https://drive.google.com/drive/folders/')
 			|| url.startsWith('https://gamejolt.com/')
 			|| url.startsWith('https://mega.nz/')
 			|| url.startsWith('https://mega.io/')
-			|| url.startsWith('https://github.com/')
-			|| url.startsWith('https://www.mediafire.com/file/')) {
+			|| url.startsWith('https://github.com/')) {
 			name.color = FlxColor.RED;
 		}
 

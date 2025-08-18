@@ -564,8 +564,9 @@ class RoomState extends MusicBeatState #if interpret implements interpret.Interp
 		}
 		#end
 		
-		if (!GameClient.isConnected())
+		if (GameClient.getPlayerSelf() == null) {
 			return;
+		}
 
 		if (lastFocused != (chatBox.focused && chatBox.typeText.text.length > 0)) {
 			if (!lastFocused) // is now typing

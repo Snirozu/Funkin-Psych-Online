@@ -31,12 +31,12 @@ class SustainSplash extends FlxSprite {
 	override function update(elapsed) {
 		super.update(elapsed);
 
-		if (strumNote != null && animation != null) {
+		if (strumNote != null && animation != null && strumNote.animation != null) {
 			setPosition(strumNote.x, strumNote.y);
 			visible = strumNote.visible;
 			alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
 
-			if (animation.curAnim != null && animation.curAnim.name == "hold" && strumNote.animation.curAnim.name == "static") {
+			if (animation.curAnim != null && strumNote.animation.curAnim != null && animation.curAnim.name == "hold" && strumNote.animation.curAnim.name == "static") {
 				x = -50000;
 				kill();
 			}

@@ -184,12 +184,12 @@ class ControlsSubState extends MusicBeatSubstate
 			var key:String = null;
 			if(onKeyboardMode)
 			{
-				var savKey:Array<Null<FlxKey>> = ClientPrefs.keyBinds.get(option[2]);
+				var savKey:Array<Null<FlxKey>> = ClientPrefs.keyBinds.get(option[2]) ?? [];
 				key = InputFormatter.getKeyName((savKey[n] != null) ? savKey[n] : NONE);
 			}
 			else
 			{
-				var savKey:Array<Null<FlxGamepadInputID>> = ClientPrefs.gamepadBinds.get(option[2]);
+				var savKey:Array<Null<FlxGamepadInputID>> = ClientPrefs.gamepadBinds.get(option[2]) ?? [];
 				key = InputFormatter.getGamepadName((savKey[n] != null) ? savKey[n] : NONE);
 			}
 

@@ -53,10 +53,10 @@ class Conductor
 			bpm: bpm,
 			stepCrochet: stepCrochet
 		}
-		for (i in 0...Conductor.bpmChangeMap.length)
+		for (change in Conductor.bpmChangeMap)
 		{
-			if (time >= Conductor.bpmChangeMap[i].songTime)
-				lastChange = Conductor.bpmChangeMap[i];
+			if (time >= change.songTime)
+				lastChange = change;
 		}
 
 		return lastChange;

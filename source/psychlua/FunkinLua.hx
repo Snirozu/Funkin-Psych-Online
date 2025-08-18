@@ -1543,6 +1543,7 @@ class FunkinLua {
 			}
 
 			for (arg in args) Convert.toLua(lua, arg);
+			//todo: laggy
 			var status:Int = Lua.pcall(lua, args.length, 1, 0);
 
 			// Checks if it's not successful, then show a error.

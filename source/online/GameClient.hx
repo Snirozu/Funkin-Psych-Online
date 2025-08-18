@@ -618,7 +618,7 @@ class GameClient {
 	}
 
 	public static function getPlayerSelf() {
-		if (!GameClient.isConnected())
+		if (!GameClient.isConnected() || GameClient.room == null)
 			return null;
 
 		return GameClient.room.state.players.get(GameClient.room.sessionId);
