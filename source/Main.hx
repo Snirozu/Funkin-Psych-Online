@@ -310,12 +310,13 @@ class Main extends Sprite
 		if (exc is Exception)
 			daError += "\n" + cast(exc, Exception).stack.toString() + "\n";
 		alertMsg += daError;
+		alertMsg += "\n\nCommit: " + GIT_COMMIT + "\n";
 
 		Sys.println(alertMsg);
 
 		if (!FileSystem.exists("./crash/"))
 			FileSystem.createDirectory("./crash/");
-		File.saveContent(path, alertMsg + "\n\n === \n\nCommit: " + GIT_COMMIT + "\n");
+		File.saveContent(path, alertMsg);
 		Sys.println("Crash dump saved in " + Path.normalize(path));
 		
 		var daLine:Int = 0;
