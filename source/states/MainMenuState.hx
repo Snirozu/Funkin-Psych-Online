@@ -303,9 +303,14 @@ class MainMenuState extends MusicBeatState
 
 			if (FlxG.mouse.justPressed && updatEBg != null && FlxG.mouse.overlaps(updatEBg)) {
 				if (TitleState.mustUpdate)
-					online.substates.RequestSubstate.requestURL(Main.latestRelease.html_url, true);
+					online.substates.RequestSubstate.requestURL(Main.updatePageURL, true);
 				else
-					online.substates.RequestSubstate.requestURL('https://github.com/Snirozu/Funkin-Psych-Online/releases', true);
+					switch (Main.repoHost) {
+						case 'github':
+							online.substates.RequestSubstate.requestURL('https://github.com/Snirozu/Funkin-Psych-Online/releases', true);
+						case 'codeberg':
+							online.substates.RequestSubstate.requestURL('https://codeberg.org/Snirozu/Funkin-Psych-Online/releases', true);
+					}
 			}
 		}
 

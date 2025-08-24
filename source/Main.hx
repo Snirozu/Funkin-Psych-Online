@@ -44,7 +44,7 @@ class Main extends Sprite
 
 	public static var fpsVar:FPS;
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.12.3";
+	public static final PSYCH_ONLINE_VERSION:String = "0.12.4";
 	public static final CLIENT_PROTOCOL:Float = 9;
 	public static final NETWORK_PROTOCOL:Float = 8;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
@@ -61,8 +61,9 @@ class Main extends Sprite
 	public static var UNOFFICIAL_BUILD:Bool = false;
 
 	public static var wankyUpdate:String = null;
-	public static var latestRelease:Dynamic = {};
+	public static var updatePageURL:String = '';
 	public static var updateVersion:String = '';
+	public static var repoHost:String = '';
 
 	public static var view3D:online.away.View3DHandler;
 
@@ -201,6 +202,78 @@ class Main extends Sprite
 
 		//ONLINE STUFF, BELOW CODE USE FOR BACKPORTING
 
+		#if CHECK_FOR_UPDATES
+		if (ClientPrefs.data.checkForUpdates) {
+			trace('checking for update');
+			// should've done that earlier
+			var response = new online.http.HTTPClient("https://api.github.com/repos/Snirozu/Funkin-Psych-Online/releases/latest").request();
+			Main.repoHost = 'github';
+
+			if (response.isFailed()) {
+				response = new online.http.HTTPClient("https://codeberg.org/api/v1/repos/Snirozu/Funkin-Psych-Online/releases/latest").request();
+				Main.repoHost = 'codeberg';
+			}
+
+			if (!response.isFailed()) {
+				var latestRelease = haxe.Json.parse(response.getString());
+				Main.updateVersion = latestRelease.tag_name;
+				Main.updatePageURL = latestRelease.html_url;
+				var curVersion:String = Main.PSYCH_ONLINE_VERSION.trim();
+				trace('version online: ' + Main.updateVersion + ', your version: ' + curVersion);
+
+				var updatVer:Array<Int> = Main.updateVersion.split('.').map(s -> {
+					return Std.parseInt(s);
+				});
+				var curVer:Array<Int> = curVersion.split('.').map(s -> {
+					return Std.parseInt(s);
+				});
+
+				if (curVersion.contains('-rc.')) {
+					var candiVer = curVersion.split('-rc.');
+					Main.wankyUpdate = 'Runnning on a\nRelease Candidate No. ' + candiVer[1] + '\nto version: ' + candiVer[0];
+					lime.app.Application.current.window.title = lime.app.Application.current.window.title + ' [DEV]';
+					states.TitleState.inDev = true;
+				}
+				else {
+					trace('comparing ' + updatVer + ' > ' + curVer);
+					for (i => num in updatVer) {
+						if (num < curVer[i] ?? 0) {
+							states.TitleState.inDev = true;
+							trace('running on indev build! [' + i + "]");
+							lime.app.Application.current.window.title = lime.app.Application.current.window.title + ' [DEV]';
+							break;
+						}
+						if (num > curVer[i] ?? 0) {
+							var updateTitle = '';
+							switch (i) {
+								case 0:
+									// api breaking functionality or overhauls
+									updateTitle = 'HUGE update';
+								case 1:
+									// new features with non breaking changes
+									updateTitle = 'major version';
+								default:
+									// bug fixes and patches
+									updateTitle = 'minor version';
+							}
+							Main.wankyUpdate = 'A new ${updateTitle} is available!\n(Click here to update)';
+							states.TitleState.mustUpdate = true;
+							trace('update version is newer! [' + i + "]");
+							break;
+						}
+						if (i == updatVer.length - 1) {
+							trace('running on latest version!');
+						}
+					}
+				}
+			}
+			else {
+				Main.repoHost = null;
+				trace(response.getError());
+			}
+		}
+		#end
+
 		GameClient.updateAddresses();
 
 		online.mods.ModDownloader.checkDeleteDlDir();
@@ -337,19 +410,46 @@ class Main extends Sprite
 				default:
 			}
 
-		var cookUrl = 'https://github.com/Snirozu/Funkin-Psych-Online/blob/$GIT_COMMIT/source/$daFile#L$daLine';
+		var cookUrl:String = null;
+		switch (Main.repoHost) {
+			case 'github':
+				cookUrl = 'https://github.com/Snirozu/Funkin-Psych-Online/blob/$GIT_COMMIT/source/$daFile#L$daLine';
+			case 'codeberg':
+				cookUrl = 'https://codeberg.org/Snirozu/Funkin-Psych-Online/src/commit/$GIT_COMMIT/source/$daFile#L$daLine';
+		}
 
 		#if (windows && cpp)
 		if (!Main.UNOFFICIAL_BUILD) {
-			alertMsg += "\nDo you wish to report this error on GitHub?";
-			alertMsg += "\nPress Yes to draft a new GitHub issue";
-			alertMsg += "\nPress No to jump into the origin error point (on GitHub)";
-			WinAPI.ask("Uncaught Exception!", alertMsg, () -> { // yes
-				daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';
-				FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${exc}')}&body=${StringTools.urlEncode(daError)}');
-			}, () -> { // no
-				FlxG.openURL(cookUrl);
-			});
+			switch (Main.repoHost) {
+				case 'github':
+					alertMsg += "\nDo you wish to report this error on GitHub?";
+					alertMsg += "\nPress Yes to draft a new GitHub issue";
+					alertMsg += "\nPress No to jump into the origin error point (on GitHub)";
+					WinAPI.ask("Uncaught Exception!", alertMsg, () -> { // yes
+						daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';
+						FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${exc}')}&body=${StringTools.urlEncode(daError)}');
+					}, () -> { // no
+						FlxG.openURL(cookUrl);
+					});
+				case 'codeberg':
+					alertMsg += "\nDo you wish to report this error on Codeberg?";
+					alertMsg += "\nPress Yes to draft a new Codeberg issue";
+					alertMsg += "\nPress No to jump into the origin error point (on Codeberg)";
+					WinAPI.ask("Uncaught Exception!", alertMsg, () -> { // yes
+						daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';
+						FlxG.openURL('https://codeberg.org/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${exc}')}&body=${StringTools.urlEncode(daError)}');
+					}, () -> { // no
+						FlxG.openURL(cookUrl);
+					});
+				default:
+					alertMsg += "\nDo you wish to view the logs of this crash?";
+					alertMsg += "\nPress Yes to open the logs in your default text editor";
+					WinAPI.ask("Uncaught Exception!", alertMsg, () -> { // yes
+						Sys.command('start ' + path);
+					}, () -> { // no
+
+					});
+			}
 		}
 		else {
 			Application.current.window.alert(alertMsg, "Uncaught Exception!");

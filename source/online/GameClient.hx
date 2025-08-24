@@ -655,7 +655,15 @@ class GameClient {
 	}
 
 	public static function updateAddresses() {
-		var http = new haxe.Http("https://raw.githubusercontent.com/Snirozu/Funkin-Psych-Online/main/server_addresses.txt");
+		var url:String = '';
+		switch (Main.repoHost) {
+			case 'github':
+				url = "https://raw.githubusercontent.com/Snirozu/Funkin-Psych-Online/main/server_addresses.txt";
+			case 'codeberg':
+				url = "https://codeberg.org/Snirozu/Funkin-Psych-Online/raw/branch/main/server_addresses.txt";
+			default:
+		}
+		var http = new haxe.Http(url);
 		http.onData = function(data:String) {
 			GameClient.serverAddresses = [];
 			for (address in data.split(',')) {
