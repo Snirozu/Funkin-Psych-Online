@@ -272,6 +272,7 @@ class Main extends Sprite
 				trace(response.getError());
 			}
 		}
+		trace(Main.repoHost);
 		#end
 
 		GameClient.updateAddresses();

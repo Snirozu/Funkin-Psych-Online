@@ -40,8 +40,6 @@ class SyncScript extends SScript {
 					url = "https://raw.githubusercontent.com/Snirozu/Funkin-Psych-Online/main/sync.hxs";
 				case 'codeberg':
 					url = "https://codeberg.org/Snirozu/Funkin-Psych-Online/raw/branch/main/sync.hxs";
-				default:
-					return;
 			}
 			var http = new haxe.Http(url);
 			if (ClientPrefs.isDebug())
