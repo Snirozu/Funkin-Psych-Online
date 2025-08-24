@@ -17,7 +17,7 @@ exit
 
 if not exist _server (
 echo Downloading server code...
-curl.exe https://github.com/Snirozu/Funkin-Online-Server/archive/refs/heads/main.zip -L -o server.zip
+curl.exe https://codeberg.org/Snirozu/Funkin-Online-Server/archive/main.zip -L -o server.zip
 echo Downloaded!
 
 echo Unpacking...

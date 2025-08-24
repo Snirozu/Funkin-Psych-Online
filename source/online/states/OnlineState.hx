@@ -426,7 +426,14 @@ class OnlineState extends MusicBeatState {
 					itemDesc.screenCenter(X);
 
 					if (FlxG.mouse.justPressed) {
-						RequestSubstate.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki", true);
+						switch (Main.repoHost) {
+							case 'github':
+								RequestSubstate.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki", true);
+							case 'codeberg':
+								RequestSubstate.requestURL("https://codeberg.org/Snirozu/Funkin-Psych-Online/wiki", true);
+							default:
+								Alert.alert('Offline.');
+						}
 					}
 				}
 				else {

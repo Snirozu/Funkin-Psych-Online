@@ -30,7 +30,7 @@ class OutdatedState extends MusicBeatState
 	{
 		if(!leftState) {
 			if (controls.ACCEPT) {
-				CoolUtil.browserLoad(Main.latestRelease.html_url);
+				CoolUtil.browserLoad(Main.updatePageURL);
 				online.network.Auth.saveClose();
 				Sys.exit(1);
 			}

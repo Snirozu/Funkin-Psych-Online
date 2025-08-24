@@ -50,7 +50,7 @@
       "type": "git",
       "dir": null,
       "ref": "main",
-      "url": "https://github.com/Snirozu/SScript-7.7.0"
+      "url": "https://codeberg.org/Snirozu/SScript-7.7.0"
     },
     {
       "name": "hxdiscord_rpc",
@@ -62,7 +62,7 @@
       "type": "git",
       "dir": null,
       "ref": "master",
-      "url": "https://github.com/Snirozu/linc_luajit"
+      "url": "https://codeberg.org/Snirozu/linc_luajit"
     },
     {
       "name": "colyseus",
@@ -89,7 +89,7 @@
       "type": "git",
       "dir": null,
       "ref": "master",
-      "url": "https://github.com/Snirozu/away3d"
+      "url": "https://codeberg.org/Snirozu/away3d"
     },
     {
       "name": "json2object",
@@ -128,7 +128,7 @@
       "type": "git",
       "dir": null,
       "ref": "162f924bdde427fc84af5b51961d2faef51f6955",
-      "url": "https://github.com/Snirozu/grig.audio"
+      "url": "https://codeberg.org/Snirozu/grig.audio"
     },
     {
       "name": "tink_core",

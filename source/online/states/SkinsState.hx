@@ -530,7 +530,14 @@ class SkinsState extends MusicBeatState {
 		}
 
 		if (FlxG.keys.justPressed.F1) {
-			RequestSubstate.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki#skins", true);
+			switch (Main.repoHost) {
+				case 'github':
+					RequestSubstate.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki#skins", true);
+				case 'codeberg':
+					RequestSubstate.requestURL("https://codeberg.org/Snirozu/Funkin-Psych-Online/wiki#skins", true);
+				default:
+					Alert.alert('Offline.');
+			}
 		}
 
 		if (FlxG.keys.justPressed.F2) {
