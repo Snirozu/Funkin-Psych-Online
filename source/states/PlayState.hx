@@ -3144,8 +3144,10 @@ class PlayState extends MusicBeatState
 					}
 					else
 					{
-						notes.forEachAlive(function(daNote:Note)
-						{
+										var _i:Int = notes.length - 1;
+				while (_i >= 0) {
+					var daNote:Note = cast(notes.members[_i], Note);
+					if (daNote != null && daNote.exists) {
 							daNote.canBeHit = false;
 							daNote.wasGoodHit = false;
 						});
@@ -4692,8 +4694,10 @@ class PlayState extends MusicBeatState
 				var pressNotes:Array<Note> = [];
 				var notesStopped:Bool = false;
 				var sortedNotesList:Array<Note> = [];
-				notes.forEachAlive(function(daNote:Note)
-				{
+								var _i:Int = notes.length - 1;
+				while (_i >= 0) {
+					var daNote:Note = cast(notes.members[_i], Note);
+					if (daNote != null && daNote.exists) {
 					if (strumsBlocked[daNote.noteData] != true && daNote.canBeHit && isPlayerNote(daNote) &&
 						!daNote.tooLate && !daNote.wasGoodHit && !daNote.isSustainNote && !daNote.blockHit)
 					{
@@ -4832,8 +4836,10 @@ class PlayState extends MusicBeatState
 			// rewritten inputs???
 			if(notes.length > 0)
 			{
-				notes.forEachAlive(function(daNote:Note)
-				{
+								var _i:Int = notes.length - 1;
+				while (_i >= 0) {
+					var daNote:Note = cast(notes.members[_i], Note);
+					if (daNote != null && daNote.exists) {
 					// hold note functions
 					if (strumsBlocked[daNote.noteData] != true && daNote.isSustainNote && holdArray[daNote.noteData] && daNote.canBeHit
 					&& isPlayerNote(daNote) && !daNote.tooLate && !daNote.wasGoodHit && !daNote.blockHit) {
