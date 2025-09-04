@@ -1,0 +1,9 @@
+{
+	"name": "Week End 1",
+	"description": "An (almost) accurate port of Week End 1 from the updates of New Return in Psych Engine",
+	"restart":false,
+	"runsGlobally": true,
+	"color": [65, 60, 174],
+	"discordRPC": "863222024192262205",
+	"iconFramerate": 10
+}

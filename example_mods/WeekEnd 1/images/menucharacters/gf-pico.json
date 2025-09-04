@@ -1,0 +1,10 @@
+{
+	"idle_anim": "idle0",
+	"confirm_anim": "idle0",
+	"position": [
+		0,
+		-25
+	],
+	"scale": 1,
+	"image": "Menu_GF_Pico"
+}

@@ -1,0 +1,3461 @@
+{
+	"song": {
+		"player1": "pico-blazin",
+		"gfVersion": "nene",
+		"notes": [
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						0,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						666.666666666667,
+						3,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						333.333333333333,
+						3,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						500,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						833.333333333333,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 180
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						1666.66666666667,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						2000,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						2166.66666666667,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						2333.33333333333,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						1333.33333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						2666.66666666667,
+						1,
+						0,
+						"Block Spin"
+					],
+					[
+						3000,
+						3,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						3166.66666666667,
+						0,
+						0,
+						"Dodge Low"
+					],
+					[
+						3333.33333333333,
+						3,
+						0,
+						"Punch High"
+					],
+					[
+						3500,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						4000,
+						1,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						4333.33333333333,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						4666.66666666667,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						4833.33333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						5000,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						5166.66666666667,
+						0,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						5333.33333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						5666.66666666667,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						5833.33333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						6000,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						6166.66666666667,
+						2,
+						0,
+						"Punch High Blocked"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						6666.66666666667,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						7000,
+						2,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						7333.33333333333,
+						3,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						7500,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						7666.66666666667,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						6833.33333333333,
+						1,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						8000,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						8333.33333333333,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						8500,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						8666.66666666667,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						8833.33333333333,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						9333.33333333333,
+						1,
+						0,
+						"Dodge High"
+					],
+					[
+						9666.66666666667,
+						2,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						10000,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						10166.6666666667,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						10333.3333333333,
+						5,
+						0,
+						"Darnell Uppercut Prep"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						10666.6666666667,
+						7,
+						0,
+						"Darnell Uppercut"
+					],
+					[
+						11000,
+						3,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						11166.6666666667,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						11500,
+						0,
+						0,
+						"Punch High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						12000,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						12333.3333333333,
+						2,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						12833.3333333333,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						13000,
+						3,
+						0,
+						"Dodge Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						13333.3333333333,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						13666.6666666667,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						13833.3333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						14166.6666666667,
+						3,
+						0,
+						"Dodge Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						14666.6666666667,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						15500,
+						3,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						15666.6666666667,
+						1,
+						0,
+						"Pico Uppercut Prep"
+					],
+					[
+						15000,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						15083.3333333333,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						15041.6666666667,
+						6,
+						0,
+						"Hit Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						16000,
+						2,
+						0,
+						"Pico Uppercut"
+					],
+					[
+						16333.3333333333,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						16500,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						16833.3333333333,
+						2,
+						0,
+						"Punch High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						17333.3333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						17500,
+						1,
+						0,
+						"Block Low"
+					],
+					[
+						17666.6666666667,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						18166.6666666667,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						18333.3333333333,
+						7,
+						0,
+						"Hit Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						18666.6666666667,
+						1,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						19000,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						19166.6666666667,
+						3,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						19500,
+						2,
+						0,
+						"Dodge Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						20000,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						20333.3333333333,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						20500,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						20666.6666666667,
+						0,
+						0,
+						"Punch Low"
+					],
+					[
+						20833.3333333333,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						21000,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						21166.6666666667,
+						5,
+						0,
+						"Darnell Uppercut Prep"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						21333.3333333333,
+						7,
+						0,
+						"Darnell Uppercut"
+					],
+					[
+						21666.6666666667,
+						3,
+						0,
+						"Punch High"
+					],
+					[
+						21833.3333333333,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						22166.6666666667,
+						1,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						22333.3333333333,
+						3,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						22666.6666666667,
+						0,
+						0,
+						"Dodge Low"
+					],
+					[
+						23000,
+						2,
+						0,
+						"Punch Low Spin"
+					],
+					[
+						23500,
+						1,
+						0,
+						"Punch High"
+					],
+					[
+						23666.6666666667,
+						2,
+						0,
+						"Dodge Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						24000,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						24333.3333333333,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						24500,
+						2,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						24833.3333333333,
+						0,
+						0,
+						"Dodge Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						25333.3333333333,
+						1,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						25666.6666666667,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						26166.6666666667,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						26333.3333333333,
+						2,
+						0,
+						"Dodge Low"
+					],
+					[
+						26500,
+						3,
+						0,
+						"Pico Uppercut Prep"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						26666.6666666667,
+						2,
+						0,
+						"Pico Uppercut"
+					],
+					[
+						27000,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						27166.6666666667,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						27500,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						27666.6666666667,
+						3,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						28000,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						28333.3333333333,
+						2,
+						0,
+						"Dodge Low"
+					],
+					[
+						29000,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						29166.6666666667,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						28833.3333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						29333.3333333333,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						29500,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						29666.6666666667,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						29833.3333333333,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						30166.6666666667,
+						2,
+						0,
+						"Punch High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						30666.6666666667,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						31666.6666666667,
+						0,
+						0,
+						"Taunt"
+					],
+					[
+						31166.6666666667,
+						1,
+						0,
+						"Fake Out"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						32000,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						32333.3333333333,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						32500,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						32666.6666666667,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						32833.3333333333,
+						2,
+						0,
+						"Punch High Blocked"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						33333.3333333333,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						33666.6666666667,
+						2,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						34000,
+						3,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						34166.6666666667,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						34333.3333333333,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						33500,
+						1,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						34666.6666666667,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						35000,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						35166.6666666667,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						35333.3333333333,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						35500,
+						2,
+						0,
+						"Punch High Blocked"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						36000,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						36333.3333333333,
+						2,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						36666.6666666667,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						36833.3333333333,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						37166.6666666667,
+						2,
+						0,
+						"Dodge Low"
+					],
+					[
+						37000,
+						0,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						37666.6666666667,
+						4,
+						0,
+						"Idle"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						42666.6666666667,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						43000,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						43166.6666666667,
+						1,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						43500,
+						2,
+						0,
+						"Punch High Blocked"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						44000,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						44333.3333333333,
+						2,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						45000,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						44833.3333333333,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						44166.6666666667,
+						1,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						45333.3333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						45666.6666666667,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						45833.3333333333,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						46166.6666666667,
+						2,
+						0,
+						"Punch High Blocked"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						46666.6666666667,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						47000,
+						2,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						47500,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						47666.6666666667,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						47833.3333333333,
+						2,
+						0,
+						"Punch High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						48000,
+						1,
+						0,
+						"Punch Low Blocked"
+					],
+					[
+						48333.3333333334,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						48833.3333333334,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						49000,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						48583.3333333334,
+						1,
+						0,
+						"Punch Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						49333.3333333334,
+						6,
+						0,
+						"Hit High"
+					],
+					[
+						49666.6666666667,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						50333.3333333334,
+						6,
+						0,
+						"Hit Low"
+					],
+					[
+						50166.6666666667,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						50666.6666666667,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						51000,
+						1,
+						0,
+						"Punch High Dodged"
+					],
+					[
+						51166.6666666667,
+						3,
+						0,
+						"Dodge High"
+					],
+					[
+						51500,
+						2,
+						0,
+						"Dodge Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						52000,
+						0,
+						0,
+						"Punch Low"
+					],
+					[
+						52333.3333333334,
+						2,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						52833.3333333334,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						53000,
+						3,
+						0,
+						"Punch High"
+					],
+					[
+						53166.6666666667,
+						7,
+						0,
+						"Hit Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						53333.3333333334,
+						6,
+						0,
+						"Hit High"
+					],
+					[
+						53375,
+						7,
+						0,
+						"Hit Low"
+					],
+					[
+						53458.3333333334,
+						7,
+						0,
+						"Hit Low"
+					],
+					[
+						53666.6666666667,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						53833.3333333334,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						54166.6666666667,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						53416.6666666667,
+						6,
+						0,
+						"Hit High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						54666.6666666667,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						54833.3333333334,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						55000,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						55250,
+						1,
+						0,
+						"Punch Low"
+					],
+					[
+						55500,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						55666.6666666667,
+						0,
+						0,
+						"Punch Low Spin"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						56000,
+						1,
+						0,
+						"Punch Low"
+					],
+					[
+						56333.3333333334,
+						3,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						56500,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						56833.3333333334,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						57083.3333333334,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						57333.3333333334,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						57666.6666666667,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						58166.6666666667,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						58333.3333333334,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						58416.6666666667,
+						3,
+						0,
+						"Punch Low"
+					],
+					[
+						58500,
+						2,
+						0,
+						"Punch High"
+					],
+					[
+						57583.3333333334,
+						0,
+						0,
+						"Punch Low Dodged"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						58666.6666666667,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						58833.3333333334,
+						3,
+						0,
+						"Hit High"
+					],
+					[
+						59000,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						59166.6666666667,
+						1,
+						0,
+						"Punch Low"
+					],
+					[
+						59333.3333333334,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						59500,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						59666.6666666667,
+						3,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						60000,
+						2,
+						0,
+						"Fake Out"
+					],
+					[
+						60333.3333333334,
+						3,
+						0,
+						"Taunt"
+					],
+					[
+						60833.3333333334,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						61000,
+						5,
+						0,
+						"Hit Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						61333.3333333334,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						61666.6666666667,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						61833.3333333334,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						62166.6666666667,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						62666.6666666667,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						63000,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						63500,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						63666.6666666667,
+						5,
+						0,
+						"Hit Low"
+					],
+					[
+						63833.3333333334,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						64000,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						64083.3333333334,
+						1,
+						0,
+						"Punch Low"
+					],
+					[
+						64333.3333333334,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						64500,
+						2,
+						0,
+						"Dodge Low"
+					],
+					[
+						64833.3333333334,
+						0,
+						0,
+						"Punch High Blocked"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						65500,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						65666.6666666667,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						65916.6666666667,
+						3,
+						0,
+						"Dodge High"
+					],
+					[
+						66166.6666666667,
+						1,
+						0,
+						"Pico Uppercut Prep"
+					],
+					[
+						66333.3333333334,
+						2,
+						0,
+						"Pico Uppercut"
+					],
+					[
+						65333.3333333334,
+						1,
+						0,
+						"Punch Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						66666.6666666667,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						67000,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						67166.6666666667,
+						1,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						67500,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						67750,
+						3,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						68000,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						68250,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						68333.3333333334,
+						0,
+						0,
+						"Punch High Spin"
+					],
+					[
+						68666.6666666667,
+						3,
+						0,
+						"Punch Low"
+					],
+					[
+						68833.3333333334,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						69000,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						69166.6666666667,
+						2,
+						0,
+						"Dodge High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						69333.3333333334,
+						1,
+						0,
+						"Punch Low Blocked"
+					],
+					[
+						69916.6666666667,
+						1,
+						0,
+						"Punch Low"
+					],
+					[
+						70166.6666666667,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						70333.3333333334,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						69666.6666666667,
+						3,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						70666.6666666667,
+						6,
+						0,
+						"Hit High"
+					],
+					[
+						71000,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						71666.6666666667,
+						6,
+						0,
+						"Hit Low"
+					],
+					[
+						71500,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						72000,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						72333.3333333334,
+						1,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						72500,
+						3,
+						0,
+						"Dodge High"
+					],
+					[
+						72833.3333333334,
+						2,
+						0,
+						"Dodge Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						73333.3333333334,
+						0,
+						0,
+						"Punch Low"
+					],
+					[
+						73666.6666666667,
+						2,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						74166.6666666667,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						74333.3333333334,
+						3,
+						0,
+						"Punch High"
+					],
+					[
+						74500,
+						7,
+						0,
+						"Hit Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						74666.6666666667,
+						6,
+						0,
+						"Hit High"
+					],
+					[
+						74708.3333333334,
+						7,
+						0,
+						"Hit Low"
+					],
+					[
+						74791.6666666667,
+						7,
+						0,
+						"Hit Low"
+					],
+					[
+						75000,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						75166.6666666667,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						75500,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						74750,
+						6,
+						0,
+						"Hit High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						76000,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						76166.6666666667,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						76333.3333333333,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						76583.3333333333,
+						1,
+						0,
+						"Punch Low"
+					],
+					[
+						76833.3333333333,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						77000,
+						0,
+						0,
+						"Punch Low Spin"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						77333.3333333333,
+						1,
+						0,
+						"Punch Low"
+					],
+					[
+						77666.6666666667,
+						3,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						77833.3333333333,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						78166.6666666667,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						78416.6666666667,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						78666.6666666667,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						79000,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						79500,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						79666.6666666667,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						78916.6666666667,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						79833.3333333333,
+						2,
+						0,
+						"Punch High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						80000,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						80166.6666666667,
+						3,
+						0,
+						"Hit High"
+					],
+					[
+						80333.3333333333,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						80500,
+						1,
+						0,
+						"Punch Low"
+					],
+					[
+						80666.6666666667,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						80833.3333333333,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						81000,
+						3,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						81333.3333333333,
+						2,
+						0,
+						"Fake Out"
+					],
+					[
+						81666.6666666667,
+						3,
+						0,
+						"Taunt"
+					],
+					[
+						82333.3333333333,
+						5,
+						0,
+						"Hit Low"
+					],
+					[
+						82166.6666666667,
+						7,
+						0,
+						"Hit High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						82666.6666666667,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						83000,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						83166.6666666667,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						83500,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						84000,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						84333.3333333333,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						84833.3333333333,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						85000,
+						5,
+						0,
+						"Hit Low"
+					],
+					[
+						85166.6666666667,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						85333.3333333333,
+						0,
+						0,
+						"Punch High"
+					],
+					[
+						85416.6666666666,
+						1,
+						0,
+						"Punch Low"
+					],
+					[
+						85666.6666666666,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						86166.6666666666,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						85833.3333333333,
+						2,
+						0,
+						"Dodge Low"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionBeats": 4,
+				"sectionNotes": [
+					[
+						86666.6666666666,
+						1,
+						0,
+						"Punch Low"
+					],
+					[
+						87000,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						87250,
+						3,
+						0,
+						"Dodge High"
+					],
+					[
+						87500,
+						1,
+						0,
+						"Pico Uppercut Prep"
+					],
+					[
+						87666.6666666666,
+						2,
+						0,
+						"Pico Uppercut"
+					],
+					[
+						86833.3333333333,
+						7,
+						0,
+						"Hit High"
+					]
+				],
+				"gfSection": false,
+				"altAnim": false,
+				"mustHitSection": true,
+				"changeBPM": false,
+				"bpm": 150
+			},
+			{
+				"sectionNotes": [
+					[
+						88000,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						88333.3333333333,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						88500,
+						1,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						88833.3333333333,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						89083.3333333333,
+						3,
+						0,
+						"Block High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						89333.3333333333,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						89583.3333333333,
+						1,
+						0,
+						"Dodge Low"
+					],
+					[
+						89666.6666666666,
+						0,
+						0,
+						"Punch High Spin"
+					],
+					[
+						90000,
+						3,
+						0,
+						"Punch Low"
+					],
+					[
+						90166.6666666666,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						90416.6666666666,
+						3,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						90500,
+						5,
+						0,
+						"Darnell Uppercut Prep"
+					],
+					[
+						90333.3333333333,
+						0,
+						0,
+						"Block High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						90666.6666666666,
+						7,
+						0,
+						"Darnell Uppercut"
+					],
+					[
+						91000,
+						3,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						91166.6666666666,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						91500,
+						0,
+						0,
+						"Punch High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						92000,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						92333.3333333333,
+						2,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						93000,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						92833.3333333333,
+						1,
+						0,
+						"Block High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						93333.3333333333,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						93666.6666666666,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						93833.3333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						94166.6666666666,
+						3,
+						0,
+						"Dodge Low"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						94666.6666666666,
+						1,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						95041.6666666666,
+						6,
+						0,
+						"Hit Low"
+					],
+					[
+						95083.3333333333,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						95666.6666666666,
+						1,
+						0,
+						"Pico Uppercut Prep"
+					],
+					[
+						95499.9999999999,
+						3,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						94999.9999999999,
+						7,
+						0,
+						"Hit High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						95999.9999999999,
+						2,
+						0,
+						"Pico Uppercut"
+					],
+					[
+						96333.3333333333,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						96499.9999999999,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						96833.3333333333,
+						2,
+						0,
+						"Punch High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						97333.3333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						97499.9999999999,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						97666.6666666666,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						98333.3333333333,
+						7,
+						0,
+						"Hit Low"
+					],
+					[
+						98166.6666666666,
+						3,
+						0,
+						"Block High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						98666.6666666666,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						98999.9999999999,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						99166.6666666666,
+						3,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						99499.9999999999,
+						2,
+						0,
+						"Dodge Low"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						99999.9999999999,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						100333.333333333,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						100666.666666667,
+						0,
+						0,
+						"Punch Low"
+					],
+					[
+						100500,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						101000,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						100833.333333333,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						101166.666666667,
+						5,
+						0,
+						"Darnell Uppercut Prep"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						101333.333333333,
+						7,
+						0,
+						"Darnell Uppercut"
+					],
+					[
+						101666.666666667,
+						3,
+						0,
+						"Punch High"
+					],
+					[
+						101833.333333333,
+						0,
+						0,
+						"Block High"
+					],
+					[
+						102333.333333333,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						102166.666666667,
+						1,
+						0,
+						"Punch Low Dodged"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						102666.666666667,
+						0,
+						0,
+						"Dodge Low"
+					],
+					[
+						103000,
+						2,
+						0,
+						"Punch Low Spin"
+					],
+					[
+						103666.666666667,
+						2,
+						0,
+						"Dodge Low"
+					],
+					[
+						103500,
+						1,
+						0,
+						"Punch High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						104000,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						104333.333333333,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						104500,
+						2,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						104833.333333333,
+						0,
+						0,
+						"Hit High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						105333.333333333,
+						1,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						105666.666666667,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						106166.666666667,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						106333.333333333,
+						2,
+						0,
+						"Dodge Low"
+					],
+					[
+						106500,
+						3,
+						0,
+						"Pico Uppercut Prep"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						106666.666666667,
+						2,
+						0,
+						"Pico Uppercut"
+					],
+					[
+						107000,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						107166.666666667,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						107666.666666667,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						107500,
+						1,
+						0,
+						"Dodge Low"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						108000,
+						0,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						109000,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						108833.333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						108333.333333333,
+						2,
+						0,
+						"Dodge Low"
+					],
+					[
+						109166.666666667,
+						0,
+						0,
+						"Punch High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						109333.333333333,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						109666.666666667,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						109833.333333333,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						109500,
+						7,
+						0,
+						"Hit High"
+					],
+					[
+						110166.666666667,
+						2,
+						0,
+						"Punch High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						110666.666666667,
+						3,
+						0,
+						"Block High"
+					],
+					[
+						111166.666666667,
+						1,
+						0,
+						"Fake Out"
+					],
+					[
+						111666.666666667,
+						0,
+						0,
+						"Taunt"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						112000,
+						6,
+						0,
+						"Hit High"
+					],
+					[
+						112333.333333333,
+						3,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						112500,
+						1,
+						0,
+						"Block High"
+					],
+					[
+						112833.333333333,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						112666.666666667,
+						3,
+						0,
+						"Punch Low Dodged"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						113333.333333333,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						113666.666666667,
+						2,
+						0,
+						"Block High"
+					],
+					[
+						114000,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						114166.666666667,
+						1,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						114333.333333333,
+						0,
+						0,
+						"Punch High Blocked"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						114666.666666667,
+						1,
+						0,
+						"Block Spin"
+					],
+					[
+						115000,
+						3,
+						0,
+						"Punch Low Dodged"
+					],
+					[
+						115166.666666667,
+						0,
+						0,
+						"Dodge Low"
+					],
+					[
+						115333.333333333,
+						3,
+						0,
+						"Punch High"
+					],
+					[
+						115500,
+						2,
+						0,
+						"Block High"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						116000,
+						0,
+						0,
+						"Punch High Blocked"
+					],
+					[
+						116500,
+						3,
+						0,
+						"Dodge Low"
+					],
+					[
+						117000,
+						1,
+						0,
+						"Pico Uppercut Prep"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"sectionNotes": [
+					[
+						117333.333333333,
+						2,
+						0,
+						"Pico Uppercut"
+					]
+				],
+				"sectionBeats": 4,
+				"gfSection": false,
+				"altAnim": false,
+				"bpm": 180,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"gfSection": false,
+				"altAnim": false,
+				"sectionNotes": [],
+				"bpm": 180,
+				"sectionBeats": 4,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"gfSection": false,
+				"altAnim": false,
+				"sectionNotes": [],
+				"bpm": 180,
+				"sectionBeats": 4,
+				"changeBPM": false,
+				"mustHitSection": true
+			},
+			{
+				"gfSection": false,
+				"altAnim": false,
+				"sectionNotes": [],
+				"bpm": 180,
+				"sectionBeats": 4,
+				"changeBPM": false,
+				"mustHitSection": true
+			}
+		],
+		"events": [],
+		"player2": "darnell-blazin",
+		"song": "Blazin'",
+		"needsVoices": false,
+		"stage": "streetsBlazin",
+		"speed": 2,
+		"bpm": 180
+	}
+}

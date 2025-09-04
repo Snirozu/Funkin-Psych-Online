@@ -1,0 +1,4 @@
+Value 1: Rate (Default: 4)
+Value 2: Intensity (Default: 1)
+Rate defines how many beats are between camera bops.
+Intensity acts like a multiplier for the camera bops.

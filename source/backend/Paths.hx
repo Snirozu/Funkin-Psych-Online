@@ -274,15 +274,49 @@ class Paths
 		if (bitmap != null)
 		{
 			localTrackedAssets.push(file);
-			// if (allowGPU /*&& ClientPrefs.data.cacheOnGPU*/)
-			// {
-			// 	var texture:RectangleTexture = FlxG.stage.context3D.createRectangleTexture(bitmap.width, bitmap.height, BGRA, true);
-			// 	texture.uploadFromBitmapData(bitmap);
-			// 	bitmap.image.data = null;
-			// 	bitmap.dispose();
-			// 	bitmap.disposeImage();
-			// 	bitmap = BitmapData.fromTexture(texture);
-			// }
+if (allowGPU /*&& ClientPrefs.data.cacheOnGPU*/)
+{
+    // Si no hay contexto 3D disponible, evitamos crashear
+    var ctx:openfl.display3D.Context3D = FlxG.stage.context3D;
+    if (ctx != null && bitmap != null)
+    {
+        // Liberar cualquier textura previa asociada a este bitmap
+        if (bitmap.image != null && bitmap.image.texture != null)
+        {
+            try {
+                bitmap.image.texture.dispose();
+            } catch (e:Dynamic) {
+                trace('Warning: No se pudo liberar textura previa -> $e');
+            }
+        }
+
+        // Crear la textura en GPU con dimensiones ajustadas a potencias de 2 para mejor rendimiento
+        var w:Int = Std.int(Math.pow(2, Math.ceil(Math.log(bitmap.width) / Math.log(2))));
+        var h:Int = Std.int(Math.pow(2, Math.ceil(Math.log(bitmap.height) / Math.log(2))));
+
+        // Crear textura rectangular en GPU
+        var texture:RectangleTexture = ctx.createRectangleTexture(w, h, BGRA, true);
+        texture.uploadFromBitmapData(bitmap);
+
+        // Liberar la data de la RAM para que solo exista en la GPU
+        if (bitmap.image != null) bitmap.image.data = null;
+
+        // Limpiar correctamente el bitmap anterior
+        bitmap.dispose();
+        bitmap.disposeImage();
+
+        // Recrear bitmap desde la textura optimizada
+        bitmap = BitmapData.fromTexture(texture);
+
+        // Forzar garbage collector de OpenFL para prevenir memory leaks
+        openfl.system.System.gc();
+    }
+    else
+    {
+        trace("⚠ No hay contexto 3D disponible para cachear en GPU.");
+    }
+}
+
 			var newGraphic:FlxGraphic = FlxGraphic.fromBitmapData(bitmap, false, file);
 			newGraphic.persist = true;
 			newGraphic.destroyOnNoUse = false;

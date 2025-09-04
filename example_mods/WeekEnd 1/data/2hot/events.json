@@ -1,0 +1,171 @@
+{
+	"song": {
+		"events": [
+			[
+				8901.0989010989,
+				[
+					[
+						"Set Camera Target",
+						"2,125,110",
+						""
+					],
+					[
+						"Set Camera Zoom",
+						"0.65",
+						"4,elasticInOut"
+					]
+				]
+			],
+			[
+				10549.4505494506,
+				[
+					[
+						"Set Camera Target",
+						"",
+						""
+					],
+					[
+						"Set Camera Zoom",
+						"0.77",
+						"24,expoOut"
+					]
+				]
+			],
+			[
+				40549.4505494506,
+				[
+					[
+						"Set Camera Target",
+						"2,125,110",
+						""
+					],
+					[
+						"Set Camera Zoom",
+						"0.65",
+						"4,elasticInOut"
+					]
+				]
+			],
+			[
+				42197.8021978022,
+				[
+					[
+						"Set Camera Target",
+						"",
+						""
+					],
+					[
+						"Set Camera Zoom",
+						"0.77",
+						"24,expoOut"
+					]
+				]
+			],
+			[
+				51098.9010989011,
+				[
+					[
+						"Set Camera Target",
+						"2,125,110",
+						""
+					],
+					[
+						"Set Camera Zoom",
+						"0.65",
+						"4,elasticInOut"
+					]
+				]
+			],
+			[
+				52747.2527472527,
+				[
+					[
+						"Set Camera Target",
+						"",
+						""
+					],
+					[
+						"Set Camera Zoom",
+						"0.77",
+						"24,expoOut"
+					]
+				]
+			],
+			[
+				80109.8901098901,
+				[
+					[
+						"Set Camera Target",
+						"2,125,110",
+						""
+					],
+					[
+						"Set Camera Zoom",
+						"0.65",
+						"4,elasticInOut"
+					]
+				]
+			],
+			[
+				81758.2417582418,
+				[
+					[
+						"Set Camera Target",
+						"",
+						""
+					],
+					[
+						"Set Camera Zoom",
+						"0.77",
+						"24,expoOut"
+					]
+				]
+			],
+			[
+				85384.6153846154,
+				[
+					[
+						"Set Camera Target",
+						"2,125,110",
+						""
+					],
+					[
+						"Set Camera Zoom",
+						"0.65",
+						"4,elasticInOut"
+					]
+				]
+			],
+			[
+				87032.9670329671,
+				[
+					[
+						"Set Camera Target",
+						"",
+						""
+					],
+					[
+						"Set Camera Zoom",
+						"0.77",
+						"24,expoOut"
+					]
+				]
+			],
+			[
+				117032.967032967,
+				[
+					[
+						"Set Camera Target",
+						"2,125,110",
+						""
+					],
+					[
+						"Set Camera Zoom",
+						"0.65",
+						"4,elasticInOut"
+					]
+				]
+			]
+		]
+	}
+}

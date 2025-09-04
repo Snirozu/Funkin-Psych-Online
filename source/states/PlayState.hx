@@ -106,21 +106,6 @@ import online.backend.schema.Player;
 
 class PlayState extends MusicBeatState
 {
-
-    // ======== Variables para cámara flotante ========
-    var animIndexArray:Array<Array<Int>> = [[-1, 0], [0, 1], [0, -1], [1, 0]];
-    var offsetArray:Array<Float> = [0, 0];
-    var mult:Float = 20;
-    public static var forceCamera:Bool = false;
-    // =================================================
-
-    /**
-     * Activa o desactiva el modo de cámara forzada
-     */
-    public function setForceCamera(value:Bool):Void {
-        forceCamera = value;
-    }
-
 	public static var STRUM_X = 42;
 	public static var STRUM_X_MIDDLESCROLL = -278;
 

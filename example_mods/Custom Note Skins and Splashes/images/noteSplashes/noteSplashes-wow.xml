@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="noteSplashes-wow.png">
+	<!-- Created with Adobe Animate version 24.0.3.19 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="WOW red 10000" x="0" y="0" width="33" height="19" frameX="-75" frameY="-43" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW red 10001" x="33" y="0" width="88" height="45" frameX="-46" frameY="-33" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW red 10002" x="121" y="0" width="183" height="104" frameX="0" frameY="0" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW red 10003" x="304" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW red 10004" x="486" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW red 10005" x="668" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW red 20000" x="850" y="0" width="33" height="31" frameX="-66" frameY="-60" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW red 20001" x="883" y="0" width="62" height="55" frameX="-53" frameY="-49" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW red 20002" x="0" y="104" width="113" height="106" frameX="-31" frameY="-24" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW red 20003" x="113" y="104" width="175" height="154"/>
+	<SubTexture name="WOW red 20004" x="288" y="104" width="175" height="154"/>
+	<SubTexture name="WOW red 20005" x="463" y="104" width="175" height="154"/>
+	<SubTexture name="WOW red 20006" x="638" y="104" width="175" height="154"/>
+
+	<SubTexture name="WOW purple 10000" x="0" y="0" width="33" height="19" frameX="-75" frameY="-43" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW purple 10001" x="33" y="0" width="88" height="45" frameX="-46" frameY="-33" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW purple 10002" x="121" y="0" width="183" height="104" frameX="0" frameY="0" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW purple 10003" x="304" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW purple 10004" x="486" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW purple 10005" x="668" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW purple 20000" x="850" y="0" width="33" height="31" frameX="-66" frameY="-60" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW purple 20001" x="883" y="0" width="62" height="55" frameX="-53" frameY="-49" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW purple 20002" x="0" y="104" width="113" height="106" frameX="-31" frameY="-24" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW purple 20003" x="113" y="104" width="175" height="154"/>
+	<SubTexture name="WOW purple 20004" x="288" y="104" width="175" height="154"/>
+	<SubTexture name="WOW purple 20005" x="463" y="104" width="175" height="154"/>
+	<SubTexture name="WOW purple 20006" x="638" y="104" width="175" height="154"/>
+
+	<SubTexture name="WOW green 10000" x="0" y="0" width="33" height="19" frameX="-75" frameY="-43" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW green 10001" x="33" y="0" width="88" height="45" frameX="-46" frameY="-33" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW green 10002" x="121" y="0" width="183" height="104" frameX="0" frameY="0" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW green 10003" x="304" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW green 10004" x="486" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW green 10005" x="668" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW green 20000" x="850" y="0" width="33" height="31" frameX="-66" frameY="-60" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW green 20001" x="883" y="0" width="62" height="55" frameX="-53" frameY="-49" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW green 20002" x="0" y="104" width="113" height="106" frameX="-31" frameY="-24" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW green 20003" x="113" y="104" width="175" height="154"/>
+	<SubTexture name="WOW green 20004" x="288" y="104" width="175" height="154"/>
+	<SubTexture name="WOW green 20005" x="463" y="104" width="175" height="154"/>
+	<SubTexture name="WOW green 20006" x="638" y="104" width="175" height="154"/>
+
+	<SubTexture name="WOW blue 10000" x="0" y="0" width="33" height="19" frameX="-75" frameY="-43" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW blue 10001" x="33" y="0" width="88" height="45" frameX="-46" frameY="-33" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW blue 10002" x="121" y="0" width="183" height="104" frameX="0" frameY="0" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW blue 10003" x="304" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW blue 10004" x="486" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW blue 10005" x="668" y="0" width="182" height="104" frameX="0" frameY="-1" frameWidth="183" frameHeight="105"/>
+	<SubTexture name="WOW blue 20000" x="850" y="0" width="33" height="31" frameX="-66" frameY="-60" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW blue 20001" x="883" y="0" width="62" height="55" frameX="-53" frameY="-49" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW blue 20002" x="0" y="104" width="113" height="106" frameX="-31" frameY="-24" frameWidth="175" frameHeight="154"/>
+	<SubTexture name="WOW blue 20003" x="113" y="104" width="175" height="154"/>
+	<SubTexture name="WOW blue 20004" x="288" y="104" width="175" height="154"/>
+	<SubTexture name="WOW blue 20005" x="463" y="104" width="175" height="154"/>
+	<SubTexture name="WOW blue 20006" x="638" y="104" width="175" height="154"/>
+</TextureAtlas>

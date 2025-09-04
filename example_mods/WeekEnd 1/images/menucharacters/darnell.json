@@ -1,0 +1,11 @@
+{
+	"idle_anim": "idle",
+	"confirm_anim": "idle",
+	"position": [
+		0,
+		-90
+	],
+	"scale": 1,
+	"flipX": false,
+	"image": "Menu_Darnell"
+}

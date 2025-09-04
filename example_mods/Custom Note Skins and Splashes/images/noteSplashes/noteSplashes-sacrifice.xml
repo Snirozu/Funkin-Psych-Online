@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="bfSplash.png">
+	<!-- Created with Adobe Animate version 19.2.1.408 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="bf splash blue 10000" x="0" y="0" width="78" height="81" frameX="-148" frameY="-172" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash blue 10001" x="88" y="0" width="158" height="182" frameX="-109" frameY="-117" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash blue 10002" x="256" y="0" width="336" height="404" frameX="-20" frameY="-10" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash blue 10003" x="602" y="0" width="364" height="425" frameX="-6" frameY="0" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash blue 10004" x="0" y="435" width="372" height="426" frameX="0" frameY="-3" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash blue 10005" x="382" y="435" width="363" height="423" frameX="-6" frameY="-20" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash blue 10006" x="0" y="871" width="355" height="438" frameX="-7" frameY="-78" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash blue 10007" x="365" y="871" width="0" height="0" frameX="-158" frameY="-182" frameWidth="372" frameHeight="516"/>
+
+	<SubTexture name="bf splash green 10000" x="0" y="0" width="78" height="81" frameX="-148" frameY="-172" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash green 10001" x="88" y="0" width="158" height="182" frameX="-109" frameY="-117" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash green 10002" x="256" y="0" width="336" height="404" frameX="-20" frameY="-10" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash green 10003" x="602" y="0" width="364" height="425" frameX="-6" frameY="0" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash green 10004" x="0" y="435" width="372" height="426" frameX="0" frameY="-3" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash green 10005" x="382" y="435" width="363" height="423" frameX="-6" frameY="-20" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash green 10006" x="0" y="871" width="355" height="438" frameX="-7" frameY="-78" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash green 10007" x="365" y="871" width="0" height="0" frameX="-158" frameY="-182" frameWidth="372" frameHeight="516"/>
+
+	<SubTexture name="bf splash red 10000" x="0" y="0" width="78" height="81" frameX="-148" frameY="-172" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash red 10001" x="88" y="0" width="158" height="182" frameX="-109" frameY="-117" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash red 10002" x="256" y="0" width="336" height="404" frameX="-20" frameY="-10" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash red 10003" x="602" y="0" width="364" height="425" frameX="-6" frameY="0" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash red 10004" x="0" y="435" width="372" height="426" frameX="0" frameY="-3" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash red 10005" x="382" y="435" width="363" height="423" frameX="-6" frameY="-20" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash red 10006" x="0" y="871" width="355" height="438" frameX="-7" frameY="-78" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash red 10007" x="365" y="871" width="0" height="0" frameX="-158" frameY="-182" frameWidth="372" frameHeight="516"/>
+
+	<SubTexture name="bf splash purple 10000" x="0" y="0" width="78" height="81" frameX="-148" frameY="-172" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash purple 10001" x="88" y="0" width="158" height="182" frameX="-109" frameY="-117" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash purple 10002" x="256" y="0" width="336" height="404" frameX="-20" frameY="-10" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash purple 10003" x="602" y="0" width="364" height="425" frameX="-6" frameY="0" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash purple 10004" x="0" y="435" width="372" height="426" frameX="0" frameY="-3" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash purple 10005" x="382" y="435" width="363" height="423" frameX="-6" frameY="-20" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash purple 10006" x="0" y="871" width="355" height="438" frameX="-7" frameY="-78" frameWidth="372" frameHeight="516"/>
+	<SubTexture name="bf splash purple 10007" x="365" y="871" width="0" height="0" frameX="-158" frameY="-182" frameWidth="372" frameHeight="516"/>
+</TextureAtlas>

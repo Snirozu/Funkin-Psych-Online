@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="noteSplashes-hope-old.png">
+	<!-- Created with Adobe Animate version 21.0.0.35450 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="hope old splash blue 10000" x="22" y="22" width="135" height="133" frameX="-33" frameY="-38" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash blue 10001" x="172" y="22" width="177" height="181" frameX="-3" frameY="-18" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash blue 10002" x="364" y="22" width="169" height="187" frameX="-7" frameY="-11" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash blue 10003" x="548" y="22" width="181" height="215" frameX="0" frameY="-6" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash blue 10004" x="744" y="22" width="171" height="211" frameX="-7" frameY="-1" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash blue 10005" x="22" y="252" width="209" height="241" frameX="-2" frameY="0" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash green 10000" x="22" y="22" width="135" height="133" frameX="-33" frameY="-38" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash green 10001" x="172" y="22" width="177" height="181" frameX="-3" frameY="-18" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash green 10002" x="364" y="22" width="169" height="187" frameX="-7" frameY="-11" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash green 10003" x="548" y="22" width="181" height="215" frameX="0" frameY="-6" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash green 10004" x="744" y="22" width="171" height="211" frameX="-7" frameY="-1" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash green 10005" x="22" y="252" width="209" height="241" frameX="-2" frameY="0" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash purple 10000" x="22" y="22" width="135" height="133" frameX="-33" frameY="-38" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash purple 10001" x="172" y="22" width="177" height="181" frameX="-3" frameY="-18" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash purple 10002" x="364" y="22" width="169" height="187" frameX="-7" frameY="-11" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash purple 10003" x="548" y="22" width="181" height="215" frameX="0" frameY="-6" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash purple 10004" x="744" y="22" width="171" height="211" frameX="-7" frameY="-1" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash purple 10005" x="22" y="252" width="209" height="241" frameX="-2" frameY="0" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash red 10000" x="22" y="22" width="135" height="133" frameX="-33" frameY="-38" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash red 10001" x="172" y="22" width="177" height="181" frameX="-3" frameY="-18" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash red 10002" x="364" y="22" width="169" height="187" frameX="-7" frameY="-11" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash red 10003" x="548" y="22" width="181" height="215" frameX="0" frameY="-6" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash red 10004" x="744" y="22" width="171" height="211" frameX="-7" frameY="-1" frameWidth="211" frameHeight="241"/>
+	<SubTexture name="hope old splash red 10005" x="22" y="252" width="209" height="241" frameX="-2" frameY="0" frameWidth="211" frameHeight="241"/>
+</TextureAtlas>

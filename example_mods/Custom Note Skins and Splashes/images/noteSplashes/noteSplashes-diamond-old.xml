@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="noteSplashes-diamond-old.png">
+	<!-- Created with Adobe Animate version 22.0.8.217 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="note splash diamond blue 10000" x="0" y="0" width="204" height="196" frameX="-90" frameY="-71" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond blue 10001" x="204" y="0" width="299" height="254" frameX="-42" frameY="-32" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond blue 10002" x="503" y="0" width="371" height="295" frameX="-3" frameY="-8" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond blue 10003" x="0" y="295" width="382" height="304"/>
+	<SubTexture name="note splash diamond blue 20000" x="382" y="295" width="205" height="195" frameX="-86" frameY="-37" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond blue 20001" x="587" y="295" width="298" height="254" frameX="-41" frameY="-18" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond blue 20002" x="0" y="599" width="372" height="294" frameX="-7" frameY="-2" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond blue 20003" x="372" y="599" width="382" height="304"/>
+
+	<SubTexture name="note splash diamond green 10000" x="0" y="0" width="204" height="196" frameX="-90" frameY="-71" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond green 10001" x="204" y="0" width="299" height="254" frameX="-42" frameY="-32" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond green 10002" x="503" y="0" width="371" height="295" frameX="-3" frameY="-8" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond green 10003" x="0" y="295" width="382" height="304"/>
+	<SubTexture name="note splash diamond green 20000" x="382" y="295" width="205" height="195" frameX="-86" frameY="-37" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond green 20001" x="587" y="295" width="298" height="254" frameX="-41" frameY="-18" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond green 20002" x="0" y="599" width="372" height="294" frameX="-7" frameY="-2" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond green 20003" x="372" y="599" width="382" height="304"/>
+
+	<SubTexture name="note splash diamond purple 10000" x="0" y="0" width="204" height="196" frameX="-90" frameY="-71" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond purple 10001" x="204" y="0" width="299" height="254" frameX="-42" frameY="-32" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond purple 10002" x="503" y="0" width="371" height="295" frameX="-3" frameY="-8" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond purple 10003" x="0" y="295" width="382" height="304"/>
+	<SubTexture name="note splash diamond purple 20000" x="382" y="295" width="205" height="195" frameX="-86" frameY="-37" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond purple 20001" x="587" y="295" width="298" height="254" frameX="-41" frameY="-18" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond purple 20002" x="0" y="599" width="372" height="294" frameX="-7" frameY="-2" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond purple 20003" x="372" y="599" width="382" height="304"/>
+	
+	<SubTexture name="note splash diamond red 10000" x="0" y="0" width="204" height="196" frameX="-90" frameY="-71" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond red 10001" x="204" y="0" width="299" height="254" frameX="-42" frameY="-32" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond red 10002" x="503" y="0" width="371" height="295" frameX="-3" frameY="-8" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond red 10003" x="0" y="295" width="382" height="304"/>
+	<SubTexture name="note splash diamond red 20000" x="382" y="295" width="205" height="195" frameX="-86" frameY="-37" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond red 20001" x="587" y="295" width="298" height="254" frameX="-41" frameY="-18" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond red 20002" x="0" y="599" width="372" height="294" frameX="-7" frameY="-2" frameWidth="382" frameHeight="304"/>
+	<SubTexture name="note splash diamond red 20003" x="372" y="599" width="382" height="304"/>
+</TextureAtlas>

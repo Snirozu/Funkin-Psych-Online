@@ -1,0 +1,11 @@
+{
+	"idle_anim": "idle",
+	"confirm_anim": "idle",
+	"position": [
+		-10,
+		-20
+	],
+	"scale": 1,
+	"flipX": false,
+	"image": "Menu_Nene"
+}

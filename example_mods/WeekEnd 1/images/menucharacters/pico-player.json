@@ -1,0 +1,11 @@
+{
+	"confirm_anim": "confirm",
+	"idle_anim": "idle",
+	"position": [
+		60,
+		0
+	],
+	"scale": 1,
+	"image": "Menu_Pico_Player",
+	"flipX": false
+}

@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="noteSplashes-andromeda.png">
+	<!-- Created with Adobe Animate version 21.0.0.35450 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="andromeda splash blue 10000" x="22" y="22" width="455" height="454"/>
+	<SubTexture name="andromeda splash blue 10001" x="492" y="22" width="419" height="377" frameX="-8" frameY="-37" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash blue 10002" x="926" y="22" width="292" height="258" frameX="-61" frameY="-105" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash blue 10003" x="1233" y="22" width="176" height="181" frameX="-122" frameY="-136" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash blue 10004" x="1424" y="22" width="388" height="371" frameX="-14" frameY="-53" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash blue 10005" x="22" y="491" width="346" height="322" frameX="-16" frameY="-51" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash blue 10006" x="383" y="491" width="434" height="394" frameX="-5" frameY="-21" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash blue 10007" x="832" y="491" width="83" height="83" frameX="-168" frameY="-185" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash blue 10008" x="930" y="491" width="35" height="49" frameX="-198" frameY="-195" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash green 10000" x="22" y="22" width="455" height="454"/>
+	<SubTexture name="andromeda splash green 10001" x="492" y="22" width="419" height="377" frameX="-8" frameY="-37" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash green 10002" x="926" y="22" width="292" height="258" frameX="-61" frameY="-105" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash green 10003" x="1233" y="22" width="176" height="181" frameX="-122" frameY="-136" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash green 10004" x="1424" y="22" width="388" height="371" frameX="-14" frameY="-53" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash green 10005" x="22" y="491" width="346" height="322" frameX="-16" frameY="-51" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash green 10006" x="383" y="491" width="434" height="394" frameX="-5" frameY="-21" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash green 10007" x="832" y="491" width="83" height="83" frameX="-168" frameY="-185" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash green 10008" x="930" y="491" width="35" height="49" frameX="-198" frameY="-195" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash purple 10000" x="22" y="22" width="455" height="454"/>
+	<SubTexture name="andromeda splash purple 10001" x="492" y="22" width="419" height="377" frameX="-8" frameY="-37" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash purple 10002" x="926" y="22" width="292" height="258" frameX="-61" frameY="-105" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash purple 10003" x="1233" y="22" width="176" height="181" frameX="-122" frameY="-136" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash purple 10004" x="1424" y="22" width="388" height="371" frameX="-14" frameY="-53" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash purple 10005" x="22" y="491" width="346" height="322" frameX="-16" frameY="-51" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash purple 10006" x="383" y="491" width="434" height="394" frameX="-5" frameY="-21" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash purple 10007" x="832" y="491" width="83" height="83" frameX="-168" frameY="-185" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash purple 10008" x="930" y="491" width="35" height="49" frameX="-198" frameY="-195" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash red 10000" x="22" y="22" width="455" height="454"/>
+	<SubTexture name="andromeda splash red 10001" x="492" y="22" width="419" height="377" frameX="-8" frameY="-37" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash red 10002" x="926" y="22" width="292" height="258" frameX="-61" frameY="-105" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash red 10003" x="1233" y="22" width="176" height="181" frameX="-122" frameY="-136" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash red 10004" x="1424" y="22" width="388" height="371" frameX="-14" frameY="-53" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash red 10005" x="22" y="491" width="346" height="322" frameX="-16" frameY="-51" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash red 10006" x="383" y="491" width="434" height="394" frameX="-5" frameY="-21" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash red 10007" x="832" y="491" width="83" height="83" frameX="-168" frameY="-185" frameWidth="455" frameHeight="454"/>
+	<SubTexture name="andromeda splash red 10008" x="930" y="491" width="35" height="49" frameX="-198" frameY="-195" frameWidth="455" frameHeight="454"/>
+</TextureAtlas>

@@ -1,0 +1,8 @@
+Value 1: Value,Mode
+Value 2: Duration,Ease 
+If Mode is "stage", Value will be multiplied by the
+stage's default zoom, else the zoom will be equal
+to Value. This can be skipped.
+Duration works in Steps.
+Ease can be skipped as the default one is "linear".
+Leave Value 2 blank if you want the zoom to be instant.

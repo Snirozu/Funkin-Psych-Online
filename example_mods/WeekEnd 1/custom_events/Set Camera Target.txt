@@ -1,0 +1,9 @@
+Value 1: Character,X,Y
+Value 2: Duration,Ease
+Character is either BF, Dad or GF. This can be skipped.
+X and Y can be skipped if you don't want any offsets.
+Duration works in Steps. Set it to "0" to be instant.
+Ease can be skipped as the default one is "linear".
+Leave Value 2 blank if you don't want to use a tween.
+Leave Value 1 blank if you want the camera to act
+normally again since it'll be locked on the target.

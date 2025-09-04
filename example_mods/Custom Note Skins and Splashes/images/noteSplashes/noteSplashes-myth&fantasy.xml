@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="noteSplashes-myth&fantasy.png">
+	<!-- Created with Adobe Animate version 22.0.8.217 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="myth splash blue 10000" x="0" y="0" width="193" height="204" frameX="-47" frameY="-36" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash blue 10001" x="193" y="0" width="275" height="250" frameX="0" frameY="-16" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash blue 10002" x="468" y="0" width="267" height="261" frameX="-8" frameY="-10" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash blue 10003" x="735" y="0" width="284" height="271" frameX="-9" frameY="0" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash blue 20000" x="0" y="271" width="246" height="230" frameX="-28" frameY="-39" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash blue 20001" x="246" y="271" width="271" height="267" frameX="-7" frameY="-16" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash blue 20002" x="517" y="271" width="296" height="275" frameX="-7" frameY="0" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash blue 20003" x="0" y="546" width="297" height="299" frameX="0" frameY="-5" frameWidth="303" frameHeight="304"/>
+
+	<SubTexture name="myth splash green 10000" x="0" y="0" width="193" height="204" frameX="-47" frameY="-36" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash green 10001" x="193" y="0" width="275" height="250" frameX="0" frameY="-16" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash green 10002" x="468" y="0" width="267" height="261" frameX="-8" frameY="-10" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash green 10003" x="735" y="0" width="284" height="271" frameX="-9" frameY="0" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash green 20000" x="0" y="271" width="246" height="230" frameX="-28" frameY="-39" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash green 20001" x="246" y="271" width="271" height="267" frameX="-7" frameY="-16" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash green 20002" x="517" y="271" width="296" height="275" frameX="-7" frameY="0" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash green 20003" x="0" y="546" width="297" height="299" frameX="0" frameY="-5" frameWidth="303" frameHeight="304"/>
+
+	<SubTexture name="myth splash purple 10000" x="0" y="0" width="193" height="204" frameX="-47" frameY="-36" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash purple 10001" x="193" y="0" width="275" height="250" frameX="0" frameY="-16" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash purple 10002" x="468" y="0" width="267" height="261" frameX="-8" frameY="-10" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash purple 10003" x="735" y="0" width="284" height="271" frameX="-9" frameY="0" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash purple 20000" x="0" y="271" width="246" height="230" frameX="-28" frameY="-39" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash purple 20001" x="246" y="271" width="271" height="267" frameX="-7" frameY="-16" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash purple 20002" x="517" y="271" width="296" height="275" frameX="-7" frameY="0" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash purple 20003" x="0" y="546" width="297" height="299" frameX="0" frameY="-5" frameWidth="303" frameHeight="304"/>
+	
+	<SubTexture name="myth splash red 10000" x="0" y="0" width="193" height="204" frameX="-47" frameY="-36" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash red 10001" x="193" y="0" width="275" height="250" frameX="0" frameY="-16" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash red 10002" x="468" y="0" width="267" height="261" frameX="-8" frameY="-10" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash red 10003" x="735" y="0" width="284" height="271" frameX="-9" frameY="0" frameWidth="293" frameHeight="271"/>
+	<SubTexture name="myth splash red 20000" x="0" y="271" width="246" height="230" frameX="-28" frameY="-39" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash red 20001" x="246" y="271" width="271" height="267" frameX="-7" frameY="-16" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash red 20002" x="517" y="271" width="296" height="275" frameX="-7" frameY="0" frameWidth="303" frameHeight="304"/>
+	<SubTexture name="myth splash red 20003" x="0" y="546" width="297" height="299" frameX="0" frameY="-5" frameWidth="303" frameHeight="304"/>
+</TextureAtlas>

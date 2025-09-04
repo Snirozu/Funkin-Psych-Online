@@ -1,0 +1,10 @@
+{
+	"confirm_anim": "confirm0",
+	"idle_anim": "idle0",
+	"position": [
+		15,
+		-40
+	],
+	"scale": 1,
+	"image": "Menu_BF_Pico"
+}

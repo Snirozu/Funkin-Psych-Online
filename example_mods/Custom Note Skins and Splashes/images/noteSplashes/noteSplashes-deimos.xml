@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="deimosSplash.png">
+	<!-- Created with Adobe Animate version 19.2.1.408 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="deimoss splash blue 10000" x="0" y="0" width="116" height="137" frameX="-99" frameY="-69" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash blue 10001" x="146" y="0" width="303" height="277" frameX="-7" frameY="-19" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash blue 10002" x="146" y="0" width="303" height="277" frameX="-7" frameY="-19" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash blue 10003" x="479" y="0" width="325" height="290" frameX="0" frameY="0" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash blue 10004" x="0" y="320" width="304" height="281" frameX="-2" frameY="0" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash blue 10005" x="334" y="320" width="307" height="277" frameX="-2" frameY="-5" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash blue 10006" x="671" y="320" width="0" height="0" frameX="254" frameY="-59" frameWidth="325" frameHeight="296"/>
+
+	<SubTexture name="deimoss splash green 10000" x="0" y="0" width="116" height="137" frameX="-99" frameY="-69" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash green 10001" x="146" y="0" width="303" height="277" frameX="-7" frameY="-19" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash green 10002" x="146" y="0" width="303" height="277" frameX="-7" frameY="-19" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash green 10003" x="479" y="0" width="325" height="290" frameX="0" frameY="0" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash green 10004" x="0" y="320" width="304" height="281" frameX="-2" frameY="0" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash green 10005" x="334" y="320" width="307" height="277" frameX="-2" frameY="-5" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash green 10006" x="671" y="320" width="0" height="0" frameX="254" frameY="-59" frameWidth="325" frameHeight="296"/>
+
+	<SubTexture name="deimoss splash purple 10000" x="0" y="0" width="116" height="137" frameX="-99" frameY="-69" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash purple 10001" x="146" y="0" width="303" height="277" frameX="-7" frameY="-19" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash purple 10002" x="146" y="0" width="303" height="277" frameX="-7" frameY="-19" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash purple 10003" x="479" y="0" width="325" height="290" frameX="0" frameY="0" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash purple 10004" x="0" y="320" width="304" height="281" frameX="-2" frameY="0" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash purple 10005" x="334" y="320" width="307" height="277" frameX="-2" frameY="-5" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash purple 10006" x="671" y="320" width="0" height="0" frameX="254" frameY="-59" frameWidth="325" frameHeight="296"/>
+
+	<SubTexture name="deimoss splash red 10000" x="0" y="0" width="116" height="137" frameX="-99" frameY="-69" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash red 10001" x="146" y="0" width="303" height="277" frameX="-7" frameY="-19" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash red 10002" x="146" y="0" width="303" height="277" frameX="-7" frameY="-19" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash red 10003" x="479" y="0" width="325" height="290" frameX="0" frameY="0" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash red 10004" x="0" y="320" width="304" height="281" frameX="-2" frameY="0" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash red 10005" x="334" y="320" width="307" height="277" frameX="-2" frameY="-5" frameWidth="325" frameHeight="296"/>
+	<SubTexture name="deimoss splash red 10006" x="671" y="320" width="0" height="0" frameX="254" frameY="-59" frameWidth="325" frameHeight="296"/>
+</TextureAtlas>

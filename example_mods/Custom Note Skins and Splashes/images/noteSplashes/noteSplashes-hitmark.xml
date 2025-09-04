@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="hitmarker.png">
+	<!-- Created with Adobe Animate version 21.0.5.40714 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="hit blue 10000" x="2" y="2" width="109" height="109" frameX="-13" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit blue 10001" x="113" y="2" width="111" height="110" frameX="-12" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit blue 10002" x="226" y="2" width="115" height="116" frameX="-10" frameY="-9" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit blue 10003" x="343" y="2" width="123" height="124" frameX="-6" frameY="-5" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit blue 10004" x="2" y="128" width="135" height="134"/>
+
+	<SubTexture name="hit red 10000" x="2" y="2" width="109" height="109" frameX="-13" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 10001" x="113" y="2" width="111" height="110" frameX="-12" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 10002" x="226" y="2" width="115" height="116" frameX="-10" frameY="-9" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 10003" x="343" y="2" width="123" height="124" frameX="-6" frameY="-5" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 10004" x="2" y="128" width="135" height="134"/>
+
+	<SubTexture name="hit green 10000" x="2" y="2" width="109" height="109" frameX="-13" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit green 10001" x="113" y="2" width="111" height="110" frameX="-12" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit green 10002" x="226" y="2" width="115" height="116" frameX="-10" frameY="-9" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit green 10003" x="343" y="2" width="123" height="124" frameX="-6" frameY="-5" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit green 10004" x="2" y="128" width="135" height="134"/>
+
+	<SubTexture name="hit purple 10000" x="2" y="2" width="109" height="109" frameX="-13" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit purple 10001" x="113" y="2" width="111" height="110" frameX="-12" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit purple 10002" x="226" y="2" width="115" height="116" frameX="-10" frameY="-9" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit purple 10003" x="343" y="2" width="123" height="124" frameX="-6" frameY="-5" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit purple 10004" x="2" y="128" width="135" height="134"/>
+
+	<SubTexture name="hit blue 20000" x="2" y="2" width="109" height="109" frameX="-13" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit blue 20001" x="113" y="2" width="111" height="110" frameX="-12" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit blue 20002" x="226" y="2" width="115" height="116" frameX="-10" frameY="-9" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit blue 20003" x="343" y="2" width="123" height="124" frameX="-6" frameY="-5" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit blue 20004" x="2" y="128" width="135" height="134"/>
+
+	<SubTexture name="hit green 20000" x="2" y="2" width="109" height="109" frameX="-13" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit green 20001" x="113" y="2" width="111" height="110" frameX="-12" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit green 20002" x="226" y="2" width="115" height="116" frameX="-10" frameY="-9" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit green 20003" x="343" y="2" width="123" height="124" frameX="-6" frameY="-5" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit green 20004" x="2" y="128" width="135" height="134"/>
+
+	<SubTexture name="hit red 20000" x="2" y="2" width="109" height="109" frameX="-13" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 20001" x="113" y="2" width="111" height="110" frameX="-12" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 20002" x="226" y="2" width="115" height="116" frameX="-10" frameY="-9" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 20003" x="343" y="2" width="123" height="124" frameX="-6" frameY="-5" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 20004" x="2" y="128" width="135" height="134"/>
+
+	<SubTexture name="hit red 20000" x="2" y="2" width="109" height="109" frameX="-13" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 20001" x="113" y="2" width="111" height="110" frameX="-12" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 20002" x="226" y="2" width="115" height="116" frameX="-10" frameY="-9" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 20003" x="343" y="2" width="123" height="124" frameX="-6" frameY="-5" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit red 20004" x="2" y="128" width="135" height="134"/>
+	
+	<SubTexture name="hit purple 20000" x="2" y="2" width="109" height="109" frameX="-13" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit purple 20001" x="113" y="2" width="111" height="110" frameX="-12" frameY="-12" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit purple 20002" x="226" y="2" width="115" height="116" frameX="-10" frameY="-9" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit purple 20003" x="343" y="2" width="123" height="124" frameX="-6" frameY="-5" frameWidth="135" frameHeight="134"/>
+	<SubTexture name="hit purple 20004" x="2" y="128" width="135" height="134"/>
+</TextureAtlas>

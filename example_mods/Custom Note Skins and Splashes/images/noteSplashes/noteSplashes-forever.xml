@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="noteSplashes-forever.png">
+	<!-- Created with Adobe Animate version 21.0.0.35450 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="forever splash red 10000" x="22" y="22" width="209" height="204" frameX="-16" frameY="0" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash red 10001" x="246" y="22" width="229" height="217" frameX="0" frameY="-1" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash red 10002" x="490" y="22" width="208" height="209" frameX="-11" frameY="-5" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash red 10003" x="713" y="22" width="209" height="219" frameX="-2" frameY="-4" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash red 10004" x="22" y="256" width="206" height="199" frameX="-8" frameY="-12" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash red 20000" x="243" y="256" width="200" height="213" frameX="-13" frameY="-9" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash red 20001" x="458" y="256" width="209" height="219" frameX="-4" frameY="0" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash red 20002" x="682" y="256" width="204" height="206" frameX="-9" frameY="-14" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash red 20003" x="22" y="490" width="210" height="214" frameX="-2" frameY="-12" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash red 20004" x="247" y="490" width="210" height="210" frameX="0" frameY="-10" frameWidth="213" frameHeight="226"/>
+
+	<SubTexture name="forever splash purple 10000" x="22" y="22" width="209" height="204" frameX="-16" frameY="0" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash purple 10001" x="246" y="22" width="229" height="217" frameX="0" frameY="-1" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash purple 10002" x="490" y="22" width="208" height="209" frameX="-11" frameY="-5" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash purple 10003" x="713" y="22" width="209" height="219" frameX="-2" frameY="-4" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash purple 10004" x="22" y="256" width="206" height="199" frameX="-8" frameY="-12" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash purple 20000" x="243" y="256" width="200" height="213" frameX="-13" frameY="-9" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash purple 20001" x="458" y="256" width="209" height="219" frameX="-4" frameY="0" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash purple 20002" x="682" y="256" width="204" height="206" frameX="-9" frameY="-14" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash purple 20003" x="22" y="490" width="210" height="214" frameX="-2" frameY="-12" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash purple 20004" x="247" y="490" width="210" height="210" frameX="0" frameY="-10" frameWidth="213" frameHeight="226"/>
+
+	<SubTexture name="forever splash blue 10000" x="22" y="22" width="209" height="204" frameX="-16" frameY="0" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash blue 10001" x="246" y="22" width="229" height="217" frameX="0" frameY="-1" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash blue 10002" x="490" y="22" width="208" height="209" frameX="-11" frameY="-5" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash blue 10003" x="713" y="22" width="209" height="219" frameX="-2" frameY="-4" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash blue 10004" x="22" y="256" width="206" height="199" frameX="-8" frameY="-12" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash blue 20000" x="243" y="256" width="200" height="213" frameX="-13" frameY="-9" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash blue 20001" x="458" y="256" width="209" height="219" frameX="-4" frameY="0" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash blue 20002" x="682" y="256" width="204" height="206" frameX="-9" frameY="-14" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash blue 20003" x="22" y="490" width="210" height="214" frameX="-2" frameY="-12" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash blue 20004" x="247" y="490" width="210" height="210" frameX="0" frameY="-10" frameWidth="213" frameHeight="226"/>
+
+	<SubTexture name="forever splash green 10000" x="22" y="22" width="209" height="204" frameX="-16" frameY="0" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash green 10001" x="246" y="22" width="229" height="217" frameX="0" frameY="-1" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash green 10002" x="490" y="22" width="208" height="209" frameX="-11" frameY="-5" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash green 10003" x="713" y="22" width="209" height="219" frameX="-2" frameY="-4" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash green 10004" x="22" y="256" width="206" height="199" frameX="-8" frameY="-12" frameWidth="229" frameHeight="223"/>
+	<SubTexture name="forever splash green 20000" x="243" y="256" width="200" height="213" frameX="-13" frameY="-9" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash green 20001" x="458" y="256" width="209" height="219" frameX="-4" frameY="0" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash green 20002" x="682" y="256" width="204" height="206" frameX="-9" frameY="-14" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash green 20003" x="22" y="490" width="210" height="214" frameX="-2" frameY="-12" frameWidth="213" frameHeight="226"/>
+	<SubTexture name="forever splash green 20004" x="247" y="490" width="210" height="210" frameX="0" frameY="-10" frameWidth="213" frameHeight="226"/>
+</TextureAtlas>

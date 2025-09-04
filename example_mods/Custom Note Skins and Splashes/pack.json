@@ -1,0 +1,7 @@
+{
+	"name": "Custom Note Skins and Splashes for UMM",
+	"description": "lots of shit",
+	"restart": false,
+	"runsGlobally": true,
+	"color": [170, 0, 255]
+}

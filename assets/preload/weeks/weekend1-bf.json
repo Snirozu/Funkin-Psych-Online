@@ -1,0 +1,41 @@
+{
+	"storyName": "Due Debts",
+	"difficulties": "",
+	"hideFreeplay": false,
+	"weekBackground": "streets",
+	"weekBefore": "weekend1",
+	"freeplayColor": [
+		146,
+		113,
+		253
+	],
+	"startUnlocked": false,
+	"hideStoryMode": true,
+	"songs": [
+		[
+			"Darnell (BF Mix)",
+			"darnell",
+			[
+				95,
+				64,
+				166
+			]
+		],
+		[
+			"Lit Up (BF Mix)",
+			"darnell",
+			[
+				95,
+				64,
+				166
+			]
+		]
+	],
+	"weekCharacters": [
+		"darnell",
+		"bf-pico",
+		"gf-pico"
+	],
+	"hiddenUntilUnlocked": true,
+	"weekName": "Week End 1 (BF Mix)"
+}

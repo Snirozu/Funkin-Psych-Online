@@ -1,0 +1,18 @@
+[
+	{
+		"save": "neneComboAnim",
+		"name": "Nene's Combo Animations:",
+		"type": "string",
+		"description": "Select how Nene should react to the combo, or turn it off.",
+		"value": "Psych",
+		"options": ["Psych", "Vanilla", "Disabled"]
+	},
+	{
+		"save": "cutscenes",
+		"name": "Cutscenes:",
+		"type": "string",
+		"description": "Choose what cutscenes should play in Story Mode, or disable them.",
+		"value": "Enabled",
+		"options": ["Enabled", "In-Game Only", "Disabled"]
+	}
+]
