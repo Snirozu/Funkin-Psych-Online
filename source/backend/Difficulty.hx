@@ -10,6 +10,9 @@ class Difficulty
 	public static var list:Array<String> = [];
 	private static var defaultDifficulty(default, never):String = 'Normal'; //The chart that has no suffix and starting difficulty on Freeplay/Story Mode
 
+	public static var forceErect:Bool = false;
+	public static var forceNightmare:Bool = false;
+
 	inline public static function getFilePath(num:Null<Int> = null)
 	{
 		if(num == null) num = PlayState.storyDifficulty;
@@ -52,11 +55,15 @@ class Difficulty
 
 		if (FlxG.state is states.FreeplayState) {
 			var freeplay:states.FreeplayState = cast FlxG.state;
-			if (freeplay.songs[states.FreeplayState.curSelected].hasErect)
-				list.push("Erect");
-			if (freeplay.songs[states.FreeplayState.curSelected].hasNightmare)
-				list.push("Nightmare");
+			forceErect = freeplay.songs[states.FreeplayState.curSelected].hasErect;
+			forceNightmare = freeplay.songs[states.FreeplayState.curSelected].hasNightmare;
 		}
+
+		if (forceErect)
+			list.push("Erect");
+
+		if (forceNightmare)
+			list.push("Nightmare");
 	}
 
 	inline public static function resetList()
