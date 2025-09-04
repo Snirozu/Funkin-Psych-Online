@@ -189,8 +189,8 @@ class FreeplayState extends MusicBeatState
 		FlxG.mouse.visible = false;
 		FlxG.autoPause = false;
 
-		Paths.clearStoredMemory();
-		//Paths.clearUnusedMemory();
+		//Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
 		
 		persistentUpdate = true;
 		PlayState.isStoryMode = false;
