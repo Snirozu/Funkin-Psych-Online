@@ -526,7 +526,7 @@ class PlayState extends MusicBeatState
 		}
 		setOnScripts('isDuel', isDuel);
 
-		Paths.clearUnusedMemory();
+                Paths.clearUnusedMemory();
 		Paths.clearStoredMemory();
 
 		// var gameCam:FlxCamera = FlxG.camera;
@@ -844,7 +844,8 @@ class PlayState extends MusicBeatState
 		preloadTasks.push(() -> {
 			var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getPreloadPath(), 'scripts/');
 			for (folder in foldersToCheck)
-				for (file in FileSystem.readDirectory(folder))
+				for (file in // TODO: Mover a precarga
+FileSystem.readDirectory(folder))
 				{
 					if(file.toLowerCase().endsWith('.lua'))
 						new FunkinLua(folder + file);
@@ -915,7 +916,8 @@ class PlayState extends MusicBeatState
 
 			// if online player is defined
 			if (player != null) {
-				if (FileSystem.exists(Paths.mods(player.skinMod)) && !(isRight ? SONG.player1 : SONG.player2).startsWith(player.skinName)) {
+				if (// TODO: Mover a precarga
+FileSystem.exists(Paths.mods(player.skinMod)) && !(isRight ? SONG.player1 : SONG.player2).startsWith(player.skinName)) {
 					if (player.skinMod != null)
 						Mods.currentModDirectory = player.skinMod;
 
@@ -1128,7 +1130,8 @@ class PlayState extends MusicBeatState
 			reloadHealthBarColors();
 			uiGroup.add(healthBar);
 
-			for (icon in [].concat(iconP1s).concat(iconP2s)) {
+			var allIcons = iconP1s.concat(iconP2s);
+			for (icon in allIcons) {
 				icon.visible = !ClientPrefs.data.hideHud;
 				icon.alpha = ClientPrefs.data.healthBarAlpha;
 				uiGroup.add(icon);
@@ -1241,7 +1244,8 @@ class PlayState extends MusicBeatState
 		preloadTasks.push(() -> {
 			var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getPreloadPath(), 'data/' + songName + '/');
 			for (folder in foldersToCheck)
-				for (file in FileSystem.readDirectory(folder)) {
+				for (file in // TODO: Mover a precarga
+FileSystem.readDirectory(folder)) {
 					if (file.toLowerCase().endsWith('.lua'))
 						new FunkinLua(folder + file);
 					#if HSCRIPT_ALLOWED
@@ -1627,7 +1631,8 @@ class PlayState extends MusicBeatState
 		var luaFile:String = 'characters/' + name + '.lua';
 		#if MODS_ALLOWED
 		var replacePath:String = Paths.modFolders(luaFile);
-		if(FileSystem.exists(replacePath))
+		if(// TODO: Mover a precarga
+FileSystem.exists(replacePath))
 		{
 			luaFile = replacePath;
 			doPush = true;
@@ -1635,7 +1640,8 @@ class PlayState extends MusicBeatState
 		else
 		{
 			luaFile = Paths.getPreloadPath(luaFile);
-			if(FileSystem.exists(luaFile))
+			if(// TODO: Mover a precarga
+FileSystem.exists(luaFile))
 				doPush = true;
 		}
 		#else
@@ -1666,7 +1672,8 @@ class PlayState extends MusicBeatState
 		var doPush:Bool = false;
 		var scriptFile:String = 'characters/' + name + '.hx';
 		var replacePath:String = Paths.modFolders(scriptFile);
-		if(FileSystem.exists(replacePath))
+		if(// TODO: Mover a precarga
+FileSystem.exists(replacePath))
 		{
 			scriptFile = replacePath;
 			doPush = true;
@@ -1674,7 +1681,8 @@ class PlayState extends MusicBeatState
 		else
 		{
 			scriptFile = Paths.getPreloadPath(scriptFile);
-			if(FileSystem.exists(scriptFile))
+			if(// TODO: Mover a precarga
+FileSystem.exists(scriptFile))
 				doPush = true;
 		}
 		
@@ -1743,7 +1751,8 @@ class PlayState extends MusicBeatState
 
 		var filepath:String = Paths.video(name);
 		#if sys
-		if(!FileSystem.exists(filepath))
+		if(!// TODO: Mover a precarga
+FileSystem.exists(filepath))
 		#else
 		if(!OpenFlAssets.exists(filepath))
 		#end
@@ -1791,7 +1800,8 @@ class PlayState extends MusicBeatState
 		var fileName:String = Paths.video(name);
 
 		#if sys
-		if (FileSystem.exists(fileName))
+		if (// TODO: Mover a precarga
+FileSystem.exists(fileName))
 		#else
 		if (OpenFlAssets.exists(fileName))
 		#end
@@ -2334,7 +2344,9 @@ class PlayState extends MusicBeatState
 
 		var file:String = Paths.json(songName + '/events' + songSuffix);
 		#if MODS_ALLOWED
-		if (FileSystem.exists(Paths.modsJson(songName + '/events' + songSuffix)) || FileSystem.exists(file)) {
+		if (// TODO: Mover a precarga
+FileSystem.exists(Paths.modsJson(songName + '/events' + songSuffix)) || // TODO: Mover a precarga
+FileSystem.exists(file)) {
 		#else
 		if (OpenFlAssets.exists(file)) {
 		#end
@@ -3144,17 +3156,12 @@ class PlayState extends MusicBeatState
 					}
 					else
 					{
-				var _i:Int = notes.length - 1;
-				while (_i >= 0) {
-					var daNote:Note = cast(notes.members[_i], Note);
-					if (daNote != null && daNote.exists) {
+						notes.forEachAlive(function(daNote:Note)
 						{
 							daNote.canBeHit = false;
 							daNote.wasGoodHit = false;
-						
+						});
 					}
-					_i--;
-				}
 				}
 
 				if (forceShowOpStrums) {
@@ -4697,21 +4704,15 @@ class PlayState extends MusicBeatState
 				var pressNotes:Array<Note> = [];
 				var notesStopped:Bool = false;
 				var sortedNotesList:Array<Note> = [];
-				    var _i:Int = notes.length - 1;
-				    while (_i >= 0) {
-					var daNote:Note = cast(notes.members[_i], Note);
-					if (daNote != null && daNote.exists) {
+				notes.forEachAlive(function(daNote:Note)
+				{
 					if (strumsBlocked[daNote.noteData] != true && daNote.canBeHit && isPlayerNote(daNote) &&
 						!daNote.tooLate && !daNote.wasGoodHit && !daNote.isSustainNote && !daNote.blockHit)
 					{
 						if(daNote.noteData == key) sortedNotesList.push(daNote);
 						canMiss = true;
 					}
-						
-					}
-					_i--;
-				}
-
+				});
 				sortedNotesList.sort(sortHitNotes);
 
 				if (sortedNotesList.length > 0) {
@@ -4843,19 +4844,14 @@ class PlayState extends MusicBeatState
 			// rewritten inputs???
 			if(notes.length > 0)
 			{
-					var _i:Int = notes.length - 1;
-				    while (_i >= 0) {
-					var daNote:Note = cast(notes.members[_i], Note);
-					if (daNote != null && daNote.exists) {
+				notes.forEachAlive(function(daNote:Note)
+				{
 					// hold note functions
 					if (strumsBlocked[daNote.noteData] != true && daNote.isSustainNote && holdArray[daNote.noteData] && daNote.canBeHit
 					&& isPlayerNote(daNote) && !daNote.tooLate && !daNote.wasGoodHit && !daNote.blockHit) {
 						goodNoteHit(daNote);
 					}
-						
-					}
-					_i--;
-				}
+				});
 			}
 
 			self.noteHold = holdArray.contains(true);
@@ -5305,7 +5301,8 @@ class PlayState extends MusicBeatState
 		// if (generatedMusic)
 		// 	notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 
-		for (icon in [].concat(iconP1s).concat(iconP2s)) {
+		var allIcons = iconP1s.concat(iconP2s);
+			for (icon in allIcons) {
 			icon.scale.x = iconZoomIntensity * iconSizeMult((icon.isPlayer ? iconP1s : iconP2s));
 			icon.scale.y = icon.scale.x;
 			icon.updateHitbox();
@@ -5381,10 +5378,12 @@ class PlayState extends MusicBeatState
 	{
 		#if MODS_ALLOWED
 		var luaToLoad:String = Paths.modFolders(luaFile);
-		if(!FileSystem.exists(luaToLoad))
+		if(!// TODO: Mover a precarga
+FileSystem.exists(luaToLoad))
 			luaToLoad = Paths.getPreloadPath(luaFile);
 		
-		if(FileSystem.exists(luaToLoad))
+		if(// TODO: Mover a precarga
+FileSystem.exists(luaToLoad))
 		#elseif sys
 		var luaToLoad:String = Paths.getPreloadPath(luaFile);
 		if(OpenFlAssets.exists(luaToLoad))
@@ -5404,10 +5403,12 @@ class PlayState extends MusicBeatState
 	public function startHScriptsNamed(scriptFile:String)
 	{
 		var scriptToLoad:String = Paths.modFolders(scriptFile);
-		if(!FileSystem.exists(scriptToLoad))
+		if(!// TODO: Mover a precarga
+FileSystem.exists(scriptToLoad))
 			scriptToLoad = Paths.getPreloadPath(scriptFile);
 		
-		if(FileSystem.exists(scriptToLoad))
+		if(// TODO: Mover a precarga
+FileSystem.exists(scriptToLoad))
 		{
 			if (SScript.global.exists(scriptToLoad)) return false;
 	
@@ -5769,21 +5770,26 @@ class PlayState extends MusicBeatState
 		
 		for (folder in foldersToCheck)
 		{
-			if(FileSystem.exists(folder))
+			if(// TODO: Mover a precarga
+FileSystem.exists(folder))
 			{
 				var frag:String = folder + name + '.frag';
 				var vert:String = folder + name + '.vert';
 				var found:Bool = false;
-				if(FileSystem.exists(frag))
+				if(// TODO: Mover a precarga
+FileSystem.exists(frag))
 				{
-					frag = File.getContent(frag);
+					frag = // TODO: Mover a precarga
+File.getContent(frag);
 					found = true;
 				}
 				else frag = null;
 
-				if(FileSystem.exists(vert))
+				if(// TODO: Mover a precarga
+FileSystem.exists(vert))
 				{
-					vert = File.getContent(vert);
+					vert = // TODO: Mover a precarga
+File.getContent(vert);
 					found = true;
 				}
 				else vert = null;
