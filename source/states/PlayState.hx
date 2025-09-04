@@ -104,7 +104,8 @@ import tea.SScript;
 
 import online.backend.schema.Player;
 
-\1
+class PlayState extends MusicBeatState
+{
 
     // ======== Variables para cámara flotante ========
     var animIndexArray:Array<Array<Int>> = [[-1, 0], [0, 1], [0, -1], [1, 0]];
