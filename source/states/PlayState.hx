@@ -51,10 +51,6 @@ import flixel.util.FlxStringUtil;
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 import flixel.animation.FlxAnimationController;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.FlxCamera;
-import flixel.group.FlxTypedGroup;
 import lime.utils.Assets;
 import openfl.utils.Assets as OpenFlAssets;
 import openfl.events.KeyboardEvent;
@@ -108,8 +104,22 @@ import tea.SScript;
 
 import online.backend.schema.Player;
 
-class PlayState extends MusicBeatState
-{
+\1
+
+    // ======== Variables para cámara flotante ========
+    var animIndexArray:Array<Array<Int>> = [[-1, 0], [0, 1], [0, -1], [1, 0]];
+    var offsetArray:Array<Float> = [0, 0];
+    var mult:Float = 20;
+    public static var forceCamera:Bool = false;
+    // =================================================
+
+    /**
+     * Activa o desactiva el modo de cámara forzada
+     */
+    public function setForceCamera(value:Bool):Void {
+        forceCamera = value;
+    }
+
 	public static var STRUM_X = 42;
 	public static var STRUM_X_MIDDLESCROLL = -278;
 
@@ -507,19 +517,6 @@ class PlayState extends MusicBeatState
 	public var playOtherSide:Bool = false;
 
 	var nameplates:FlxTypedGroup<FlxText> = new FlxTypedGroup<FlxText>();
-
-        // Variables para la cámara flotante
-        var animIndexArray:Array<Array<Int>> = [[-1, 0], [0, 1], [0, -1], [1, 0]];
-        var offsetArray:Array<Float> = [0, 0];
-        var mult:Float = 20;
-        var forceCamera:Bool = false;
-
-
-        public function setForceCamera(value:Bool)
-         {
-           forceCamera = value;
-         }
-
 
 	override public function create()
 	{
@@ -2818,43 +2815,6 @@ FileSystem.exists(file)) {
 	}
 
 	override public function update(elapsed:Float)
-if (forceCamera || cameraSpeed == 999)
-{
-    camGame.targetOffset.set(0, 0);
-}
-else
-{
-    camGame.targetOffset.set(0, 0);
-    offsetArray = [0, 0];
-
-    // Analizar las strums de jugador y oponente
-    for (i in 0...4)
-    {
-        for (strums in [playerStrums, opponentStrums])
-        {
-            if (strums != null && i < strums.members.length)
-            {
-                var strum = strums.members[i];
-
-                if (strum != null && strum.animation != null && strum.animation.curAnim != null)
-                {
-                    if (strum.animation.curAnim.name == "confirm")
-                    {
-                        offsetArray = [
-                            animIndexArray[i][0] * mult,
-                            animIndexArray[i][1] * mult
-                        ];
-                    }
-                }
-            }
-        }
-    }
-
-    camGame.targetOffset.set(
-        camGame.targetOffset.x + offsetArray[0],
-        camGame.targetOffset.y + offsetArray[1]
-    );
-}
 	{
 		if (forcePause)
 			return;
