@@ -31,7 +31,7 @@ class FindRoomState extends MusicBeatState {
         instance = this;
 
 		super.create();
-		Paths.clearUnusedMemory();
+		//Paths.clearUnusedMemory();
 		Paths.clearStoredMemory();
 
 		#if DISCORD_ALLOWED
