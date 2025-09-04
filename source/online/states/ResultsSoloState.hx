@@ -50,6 +50,9 @@ class ResultsSoloState extends MusicBeatState {
     override function create() {
         super.create();
 
+		Paths.clearUnusedMemory();
+		Paths.clearStoredMemory();
+
 		camBG = new FlxCamera();
 		camRotScroll = new FlxCamera();
 		camMain = new FlxCamera();

@@ -56,6 +56,9 @@ class ResultsState extends MusicBeatState {
 
 		CustomFadeTransition.nextCamera = camHUD;
 
+		Paths.clearUnusedMemory();
+		Paths.clearStoredMemory();
+
         super.create();
 
 		CustomFadeTransition.nextCamera = camHUD;

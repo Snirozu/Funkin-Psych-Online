@@ -31,6 +31,8 @@ class FindRoomState extends MusicBeatState {
         instance = this;
 
 		super.create();
+		Paths.clearUnusedMemory();
+		Paths.clearStoredMemory();
 
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Looking for a room.", null, null, false);
