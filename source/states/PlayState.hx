@@ -3144,14 +3144,17 @@ class PlayState extends MusicBeatState
 					}
 					else
 					{
-										var _i:Int = notes.length - 1;
+				var _i:Int = notes.length - 1;
 				while (_i >= 0) {
 					var daNote:Note = cast(notes.members[_i], Note);
 					if (daNote != null && daNote.exists) {
+						{
 							daNote.canBeHit = false;
 							daNote.wasGoodHit = false;
-						});
+						
 					}
+					_i--;
+				}
 				}
 
 				if (forceShowOpStrums) {
@@ -4694,8 +4697,8 @@ class PlayState extends MusicBeatState
 				var pressNotes:Array<Note> = [];
 				var notesStopped:Bool = false;
 				var sortedNotesList:Array<Note> = [];
-								var _i:Int = notes.length - 1;
-				while (_i >= 0) {
+				    var _i:Int = notes.length - 1;
+				    while (_i >= 0) {
 					var daNote:Note = cast(notes.members[_i], Note);
 					if (daNote != null && daNote.exists) {
 					if (strumsBlocked[daNote.noteData] != true && daNote.canBeHit && isPlayerNote(daNote) &&
@@ -4704,7 +4707,11 @@ class PlayState extends MusicBeatState
 						if(daNote.noteData == key) sortedNotesList.push(daNote);
 						canMiss = true;
 					}
-				});
+						
+					}
+					_i--;
+				}
+
 				sortedNotesList.sort(sortHitNotes);
 
 				if (sortedNotesList.length > 0) {
@@ -4836,8 +4843,8 @@ class PlayState extends MusicBeatState
 			// rewritten inputs???
 			if(notes.length > 0)
 			{
-								var _i:Int = notes.length - 1;
-				while (_i >= 0) {
+					var _i:Int = notes.length - 1;
+				    while (_i >= 0) {
 					var daNote:Note = cast(notes.members[_i], Note);
 					if (daNote != null && daNote.exists) {
 					// hold note functions
@@ -4845,7 +4852,10 @@ class PlayState extends MusicBeatState
 					&& isPlayerNote(daNote) && !daNote.tooLate && !daNote.wasGoodHit && !daNote.blockHit) {
 						goodNoteHit(daNote);
 					}
-				});
+						
+					}
+					_i--;
+				}
 			}
 
 			self.noteHold = holdArray.contains(true);
