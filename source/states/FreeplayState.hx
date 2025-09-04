@@ -50,6 +50,18 @@ import substates.ResetScoreSubState;
 import sys.FileSystem;
 #end
 
+	var stickerSubState:StickerSubState;
+	public function new(?stickers:StickerSubState = null)
+	{
+		super();
+
+		if (stickers != null)
+		{
+		stickerSubState = stickers;
+		}
+	}
+
+
 class FreeplayState extends MusicBeatState
 {
 	public static var instance:FreeplayState;
@@ -190,11 +202,20 @@ class FreeplayState extends MusicBeatState
 		FlxG.autoPause = false;
 
 		//Paths.clearStoredMemory();
-		//Paths.clearUnusedMemory();
+		Paths.clearUnusedMemory();
 		
 		persistentUpdate = true;
 		PlayState.isStoryMode = false;
 		WeekData.reloadWeekFiles(false);
+
+                        if (stickerSubState != null){
+			this.persistentUpdate = true;
+			this.persistentDraw = true;
+		
+			openSubState(stickerSubState);
+			stickerSubState.degenStickers();
+		}
+		persistentUpdate = true;
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
@@ -607,6 +628,7 @@ class FreeplayState extends MusicBeatState
 
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 	}
+
 
 	var modList:Array<String> = [];
 	function updateGroups(?refresh:Bool = false) {

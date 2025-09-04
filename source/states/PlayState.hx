@@ -526,7 +526,7 @@ class PlayState extends MusicBeatState
 		}
 		setOnScripts('isDuel', isDuel);
 
-		Paths.clearUnusedMemory();
+                Paths.clearUnusedMemory();
 		Paths.clearStoredMemory();
 
 		// var gameCam:FlxCamera = FlxG.camera;
@@ -3088,8 +3088,12 @@ class PlayState extends MusicBeatState
 					if(startedCountdown)
 					{
 						var fakeCrochet:Float = (60 / SONG.bpm) * 1000;
-						notes.forEachAlive(function(daNote:Note)
-						{
+						
+				var _i:Int = notes.length - 1;
+				while (_i >= 0) {
+					var daNote:Note = cast(notes.members[_i], Note);
+					if (daNote != null && daNote.exists) {
+
 							var strumGroup:FlxTypedGroup<StrumNote> = playerStrums;
 							if(!daNote.mustPress) strumGroup = opponentStrums;
 
@@ -3132,7 +3136,11 @@ class PlayState extends MusicBeatState
 								notes.remove(daNote, true);
 								daNote.destroy();
 							}
-						});
+						
+					}
+					_i--;
+				}
+
 					}
 					else
 					{
@@ -3202,14 +3210,12 @@ class PlayState extends MusicBeatState
 		setOnScripts('botPlay', cpuControlled);
 		callOnScripts('onUpdatePost', [elapsed]);
 
-		if (botplayTxt != null) {
-			if (botplayTxt.visible != botplayVisibility)
-				botplayTxt.visible = botplayVisibility;
+		if (botplayTxt.visible != botplayVisibility)
+			botplayTxt.visible = botplayVisibility;
 
-			if (botplayTxt.visible) {
-				botplaySine += 180 * elapsed;
-				botplayTxt.alpha = 1 - Math.sin((Math.PI * botplaySine) / 180);
-			}
+		if (botplayTxt.visible) {
+			botplaySine += 180 * elapsed;
+			botplayTxt.alpha = 1 - Math.sin((Math.PI * botplaySine) / 180);
 		}
 
 		if (Conductor.songPosition >= FlxG.sound.music.length) {
@@ -3922,6 +3928,7 @@ class PlayState extends MusicBeatState
 	public var skipResults = false;
 
 	public var transitioning = false;
+        public var canDoSticker = true;
 	public function endSong()
 	{
 		if (redditMod) {
@@ -5807,7 +5814,7 @@ class PlayState extends MusicBeatState
 	}
 
 	public static function playsAsBF() {
-		if (GameClient.getPlayerSelf() != null) {
+		if (GameClient.isConnected()) {
 			return GameClient.getPlayerSelf().bfSide;
 		}
 		return !opponentMode;

@@ -8,6 +8,8 @@ import lime.utils.Assets;
 import openfl.utils.Assets as OpenFlAssets;
 import tjson.TJSON as Json;
 
+import substates.StickerSubState;
+
 typedef WeekFile =
 {
 	// JSON variables
@@ -23,6 +25,7 @@ typedef WeekFile =
 	var hideStoryMode:Bool;
 	var hideFreeplay:Bool;
 	var difficulties:String;
+	var stickers:Array<String>;
 }
 
 class WeekData {
@@ -46,6 +49,9 @@ class WeekData {
 
 	public var fileName:String;
 
+	public var stickers:Array<String>;
+
+
 	public static function createWeekFile():WeekFile {
 		var weekFile:WeekFile = {
 			songs: [["Bopeebo", "dad", [146, 113, 253]], ["Fresh", "dad", [146, 113, 253]], ["Dad Battle", "dad", [146, 113, 253]]],
@@ -60,6 +66,7 @@ class WeekData {
 			hideStoryMode: false,
 			hideFreeplay: false,
 			difficulties: ''
+			stickers: ['stickers-set-1', 'all']
 		};
 		return weekFile;
 	}
@@ -80,6 +87,12 @@ class WeekData {
 		difficulties = weekFile.difficulties;
 
 		this.fileName = fileName;
+
+		if (weekFile.stickers == null){
+			weekFile.stickers = ['stickers-set-1', 'all'];
+		}
+		
+		stickers = weekFile.stickers;
 	}
 
 	public static function reloadWeekFiles(?isStoryMode:Null<Bool> /*= false*/)
