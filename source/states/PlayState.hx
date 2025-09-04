@@ -526,7 +526,7 @@ class PlayState extends MusicBeatState
 		}
 		setOnScripts('isDuel', isDuel);
 
-                Paths.clearUnusedMemory();
+		Paths.clearUnusedMemory();
 		Paths.clearStoredMemory();
 
 		// var gameCam:FlxCamera = FlxG.camera;
@@ -3928,7 +3928,6 @@ class PlayState extends MusicBeatState
 	public var skipResults = false;
 
 	public var transitioning = false;
-        public var canDoSticker = true;
 	public function endSong()
 	{
 		if (redditMod) {
