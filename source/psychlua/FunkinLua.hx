@@ -485,6 +485,19 @@ class FunkinLua {
 			}
 		});
 
+		Lua_helper.add_callback(lua, "loadMultipleFrames", function(variable:String, images:Array<String>) {
+			var split:Array<String> = variable.split('.');
+			var spr:FlxSprite = LuaUtils.getObjectDirectly(split[0]);
+			if(split.length > 1) {
+				spr = LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1]);
+			}
+
+			if(spr != null && images != null && images.length > 0)
+			{
+				spr.frames = Paths.getMultiAtlas(images);
+			}
+		});
+
 		//shitass stuff for epic coders like me B)  *image of obama giving himself a medal*
 		Lua_helper.add_callback(lua, "getObjectOrder", function(obj:String) {
 			var split:Array<String> = obj.split('.');
@@ -996,7 +1009,10 @@ class FunkinLua {
 			LuaUtils.resetSpriteTag(tag);
 			var leSprite:ModchartSprite = new ModchartSprite(x, y);
 
-			LuaUtils.loadFrames(leSprite, image, spriteType);
+			if(image != null && image.length > 0)
+			{
+				LuaUtils.loadFrames(leSprite, image, spriteType);
+			}
 			game.modchartSprites.set(tag, leSprite);
 		});
 
