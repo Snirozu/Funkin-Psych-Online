@@ -72,7 +72,6 @@ class VisualsUISubState extends BaseOptionsMenu
 			'disableRGBNotes',
 			'bool');
 		addOption(option);
-		#end
 
 		var option:Option = new Option('Note Splash Opacity',
 			'How much transparent should the Note Splashes be.\n0% disables it.',
