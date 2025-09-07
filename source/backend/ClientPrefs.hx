@@ -43,7 +43,6 @@ class SaveVariables {
 		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
 
 	public var ghostTapping:Bool = true;
-        public var disableRGBNotes:Bool = false;
 	public var timeBarType:String = 'Time Left';
 	public var scoreZoom:Bool = true;
 	public var noReset:Bool = false;
@@ -208,8 +207,6 @@ class ClientPrefs {
 		}
 		#if ACHIEVEMENTS_ALLOWED Achievements.save(); #end
 		FlxG.save.flush();
-
-                FlxG.save.data.disableRGBNotes = disableRGBNotes;
                 
 		//Placing this in a separate save so that it can be manually deleted without removing your Score and stuff
 		var save:FlxSave = new FlxSave();
@@ -223,8 +220,6 @@ class ClientPrefs {
 	public static function loadPrefs() {
 		if(data == null) data = new SaveVariables();
 		if(defaultData == null) defaultData = new SaveVariables();
-
-                disableRGBNotes = FlxG.save.data.disableRGBNotes != null ? FlxG.save.data.disableRGBNotes : false;
 
 		for (key in Reflect.fields(data)) {
 			if (key != 'gameplaySettings' && Reflect.hasField(FlxG.save.data, key)) {
