@@ -37,6 +37,8 @@ class Note extends FlxSprite
 {
 	public var extraData:Map<String, Dynamic> = new Map<String, Dynamic>();
 
+
+        public var rgbNote:Bool = false;
 	public var strumTime:Float = 0;
 	public var mustPress(default, set):Bool = false;
 	public var noteData:Int = 0;
@@ -84,7 +86,7 @@ class Note extends FlxSprite
 		texture: null,
 		antialiasing: !PlayState.isPixelStage,
 		useGlobalShader: false,
-		useRGBShader: (PlayState.SONG != null) ? !(PlayState.SONG.disableNoteRGB == true) : true,
+		useRGBShader: (!ClientPrefs.disableRGBNotes) && ((PlayState.SONG != null) ? !(PlayState.SONG.disableNoteRGB == true) : true),
 		r: -1,
 		g: -1,
 		b: -1,
