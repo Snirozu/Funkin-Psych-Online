@@ -178,7 +178,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		var option:Option = new Option('OG Icon Bop',
 		"If checked, The Icon will Bop Like in BETADCIU Engine Legacy",
 		'ogIconBop',
-			BOOL);
+			'bool');
 		addOption(option);
 
 		var option:Option = new Option('Debug Mode',
