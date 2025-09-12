@@ -7,284 +7,220 @@ import sys.io.File;
 import lime.utils.Assets;
 #end
 import tjson.TJSON as Json;
+import haxe.ds.StringMap;
 
 typedef ModsList = {
-	enabled:Array<String>,
-	disabled:Array<String>,
-	all:Array<String>
+    enabled:Array<String>,
+    disabled:Array<String>,
+    all:Array<String>
 };
 
-class Mods
-{
-	static public var currentModDirectory:String = '';
-	public static var ignoreModFolders:Array<String> = [
-		'characters',
-		'custom_events',
-		'custom_notetypes',
-		'data',
-		'songs',
-		'music',
-		'sounds',
-		'shaders',
-		'videos',
-		'images',
-		'stages',
-		'weeks',
-		'fonts',
-		'scripts',
-		'achievements',
-		'lumod'
-	];
+typedef ModPack = {
+    ?runsGlobally:Bool,
+};
 
-	private static var globalMods:Array<String> = [];
+class Mods {
+    public static var currentModDirectory:String = '';
+    private static var globalMods:Array<String> = [];
+    private static var cachedModsList:ModsList = null;
+    private static var modsListLastRead:Float = 0;
+    public static var updatedOnState:Bool = false;
 
-	inline public static function getGlobalMods()
-		return globalMods;
+    public static var ignoreModFolders:Array<String> = [
+        'characters','custom_events','custom_notetypes','data','songs','music','sounds',
+        'shaders','videos','images','stages','weeks','fonts','scripts','achievements','lumod'
+    ];
 
-	inline public static function pushGlobalMods() // prob a better way to do this but idc
-	{
-		globalMods = [];
-		for(mod in parseList().enabled)
-		{
-			var pack:Dynamic = getPack(mod);
-			if(pack != null && pack.runsGlobally) globalMods.push(mod);
-		}
-		return globalMods;
-	}
+    inline public static function getGlobalMods() return globalMods;
 
-	inline public static function getModDirectories():Array<String>
-	{
-		var list:Array<String> = [];
-		#if MODS_ALLOWED
-		var modsFolder:String = Paths.mods();
-		if(FileSystem.exists(modsFolder)) {
-			for (folder in FileSystem.readDirectory(modsFolder))
-			{
-				var path = haxe.io.Path.join([modsFolder, folder]);
-				if (sys.FileSystem.isDirectory(path) && !ignoreModFolders.contains(folder.toLowerCase()) && !list.contains(folder))
-					list.push(folder);
-			}
-		}
-		#end
-		return list;
-	}
-	
-	inline public static function mergeAllTextsNamed(path:String, defaultDirectory:String = null, allowDuplicates:Bool = false)
-	{
-		if(defaultDirectory == null) defaultDirectory = Paths.getPreloadPath();
-		defaultDirectory = defaultDirectory.trim();
-		if(!defaultDirectory.endsWith('/')) defaultDirectory += '/';
-		if(!defaultDirectory.startsWith('assets/')) defaultDirectory = 'assets/$defaultDirectory';
+    inline public static function pushGlobalMods() {
+        globalMods = [];
+        for (mod in parseList().enabled) {
+            var pack = getPack(mod);
+            if (pack != null && pack.runsGlobally) globalMods.push(mod);
+        }
+        return globalMods;
+    }
 
-		var mergedList:Array<String> = [];
-		var paths:Array<String> = directoriesWithFile(defaultDirectory, path);
+    inline public static function getModDirectories():Array<String> {
+        var list:Array<String> = [];
+        #if MODS_ALLOWED
+        var modsFolder = Paths.mods();
+        if (FileSystem.exists(modsFolder)) {
+            for (folder in FileSystem.readDirectory(modsFolder)) {
+                var path = haxe.io.Path.join([modsFolder, folder]);
+                if (FileSystem.isDirectory(path)) {
+                    var lower = folder.toLowerCase();
+                    if (!ignoreModFolders.contains(lower)) list.push(folder);
+                }
+            }
+        }
+        #end
+        return list;
+    }
 
-		var defaultPath:String = defaultDirectory + path;
-		if(paths.contains(defaultPath))
-		{
-			paths.remove(defaultPath);
-			paths.insert(0, defaultPath);
-		}
+    inline public static function mergeAllTextsNamed(path:String, defaultDirectory:String = null, allowDuplicates:Bool = false) {
+        if (defaultDirectory == null) defaultDirectory = Paths.getPreloadPath();
+        defaultDirectory = defaultDirectory.trim();
+        if (!defaultDirectory.endsWith('/')) defaultDirectory += '/';
+        if (!defaultDirectory.startsWith('assets/')) defaultDirectory = 'assets/$defaultDirectory';
 
-		for (file in paths)
-		{
-			var list:Array<String> = CoolUtil.coolTextFile(file);
-			for (value in list)
-				if((allowDuplicates || !mergedList.contains(value)) && value.length > 0)
-					mergedList.push(value);
-		}
-		return mergedList;
-	}
+        var mergedList:Array<String> = [];
+        var seen:StringMap<Bool> = new StringMap();
+        var paths = directoriesWithFile(defaultDirectory, path);
+        var defaultPath = defaultDirectory + path;
+        if (paths.remove(defaultPath)) paths.insert(0, defaultPath);
 
-	inline public static function directoriesWithFile(path:String, fileToFind:String, mods:Bool = true)
-	{
-		var foldersToCheck:Array<String> = [];
-		#if sys
-		if(FileSystem.exists(path + fileToFind))
-		#end
-			foldersToCheck.push(path + fileToFind);
+        for (file in paths) {
+            var list = CoolUtil.coolTextFile(file);
+            for (value in list) if (value.length > 0) {
+                if (allowDuplicates || !seen.exists(value)) {
+                    mergedList.push(value);
+                    if (!allowDuplicates) seen.set(value, true);
+                }
+            }
+        }
+        return mergedList;
+    }
 
-		#if MODS_ALLOWED
-		if(mods)
-		{
-			// Global mods first
-			for(mod in Mods.getGlobalMods())
-			{
-				var folder:String = Paths.mods(mod + '/' + fileToFind);
-				if(FileSystem.exists(folder)) foldersToCheck.push(folder);
-			}
+    inline public static function directoriesWithFile(path:String, fileToFind:String, mods:Bool = true) {
+        var foldersToCheck:Array<String> = [];
+        inline function check(path:String) {
+            #if sys if (FileSystem.exists(path)) #end foldersToCheck.push(path);
+        }
+        check(path + fileToFind);
+        #if MODS_ALLOWED
+        if (mods) {
+            for (mod in getGlobalMods()) check(Paths.mods(mod + '/' + fileToFind));
+            check(Paths.mods(fileToFind));
+            if (currentModDirectory.length > 0) check(Paths.mods(currentModDirectory + '/' + fileToFind));
+        }
+        #end
+        return foldersToCheck;
+    }
 
-			// Then "PsychEngine/mods/" main folder
-			var folder:String = Paths.mods(fileToFind);
-			if(FileSystem.exists(folder)) foldersToCheck.push(Paths.mods(fileToFind));
+    public static function getPack(?folder:String = null):Null<ModPack> {
+        #if MODS_ALLOWED
+        if (folder == null) folder = currentModDirectory;
+        var path = Paths.mods(folder + '/pack.json');
+        if (FileSystem.exists(path)) {
+            try {
+                #if sys var raw = File.getContent(path); #else var raw = Assets.getText(path); #end
+                if (raw != null && raw.length > 0) return Json.parse(raw);
+            } catch (e:Dynamic) trace(e);
+        }
+        #end
+        return null;
+    }
 
-			// And lastly, the loaded mod's folder
-			if(Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0)
-			{
-				var folder:String = Paths.mods(Mods.currentModDirectory + '/' + fileToFind);
-				if(FileSystem.exists(folder)) foldersToCheck.push(folder);
-			}
-		}
-		#end
-		return foldersToCheck;
-	}
+    inline public static function parseList():ModsList {
+        #if MODS_ALLOWED
+        var filePath = 'modsList.txt';
+        var modTime = FileSystem.exists(filePath) ? FileSystem.stat(filePath).mtime.getTime() : 0;
+        if (cachedModsList == null || modTime > modsListLastRead) {
+            cachedModsList = loadModsList(filePath);
+            modsListLastRead = modTime;
+        }
+        return cachedModsList;
+        #else
+        return {enabled: [], disabled: [], all: []};
+        #end
+    }
 
-	public static function getPack(?folder:String = null):Dynamic
-	{
-		#if MODS_ALLOWED
-		if(folder == null) folder = Mods.currentModDirectory;
+    private static function loadModsList(filePath:String):ModsList {
+        var list:ModsList = {enabled: [], disabled: [], all: []};
+        try {
+            for (mod in CoolUtil.coolTextFile(filePath)) {
+                if (mod.trim().length < 1) continue;
+                var dat = mod.split("|");
+                list.all.push(dat[0]);
+                if (dat[1] == "1") list.enabled.push(dat[0]);
+                else list.disabled.push(dat[0]);
+            }
+        } catch (e) trace(e);
+        return list;
+    }
 
-		var path = Paths.mods(folder + '/pack.json');
-		if(FileSystem.exists(path)) {
-			try {
-				#if sys
-				var rawJson:String = File.getContent(path);
-				#else
-				var rawJson:String = Assets.getText(path);
-				#end
-				if(rawJson != null && rawJson.length > 0) return Json.parse(rawJson);
-			} catch(e:Dynamic) {
-				trace(e);
-			}
-		}
-		#end
-		return null;
-	}
+    private static function updateModList() {
+        #if MODS_ALLOWED
+        var list:Array<Array<Dynamic>> = [];
+        var added = new StringMap<Bool>();
+        try {
+            for (mod in CoolUtil.coolTextFile('modsList.txt')) {
+                var dat = mod.split("|");
+                var folder = dat[0];
+                if (folder.trim().length > 0 && FileSystem.exists(Paths.mods(folder)) && FileSystem.isDirectory(Paths.mods(folder)) && !added.exists(folder)) {
+                    added.set(folder, true);
+                    list.push([folder, (dat[1] == "1")]);
+                }
+            }
+        } catch (e) trace(e);
 
-	public static var updatedOnState:Bool = false;
-	inline public static function parseList():ModsList {
-		if(!updatedOnState) updateModList();
-		var list:ModsList = {enabled: [], disabled: [], all: []};
+        for (folder in getModDirectories()) {
+            if (folder.trim().length > 0 && FileSystem.exists(Paths.mods(folder)) && FileSystem.isDirectory(Paths.mods(folder)) && !ignoreModFolders.contains(folder.toLowerCase()) && !added.exists(folder)) {
+                added.set(folder, true);
+                list.push([folder, true]);
+            }
+        }
 
-		#if MODS_ALLOWED
-		try {
-			for (mod in CoolUtil.coolTextFile('modsList.txt'))
-			{
-				//trace('Mod: $mod');
-				if(mod.trim().length < 1) continue;
+        var fileStr = list.map(function(values) return values[0] + '|' + (values[1] ? '1' : '0')).join('\n');
+        if (!FileSystem.exists('modsList.txt') || File.getContent('modsList.txt') != fileStr)
+            File.saveContent('modsList.txt', fileStr);
+        updatedOnState = true;
+        #end
+    }
 
-				var dat = mod.split("|");
-				list.all.push(dat[0]);
-				if (dat[1] == "1")
-					list.enabled.push(dat[0]);
-				else
-					list.disabled.push(dat[0]);
-			}
-		} catch(e) {
-			trace(e);
-		}
-		#end
-		return list;
-	}
-	
-	private static function updateModList()
-	{
-		#if MODS_ALLOWED
-		// Find all that are already ordered
-		var list:Array<Array<Dynamic>> = [];
-		var added:Array<String> = [];
-		try {
-			for (mod in CoolUtil.coolTextFile('modsList.txt'))
-			{
-				var dat:Array<String> = mod.split("|");
-				var folder:String = dat[0];
-				if(folder.trim().length > 0 && FileSystem.exists(Paths.mods(folder)) && FileSystem.isDirectory(Paths.mods(folder)) && !added.contains(folder))
-				{
-					added.push(folder);
-					list.push([folder, (dat[1] == "1")]);
-				}
-			}
-		} catch(e) {
-			trace(e);
-		}
-		
-		// Scan for folders that aren't on modsList.txt yet
-		for (folder in getModDirectories())
-		{
-			if(folder.trim().length > 0 && FileSystem.exists(Paths.mods(folder)) && FileSystem.isDirectory(Paths.mods(folder)) &&
-			!ignoreModFolders.contains(folder.toLowerCase()) && !added.contains(folder))
-			{
-				added.push(folder);
-				list.push([folder, true]); //i like it false by default. -bb //Well, i like it True! -Shadow Mario (2022)
-				//Shadow Mario (2023): What the fuck was bb thinking
-			}
-		}
+    public static function loadTopMod() {
+        currentModDirectory = '';
+        #if MODS_ALLOWED
+        var list = parseList().enabled;
+        if (list != null && list.length > 0) currentModDirectory = list[0];
+        #end
+    }
 
-		// Now save file
-		var fileStr:String = '';
-		for (values in list)
-		{
-			if(fileStr.length > 0) fileStr += '\n';
-			fileStr += values[0] + '|' + (values[1] ? '1' : '0');
-		}
+    static var tempArray:Array<String> = [];
+    public static function listStages(?allMods:Bool = false):Array<Array<String>> {
+        tempArray = [];
+        #if MODS_ALLOWED
+        var directories = [
+            Paths.mods('stages/'),
+            Paths.mods(currentModDirectory + '/stages/'),
+            Paths.getPreloadPath('stages/')
+        ];
+        for (mod in (allMods ? parseList().enabled : getGlobalMods()))
+            directories.push(Paths.mods(mod + '/stages/'));
+        #else
+        var directories = [Paths.getPreloadPath('stages/')];
+        #end
 
-		File.saveContent('modsList.txt', fileStr);
-		updatedOnState = true;
-		//trace('Saved modsList.txt');
-		#end
-	}
+        var stageFile = mergeAllTextsNamed('data/stageList.txt', Paths.getPreloadPath());
+        var stages:Array<String> = [];
+        var stagePaths:Array<String> = [];
+        var seen = new StringMap<Bool>();
 
-	public static function loadTopMod()
-	{
-		Mods.currentModDirectory = '';
-		
-		#if MODS_ALLOWED
-		var list:Array<String> = Mods.parseList().enabled;
-		if(list != null && list[0] != null)
-			Mods.currentModDirectory = list[0];
-		#end
-	}
+        for (stage in stageFile) if (stage.trim().length > 0) {
+            stages.push(stage);
+            stagePaths.push('');
+            seen.set(stage, true);
+        }
 
-	static var tempArray:Array<Dynamic> = [];
-	public static function listStages(?allMods:Bool = false):Array<Array<String>> {
-		tempArray = [];
+        #if MODS_ALLOWED
+        for (directory in directories) if (FileSystem.exists(directory)) {
+            for (file in FileSystem.readDirectory(directory)) if (!FileSystem.isDirectory(haxe.io.Path.join([directory, file])) && file.endsWith('.json')) {
+                var stageToCheck = file.substr(0, file.length - 5);
+                if (stageToCheck.trim().length > 0 && !seen.exists(stageToCheck)) {
+                    seen.set(stageToCheck, true);
+                    stages.push(stageToCheck);
+                    stagePaths.push(directory.substr('mods/'.length, directory.length - ('/stages/'.length + 'mods/'.length)));
+                }
+            }
+        }
+        #end
 
-		#if MODS_ALLOWED
-		var directories:Array<String> = [
-			Paths.mods('stages/'),
-			Paths.mods(Mods.currentModDirectory + '/stages/'),
-			Paths.getPreloadPath('stages/')
-		];
-		for (mod in (allMods ? Mods.parseList().enabled : Mods.getGlobalMods()))
-			directories.push(Paths.mods(mod + '/stages/'));
-		#else
-		var directories:Array<String> = [Paths.getPreloadPath('stages/')];
-		#end
-
-		var stageFile:Array<String> = Mods.mergeAllTextsNamed('data/stageList.txt', Paths.getPreloadPath());
-		var stages:Array<String> = [];
-		var stagePaths:Array<String> = [];
-		for (stage in stageFile) {
-			if (stage.trim().length > 0) {
-				stages.push(stage);
-				stagePaths.push('');
-			}
-			tempArray.push(stage);
-		}
-		#if MODS_ALLOWED
-		for (i in 0...directories.length) {
-			var directory:String = directories[i];
-			if (FileSystem.exists(directory)) {
-				for (file in FileSystem.readDirectory(directory)) {
-					var path = haxe.io.Path.join([directory, file]);
-					if (!FileSystem.isDirectory(path) && file.endsWith('.json')) {
-						var stageToCheck:String = file.substr(0, file.length - 5);
-						if (stageToCheck.trim().length > 0 && !tempArray.contains(stageToCheck)) {
-							tempArray.push(stageToCheck);
-							stages.push(stageToCheck);
-							stagePaths.push(directory.substr('mods/'.length, directory.length - ('/stages/'.length + 'mods/'.length)));
-						}
-					}
-				}
-			}
-		}
-		#end
-
-		if (stages.length < 1) {
-			stages.push('stage');
-			stagePaths.push('');
-		}
-
-		return [stages, stagePaths];
-	}
+        if (stages.length < 1) {
+            stages.push('stage');
+            stagePaths.push('');
+        }
+        return [stages, stagePaths];
+    }
 }

@@ -71,6 +71,7 @@ class SaveVariables {
 	public final badWindow:Int = 135;
 	public var safeFrames:Float = 10;
 	public var discordRPC:Bool = true;
+	public var ogIconBop:Bool = false;
 	// PSYCH ONLINE
 	private var nickname:String = "Boyfriend";
 	public var serverAddress:String = null;
