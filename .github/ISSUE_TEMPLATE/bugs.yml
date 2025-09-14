@@ -27,19 +27,18 @@ body:
   - type: dropdown
     id: modding
     attributes:
-      label: "Have you modded the build?"
+      label: "Have you modified the Source Code?"
       options:
-        - Yes, at Source Code level
-        - Yes, using Mods
-        - No
+        - Yes.
+        - No.
     validations:
       required: true
 
   - type: input
     id: buildsummary
     attributes:
-      label: "If you edited anything in this build, mention or summarize your changes."
-      placeholder: "I edited ClientPrefs.hx and tried to add a new setting"
+      label: "Have you modded the build in any way?"
+      placeholder: "(I edited ClientPrefs.hx and tried to add a new setting.)\n(This mod <url here> is crashing)"
     validations:
       required: false
 
