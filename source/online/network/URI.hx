@@ -78,9 +78,9 @@ class URI
 		Sys.command('chmod', ['+x', '"${uriHandlerPath}"']);
 
 		var xdgDesktopContent:String =
-		'[Desktop Entry]\n';
+		'[Desktop Entry]\n'
 		+ 'Type=Application\n'
-		+ 'Name=Psych Online URI\n',
+		+ 'Name=Psych Online URI\n'
 		+ 'Exec="${uriHandlerPath}" %u\n'
 		+ 'StartupNotify=false\n'
 		+ 'MimeType=x-scheme-handler/psych-online;';
