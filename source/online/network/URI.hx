@@ -62,7 +62,7 @@ class URI
 		// this has NOT been tested at all
 		var uriHandlerPath:String = Path.normalize(lime.system.System.applicationStorageDirectory + 'peo_uri');
 
-		var response:HTTPResponse = new HTTPClient("https://nightly.link/TechnikTil/Psych-Online-URI/workflows/main/main/windowsBuild.zip").request();
+		var response:HTTPResponse = new HTTPClient("https://nightly.link/TechnikTil/Psych-Online-URI/workflows/main/main/linuxBuild.zip").request();
 
 		if(response.isFailed())
 			return false;
