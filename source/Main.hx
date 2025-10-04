@@ -1,5 +1,6 @@
 package;
 
+import online.network.URI;
 import online.GameClient;
 import states.MainMenuState;
 import externs.WinAPI;
@@ -83,12 +84,16 @@ class Main extends Sprite
 				Sys.exit(1);
 			}
 		}
+
+		URI.saveLastLocation();
 		
 		Lib.current.addChild(view3D = new online.away.View3DHandler());
 		Lib.current.addChild(new Main());
 		Lib.current.addChild(new online.gui.sidebar.SideUI());
 		Lib.current.addChild(new online.gui.Alert());
 		Lib.current.addChild(new online.gui.LoadingScreen());
+
+		online.backend.CommandLineArgs.init();
 	}
 
 	public function new()
@@ -150,11 +155,17 @@ class Main extends Sprite
 		#if hl
 		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
 		#end
-	
+
+		FlxG.save.bind('funkin', CoolUtil.getSavePath());
+
 		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
 		Controls.instance = new Controls();
 		ClientPrefs.loadDefaultKeys();
 		addChild(new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
+
+		FlxG.fixedTimestep = false;
+		FlxG.game.focusLostFramerate = 60;
+		FlxG.keys.preventDefaultKeys = [TAB];
 
 		#if !mobile
 		fpsVar = new FPS(10, 3, 0xFFFFFF);
