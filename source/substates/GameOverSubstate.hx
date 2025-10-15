@@ -192,9 +192,10 @@ class GameOverSubstate extends MusicBeatSubstate
 		}
 
 		if (PlayState.instance.dad.curCharacter.startsWith('tankman')) {
-			ShitUtil.tempSwitchMod(ClientPrefs.data.modSkin[0], () -> {
-				tankTalk = Paths.sound('jeffGameover-${ClientPrefs.data.modSkin[1]}/jeffGameover-' + FlxG.random.int(1, 10));
-			});
+			if (ClientPrefs.data.modSkin != null)
+				ShitUtil.tempSwitchMod(ClientPrefs.data.modSkin[0], () -> {
+					tankTalk = Paths.sound('jeffGameover-${ClientPrefs.data.modSkin[1]}/jeffGameover-' + FlxG.random.int(1, 10));
+				});
 			tankTalk ??= Paths.sound('jeffGameover/jeffGameover-' + FlxG.random.int(1, 25));
 		}
 

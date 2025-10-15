@@ -27,8 +27,12 @@ class LuaModuleSwap {
 			exit: function(?code:Int, ?close:Bool) {
 				if (stopFunc != null)
 					stopFunc();
-				else
+				else {
+					try {
+						Lua.error(lua);
+					} catch (exc) {}
 					Lua.close(lua);
+				}
 			},
 			getenv: function(varname:String) {
 				return Sys.getEnv(varname);

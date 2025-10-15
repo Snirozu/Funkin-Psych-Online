@@ -180,7 +180,7 @@ class HTTPClient {
 					socket = null;
 				}
 
-				address = parseStringToAddress(response.headers.get("location"));
+				address = parseStringToAddress(response.headers.get("location"), address);
 				return this.request({
 					output: response.output
 				});
@@ -282,8 +282,20 @@ class HTTPClient {
 		return socket != null;
 	}
 
-	public static function parseStringToAddress(url:String):HTTPAddress {
-		var url = url;
+	public static function parseStringToAddress(url:String, ?from:HTTPAddress):HTTPAddress {
+		// if the url comes from location http header then it can be sometimes a relative path instead of absolute
+		if (url.startsWith('/')) {
+			if (from == null)
+				throw new Exception('The URL is a path to an address which wasn\'t provided');
+
+			return {
+				host: from.host,
+				port: from.port,
+				path: url,
+				ssl: from.ssl
+			};
+		}
+
 		var ssl:Bool = false;
 		if (url.startsWith("https://")) {
 			ssl = true;

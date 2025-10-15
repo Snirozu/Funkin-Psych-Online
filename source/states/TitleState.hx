@@ -792,6 +792,8 @@ class TitleState extends MusicBeatState
 			}
 		}
 
+		WeekData.setDirectoryFromWeek();
+
 		if (FlxG.sound.music == null || !FlxG.sound.music.playing) {
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), volume);
 			lastFreakyMusic = @:privateAccess FlxG.sound.music._sound;

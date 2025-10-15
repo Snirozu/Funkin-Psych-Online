@@ -35,12 +35,16 @@ class AlertMessage extends Sprite implements IMousable {
 		title.selectable = false;
 		title.multiline = true;
 		title.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 18, 0xFFFFFFFF);
+		title.antiAliasType = ADVANCED;
+		title.embedFonts = true;
 		addChild(title);
 
 		content = new TextField();
 		content.selectable = false;
 		content.multiline = true;
 		content.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 15, 0xFFFFFFFF);
+		content.antiAliasType = ADVANCED;
+		content.embedFonts = true;
 		addChild(content);
 
 		create();

@@ -111,7 +111,7 @@ class StoryMenuState extends MusicBeatState
 					lock.frames = ui_tex;
 					lock.animation.addByPrefix('lock', 'lock');
 					lock.animation.play('lock');
-					lock.ID = i;
+					lock.ID = grpWeekText.length - 1;
 					grpLocks.add(lock);
 				}
 				num++;

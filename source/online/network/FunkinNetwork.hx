@@ -70,7 +70,9 @@ class FunkinNetwork {
 		if (response == null)
 			return false;
 
-		logout();
+		if (code != null) {
+			logout();
+		}
 		return true;
 	}
 

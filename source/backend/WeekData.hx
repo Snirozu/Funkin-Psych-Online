@@ -194,7 +194,13 @@ class WeekData {
 		#end
 
 		if(rawJson != null && rawJson.length > 0) {
-			return cast Json.parse(rawJson);
+			try {
+				return cast Json.parse(rawJson);
+			}
+			catch (exc) {
+				trace(exc);
+				trace(rawJson);
+			}
 		}
 		return null;
 	}

@@ -500,7 +500,7 @@ class ModItem extends FlxSpriteGroup {
 			categoryName.visible = true;
 			categoryNameBg.visible = true;
 
-			if (err == null) {
+			if (err == null || bytes == null) {
 				category.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes)));
 				category.antialiasing = ClientPrefs.data.antialiasing;
 				category.x = bg.x + bg.width - category.width; // bg.x is needed for some reason
@@ -643,7 +643,7 @@ class ModItem extends FlxSpriteGroup {
 					if (!exists)
 						return;
 
-					if (err != null) {
+					if (err != null || bytes == null) {
 						loadingScreenshot = false;
 						return;
 					}
@@ -667,7 +667,7 @@ class ModItem extends FlxSpriteGroup {
 				getImage(mod.thumbnails[index - 1].url, (bytes, err) -> {
 					if (!exists)
 						return;
-					if (err != null || !selected) {
+					if (err != null || !selected || bytes == null) {
 						loadingScreenshot = false;
 						return;
 					}

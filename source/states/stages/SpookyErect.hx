@@ -36,7 +36,8 @@ class SpookyErect extends BaseStage
 		if (!ClientPrefs.data.lowQuality) {
 			lightList.push(boyfriend);
 			lightList.push(dad);
-			lightList.push(gf);
+			if (gf != null)
+				lightList.push(gf);
 			if (game.abot != null)
 				lightList.push(game.abot.speaker);
 
