@@ -205,7 +205,7 @@ class PlayState extends MusicBeatState
 	public var inst:FlxSound;
 
 	public var dad:Character = null;
-	public var gf:Character = null;
+	public var gf:Null<Character> = null;
 	public var boyfriend:Character = null;
 	//its you
 	public var self(get, never):Character;
@@ -2352,6 +2352,13 @@ class PlayState extends MusicBeatState
 
 		for (section in noteData)
 		{
+			haxe.ds.ArraySort.sort(section.sectionNotes, function(a, b):Int {
+				if (a == null || b == null) {
+					return 0;
+				}
+				return a[0] - b[0];
+			});
+			
 			for (songNotes in section.sectionNotes)
 			{
 				var daStrumTime:Float = songNotes[0];
@@ -3094,6 +3101,10 @@ class PlayState extends MusicBeatState
 							if(!daNote.mustPress) strumGroup = opponentStrums;
 
 							var strum:StrumNote = strumGroup.members[daNote.noteData];
+							if (strum == null) {
+								return;
+							}
+
 							if (!playsAsBF() && !disableForceShow) {
 								forceShowOpStrums = true;
 								daNote.visible = true;

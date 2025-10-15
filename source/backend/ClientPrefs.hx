@@ -98,7 +98,7 @@ class SaveVariables {
 	public var notifyOnChatMsg:Bool = false;
 	public var disablePMs:Bool = false;
 	public var disableRoomInvites:Bool = false;
-	public var disableSSLVerify:Bool = false;
+	public var verifySSL:Bool = false;
 	public var noteUnderlayOpacity:Float = 0;
 	public var favsAsMenuTheme:Bool = false;
 	public var disableComboRating:Bool = false;
@@ -249,7 +249,7 @@ class ClientPrefs {
 			FlxG.updateFramerate = data.framerate;
 		}
 
-		sys.ssl.Socket.DEFAULT_VERIFY_CERT = !ClientPrefs.data.disableSSLVerify;
+		sys.ssl.Socket.DEFAULT_VERIFY_CERT = ClientPrefs.data.verifySSL;
 
 		if(FlxG.save.data.gameplaySettings != null) {
 			var savedMap:Map<String, Dynamic> = FlxG.save.data.gameplaySettings;

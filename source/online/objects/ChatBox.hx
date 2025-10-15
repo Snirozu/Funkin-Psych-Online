@@ -84,7 +84,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 	}
 
 	public static function tryRegisterLogs() {
-		if (GameClient.isConnected())
+		if (GameClient.isConnected() && GameClient.room != null)
 			GameClient.room.onMessage("log", function(message) {
 				Waiter.putPersist(() -> {
 					addMessage(message);

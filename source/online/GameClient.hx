@@ -672,7 +672,7 @@ class GameClient {
 			}
 		}
 		http.onError = function(error) {
-			GameClient.serverAddresses = [];
+			GameClient.serverAddresses = ["wss://funkin.sniro.boo"];
 			trace('error: $error');
 			hasAddresses = false;
 		}

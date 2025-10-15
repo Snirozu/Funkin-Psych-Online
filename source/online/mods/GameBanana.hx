@@ -14,7 +14,14 @@ class GameBanana {
 
 			http.onData = function(data:String) {
 				Waiter.put(() -> {
-					var json:Dynamic = Json.parse(data);
+					var json:Dynamic;
+					try {
+						json = Json.parse(data);
+					}
+					catch (exc) {
+						response(null, exc);
+						return;
+					}
 					response(cast(json._aRecords), json._sErrorCode != null ? json._sErrorMessage : null);
 				});
 			}
@@ -37,7 +44,14 @@ class GameBanana {
 
 			http.onData = function(data:String) {
 				Waiter.put(() -> {
-					var json:Dynamic = Json.parse(data);
+					var json:Dynamic;
+					try {
+						json = Json.parse(data);
+					}
+					catch (exc) {
+						response(null, exc);
+						return;
+					}
 					response(cast(json._aRecords), json._sErrorCode != null ? json._sErrorMessage : null);
 				});
 			}
@@ -60,10 +74,26 @@ class GameBanana {
 			);
 
 			http.onData = function(data:String) {
-				var arr:Array<Dynamic> = Json.parse(data);
+				var arr:Array<Dynamic>;
+				try {
+					arr = Json.parse(data);
+				}
+				catch (exc) {
+					response(null, exc);
+					return;
+				}
 
 				if (arr == null || arr.length < 11) {
 					response(null, new Exception('Faulty Mod Response'));
+					return;
+				}
+
+				var ss:Dynamic;
+				try {
+					ss = Json.parse(arr[10]);
+				}
+				catch (exc) {
+					trace(exc);
 					return;
 				}
 	
@@ -79,7 +109,7 @@ class GameBanana {
 					rootCategory: arr[7],
 					downloadCount: arr[8],
 					likes: arr[9],
-					screenshots: Json.parse(arr[10])
+					screenshots: ss
 				}, null);
 			}
 
@@ -101,7 +131,14 @@ class GameBanana {
 
 			http.onData = function(data:String) {
 				Waiter.put(() -> {
-					var json:Dynamic = Json.parse(data);
+					var json:Dynamic;
+					try {
+						json = Json.parse(data);
+					}
+					catch (exc) {
+						response(null, exc);
+						return;
+					}
 					response(cast(json), json._sErrorCode != null ? json._sErrorMessage : null);
 				});
 			}

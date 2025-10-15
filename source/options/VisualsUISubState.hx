@@ -219,29 +219,29 @@ class VisualsUISubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Network Chat Notifications',
-			'If checked, all player messages from the Network Chat will be notified to you, can be toggled with "/notify" in chat.',
+			'If checked, all player messages from the Network Chat will be notified to you, can be toggled with "/notify" in the network chat.',
 			'notifyOnChatMsg',
 			'bool');
 		addOption(option);
 
 		var option:Option = new Option('Mute PM Notifications',
-			'If checked, PM notifications are muted, can be toggled with "/notify pm" in chat.',
+			'If checked, PM notifications are muted, can be toggled with "/notify pm" in the network chat.',
 			'disablePMs',
 			'bool');
 		addOption(option);
 
 		var option:Option = new Option('Mute Room Invites',
-			'If checked, room invites are muted, can be toggled with "/notify roominvite" in chat.',
+			'If checked, room invites are muted, can be toggled with "/notify roominvite" in the network chat.',
 			'disableRoomInvites',
 			'bool');
 		addOption(option);
 
-		var option:Option = new Option('Disable SSL Verification',
-			'If checked, the game will no longer check for valid SSL certificates, which can lead to unsafe connections with downloads or rooms.\n(Use only if you know what you\'re doing!)',
-			'disableSSLVerify',
+		var option:Option = new Option('SSL Verification',
+			'If checked, the game will check for valid SSL certificates, which can lead to safer connections with downloads or rooms.\n(Not recommended because of Haxe\'s flawed sockets implementation.)',
+			'verifySSL',
 			'bool');
 		option.onChange = () -> {
-			sys.ssl.Socket.DEFAULT_VERIFY_CERT = !ClientPrefs.data.disableSSLVerify;
+			sys.ssl.Socket.DEFAULT_VERIFY_CERT = ClientPrefs.data.verifySSL;
 		};
 		addOption(option);
 

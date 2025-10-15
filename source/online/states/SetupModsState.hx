@@ -146,6 +146,10 @@ class SetupModsState extends MusicBeatState {
 			curSelected = swagMods.length - 1;
 		}
 
+		// how the fuck can this be null
+		if (items == null)
+			return;
+
 		for (item in items) {
 			item.text = getItemName(item.ID);
 			item.alpha = inInput ? 0.5 : 0.7;
