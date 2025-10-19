@@ -2127,29 +2127,6 @@ class PlayState extends MusicBeatState
 
 	public function updateScore(miss:Bool = false, ?skipRest:Bool = false)
 	{
-		var scoreTextObject = scoreTxt;
-		if (GameClient.isConnected()) {
-			updateScoreSID(GameClient.room.sessionId);
-			return;
-		}
-
-		var str:String = ratingName;
-		if (totalPlayed != 0) {
-			var percent:Float = CoolUtil.floorDecimal(ratingPercent * 100, 2);
-			str += ' ($percent%) - $ratingFC';
-		}
-
-		if (GameClient.isConnected()) {
-			scoreTextObject.text = GameClient.getPlayerSelf().name
-				+ '\nScore: ' + FlxStringUtil.formatMoney(songScore, false)
-				+ '\nMisses: ' + songMisses
-				+ '\nRating: ' + str
-				+ "\nPing: " + GameClient.getPlayerSelf().ping;
-		}
-		else {
-			scoreTextObject.text = 'Score: ' + FlxStringUtil.formatMoney(songScore, false) + ' | Misses: ' + songMisses + ' | Rating: ' + str;
-		}
-
 		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, songDensity, totalNotesHit, maxCombo);
 		if (points != songPoints) {
 			songPoints = points;
@@ -2162,6 +2139,20 @@ class PlayState extends MusicBeatState
 		}
 		songPoints = points;
 
+		var scoreTextObject = scoreTxt;
+		if (GameClient.isConnected()) {
+			updateScoreSID(GameClient.room.sessionId);
+			return;
+		}
+
+		var str:String = ratingName;
+		if (totalPlayed != 0) {
+			var percent:Float = CoolUtil.floorDecimal(ratingPercent * 100, 2);
+			str += ' ($percent%) - $ratingFC';
+		}
+
+		scoreTextObject.text = 'Score: ' + FlxStringUtil.formatMoney(songScore, false) + ' | Misses: ' + songMisses + ' | Rating: ' + str;
+
 		if (skipRest) {
 			if (ClientPrefs.data.showFP)
 				scoreTextObject.text += ' | FP: ' + songPoints + ' (${CoolUtil.floorDecimal(pointsPercent * 100, 1)}%)';
@@ -2172,14 +2163,8 @@ class PlayState extends MusicBeatState
 			if (scoreTxtTween != null) {
 				scoreTxtTween.cancel();
 			}
-			if (!GameClient.isConnected()) {
-				scoreTextObject.scale.x = 1.075;
-				scoreTextObject.scale.y = 1.075;
-			}
-			else {
-				scoreTextObject.scale.x = 1.045;
-				scoreTextObject.scale.y = 1.045;
-			}
+			scoreTextObject.scale.x = 1.075;
+			scoreTextObject.scale.y = 1.075;
 			scoreTxtTween = FlxTween.tween(scoreTextObject.scale, {x: 1, y: 1}, 0.2, {
 				onComplete: function(twn:FlxTween) {
 					scoreTxtTween = null;
