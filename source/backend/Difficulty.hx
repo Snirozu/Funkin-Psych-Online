@@ -26,7 +26,7 @@ class Difficulty
 		return Paths.formatToSongPath(fileSuffix);
 	}
 
-	inline public static function loadFromWeek(week:WeekData = null)
+	inline public static function loadFromWeek(week:WeekData = null, ?extra:Null<Array<String>>)
 	{
 		if(week == null) week = WeekData.getCurrentWeek();
 
@@ -50,13 +50,9 @@ class Difficulty
 		}
 		else resetList();
 
-		if (FlxG.state is states.FreeplayState) {
-			var freeplay:states.FreeplayState = cast FlxG.state;
-			if (freeplay.songs[states.FreeplayState.curSelected].hasErect)
-				list.push("Erect");
-			if (freeplay.songs[states.FreeplayState.curSelected].hasNightmare)
-				list.push("Nightmare");
-		}
+		if(extra != null)
+			for(diff in extra)
+				list.push(diff);
 	}
 
 	inline public static function resetList()
