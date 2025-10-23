@@ -209,6 +209,9 @@ class FreeplayState extends MusicBeatState
 			var leSongs:Array<String> = [];
 			var leChars:Array<String> = [];
 
+			if (leWeek?.songs == null)
+				continue;
+
 			for (j in 0...leWeek.songs.length) {
 				leSongs.push(leWeek.songs[j][0]);
 				leChars.push(leWeek.songs[j][1]);

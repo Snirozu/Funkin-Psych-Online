@@ -21,7 +21,7 @@ class HTTPClient {
 
 	public var cancelRequested(default, null):Bool = false;
 
-	var socket:Socket;
+	var socket(default, null):Socket;
 
 	public var status(default, set):Null<ClientStatus>;
 	function set_status(v:Null<ClientStatus>) {
@@ -44,8 +44,7 @@ class HTTPClient {
 				this.address = v;
 			case Right(v):
 				this.address = parseStringToAddress(v);
-			case null:
-				throw new Exception('Null Argument');
+			default:
 		}
     }
 
@@ -53,11 +52,16 @@ class HTTPClient {
 		if (socket != null)
 			throw new Exception('Socket Still Open');
 
+		if (address == null)
+			throw new Exception('Address is null!');
+
 		cancelRequested = false;
 		contentLength = 0;
 		receivedBytes = 0;
 		status = CONNECTING;
 
+		response = new HTTPResponse();
+		requestData = {};
 		switch (data) {
 			case Left(v):
 				requestData = v;
@@ -65,14 +69,12 @@ class HTTPClient {
 				requestData = {
 					path: v
 				};
-			case null:
-				requestData = {};
+			default:
 		}
 
 		if (requestData.path == null)
 			requestData.path = address.path;
 
-		response = new HTTPResponse();
 		response.request = requestData;
 
 		if (requestData.output != null)
