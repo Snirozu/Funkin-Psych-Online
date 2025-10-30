@@ -82,6 +82,12 @@ class OnlineOptionsState extends MusicBeatState {
 		modsOption.screenCenter(X);
 		modsOption.ID = i++;
 
+		var uriOption:InputOption;
+		items.add(uriOption = new InputOption("Register URI", "Register the Psych Online URI here!"));
+		uriOption.y = modsOption.y + modsOption.height + 50;
+		uriOption.screenCenter(X);
+		uriOption.ID = i++;
+
 		function prepareAddress(address:String) {
 			address = address.trim();
 
@@ -122,7 +128,7 @@ class OnlineOptionsState extends MusicBeatState {
 			GameClient.serverAddress = curOption.inputs[0].text;
 		}));
 		serverOption.inputs[0].text = GameClient.serverAddress;
-		serverOption.y = modsOption.y + modsOption.height + 50;
+		serverOption.y = uriOption.y + uriOption.height + 50;
 		serverOption.screenCenter(X);
 		serverOption.ID = i++;
 
@@ -330,6 +336,23 @@ class OnlineOptionsState extends MusicBeatState {
 							LoadingState.loadAndSwitchState(new SkinsState());
 						case "setup mods":
 							FlxG.switchState(() -> new SetupModsState(Mods.getModDirectories(), true));
+						case "register uri":
+							online.backend.Thread.run(() -> {
+								online.gui.LoadingScreen.toggle(true);
+								if(online.network.URI.registerURI())
+								{
+									online.backend.Waiter.putPersist(() -> {
+										Alert.alert('Registered URI successfully!', '');
+									});
+								}
+								else
+								{
+									online.backend.Waiter.putPersist(() -> {
+										Alert.alert('Failed to Register URI!', 'Did you allow administrator privileges?');
+									});
+								}
+								online.gui.LoadingScreen.toggle(false);
+							});
 						case "clear trusted domains":
 							ClientPrefs.data.trustedSources = ["https://gamebanana.com/"];
 							ClientPrefs.saveSettings();

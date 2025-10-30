@@ -1231,28 +1231,35 @@ class FreeplayState extends MusicBeatState
 	function playReplay(replayData:String, ?replayID:String) {
 		updateMod();
 
-		var shit = Json.parse(replayData);
-		PlayState.replayData = cast shit;
-		PlayState.replayData.gameplay_modifiers = ReplayPlayer.objToMap(shit.gameplay_modifiers);
-		PlayState.replayID = replayID;
-
-		var songLowercase:String = Paths.formatToSongPath(getSongName());
-		var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
-
-		if (PlayState.replayData.chart_hash == Md5.encode(Song.loadRawSong(poop, songLowercase))) {
-			enterSong();
+		try {
+			ReplayPlayer.loadReplay(replayData, replayID);
 		}
-		else {
-			PlayState.replayData = null;
-
-			missingText.text = 'OUTDATED REPLAY OR INVALID FOR THIS SONG';
+		catch(e:haxe.Exception) {
+			trace(e.details());
+			missingText.text = e.message;
 			missingText.screenCenter(Y);
 			missingText.visible = true;
 			missingTextBG.visible = true;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 
 			updateTexts(FlxG.elapsed);
+			return;
 		}
+
+		if (colorTween != null) {
+			colorTween.cancel();
+		}
+
+		LoadingState.loadAndSwitchState(new PlayState());
+		transToPlayState = true;
+		FlxG.autoPause = prevPauseGame;
+
+		FlxG.sound.music.volume = 0;
+
+		destroyFreeplayVocals();
+		#if (MODS_ALLOWED && DISCORD_ALLOWED)
+		DiscordClient.loadModRPC();
+		#end
 	}
 
 	var curPage:Int = 0;
@@ -1672,7 +1679,10 @@ class FreeplayState extends MusicBeatState
 			
 			updateMod();
 			PlayState.storyWeek = songs[curSelected].week;
-			Difficulty.loadFromWeek();
+			var extraDiffs:Array<String> = [];
+			if(songs[curSelected].hasErect) extraDiffs.push('Erect');
+			if(songs[curSelected].hasNightmare) extraDiffs.push('Nightmare');
+			Difficulty.loadFromWeek(null, extraDiffs);
 			
 			var savedDiff:String = songs[curSelected].lastDifficulty;
 			var lastDiff:Int = Difficulty.list.indexOf(lastDifficultyName);
