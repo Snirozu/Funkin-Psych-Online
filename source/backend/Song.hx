@@ -35,10 +35,13 @@ typedef SwagSong =
 	@:optional var splashSkin:String;
 
 	//MOD SPECIFIC
-	@:optional var mania:Int;
+	@:optional var mania:Null<Int>;
 
 	//psych engine 1.0
 	@:optional var format:String;
+
+	//idk specify here
+	@:optional var keys:Null<Int>;
 }
 
 class Song

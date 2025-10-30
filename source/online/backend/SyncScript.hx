@@ -9,6 +9,12 @@ class SyncScript extends SScript {
 	public static var syncScript:SyncScript;
 	public static var data:Any = {};
 	public static var activeUpdate:Bool = false;
+
+	public static function initScript(threaded:Bool = false) {
+		resyncScript(threaded, () -> {
+			dispatch("init");
+		});
+	}
     
 	public static function resyncScript(threaded:Bool = true, ?onDone:Void->Void) {
 		if (threaded) {

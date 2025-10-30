@@ -1,5 +1,7 @@
 package backend;
 
+import objects.Note;
+import objects.Note;
 import options.VisualsUISubState;
 import options.NotesSubState;
 import online.network.FunkinNetwork;
@@ -31,16 +33,115 @@ class SaveVariables {
 	public var camZooms:Bool = true;
 	public var hideHud:Bool = false;
 	public var noteOffset:Int = 0;
+
 	public var arrowRGB:Array<Array<FlxColor>> = [
 		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
 		[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
 		[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
 		[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]];
+
+	public var arrowRGBMap:Map<String, Array<Array<FlxColor>>> = [
+		'5k' => [
+			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
+			[0xFFFFE600, 0xFFFFFFFF, 0xFF754D10],
+			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
+			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
+		],
+		'6k' => [
+			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
+			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038],
+			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
+			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
+		],
+		'7k' => [
+			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
+			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038],
+			[0xFFFFE600, 0xFFFFFFFF, 0xFF754D10],
+			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
+			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
+		],
+		'8k' => [
+			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
+			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
+			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038],
+			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
+			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
+			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
+		],
+		'9k' => [
+			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
+			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
+			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038],
+			[0xFFFFE600, 0xFFFFFFFF, 0xFF754D10],
+			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
+			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
+			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
+		],
+	];
+
 	public var arrowRGBPixel:Array<Array<FlxColor>> = [
 		[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
 		[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
 		[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
-		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
+		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
+	];
+
+	public var arrowRGBPixelMap:Map<String, Array<Array<FlxColor>>> = [
+		'5k' => [
+			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
+			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
+			[0xFFFFE600, 0xFFFFF5F0, 0xFF754D10],
+			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
+			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
+		],
+		'6k' => [
+			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
+			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
+			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000],
+			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
+			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
+			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
+		],
+		'7k' => [
+			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
+			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
+			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000],
+			[0xFFFFE600, 0xFFFFF5F0, 0xFF754D10],
+			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
+			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
+			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
+		],
+		'8k' => [
+			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
+			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
+			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
+			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000],
+			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
+			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
+			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
+			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
+		],
+		'9k' => [
+			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
+			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
+			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
+			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000],
+			[0xFFFFE600, 0xFFFFF5F0, 0xFF754D10],
+			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
+			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
+			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
+			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
+		],
+	];
 
 	public var ghostTapping:Bool = true;
 	public var timeBarType:String = 'Time Left';
@@ -125,6 +226,46 @@ class ClientPrefs {
 		'note_left'		=> [A, LEFT],
 		'note_down'		=> [S, DOWN],
 		'note_right'	=> [D, RIGHT],
+
+		'5k_note_1'    	=> [D],
+		'5k_note_2'    	=> [F],
+		'5k_note_3'    	=> [G, SPACE],
+		'5k_note_4'     => [J],
+		'5k_note_5'     => [K],
+    
+		'6k_note_1'     => [S],
+		'6k_note_2'     => [D],
+		'6k_note_3'     => [F],
+		'6k_note_4'     => [J],
+		'6k_note_5'     => [K],
+		'6k_note_6'     => [L],
+    
+		'7k_note_1'     => [S],
+		'7k_note_2'     => [D],
+		'7k_note_3'     => [F],
+		'7k_note_4'     => [G, SPACE],
+		'7k_note_5'     => [J],
+		'7k_note_6'     => [K],
+		'7k_note_7'     => [L],
+    
+		'8k_note_1'     => [A],
+		'8k_note_2'     => [S],
+		'8k_note_3'     => [D],
+		'8k_note_4'     => [F],
+		'8k_note_5'     => [H],
+		'8k_note_6'     => [J],
+		'8k_note_7'     => [K],
+		'8k_note_8'     => [L],
+
+		'9k_note_1'     => [A],
+		'9k_note_2'     => [S],
+		'9k_note_3'     => [D],
+		'9k_note_4'     => [F],
+		'9k_note_5'     => [G, SPACE],
+		'9k_note_6'     => [H],
+		'9k_note_7'     => [J],
+		'9k_note_8'     => [K],
+		'9k_note_9'     => [L],
 		
 		'ui_up'			=> [W, UP],
 		'ui_left'		=> [A, LEFT],
@@ -135,7 +276,7 @@ class ClientPrefs {
 		'back'			=> [BACKSPACE, ESCAPE],
 		'pause'			=> [ENTER, ESCAPE],
 		'reset'			=> [R],
-		'taunt'			=> [SPACE],
+		'taunt'			=> [SPACE, T],
 		'sidebar'		=> [GRAVEACCENT],
 		'fav'			=> [Q],
 		
@@ -151,6 +292,46 @@ class ClientPrefs {
 		'note_left'		=> [DPAD_LEFT, X],
 		'note_down'		=> [DPAD_DOWN, A],
 		'note_right'	=> [DPAD_RIGHT, B],
+
+		'5k_note_1'     => [DPAD_LEFT, X],
+		'5k_note_2'    	=> [DPAD_DOWN, A],
+		'5k_note_3'    	=> [LEFT_SHOULDER, RIGHT_SHOULDER],
+		'5k_note_4'     => [DPAD_UP, Y],
+		'5k_note_5'     => [DPAD_RIGHT, B],
+    
+		'6k_note_1'     => [DPAD_LEFT],
+		'6k_note_2'     => [DPAD_DOWN],
+		'6k_note_3'     => [DPAD_RIGHT],
+		'6k_note_4'     => [X],
+		'6k_note_5'     => [Y],
+		'6k_note_6'     => [B],
+    
+		'7k_note_1'     => [DPAD_LEFT],
+		'7k_note_2'     => [DPAD_DOWN],
+		'7k_note_3'     => [DPAD_RIGHT],
+		'7k_note_4'     => [LEFT_SHOULDER, RIGHT_SHOULDER],
+		'7k_note_5'     => [X],
+		'7k_note_6'     => [Y],
+		'7k_note_7'     => [B],
+    
+		'8k_note_1'     => [DPAD_LEFT],
+		'8k_note_2'     => [DPAD_DOWN],
+		'8k_note_3'     => [DPAD_UP],
+		'8k_note_4'     => [DPAD_RIGHT],
+		'8k_note_5'     => [X],
+		'8k_note_6'     => [A],
+		'8k_note_7'     => [Y],
+		'8k_note_8'     => [B],
+
+		'9k_note_1'     => [DPAD_LEFT],
+		'9k_note_2'     => [DPAD_DOWN],
+		'9k_note_3'     => [DPAD_UP],
+		'9k_note_4'     => [DPAD_RIGHT],
+		'9k_note_5'     => [LEFT_SHOULDER, RIGHT_SHOULDER],
+		'9k_note_6'     => [X],
+		'9k_note_7'     => [A],
+		'9k_note_8'     => [Y],
+		'9k_note_9'     => [B],
 		
 		'ui_up'			=> [DPAD_UP, LEFT_STICK_DIGITAL_UP],
 		'ui_left'		=> [DPAD_LEFT, LEFT_STICK_DIGITAL_LEFT],
@@ -226,6 +407,18 @@ class ClientPrefs {
 				//trace('loaded variable: $key');
 				Reflect.setField(data, key, Reflect.field(FlxG.save.data, key));
 			}
+		}
+		
+		data.arrowRGBMap ??= new Map();
+		for (key => value in defaultData.arrowRGBMap) {
+			if (!data.arrowRGBMap.exists(key))
+				data.arrowRGBMap.set(key, value);
+		}
+
+		data.arrowRGBPixelMap ??= new Map();
+		for (key => value in defaultData.arrowRGBPixelMap) {
+			if (!data.arrowRGBPixelMap.exists(key))
+				data.arrowRGBPixelMap.set(key, value);
 		}
 		
 		if(Main.fpsVar != null) {
@@ -362,7 +555,7 @@ class ClientPrefs {
 
 	public static function getRGBColor(player:Int = 0):Array<Array<FlxColor>> {
 		if (!GameClient.isConnected() || NotesSubState.isOpened)
-			return data.arrowRGB;
+			return (Note.maniaKeys != 4 ? data.arrowRGBMap.get(Note.maniaKeys + 'k') : data.arrowRGB);
 
 		if (player == 0)
 			return [ 
@@ -373,7 +566,7 @@ class ClientPrefs {
 			];
 
 		if (PlayState.instance?.opponentPlayer == null)
-			return defaultData.arrowRGB;
+			return (Note.maniaKeys != 4 ? defaultData.arrowRGBMap.get(Note.maniaKeys + 'k') : defaultData.arrowRGB);
 		
 		return [
 			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor0),
@@ -385,7 +578,7 @@ class ClientPrefs {
 
 	public static function getRGBPixelColor(player:Int = 0):Array<Array<FlxColor>> {
 		if (!GameClient.isConnected() || NotesSubState.isOpened)
-			return data.arrowRGBPixel;
+			return (Note.maniaKeys != 4 ? data.arrowRGBPixelMap.get(Note.maniaKeys + 'k') : data.arrowRGBPixel);
 
 		if (player == 0)
 			return [
@@ -396,7 +589,7 @@ class ClientPrefs {
 			];
 
 		if (PlayState.instance?.opponentPlayer == null)
-			return defaultData.arrowRGBPixel;
+			return (Note.maniaKeys != 4 ? defaultData.arrowRGBPixelMap.get(Note.maniaKeys + 'k') : defaultData.arrowRGBPixel);
 
 		return [
 			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP0),

@@ -9,6 +9,9 @@ class ReplayPlayer extends FlxBasic {
 	var state:PlayState;
     
 	public var pressedKeys:Map<String, ReplayPressStatus> = []; 
+
+	@:unreflective
+	public var ALLOWED_BINDS(default, null) = [];
     
 	public function new(state:PlayState, data:ReplayData) {
 		super();
@@ -17,6 +20,8 @@ class ReplayPlayer extends FlxBasic {
 
 		this.state = state;
         this.data = data;
+
+		ALLOWED_BINDS = ReplayRecorder.genRegisterBinds();
 
         if (PlayState.opponentMode != data.opponent_mode) {
 			state.boyfriend.isPlayer = !state.boyfriend.isPlayer;
@@ -80,7 +85,7 @@ class ReplayPlayer extends FlxBasic {
                 state.resyncVocals();
             }
 
-			if (ReplayRecorder.REGISTER_BINDS.contains(_key)) {
+			if (ALLOWED_BINDS.contains(_key)) {
                 if (events[0][2] == 0) {
                     @:privateAccess
 					state.keyPressed(PlayState.getKeyFromEvent(state.keysArray, state.controls.keyboardBinds.get(_key)[0]));
@@ -111,7 +116,7 @@ class ReplayPlayer extends FlxBasic {
 		while (events.length > 0 && events[0][0] < time - (ClientPrefs.data.noteOffset - data.note_offset)) {
 			_key = events[0][1];
 
-			if (ReplayRecorder.REGISTER_BINDS.contains(_key)) {
+			if (ALLOWED_BINDS.contains(_key)) {
 				if (events[0][2] == 0) {
 					pressedKeys.set(_key, JUST_PRESSED);
 				}
