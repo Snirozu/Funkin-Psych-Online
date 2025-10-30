@@ -15,6 +15,8 @@ class SustainSplash extends FlxSprite {
 
 		x = -50000;
 
+		online.backend.SyncScript.dispatch('testSusSplashInit', [this]);
+
 		var skin:String = defaultNoteHoldSplash + getSplashSkinPostfix();
 		frames = Paths.getSparrowAtlas(skin);
 		if (frames == null) {
@@ -32,7 +34,11 @@ class SustainSplash extends FlxSprite {
 		super.update(elapsed);
 
 		if (strumNote != null && animation != null && strumNote.animation != null) {
-			setPosition(strumNote.x, strumNote.y);
+			setPosition(
+				(strumNote.x - (Note.swagWidth - Note.swagScaledWidth)) - Note.swagScaledWidth * 0.95, 
+				(strumNote.y - (Note.swagWidth - Note.swagScaledWidth)) - Note.swagScaledWidth
+			);
+			online.backend.SyncScript.dispatch('testSusSplashUpdate', [this]);
 			visible = strumNote.visible;
 			alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
 
@@ -52,6 +58,9 @@ class SustainSplash extends FlxSprite {
 
 		if (animation == null)
 			return;
+
+		setGraphicSize(Std.int(width * Note.noteScale));
+		online.backend.SyncScript.dispatch('testSusSplash', [this]);
 
 		animation.play('hold', true, false, 0);
 		if (animation.curAnim != null) {
@@ -77,7 +86,9 @@ class SustainSplash extends FlxSprite {
 
 		strumNote = strum;
 		alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
-		offset.set(PlayState.isPixelStage ? 112.5 : 106.25, 100);
+		offset.set(PlayState.isPixelStage ? 10 : 0, -15);
+		offset.x *= Note.noteScale;
+		offset.y *= Note.noteScale;
 
 		if (timer != null)
 			timer.cancel();

@@ -74,8 +74,23 @@ class Note extends FlxSprite
 	public var lateHitMult:Float = 1;
 	public var lowPriority:Bool = false;
 
+	public static var maniaKeys(default, set):Int = 4;
+	static function set_maniaKeys(v) {
+		maniaKeys = Std.int(Math.max(Math.min(v, 9), 4));
+		colArray = getColArrayFromKeys();
+		return v;
+	}
+
 	public static var SUSTAIN_SIZE:Int = 44;
 	public static var swagWidth:Float = 160 * 0.7;
+	public static var swagScaledWidth(get, never):Float;
+	static function get_swagScaledWidth() {
+		return swagWidth * noteScale;
+	}
+	public static var noteScale(get, default):Float = 0.7;
+	static function get_noteScale() {
+		return (swagWidth * 4) / (swagWidth * maniaKeys);
+	}
 	public static var colArray:Array<String> = ['purple', 'blue', 'green', 'red'];
 	public static var defaultNoteSkin(default, never):String = 'noteSkins/NOTE_assets';
 
@@ -150,7 +165,7 @@ class Note extends FlxSprite
 		var arr:Array<FlxColor> = ClientPrefs.getRGBColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData];
 		if(PlayState.isPixelStage) arr = ClientPrefs.getRGBPixelColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData];
 
-		if (noteData > -1 && noteData <= arr.length)
+		if (noteData > -1 && arr.length >= 3)
 		{
 			rgbShader.r = arr[0];
 			rgbShader.g = arr[1];
@@ -201,6 +216,23 @@ class Note extends FlxSprite
 		return value;
 	}
 
+	static function getColArrayFromKeys() {
+		var specialCol = 'blue';
+		switch (Note.maniaKeys) {
+			case 5:
+				return ['purple', 'blue', specialCol, 'green', 'red'];
+			case 6:
+				return ['purple', 'blue', 'red', 'purple', 'green', 'red'];
+			case 7:
+				return ['purple', 'blue', 'red', specialCol, 'purple', 'green', 'red'];
+			case 8:
+				return ['purple', 'blue', 'green', 'red', 'purple', 'blue', 'green', 'red'];
+			case 9:
+				return ['purple', 'blue', 'green', 'red', specialCol, 'purple', 'blue', 'green', 'red'];
+		}
+		return ['purple', 'blue', 'green', 'red'];
+	}
+
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false, ?createdFrom:Dynamic = null)
 	{
 		super();
@@ -229,7 +261,7 @@ class Note extends FlxSprite
 			rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData, mustPress));
 			if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
 
-			x += swagWidth * (noteData);
+			x += swagScaledWidth * (noteData);
 			if(!isSustainNote && noteData < colArray.length) { //Doing this 'if' check to fix the warnings on Senpai songs
 				var animToPlay:String = '';
 				animToPlay = colArray[noteData % colArray.length];
@@ -298,8 +330,12 @@ class Note extends FlxSprite
 			var newRGB:RGBPalette = new RGBPalette();
 			globalRgbShaders[noteData] = newRGB;
 
-			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.getRGBColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData] : ClientPrefs.getRGBPixelColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData];
-			if (noteData > -1 && noteData <= arr.length)
+			var arr:Array<FlxColor> = 
+				(!PlayState.isPixelStage) ? 
+				ClientPrefs.getRGBColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData] : 
+				ClientPrefs.getRGBPixelColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData]
+			;
+			if (noteData > -1 && arr != null && arr.length >= 3)
 			{
 				newRGB.r = arr[0];
 				newRGB.g = arr[1];
@@ -360,7 +396,7 @@ class Note extends FlxSprite
 				var graphic = Paths.image('pixelUI/' + skinPixel + skinPostfix);
 				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 5));
 			}
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+			setGraphicSize(Std.int(width * PlayState.daPixelZoom * noteScale));
 			loadPixelNoteAnims();
 			antialiasing = false;
 
@@ -379,9 +415,8 @@ class Note extends FlxSprite
 			}
 		}
 
-		if(isSustainNote) {
+		if (isSustainNote)
 			scale.y = lastScaleY;
-		}
 		updateHitbox();
 
 		if(animName != null)
@@ -406,7 +441,7 @@ class Note extends FlxSprite
 		}
 		else animation.addByPrefix(colArray[noteData] + 'Scroll', colArray[noteData] + '0');
 
-		setGraphicSize(Std.int(width * 0.7));
+		setGraphicSize(Std.int(width * 0.7 * noteScale));
 		updateHitbox();
 	}
 
@@ -490,14 +525,14 @@ class Note extends FlxSprite
 				if (PlayState.isPixelStage) {
 					followY -= PlayState.daPixelZoom * 9.5;
 				}
-				followY -= (frameHeight * scale.y) - (Note.swagWidth / 2);
+				followY -= (frameHeight * scale.y) - (Note.swagScaledWidth / 2);
 			}
 		}
 	}
 
 	public function clipToStrumNote(myStrum:StrumNote)
 	{
-		var center:Float = myStrum.y + offsetY + Note.swagWidth / 2;
+		var center:Float = myStrum.y + offsetY + Note.swagScaledWidth / 2;
 		if (isSustainNote && !ignoreNote && (hitByOpponent || wasGoodHit || (prevNote.wasGoodHit && !canBeHit)))
 		{
 			var swagRect:FlxRect = clipRect;

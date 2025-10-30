@@ -22,9 +22,11 @@ class SideUI extends WSprite {
 		FriendsTab,
 		ChatTab,
 		ProfileTab,
+		// TODO 
 		// DownloaderTab,
 		// ReportTab,
 		// OptionsTab,
+		// DebugTab
 	];
 
 	public var tabUI:Sprite;
@@ -152,8 +154,14 @@ class SideUI extends WSprite {
 				// }
 			}
 			
-			if (active)
+			if (active) {
 				curTab.keyDown(e);
+
+				if (e.keyCode == Keyboard.F1) {
+					trace("reloading syncscript!");
+					online.backend.SyncScript.initScript();
+				}
+			}
 		});
 		stage.addEventListener(MouseEvent.MOUSE_MOVE, (e:MouseEvent) -> {
 			cursor.x = e.stageX;

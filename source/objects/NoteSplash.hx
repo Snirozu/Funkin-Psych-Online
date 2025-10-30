@@ -45,7 +45,8 @@ class NoteSplash extends FlxSprite
 
 	var maxAnims:Int = 2;
 	public function setupNoteSplash(x:Float, y:Float, direction:Int = 0, ?note:Note = null) {
-		setPosition(x - Note.swagWidth * 0.95, y - Note.swagWidth);
+		setPosition(x - Note.swagScaledWidth * 0.95, y - Note.swagScaledWidth);
+		setGraphicSize(Std.int(width * Note.noteScale));
 		aliveTime = 0;
 
 		var texture:String = null;
@@ -104,6 +105,9 @@ class NoteSplash extends FlxSprite
 			offset.x += -58;
 			offset.y += -55;
 		}
+
+		offset.x *= Note.noteScale;
+		offset.y *= Note.noteScale;
 
 		if(animation.curAnim != null)
 			animation.curAnim.frameRate = FlxG.random.int(minFps, maxFps);

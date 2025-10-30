@@ -106,8 +106,9 @@ import online.backend.schema.Player;
 
 class PlayState extends MusicBeatState
 {
-	public static var STRUM_X = 42;
-	public static var STRUM_X_MIDDLESCROLL = -278;
+	// use only for mod compatibility
+	@:deprecated public static var STRUM_X = 42;
+	@:deprecated public static var STRUM_X_MIDDLESCROLL = -278;
 
 	public static var ratingStuff:Array<Dynamic> = [
 		['You Suck!', 0.2], //From 0% to 19%
@@ -394,8 +395,24 @@ class PlayState extends MusicBeatState
 
 	// how big to stretch the pixel art assets
 	public static var daPixelZoom:Float = 6;
-	private var singAnimations:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
+	private var singAnimations(get, set):Array<String>;
+	function get_singAnimations() {
+		return singAnimationsMap.get(Note.maniaKeys + 'k');
+	}
+	function set_singAnimations(v) {
+		singAnimationsMap.set(Note.maniaKeys + 'k', v);
+		return v;
+	}
 
+	var singAnimationsMap = [
+		'4k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'],
+		'5k' => ['singLEFT', 'singDOWN', 'singDOWN', 'singUP', 'singRIGHT'],
+		'6k' => ['singLEFT', 'singDOWN', 'singRIGHT', 'singLEFT', 'singUP', 'singRIGHT'],
+		'7k' => ['singLEFT', 'singDOWN', 'singRIGHT', 'singDOWN', 'singLEFT', 'singUP', 'singRIGHT'],
+		'8k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT', 'singLEFT', 'singDOWN', 'singUP', 'singRIGHT'],
+		'9k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT', 'singDOWN', 'singLEFT', 'singDOWN', 'singUP', 'singRIGHT']
+	];
+	
 	public var inCutscene:Bool = false;
 	public var skipCountdown:Bool = false;
 	var songLength:Float = 0;
@@ -426,7 +443,7 @@ class PlayState extends MusicBeatState
 	public var skinsSuffix:String = '';
 
 	// Less laggy controls
-	private var keysArray:Array<String>;
+	public var keysArray:Array<String>;
 
 	public var precacheList:Map<String, String> = new Map<String, String>();
 	public var songName:String;
@@ -504,6 +521,8 @@ class PlayState extends MusicBeatState
 
 	var nameplates:FlxTypedGroup<FlxText> = new FlxTypedGroup<FlxText>();
 
+	var canSpaceTaunt:Bool = true;
+
 	override public function create()
 	{
 		theWorld = true;
@@ -511,6 +530,7 @@ class PlayState extends MusicBeatState
 		Conductor.judgeSongPosition = null;
 		Conductor.judgePlaybackRate = null;
 
+		var duoOpponentSID = null;
 		if (GameClient.isConnected()) {
 			Lib.application.window.resizable = false;
 			swingMode = false;
@@ -519,12 +539,11 @@ class PlayState extends MusicBeatState
 				for (sid => player in GameClient.room.state.players) {
 					if (sid != GameClient.room.sessionId) {
 						opponentPlayer = player;
-						setOnScripts('duoOpponentSID', sid);
+						duoOpponentSID = sid;
 					}
 				}
 			}
 		}
-		setOnScripts('isDuel', isDuel);
 
 		Paths.clearUnusedMemory();
 		Paths.clearStoredMemory();
@@ -592,8 +611,6 @@ class PlayState extends MusicBeatState
 			PauseSubState.songName = null; // Reset to default
 			playbackRate = ClientPrefs.getGameplaySetting('songspeed');
 			fullComboFunction = fullComboUpdate;
-
-			keysArray = ['note_left', 'note_down', 'note_up', 'note_right'];
 
 			if (FlxG.sound.music != null)
 				FlxG.sound.music.stop();
@@ -1048,7 +1065,7 @@ class PlayState extends MusicBeatState
 		preloadTasks.push(() -> {
 			Conductor.songPosition = -5000 / Conductor.songPosition;
 			showTime = (ClientPrefs.data.timeBarType != 'Disabled');
-			timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 19, 400, "", 32);
+			timeTxt = new FlxText(0, 19, FlxG.width, "", 32);
 			timeTxt.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', !isPixelStage ? 32 : 28, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			timeTxt.scrollFactor.set();
 			timeTxt.alpha = 0;
@@ -1096,6 +1113,15 @@ class PlayState extends MusicBeatState
 
 		preloadTasks.push(() -> {
 			generateSong(SONG.song);
+			keysArray = getKeysArray(Note.maniaKeys);
+
+			for (key in keysArray) {
+				// for (bind in controls.keyboardBinds['taunt']) {
+					if (controls.keyboardBinds[key].contains(FlxKey.SPACE)) {
+						canSpaceTaunt = false;
+					}
+				// }
+			}
 		});
 
 		preloadTasks.push(() -> {
@@ -1357,6 +1383,9 @@ class PlayState extends MusicBeatState
 
 			if (GameClient.isConnected())
 				generateStrums();
+
+			setOnScripts('isDuel', isDuel);
+			setOnScripts('duoOpponentSID', duoOpponentSID);
 		});
 
 		var loaderGroup = new online.objects.LoadingSprite(preloadTasks.length, camLoading);
@@ -2335,161 +2364,164 @@ class PlayState extends MusicBeatState
 
 		var isPsychRelease = songData.format == 'psych_v1';
 
-		for (section in noteData)
-		{
-			haxe.ds.ArraySort.sort(section.sectionNotes, function(a, b):Int {
-				if (a == null || b == null) {
-					return 0;
+		if (SONG.mania != null)
+			switch (SONG.mania) {
+				case 1, 5, 6: // 6k
+					Note.maniaKeys = 6;
+				case 2, 7: // 7k
+					Note.maniaKeys = 7;
+				case 3, 8: // 9k
+					Note.maniaKeys = 9;
+				default:
+					Note.maniaKeys = SONG.mania;
+			}
+		if (SONG.keys != null) {
+			Note.maniaKeys = SONG.keys;
+		}
+
+		var dataNotes:Array<Dynamic> = [];
+		var dataNotesSection:Array<Int> = [];
+
+		for (sectIndex => section in noteData) {
+			for (note in section.sectionNotes) {
+				// if (note[1] / 2 > Note.maniaKeys)
+				// 	Note.maniaKeys = Std.int(note[1] / 2);
+				dataNotes.push(note);
+				dataNotesSection.push(sectIndex);
+			}
+		}
+
+		haxe.ds.ArraySort.sort(dataNotes, function(a, b):Int {
+			if (a == null || b == null) {
+				return 0;
+			}
+
+			return a[0] - b[0];
+		});
+
+		trace('Song Keys: ' + Note.maniaKeys + 'k');
+
+		for (i => songNotes in dataNotes) {
+			var section = noteData[dataNotesSection[i]];
+			var daStrumTime:Float = songNotes[0];
+			if (daStrumTime > inst.length)
+				continue;
+			var daNoteData:Int = Std.int(songNotes[1] % Note.maniaKeys);
+			if (songNotes[1] < 0 || songNotes[1] > Note.maniaKeys * 2 - 1) // this should prevent most exe mods from crashing
+				continue;
+			var gottaHitNote:Bool = section.mustHitSection;
+
+			if (!isPsychRelease) {
+				if (songNotes[1] > Note.maniaKeys - 1) {
+					gottaHitNote = !section.mustHitSection;
 				}
-				return a[0] - b[0];
-			});
-			
-			for (songNotes in section.sectionNotes)
-			{
-				var daStrumTime:Float = songNotes[0];
-				if (daStrumTime > inst.length)
-					continue;
-				var daNoteData:Int = Std.int(songNotes[1] % 4);
-				var maniaKeys:Int = 4;
-				// switch (SONG.mania) {
-				// 	case 1, 5, 6: // 6k
-				// 		maniaKeys = 6;
-				// 		daNoteData = Std.int(songNotes[1] % maniaKeys);
+			}
+			else {
+				gottaHitNote = songNotes[1] < Note.maniaKeys;
+			}
 
-				// 		if (daNoteData > 3)
-				// 			daNoteData -= 4;
-				// 	case 2, 7: // 7k
-				// 		maniaKeys = 7;
-				// 		daNoteData = Std.int(songNotes[1] % maniaKeys);
+			var oldNote:Note;
+			if (unspawnNotes.length > 0)
+				oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
+			else
+				oldNote = null;
 
-				// 		if (daNoteData > 3)
-				// 			daNoteData -= 4;
-				// 	case 3, 8: // 9k
-				// 		maniaKeys = 9;
-				// 		daNoteData = Std.int(songNotes[1] % maniaKeys);
+			var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote);
+			swagNote.mustPress = gottaHitNote;
+			swagNote.sustainLength = songNotes[2];
+			swagNote.gfNote = (section.gfSection && (songNotes[1] < Note.maniaKeys));
+			swagNote.noteType = songNotes[3];
+			if(!Std.isOfType(songNotes[3], String)) swagNote.noteType = ChartingState.noteTypeList[songNotes[3]]; //Backward compatibility + compatibility with Week 7 charts
 
-				// 		if (daNoteData > 7)
-				// 			daNoteData -= 4;
-						
-				// 		if (daNoteData > 3)
-				// 			daNoteData -= 4;
-				// }
-				if (songNotes[1] < 0 || songNotes[1] > maniaKeys * 2 - 1) // this should prevent most exe mods from crashing
-					continue;
-				var gottaHitNote:Bool = section.mustHitSection;
+			if (noBadNotes && (swagNote.hitCausesMiss || swagNote.hitHealth < 0)) {
+				swagNote.destroy();
+				continue;
+			}
 
-				if (!isPsychRelease) {
-					if (songNotes[1] > maniaKeys - 1) {
-						gottaHitNote = !section.mustHitSection;
-					}
-				}
-				else {
-					gottaHitNote = songNotes[1] < maniaKeys;
-				}
+			swagNote.scrollFactor.set();
 
-				var oldNote:Note;
-				if (unspawnNotes.length > 0)
+			var susLength:Float = swagNote.sustainLength;
+
+			susLength = susLength / Conductor.stepCrochet;
+
+			unspawnNotes.push(swagNote);
+
+			var floorSus:Int = Math.floor(susLength);
+			if(floorSus > 0) {
+				for (susNote in 0...floorSus+1)
+				{
 					oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
-				else
-					oldNote = null;
 
-				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote);
-				swagNote.mustPress = gottaHitNote;
-				swagNote.sustainLength = songNotes[2];
-				swagNote.gfNote = (section.gfSection && (songNotes[1]<maniaKeys));
-				swagNote.noteType = songNotes[3];
-				if(!Std.isOfType(songNotes[3], String)) swagNote.noteType = ChartingState.noteTypeList[songNotes[3]]; //Backward compatibility + compatibility with Week 7 charts
-
-				if (noBadNotes && (swagNote.hitCausesMiss || swagNote.hitHealth < 0)) {
-					swagNote.destroy();
-					continue;
-				}
-
-				swagNote.scrollFactor.set();
-
-				var susLength:Float = swagNote.sustainLength;
-
-				susLength = susLength / Conductor.stepCrochet;
-
-				unspawnNotes.push(swagNote);
-
-				var floorSus:Int = Math.floor(susLength);
-				if(floorSus > 0) {
-					for (susNote in 0...floorSus+1)
+					var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote), daNoteData, oldNote, true);
+					sustainNote.mustPress = gottaHitNote;
+					sustainNote.gfNote = (section.gfSection && (songNotes[1]<Note.maniaKeys));
+					sustainNote.noteType = swagNote.noteType;
+					sustainNote.scrollFactor.set();
+					swagNote.tail.push(sustainNote);
+					sustainNote.parent = swagNote;
+					unspawnNotes.push(sustainNote);
+					
+					sustainNote.correctionOffset = swagNote.height / 2;
+					if(!PlayState.isPixelStage)
 					{
-						oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
-
-						var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote), daNoteData, oldNote, true);
-						sustainNote.mustPress = gottaHitNote;
-						sustainNote.gfNote = (section.gfSection && (songNotes[1]<maniaKeys));
-						sustainNote.noteType = swagNote.noteType;
-						sustainNote.scrollFactor.set();
-						swagNote.tail.push(sustainNote);
-						sustainNote.parent = swagNote;
-						unspawnNotes.push(sustainNote);
-						
-						sustainNote.correctionOffset = swagNote.height / 2;
-						if(!PlayState.isPixelStage)
+						if(oldNote.isSustainNote)
 						{
-							if(oldNote.isSustainNote)
-							{
-								oldNote.scale.y *= Note.SUSTAIN_SIZE / oldNote.frameHeight;
-								oldNote.scale.y /= playbackRate;
-								oldNote.updateHitbox();
-							}
-
-							if(ClientPrefs.data.downScroll)
-								sustainNote.correctionOffset = 0;
-						}
-						else if(oldNote.isSustainNote)
-						{
+							oldNote.scale.y *= Note.SUSTAIN_SIZE / oldNote.frameHeight;
 							oldNote.scale.y /= playbackRate;
 							oldNote.updateHitbox();
 						}
 
-						if (sustainNote.mustPress) sustainNote.followX += FlxG.width / 2; // general offset
-						else if(ClientPrefs.data.middleScroll)
+						if(ClientPrefs.data.downScroll)
+							sustainNote.correctionOffset = 0;
+					}
+					else if(oldNote.isSustainNote)
+					{
+						oldNote.scale.y /= playbackRate;
+						oldNote.updateHitbox();
+					}
+
+					if (sustainNote.mustPress) sustainNote.followX += FlxG.width / 2; // general offset
+					else if(ClientPrefs.data.middleScroll)
+					{
+						sustainNote.followX += 310;
+						if(daNoteData > 1) //Up and Right
 						{
-							sustainNote.followX += 310;
-							if(daNoteData > 1) //Up and Right
-							{
-								sustainNote.followX += FlxG.width / 2 + 25;
-							}
+							sustainNote.followX += FlxG.width / 2 + 25;
 						}
 					}
 				}
+			}
 
-				if (isPlayerNote(swagNote)) {
-					if (daStrumTime - lastStrumTime > 10)
-						playingNoteCount++;
+			if (isPlayerNote(swagNote)) {
+				if (daStrumTime - lastStrumTime > 10)
+					playingNoteCount++;
 
-					// var noteDiff = (daStrumTime - lastStrumTime) / playbackRate / 1000;
-					// if (noteDiff < 1)
-					// 	playingTime += noteDiff;
-					// //if (noteDiff > 0)
-					// 	//playingTime += noteDiff / (noteDiff * noteDiff) / 1000;
-					// // else
-					// // 	playingTime += noteDiff * 0.1;
+				// var noteDiff = (daStrumTime - lastStrumTime) / playbackRate / 1000;
+				// if (noteDiff < 1)
+				// 	playingTime += noteDiff;
+				// //if (noteDiff > 0)
+				// 	//playingTime += noteDiff / (noteDiff * noteDiff) / 1000;
+				// // else
+				// // 	playingTime += noteDiff * 0.1;
 
-					lastStrumTime = daStrumTime;
-				}
+				lastStrumTime = daStrumTime;
+			}
 
-				if (swagNote.mustPress)
+			if (swagNote.mustPress)
+			{
+				swagNote.followX += FlxG.width / 2; // general offset
+			}
+			else if(ClientPrefs.data.middleScroll)
+			{
+				swagNote.followX += 310;
+				if(daNoteData > 1) //Up and Right
 				{
-					swagNote.followX += FlxG.width / 2; // general offset
+					swagNote.followX += FlxG.width / 2 + 25;
 				}
-				else if(ClientPrefs.data.middleScroll)
-				{
-					swagNote.followX += 310;
-					if(daNoteData > 1) //Up and Right
-					{
-						swagNote.followX += FlxG.width / 2 + 25;
-					}
-				}
+			}
 
-				if(!noteTypes.contains(swagNote.noteType)) {
-					noteTypes.push(swagNote.noteType);
-				}
+			if(!noteTypes.contains(swagNote.noteType)) {
+				noteTypes.push(swagNote.noteType);
 			}
 		}
 		// songDensity = 1 + (playingNoteCount == 0 ? 0 : playingNoteCount / playingTime / 2);
@@ -2581,13 +2613,28 @@ class PlayState extends MusicBeatState
 		callOnScripts('onEventPushed', [subEvent.event, subEvent.value1 != null ? subEvent.value1 : '', subEvent.value2 != null ? subEvent.value2 : '', subEvent.strumTime]);
 	}
 
+	public static function getKeysArray(keys:Int) {
+		if (keys == 4)
+			return ['note_left', 'note_down', 'note_up', 'note_right'];
+
+		return [for (i in 0...keys) '${keys}k_note_${i + 1}'];
+	}
+
 	public var skipArrowStartTween:Bool = false; //for lua
 	private function generateStaticArrows(player:Int):Void
 	{
-		var strumLineX:Float = ClientPrefs.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X;
+		var strumLineX:Float = 0;
+
+		if (ClientPrefs.data.middleScroll) {
+			strumLineX = -(Note.maniaKeys * Note.swagScaledWidth / 2);
+		}
+		else {
+			strumLineX += 70 * (player == 0 ? -1 : 1);
+		}
+
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
 		var strumGroup = player == 1 ? playerStrums : opponentStrums;
-		for (i in 0...4)
+		for (i in 0...Note.maniaKeys)
 		{
 			// FlxG.log.add(i);
 			var targetAlpha:Float = 1;
@@ -2611,14 +2658,14 @@ class PlayState extends MusicBeatState
 
 			if (!isPlayerStrumNote(player) && ClientPrefs.data.middleScroll) {
 				babyArrow.x += 310;
-				if (i > 1) { // Up and Right
+				if (i > Note.maniaKeys / 2 - 1) { // half rest
 					babyArrow.x += FlxG.width / 2 + 25;
 				}
 			}
 
 			strumGroup.add(babyArrow);
 			if (ClientPrefs.data.noteUnderlayOpacity > 0 && strumGroup == getPlayerStrums()) {
-				var underlay = new FlxSprite().makeGraphic(Std.int(Note.swagWidth), FlxG.width * 2, FlxColor.BLACK);
+				var underlay = new FlxSprite().makeGraphic(Std.int(Note.swagScaledWidth), FlxG.width * 2, FlxColor.BLACK);
 				underlay.alpha = ClientPrefs.data.noteUnderlayOpacity;
 				noteUnderlays.add(underlay);
 			}
@@ -2864,7 +2911,7 @@ class PlayState extends MusicBeatState
 			GameClient.reconnect(5); //delay the reconnection for 5 seconds (for testing)
 		}
 
-		if (controls.TAUNT && canInput()) {
+		if (controls.TAUNT && canInput() && (!canSpaceTaunt ? !FlxG.keys.justPressed.SPACE : true)) {
 			var altSuffix = FlxG.keys.pressed.ALT ? '-alt' : '';
 			self.playAnim('taunt' + altSuffix, true);
 			if (GameClient.isConnected())
@@ -5185,7 +5232,7 @@ class PlayState extends MusicBeatState
 		if(note != null) {
 			var strum:StrumNote = getPlayerStrums().members[note.noteData];
 			if(strum != null)
-				spawnNoteSplash(strum.x, strum.y, note.noteData, note);
+				spawnNoteSplash(strum.x - (Note.swagWidth - Note.swagScaledWidth), strum.y - (Note.swagWidth - Note.swagScaledWidth), note.noteData, note);
 		}
 	}
 
