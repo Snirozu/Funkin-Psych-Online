@@ -1,6 +1,10 @@
 package online.replay;
 
+import backend.Song;
+import backend.WeekData;
+import backend.Highscore;
 import online.replay.ReplayRecorder.ReplayData;
+import haxe.crypto.Md5;
 import flixel.FlxBasic;
 
 class ReplayPlayer extends FlxBasic {
@@ -132,13 +136,99 @@ class ReplayPlayer extends FlxBasic {
         }
     }
 
-    //haxe json class doesn't do it automatically? cool
-	public static function objToMap(obj:Dynamic):Map<String, Dynamic> {
-		var map:Map<String, Dynamic> = new Map<String, Dynamic>();
-		for (field in Reflect.fields(obj)) {
-			map.set(field, Reflect.field(obj, field));
+	/**
+	 * Helper for loading replays into `PlayState`.
+	 * @param replayData The data for the Replay.
+	 * @param replayID The ID for the replay.
+	 * @param autoDetermine If the mod and week should be automatically determined.
+	 */
+	public static function loadReplay(replayData:Dynamic, ?replayID:Null<String>, ?autoDetermine:Bool = false):Void
+	{
+		if(replayData is String)
+			replayData = haxe.Json.parse(replayData);
+
+		if(!Reflect.isObject(replayData))
+			throw new haxe.Exception("Replay Data is invalid!");
+
+		var songLowercase:String = Paths.formatToSongPath(replayData.song);
+
+		if(autoDetermine)
+		{
+			var modFolder:Null<String> = null;
+
+			for(mod in Mods.parseList().enabled)
+			{
+				var modURL:Null<String> = online.mods.OnlineMods.getModURL(mod);
+
+				if(replayData.mod_url == modURL)
+				{
+					modFolder = mod;
+					break;
+				}
+			}
+
+			if(modFolder == null && replayData.mod_url != null)
+				throw new haxe.Exception("Could not find the mod by URL, does it need to be installed?");
+
+			Mods.currentModDirectory = modFolder;
+
+			WeekData.reloadWeekFiles(false);
+
+			for(i => weekName in WeekData.weeksList)
+			{
+				var week:WeekData = WeekData.weeksLoaded.get(weekName);
+
+				if(modFolder != null && week.folder != null && week.folder.length > 0 && week.folder != modFolder)
+					continue;
+
+				for(song in week.songs)
+				{
+					var id:String = Paths.formatToSongPath(song[0]);
+					var hasErect:Bool = song[3];
+					var hasNightmare:Bool = song[4];
+
+					if(id == songLowercase)
+					{
+						PlayState.storyWeek = i;
+						var extraDiffs:Array<String> = [];
+						if(hasErect) extraDiffs.push('Erect');
+						if(hasNightmare) extraDiffs.push('Nightmare');
+						Difficulty.loadFromWeek(null, extraDiffs);
+						break;
+					}
+				}
+			}
 		}
-		return map;
+
+		PlayState.replayData = cast replayData;
+		if(Reflect.isObject(replayData.gameplay_modifiers)) PlayState.replayData.gameplay_modifiers = cast ShitUtil.objToMap(replayData.gameplay_modifiers);
+		PlayState.replayID = replayID;
+
+		var poop:String = Highscore.formatSong(songLowercase, Difficulty.list.indexOf(PlayState.replayData.difficulty));
+
+		if(PlayState.replayData.chart_hash != Md5.encode(Song.loadRawSong(poop, songLowercase)))
+		{
+			PlayState.replayData = null;
+			throw new haxe.Exception("OUTDATED REPLAY OR INVALID FOR THIS SONG");
+		}
+
+		try {
+			PlayState.loadSong(poop, songLowercase);
+			PlayState.isStoryMode = false;
+			PlayState.storyDifficulty = Difficulty.list.indexOf(PlayState.replayData.difficulty);
+
+			trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
+		}
+		catch(e:haxe.Exception) {
+			PlayState.replayData = null;
+
+			var exceptionMessage:String = e.message;
+
+			if(e.message.startsWith('[file_contents,assets/data/'))
+				exceptionMessage = 'Missing file: ' + exceptionMessage.substring(27, exceptionMessage.length - 1);
+
+			throw new haxe.Exception(exceptionMessage, e);
+		}
 	}
 }
 

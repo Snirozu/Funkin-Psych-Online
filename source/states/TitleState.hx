@@ -83,15 +83,10 @@ class TitleState extends MusicBeatState
 		#end
 		Mods.loadTopMod();
 
-		FlxG.fixedTimestep = false;
-		FlxG.game.focusLostFramerate = 60;
-		FlxG.keys.preventDefaultKeys = [TAB];
-
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
 		super.create();
 
-		FlxG.save.bind('funkin', CoolUtil.getSavePath());
 		online.network.Auth.load();
 
 		ClientPrefs.loadPrefs();
@@ -142,7 +137,7 @@ class TitleState extends MusicBeatState
 			FlxG.switchState(() -> new online.states.RoomState());
 			return;
 		}
-		
+
 		#if FREEPLAY
 		FlxG.switchState(() -> new FreeplayState());
 		#elseif CHARTING
