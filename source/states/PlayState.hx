@@ -2629,7 +2629,11 @@ class PlayState extends MusicBeatState
 			strumLineX = -(Note.maniaKeys * Note.swagScaledWidth / 2);
 		}
 		else {
-			strumLineX += 70 * (player == 0 ? -1 : 1);
+			strumLineX += (
+				(FlxG.width / 2 - (
+					Note.maniaKeys * Note.swagScaledWidth
+				)) / 2
+			) * (player == 0 ? -1 : 1) + (Note.getNoteOffsetX() * Note.maniaKeys) * 0.5;
 		}
 
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
@@ -2665,8 +2669,10 @@ class PlayState extends MusicBeatState
 
 			strumGroup.add(babyArrow);
 			if (ClientPrefs.data.noteUnderlayOpacity > 0 && strumGroup == getPlayerStrums()) {
-				var underlay = new FlxSprite().makeGraphic(Std.int(Note.swagScaledWidth), FlxG.width * 2, FlxColor.BLACK);
+				var underlay = new FlxSprite().makeGraphic(1, FlxG.width * 2, FlxColor.BLACK);
 				underlay.alpha = ClientPrefs.data.noteUnderlayOpacity;
+				underlay.scale.x = Note.swagScaledWidth;
+				underlay.updateHitbox();
 				noteUnderlays.add(underlay);
 			}
 

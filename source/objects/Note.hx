@@ -89,7 +89,7 @@ class Note extends FlxSprite
 	}
 	public static var noteScale(get, default):Float = 0.7;
 	static function get_noteScale() {
-		return (swagWidth * 4) / (swagWidth * maniaKeys);
+		return (swagWidth * 4) / (swagWidth * maniaKeys) + (0.05 * (maniaKeys - 4));
 	}
 	public static var colArray:Array<String> = ['purple', 'blue', 'green', 'red'];
 	public static var defaultNoteSkin(default, never):String = 'noteSkins/NOTE_assets';
@@ -136,6 +136,10 @@ class Note extends FlxSprite
 	public var hitsound:String = 'hitsound';
 
 	public var hits:Int = 0;
+
+	public static function getNoteOffsetX() {
+		return 3 * (Note.maniaKeys - 4);
+	}
 
 	private function set_multSpeed(value:Float):Float {
 		resizeByRatio(value / multSpeed);
