@@ -2392,12 +2392,13 @@ class PlayState extends MusicBeatState
 
 		for (sectIndex => section in noteData) {
 			for (note in section.sectionNotes) {
+				var note:Array<Dynamic> = cast(note, Array<Dynamic>).copy();
 				if (maniaModifier != null) {
 					var daNoteDataSide:Int = Std.int(Std.int(note[1]) / Note.maniaKeys);
 					var daNoteData:Int = Std.int(note[1] % Note.maniaKeys);
 
 					// used my last non dyslexic neurons for this
-					note[1] = (daNoteData + Math.sin(dataNotes.length)) * (maniaModifier / Note.maniaKeys);
+					note[1] = (daNoteData + Math.sin(dataNotes.length * 0.5)) * (maniaModifier / Note.maniaKeys);
 					note[1] = Math.max(0, Math.min(maniaModifier - 1, Math.round(note[1]))) + maniaModifier * daNoteDataSide;
 				}
 				dataNotes.push(note);
