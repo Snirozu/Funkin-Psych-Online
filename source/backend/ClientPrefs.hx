@@ -201,6 +201,7 @@ class SaveVariables {
 	public var disableRoomInvites:Bool = false;
 	public var verifySSL:Bool = false;
 	public var noteUnderlayOpacity:Float = 0;
+	public var noteUnderlayType:String = 'All-In-One';
 	public var favsAsMenuTheme:Bool = false;
 	public var disableComboRating:Bool = false;
 	public var disableComboCounter:Bool = false;
