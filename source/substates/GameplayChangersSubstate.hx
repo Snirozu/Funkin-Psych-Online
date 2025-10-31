@@ -86,6 +86,11 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		var option:GameplayOption = new GameplayOption('No Hurt Notes', 'nobadnotes', 'bool', false);
 		optionsArray.push(option);
 
+		var option:GameplayOption = new GameplayOption('Mania', 'mania', 'string', '(Chart)', [
+			'(Chart)', '4k', '5k', '6k', '7k', '8k', '9k'
+		]);
+		optionsArray.push(option);
+
 		GameClient.send("status", "In the Game Changers Menu");
 	}
 
