@@ -237,6 +237,10 @@ class Note extends FlxSprite
 		return ['purple', 'blue', 'green', 'red'];
 	}
 
+	static function colToIndex(col:String):Int {
+		return ['purple', 'blue', 'green', 'red'].indexOf(col);
+	}
+
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false, ?createdFrom:Dynamic = null)
 	{
 		super();
@@ -314,7 +318,7 @@ class Note extends FlxSprite
 
 			if(PlayState.isPixelStage)
 			{
-				scale.y *= PlayState.daPixelZoom;
+				scale.y *= PlayState.daPixelZoom * noteScale;
 				updateHitbox();
 			}
 			earlyHitMult = 0.3;
@@ -400,13 +404,12 @@ class Note extends FlxSprite
 				var graphic = Paths.image('pixelUI/' + skinPixel + skinPostfix);
 				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 5));
 			}
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom * noteScale));
 			loadPixelNoteAnims();
 			antialiasing = false;
 
 			if(isSustainNote) {
 				offsetX += _lastNoteOffX;
-				_lastNoteOffX = (width - 7) * (PlayState.daPixelZoom / 2);
+				_lastNoteOffX = (width - 7) * (PlayState.daPixelZoom / 2) * noteScale;
 				offsetX -= _lastNoteOffX;
 			}
 		} else {
@@ -452,9 +455,12 @@ class Note extends FlxSprite
 	function loadPixelNoteAnims() {
 		if(isSustainNote)
 		{
-			animation.add(colArray[noteData] + 'holdend', [noteData + 4], 24, true);
-			animation.add(colArray[noteData] + 'hold', [noteData], 24, true);
-		} else animation.add(colArray[noteData] + 'Scroll', [noteData + 4], 24, true);
+			animation.add(colArray[noteData] + 'holdend', [colToIndex(colArray[noteData]) + 4], 24, true);
+			animation.add(colArray[noteData] + 'hold', [colToIndex(colArray[noteData])], 24, true);
+		} else animation.add(colArray[noteData] + 'Scroll', [colToIndex(colArray[noteData]) + 4], 24, true);
+
+		setGraphicSize(Std.int(width * PlayState.daPixelZoom * noteScale));
+		updateHitbox();
 	}
 
 	override function update(elapsed:Float)
@@ -527,7 +533,7 @@ class Note extends FlxSprite
 			followY = strumY + offsetY + correctionOffset + Math.sin(angleDir) * distance;
 			if (myStrum.downScroll && isSustainNote) {
 				if (PlayState.isPixelStage) {
-					followY -= PlayState.daPixelZoom * 9.5;
+					followY -= PlayState.daPixelZoom * 9.5 * noteScale;
 				}
 				followY -= (frameHeight * scale.y) - (Note.swagScaledWidth / 2);
 			}
