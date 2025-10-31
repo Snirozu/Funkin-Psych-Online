@@ -147,6 +147,13 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.05;
 		option.decimals = 2;
 
+		var option:Option = new Option('Note Underlay Type:',
+			"How should the game render note underlays.",
+			'noteUnderlayType',
+			'string',
+			['All-In-One', 'By Note']);
+		addOption(option);
+
 		super();
 	}
 

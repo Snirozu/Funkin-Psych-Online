@@ -2633,7 +2633,7 @@ class PlayState extends MusicBeatState
 				(FlxG.width / 2 - (
 					Note.maniaKeys * Note.swagScaledWidth
 				)) / 2
-			) * (player == 0 ? -1 : 1) + (Note.getNoteOffsetX() * Note.maniaKeys) * 0.5;
+			) * (player == 0 ? -1 : 1) + (Note.getNoteOffsetX() * (Note.maniaKeys - 1)) * 0.5;
 		}
 
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
@@ -2668,7 +2668,7 @@ class PlayState extends MusicBeatState
 			}
 
 			strumGroup.add(babyArrow);
-			if (ClientPrefs.data.noteUnderlayOpacity > 0 && strumGroup == getPlayerStrums()) {
+			if (ClientPrefs.data.noteUnderlayOpacity > 0 && strumGroup == getPlayerStrums() && ClientPrefs.data.noteUnderlayType == 'By Note') {
 				var underlay = new FlxSprite().makeGraphic(1, FlxG.width * 2, FlxColor.BLACK);
 				underlay.alpha = ClientPrefs.data.noteUnderlayOpacity;
 				underlay.scale.x = Note.swagScaledWidth;
@@ -2685,6 +2685,14 @@ class PlayState extends MusicBeatState
 
 			strumLineNotes.add(babyArrow);
 			babyArrow.postAddedToGroup();
+		}
+
+		if (ClientPrefs.data.noteUnderlayOpacity > 0 && strumGroup == getPlayerStrums() && ClientPrefs.data.noteUnderlayType == 'All-In-One') {
+			var underlay = new FlxSprite().makeGraphic(1, FlxG.width * 2, FlxColor.BLACK);
+			underlay.alpha = ClientPrefs.data.noteUnderlayOpacity;
+			underlay.scale.x = Note.swagScaledWidth * Note.maniaKeys - (Note.getNoteOffsetX() * (Note.maniaKeys - 1));
+			underlay.updateHitbox();
+			noteUnderlays.add(underlay);
 		}
 	}
 
@@ -3207,7 +3215,7 @@ class PlayState extends MusicBeatState
 
 		if (ClientPrefs.data.noteUnderlayOpacity > 0) {
 			var playingStrums = getPlayerStrums();
-			for (i in 0...playingStrums.length) {
+			for (i in 0...noteUnderlays.length) {
 				var underlay = noteUnderlays.members[i];
 				var sturm = playingStrums.members[i];
 				if (!sturm.active || !sturm.visible) {
