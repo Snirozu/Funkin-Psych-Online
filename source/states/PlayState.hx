@@ -308,6 +308,7 @@ class PlayState extends MusicBeatState
 	}
 	public var practiceMode:Bool = false;
 	public var noBadNotes:Bool = false;
+	public var maniaModifier:Null<Int>;
 
 	public var botplaySine:Float = 0;
 	public var botplayTxt:FlxText;
@@ -623,6 +624,9 @@ class PlayState extends MusicBeatState
 			cpuControlled = ClientPrefs.getGameplaySetting('botplay');
 			opponentMode = ClientPrefs.getGameplaySetting('opponentplay');
 			noBadNotes = ClientPrefs.getGameplaySetting('nobadnotes');
+			if (singAnimationsMap.exists(ClientPrefs.getGameplaySetting('mania'))) {
+				maniaModifier = Std.parseInt(ClientPrefs.getGameplaySetting('mania').split('k')[0]);
+			}
 		});
 
 		preloadTasks.push(() -> {
@@ -2379,17 +2383,34 @@ class PlayState extends MusicBeatState
 			Note.maniaKeys = SONG.keys;
 		}
 
+		if (maniaModifier == Note.maniaKeys) {
+			maniaModifier = null;
+		}
+
 		var dataNotes:Array<Dynamic> = [];
 		var dataNotesSection:Array<Int> = [];
 
 		for (sectIndex => section in noteData) {
 			for (note in section.sectionNotes) {
-				// if (note[1] / 2 > Note.maniaKeys)
-				// 	Note.maniaKeys = Std.int(note[1] / 2);
+				if (maniaModifier != null) {
+					var daNoteDataSide:Int = Std.int(Std.int(note[1]) / Note.maniaKeys);
+					var daNoteData:Int = Std.int(note[1] % Note.maniaKeys);
+
+					// used my last non dyslexic neurons for this
+					note[1] = (daNoteData + Math.sin(dataNotes.length)) * (maniaModifier / Note.maniaKeys);
+					note[1] = Math.max(0, Math.min(maniaModifier - 1, Math.round(note[1]))) + maniaModifier * daNoteDataSide;
+				}
 				dataNotes.push(note);
 				dataNotesSection.push(sectIndex);
 			}
 		}
+
+		if (maniaModifier != null) {
+			trace('Converted from: ' + Note.maniaKeys + 'k');
+			Note.maniaKeys = maniaModifier;
+		}
+
+		trace('Song Keys: ' + Note.maniaKeys + 'k');
 
 		haxe.ds.ArraySort.sort(dataNotes, function(a, b):Int {
 			if (a == null || b == null) {
@@ -2398,8 +2419,6 @@ class PlayState extends MusicBeatState
 
 			return a[0] - b[0];
 		});
-
-		trace('Song Keys: ' + Note.maniaKeys + 'k');
 
 		for (i => songNotes in dataNotes) {
 			var section = noteData[dataNotesSection[i]];

@@ -163,6 +163,7 @@ class SaveVariables {
 		'botplay' => false,
 		'opponentplay' => false,
 		'nobadnotes' => false,
+		'mania' => '(Chart)',
 	];
 
 	public var comboOffset:Array<Int> = [0, 0, 0, 0];
