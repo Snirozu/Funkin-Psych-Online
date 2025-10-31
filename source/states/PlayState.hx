@@ -2366,19 +2366,26 @@ class PlayState extends MusicBeatState
 		// var playingTime:Float = 0;
 		var lastStrumTime:Float = 0;
 
-		var isPsychRelease = songData.format == 'psych_v1';
+		var isPsychRelease = (songData.format ?? '').startsWith('psych_v1');
 
+		Note.maniaKeys = 4;
 		if (SONG.mania != null)
-			switch (SONG.mania) {
-				case 1, 5, 6: // 6k
-					Note.maniaKeys = 6;
-				case 2, 7: // 7k
-					Note.maniaKeys = 7;
-				case 3, 8: // 9k
-					Note.maniaKeys = 9;
-				default:
-					Note.maniaKeys = SONG.mania;
+			if (isPsychRelease) {
+				Note.maniaKeys = SONG.mania + 1;
 			}
+			else {
+				switch (SONG.mania) {
+					case 1, 5, 6: // 6k
+						Note.maniaKeys = 6;
+					case 2, 7: // 7k
+						Note.maniaKeys = 7;
+					case 3, 8: // 9k
+						Note.maniaKeys = 9;
+					default:
+						Note.maniaKeys = SONG.mania;
+				}
+			}
+
 		if (SONG.keys != null) {
 			Note.maniaKeys = SONG.keys;
 		}
@@ -2643,17 +2650,15 @@ class PlayState extends MusicBeatState
 	public var skipArrowStartTween:Bool = false; //for lua
 	private function generateStaticArrows(player:Int):Void
 	{
+		var strumWidth = Note.maniaKeys * Note.swagScaledWidth - (Note.getNoteOffsetX() * (Note.maniaKeys - 1));
 		var strumLineX:Float = 0;
 
 		if (ClientPrefs.data.middleScroll) {
-			strumLineX = -(Note.maniaKeys * Note.swagScaledWidth / 2);
+			strumLineX = FlxG.width / 2 - strumWidth / 2;
 		}
 		else {
-			strumLineX += (
-				(FlxG.width / 2 - (
-					Note.maniaKeys * Note.swagScaledWidth
-				)) / 2
-			) * (player == 0 ? -1 : 1) + (Note.getNoteOffsetX() * (Note.maniaKeys - 1)) * 0.5;
+			strumLineX = (FlxG.width / 2 - strumWidth) / 2;
+			strumLineX += FlxG.width / 2 * (player == 0 ? 0 : 1);
 		}
 
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
@@ -2681,9 +2686,9 @@ class PlayState extends MusicBeatState
 				babyArrow.alpha = targetAlpha;
 
 			if (!isPlayerStrumNote(player) && ClientPrefs.data.middleScroll) {
-				babyArrow.x += 310;
+				babyArrow.x = strumLineX / 2 - strumWidth / 4;
 				if (i > Note.maniaKeys / 2 - 1) { // half rest
-					babyArrow.x += FlxG.width / 2 + 25;
+					babyArrow.x += (strumLineX + strumWidth / 2);
 				}
 			}
 
@@ -3172,7 +3177,7 @@ class PlayState extends MusicBeatState
 							}
 
 							if (!playsAsBF() && !disableForceShow) {
-								forceShowOpStrums = true;
+								forceShowOpStrums = !ClientPrefs.data.opponentStrums;
 								daNote.visible = true;
 								daNote.noteAlpha = 1;
 							}
@@ -5313,6 +5318,17 @@ class PlayState extends MusicBeatState
 		// 	stage3D = null;
 		// }
 		super.destroy();
+		if (Lib.application.window.width != FlxG.width) {
+			Lib.application.window.x += Std.int((Lib.application.window.width - FlxG.width) / 2);
+			Lib.application.window.width = FlxG.width;
+		}
+		if (Lib.application.window.height != FlxG.height) {
+			Lib.application.window.y += Std.int((Lib.application.window.height - FlxG.height) / 2);
+			Lib.application.window.height = FlxG.height;
+		}
+		Lib.application.window.resizable = true;
+		Lib.application.window.title = "Friday Night Funkin': Psych Online" + (states.TitleState.inDev ? ' [DEV]' : '');
+		#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 	}
 
 	public static function cancelMusicFadeTween() {

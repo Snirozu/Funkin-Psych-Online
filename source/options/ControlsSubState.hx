@@ -1,5 +1,6 @@
 package options;
 
+import objects.Note;
 import backend.InputFormatter;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
@@ -16,39 +17,12 @@ class ControlsSubState extends MusicBeatSubstate
 	var curAlt:Bool = false;
 
 	//Show on gamepad - Display name - Save file key - Rebind display name
-	var options:Array<Dynamic> = [
-		[true, 'NOTES'],
-		[true, 'Left', 'note_left', 'Note Left'],
-		[true, 'Down', 'note_down', 'Note Down'],
-		[true, 'Up', 'note_up', 'Note Up'],
-		[true, 'Right', 'note_right', 'Note Right'],
-		[true],
-		[true, 'UI'],
-		[true, 'Left', 'ui_left', 'UI Left'],
-		[true, 'Down', 'ui_down', 'UI Down'],
-		[true, 'Up', 'ui_up', 'UI Up'],
-		[true, 'Right', 'ui_right', 'UI Right'],
-		[true],
-		[true, 'Taunt', 'taunt', 'Taunt'],
-		[true, 'Reset', 'reset', 'Reset'],
-		[true, 'Accept', 'accept', 'Accept'],
-		[true, 'Back', 'back', 'Back'],
-		[true, 'Pause', 'pause', 'Pause'],
-		[true, 'Sidebar', 'sidebar', 'Sidebar'],
-		[true, 'Favor', 'fav', 'Favor'],
-		[false],
-		[false, 'VOLUME'],
-		[false, 'Mute', 'volume_mute', 'Volume Mute'],
-		[false, 'Up', 'volume_up', 'Volume Up'],
-		[false, 'Down', 'volume_down', 'Volume Down'],
-		[false],
-		[false, 'DEBUG'],
-		[false, 'Key 1', 'debug_1', 'Debug Key #1'],
-		[false, 'Key 2', 'debug_2', 'Debug Key #2']
-	];
+	var options:Array<Dynamic> = [];
 	var curOptions:Array<Int>;
 	var curOptionsValid:Array<Int>;
 	static var defaultKey:String = 'Reset to Default Keys';
+	static var switchInput:String = 'Switch Input Device';
+	static var switchMania:String = 'Switch Note Mania';
 
 	var bg:FlxSprite;
 	var grpDisplay:FlxTypedGroup<Alphabet>;
@@ -71,10 +45,6 @@ class ControlsSubState extends MusicBeatSubstate
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Controls Menu", null);
 		#end
-
-		options.push([true]);
-		options.push([true]);
-		options.push([true, defaultKey]);
 
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = keyboardColor;
@@ -119,6 +89,59 @@ class ControlsSubState extends MusicBeatSubstate
 	var lastID:Int = 0;
 	function createTexts()
 	{
+		options = [[true, 'NOTES ${Note.maniaKeys}k']];
+
+		if (Note.maniaKeys != 4) {
+			for (key in 1...Note.maniaKeys + 1) {
+				options.push([
+					true,
+					'Note ${key}',
+					'${Note.maniaKeys}k_note_${key}',
+					'${Note.maniaKeys}k Note 1'
+				]);
+			}
+		}
+		else {
+			options = options.concat([
+				[true, 'Left', 'note_left', 'Note Left'],
+				[true, 'Down', 'note_down', 'Note Down'],
+				[true, 'Up', 'note_up', 'Note Up'],
+				[true, 'Right', 'note_right', 'Note Right'],
+			]);
+		}
+
+		options = options.concat([
+			[true],
+			[true, 'UI'],
+			[true, 'Left', 'ui_left', 'UI Left'],
+			[true, 'Down', 'ui_down', 'UI Down'],
+			[true, 'Up', 'ui_up', 'UI Up'],
+			[true, 'Right', 'ui_right', 'UI Right'],
+			[true],
+			[true, 'Taunt', 'taunt', 'Taunt'],
+			[true, 'Reset', 'reset', 'Reset'],
+			[true, 'Accept', 'accept', 'Accept'],
+			[true, 'Back', 'back', 'Back'],
+			[true, 'Pause', 'pause', 'Pause'],
+			[true, 'Sidebar', 'sidebar', 'Sidebar'],
+			[true, 'Favor', 'fav', 'Favor'],
+			[false],
+			[false, 'VOLUME'],
+			[false, 'Mute', 'volume_mute', 'Volume Mute'],
+			[false, 'Up', 'volume_up', 'Volume Up'],
+			[false, 'Down', 'volume_down', 'Volume Down'],
+			[false],
+			[false, 'DEBUG'],
+			[false, 'Key 1', 'debug_1', 'Debug Key #1'],
+			[false, 'Key 2', 'debug_2', 'Debug Key #2']
+		]);
+
+		options.push([true]);
+		options.push([true]);
+		options.push([true, defaultKey]);
+		options.push([true, switchInput]);
+		options.push([true, switchMania]);
+		
 		curOptions = [];
 		curOptionsValid = [];
 		grpDisplay.forEachAlive(function(text:Alphabet) text.destroy());
@@ -138,9 +161,9 @@ class ControlsSubState extends MusicBeatSubstate
 			{
 				if(option.length > 1)
 				{
-					var isCentered:Bool = (option.length < 3);
-					var isDefaultKey:Bool = (option[1] == defaultKey);
-					var isDisplayKey:Bool = (isCentered && !isDefaultKey);
+					var isCentered:Bool = option.length < 3;
+					var isDefaultKey:Bool = [defaultKey, switchInput, switchMania].contains(option[1]);
+					var isDisplayKey:Bool = isCentered && !isDefaultKey;
 
 					var text:Alphabet = new Alphabet(200, 300, option[1], !isDisplayKey);
 					text.isMenuItem = true;
@@ -298,8 +321,31 @@ class ControlsSubState extends MusicBeatSubstate
 
 			if(FlxG.keys.justPressed.ENTER || FlxG.gamepads.anyJustPressed(START) || FlxG.gamepads.anyJustPressed(A))
 			{
-				if(options[curOptions[curSelected]][1] != defaultKey)
-				{
+				var curOptionName = options[curOptions[curSelected]][1];
+				if (curOptionName == switchInput) {
+					swapMode();
+				}
+				else if (curOptionName == switchMania) {
+					var maniaKeysList = ['4k', '5k', '6k', '7k', '8k', '9k'];
+					openSubState(new online.substates.SoFunkinSubstate(['4k', '5k', '6k', '7k', '8k', '9k'], maniaKeysList.indexOf(Note.maniaKeys + 'k'), (i) -> {
+						Note.maniaKeys = Std.parseInt(maniaKeysList[i].split('k')[0]);
+						createTexts();
+						curSelected = 0;
+						updateText();
+						return true;
+					}));
+				}
+				else if (curOptionName == defaultKey) {
+					// Reset to Default
+					ClientPrefs.resetKeys(!onKeyboardMode);
+					ClientPrefs.reloadVolumeKeys();
+					var lastSel:Int = curSelected;
+					createTexts();
+					curSelected = lastSel;
+					updateText();
+					FlxG.sound.play(Paths.sound('cancelMenu'));
+				}
+				else {
 					bindingBlack = new FlxSprite().makeGraphic(1, 1, /*FlxColor.BLACK*/ FlxColor.WHITE);
 					bindingBlack.scale.set(FlxG.width, FlxG.height);
 					bindingBlack.updateHitbox();
@@ -319,17 +365,6 @@ class ControlsSubState extends MusicBeatSubstate
 					holdingEsc = 0;
 					ClientPrefs.toggleVolumeKeys(false);
 					FlxG.sound.play(Paths.sound('scrollMenu'));
-				}
-				else
-				{
-					// Reset to Default
-					ClientPrefs.resetKeys(!onKeyboardMode);
-					ClientPrefs.reloadVolumeKeys();
-					var lastSel:Int = curSelected;
-					createTexts();
-					curSelected = lastSel;
-					updateText();
-					FlxG.sound.play(Paths.sound('cancelMenu'));
 				}
 			}
 		}

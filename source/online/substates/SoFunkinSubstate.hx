@@ -149,6 +149,7 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 	}
 
 	function updateGroup() {
+		groupTitle.visible = groups.length > 0;
 		if (groups.length > 0) {
 			if (curGroup < 0)
 				curGroup = groups.length - 1;

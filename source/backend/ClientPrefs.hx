@@ -556,7 +556,7 @@ class ClientPrefs {
 	}
 
 	public static function getRGBColor(player:Int = 0):Array<Array<FlxColor>> {
-		if (!GameClient.isConnected() || NotesSubState.isOpened)
+		if (!GameClient.isConnected() || NotesSubState.isOpened || player == -1)
 			return (Note.maniaKeys != 4 ? data.arrowRGBMap.get(Note.maniaKeys + 'k') : data.arrowRGB);
 
 		if (player == 0)
@@ -579,7 +579,7 @@ class ClientPrefs {
 	}
 
 	public static function getRGBPixelColor(player:Int = 0):Array<Array<FlxColor>> {
-		if (!GameClient.isConnected() || NotesSubState.isOpened)
+		if (!GameClient.isConnected() || NotesSubState.isOpened || player == -1)
 			return (Note.maniaKeys != 4 ? data.arrowRGBPixelMap.get(Note.maniaKeys + 'k') : data.arrowRGBPixel);
 
 		if (player == 0)
@@ -603,7 +603,7 @@ class ClientPrefs {
 
 	public static function getNoteSkin(player:Int = 0):String
 	{
-		if(!GameClient.isConnected() || NotesSubState.isOpened || VisualsUISubState.isOpened)
+		if(!GameClient.isConnected() || NotesSubState.isOpened || VisualsUISubState.isOpened || player == -1)
 			return data.noteSkin;
 
 		if(player == 0)
