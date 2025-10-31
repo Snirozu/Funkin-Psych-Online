@@ -188,15 +188,16 @@ class StrumNote extends FlxSprite
 		playAnim('static');
 		x += Note.swagScaledWidth * noteData;
 		x -= Note.getNoteOffsetX() * noteData;
-		// x += 50;
-		var player = player;
-		if (ClientPrefs.data.middleScroll && !PlayState.playsAsBF()) {
-			player = player == 0 ? 1 : 0;
-		}
-		x += FlxG.width / 2;
-		if (player == 0) {
-			x -= Note.swagScaledWidth * Note.maniaKeys;
-		}
+		// if (FlxG.state is PlayState) {
+		// 	var player = player;
+		// 	if (ClientPrefs.data.middleScroll && !PlayState.playsAsBF()) {
+		// 		player = player == 0 ? 1 : 0;
+		// 	}
+		// 	x += FlxG.width / 2;
+		// 	if (player == 0) {
+		// 		x -= Note.swagScaledWidth * Note.maniaKeys;
+		// 	}
+		// }
 		ID = noteData;
 		initialized = true;
 	}
