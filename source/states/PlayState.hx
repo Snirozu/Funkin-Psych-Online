@@ -413,6 +413,31 @@ class PlayState extends MusicBeatState
 		'8k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT', 'singLEFT', 'singDOWN', 'singUP', 'singRIGHT'],
 		'9k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT', 'singDOWN', 'singLEFT', 'singDOWN', 'singUP', 'singRIGHT']
 	];
+
+	//conversion shenanigans by bromaster!!!! hiii!!
+	var baseData = [ //moving ups and downs and lefts and rights to the correct spots before converting
+		[0, 1, 2, 3], //4k
+		[0, 1, 3, 4], //5k
+		[0, 4, 1, 2], //6k PRIME EXAMPLE OF why this is here
+		[0, 5, 1, 2], //7k this one too
+		[0, 1, 2, 3], //8k
+		[0, 1, 2, 3]  //9k
+	];
+
+	var convTo = [ //what the notes turn into (the "extra" keys)
+		[0, 1, 2, 3], //4k
+		[0, 1, 2, 4], //5k
+		[3, 4, 1, 5], //6k
+		[4, 5, 3, 6], //7k
+		[4, 5, 6, 7], //8k
+		[5, 6, 7, 8]  //9k
+	];
+
+	//extra algorithm stuff
+	var multLastTime = 0;
+	var multLastData = 0;
+	var multRdom = 0;
+	//skip to line 2429 for the rest of the converter!!!
 	
 	public var inCutscene:Bool = false;
 	public var skipCountdown:Bool = false;
@@ -2366,26 +2391,19 @@ class PlayState extends MusicBeatState
 		// var playingTime:Float = 0;
 		var lastStrumTime:Float = 0;
 
-		var isPsychRelease = (songData.format ?? '').startsWith('psych_v1');
+		var isPsychRelease = songData.format == 'psych_v1';
 
-		Note.maniaKeys = 4;
 		if (SONG.mania != null)
-			if (isPsychRelease) {
-				Note.maniaKeys = SONG.mania + 1;
+			switch (SONG.mania) {
+				case 1, 5, 6: // 6k
+					Note.maniaKeys = 6;
+				case 2, 7: // 7k
+					Note.maniaKeys = 7;
+				case 3, 8: // 9k
+					Note.maniaKeys = 9;
+				default:
+					Note.maniaKeys = SONG.mania;
 			}
-			else {
-				switch (SONG.mania) {
-					case 1, 5, 6: // 6k
-						Note.maniaKeys = 6;
-					case 2, 7: // 7k
-						Note.maniaKeys = 7;
-					case 3, 8: // 9k
-						Note.maniaKeys = 9;
-					default:
-						Note.maniaKeys = SONG.mania;
-				}
-			}
-
 		if (SONG.keys != null) {
 			Note.maniaKeys = SONG.keys;
 		}
@@ -2401,12 +2419,28 @@ class PlayState extends MusicBeatState
 			for (note in section.sectionNotes) {
 				var note:Array<Dynamic> = cast(note, Array<Dynamic>).copy();
 				if (maniaModifier != null) {
-					var daNoteDataSide:Int = Std.int(Std.int(note[1]) / Note.maniaKeys);
+					//OLD CONVERTER STUFF
+					/*var daNoteDataSide:Int = Std.int(Std.int(note[1]) / Note.maniaKeys);
 					var daNoteData:Int = Std.int(note[1] % Note.maniaKeys);
 
 					// used my last non dyslexic neurons for this
 					note[1] = (daNoteData + Math.sin(dataNotes.length * 0.5)) * (maniaModifier / Note.maniaKeys);
-					note[1] = Math.max(0, Math.min(maniaModifier - 1, Math.round(note[1]))) + maniaModifier * daNoteDataSide;
+					note[1] = Math.max(0, Math.min(maniaModifier - 1, Math.round(note[1]))) + maniaModifier * daNoteDataSide;*/	
+
+					//*new* converter stuff..
+					if (multLastTime != note[0]) && multLastData != note[1]) multRdom += 1;
+					if (note[0] != multLastTime && note[0] - multLastTime < 90 && multLastData == note[1]) multRdom += 1;
+					if (multLastTime != note[0]) multLastTime = note[0];
+					if (multLastData != note[1]) multLastData = note[1];
+
+					if (Note.maniaKeys != 9) {
+						if (multRdom % 2 == 0) note[1] =  convTo[Note.maniaKeys - 4][note[1];
+						else note[1] =  baseData[Note.maniaKeys - 4][note[1];
+					}
+					if (Note.maniaKeys == 9) { //special case for 9K
+						if (multRdom % 2 == 0 && (multRdom % 4 != 0 && note[1] == 2)) note[1] = convTo[Note.maniaKeys - 4][note[1];
+						else if (multRdom % 4 == 0 && note[1] == 2) note[1] = 4; //white note!!!
+					}
 				}
 				dataNotes.push(note);
 				dataNotesSection.push(sectIndex);
@@ -2650,15 +2684,17 @@ class PlayState extends MusicBeatState
 	public var skipArrowStartTween:Bool = false; //for lua
 	private function generateStaticArrows(player:Int):Void
 	{
-		var strumWidth = Note.maniaKeys * Note.swagScaledWidth - (Note.getNoteOffsetX() * (Note.maniaKeys - 1));
 		var strumLineX:Float = 0;
 
 		if (ClientPrefs.data.middleScroll) {
-			strumLineX = FlxG.width / 2 - strumWidth / 2;
+			strumLineX = -(Note.maniaKeys * Note.swagScaledWidth / 2);
 		}
 		else {
-			strumLineX = (FlxG.width / 2 - strumWidth) / 2;
-			strumLineX += FlxG.width / 2 * (player == 0 ? 0 : 1);
+			strumLineX += (
+				(FlxG.width / 2 - (
+					Note.maniaKeys * Note.swagScaledWidth
+				)) / 2
+			) * (player == 0 ? -1 : 1) + (Note.getNoteOffsetX() * (Note.maniaKeys - 1)) * 0.5;
 		}
 
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
@@ -2686,9 +2722,9 @@ class PlayState extends MusicBeatState
 				babyArrow.alpha = targetAlpha;
 
 			if (!isPlayerStrumNote(player) && ClientPrefs.data.middleScroll) {
-				babyArrow.x = strumLineX / 2 - strumWidth / 4;
+				babyArrow.x += 310;
 				if (i > Note.maniaKeys / 2 - 1) { // half rest
-					babyArrow.x += (strumLineX + strumWidth / 2);
+					babyArrow.x += FlxG.width / 2 + 25;
 				}
 			}
 
@@ -3177,7 +3213,7 @@ class PlayState extends MusicBeatState
 							}
 
 							if (!playsAsBF() && !disableForceShow) {
-								forceShowOpStrums = !ClientPrefs.data.opponentStrums;
+								forceShowOpStrums = true;
 								daNote.visible = true;
 								daNote.noteAlpha = 1;
 							}
@@ -5318,17 +5354,6 @@ class PlayState extends MusicBeatState
 		// 	stage3D = null;
 		// }
 		super.destroy();
-		if (Lib.application.window.width != FlxG.width) {
-			Lib.application.window.x += Std.int((Lib.application.window.width - FlxG.width) / 2);
-			Lib.application.window.width = FlxG.width;
-		}
-		if (Lib.application.window.height != FlxG.height) {
-			Lib.application.window.y += Std.int((Lib.application.window.height - FlxG.height) / 2);
-			Lib.application.window.height = FlxG.height;
-		}
-		Lib.application.window.resizable = true;
-		Lib.application.window.title = "Friday Night Funkin': Psych Online" + (states.TitleState.inDev ? ' [DEV]' : '');
-		#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 	}
 
 	public static function cancelMusicFadeTween() {
