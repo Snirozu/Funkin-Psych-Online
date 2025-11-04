@@ -2743,6 +2743,10 @@ class PlayState extends MusicBeatState
 				if (i > Note.maniaKeys / 2 - 1) { // half rest
 					babyArrow.x += (strumLineX + strumWidth / 2);
 				}
+
+				if (Note.maniaKeys % 2 != 0 && i == Std.int(Note.maniaKeys / 2)) {
+					babyArrow.forceHide = true;
+				}
 			}
 
 			strumGroup.add(babyArrow);

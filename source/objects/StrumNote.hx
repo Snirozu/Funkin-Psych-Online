@@ -202,7 +202,14 @@ class StrumNote extends FlxSprite
 		initialized = true;
 	}
 
+	public var forceHide:Bool = false;
+
 	override function update(elapsed:Float) {
+		
+		if (forceHide) {
+			alpha = 0;
+		}
+
 		if (alpha > maxAlpha)
 			alpha = maxAlpha;
 		
