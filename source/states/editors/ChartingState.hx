@@ -346,7 +346,6 @@ class ChartingState extends MusicBeatState
 		\nHold Control and click on an arrow to select it
 		\nZ/X - Zoom in/out
 		\n
-		\nEsc - Test your chart inside Chart Editor
 		\nEnter - Play your chart
 		\nQ/E - Decrease/Increase Note Sustain Length
 		\nSpace - Stop/Resume song";
@@ -1744,7 +1743,7 @@ class ChartingState extends MusicBeatState
 
 		if (!blockInput)
 		{
-			if (FlxG.keys.justPressed.ESCAPE)
+			if (FlxG.keys.justPressed.ESCAPE && false)
 			{
 				FlxG.sound.music.pause();
 				for (v in [vocals, opponentVocals]) {
@@ -2811,7 +2810,7 @@ class ChartingState extends MusicBeatState
 		var daStrumTime = i[0];
 		var daSus:Dynamic = i[2];
 
-		var note:Note = new Note(daStrumTime, daNoteInfo % 4, null, null, true);
+		var note:Note = new Note(daStrumTime, daNoteInfo % Note.maniaKeys, null, null, true);
 		if(daSus != null) { //Common note
 			if(!Std.isOfType(i[3], String)) //Convert old note type to new note type format
 			{

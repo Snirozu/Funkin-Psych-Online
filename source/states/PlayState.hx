@@ -2401,18 +2401,17 @@ class PlayState extends MusicBeatState
 
 		for (sectIndex => section in noteData) {
 			for (note in section.sectionNotes) {
-				var note:Array<Dynamic> = cast(note, Array<Dynamic>).copy();
-				dataNotes.push(note);
+				dataNotes.push(note.copy());
 				dataNotesSection.push(sectIndex);
 			}
 		}
 
-		haxe.ds.ArraySort.sort(dataNotes, function(a, b):Int {
+		haxe.ds.ArraySort.sort(dataNotes, function(a:Array<Dynamic>, b:Array<Dynamic>):Int {
 			if (a == null || b == null) {
 				return 0;
 			}
 
-			return a[0] - b[0];
+			return Std.int(a[0] - b[0]);
 		});
 		
 		// MULTIKEY NOTES CONVERSION ALGO!!!
@@ -3231,9 +3230,11 @@ class PlayState extends MusicBeatState
 							}
 
 							if (!playsAsBF() && !disableForceShow) {
-								forceShowOpStrums = !ClientPrefs.data.opponentStrums;
-								daNote.visible = true;
-								daNote.noteAlpha = 1;
+								forceShowOpStrums = ClientPrefs.data.opponentStrums;
+								if (forceShowOpStrums) {
+									daNote.visible = true;
+									daNote.noteAlpha = 1;
+								}
 							}
 								
 							daNote.followStrumNote(strum, fakeCrochet, songSpeed / playbackRate);
@@ -4216,7 +4217,8 @@ class PlayState extends MusicBeatState
 					difficultyName: Difficulty.getString(),
 					songName: SONG.song,
 					character: playsAsBF() ? boyfriend.curCharacter : dad.curCharacter,
-					points: songPoints
+					points: songPoints,
+					mania: maniaModifier
 				}));
 				changedDifficulty = false;
 			}

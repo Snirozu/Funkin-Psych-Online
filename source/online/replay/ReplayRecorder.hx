@@ -81,7 +81,7 @@ class ReplayRecorder extends FlxBasic {
 		data.rating_offset = ClientPrefs.data.ratingOffset;
 		data.safe_frames = ClientPrefs.data.safeFrames;
 		data.mod_url = OnlineMods.getModURL(Mods.currentModDirectory);
-		data.keys = Note.maniaKeys;		
+		data.keys = Note.maniaKeys;
 		data.chart_hash = Md5.encode(PlayState.RAW_SONG);
 
 		REGISTER_BINDS = genRegisterBinds();
@@ -99,10 +99,12 @@ class ReplayRecorder extends FlxBasic {
 		}
 
 		//exclusive for taunts
-		if (keyboardIds.get(SPACE).contains('taunt')) {
-			for (key in state.keysArray) {
-				if (keyboardIds.get(SPACE).contains(key)) {
-					keyboardIds.get(SPACE).remove('taunt');
+		if (keyboardIds.exists(SPACE)) {
+			if (keyboardIds.get(SPACE).contains('taunt')) {
+				for (key in state.keysArray) {
+					if (keyboardIds.get(SPACE).contains(key)) {
+						keyboardIds.get(SPACE).remove('taunt');
+					}
 				}
 			}
 		}
