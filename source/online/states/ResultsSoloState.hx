@@ -192,7 +192,7 @@ class ResultsSoloState extends MusicBeatState {
 		songAccuracy.visible = false;
 		songText.add(songAccuracy);
 
-		var songTitle = new FlxBitmapText(0, 0, data.songName ?? "Penis Balls", Fonts.getTardlingFont());
+		var songTitle = new FlxBitmapText(0, 0, data.songName ?? "Penis Balls" + (data.mania != null ? ' ${data.mania}k' : ''), Fonts.getTardlingFont());
 		songTitle.letterSpacing = -10;
 		songTitle.angle = DA_ANGLE;
 		ShitUtil.moveByDegrees(songTitle, (songAccuracy.x - songText.x) + songAccuracy.members.length * 45, DA_ANGLE);
@@ -433,6 +433,7 @@ typedef ResultsData = {
 	var ?songName:String;
 	var ?character:String;
 	var ?points:Float;
+	var ?mania:Int;
 }
 
 class TallieNumbers extends FlxSpriteGroup {
