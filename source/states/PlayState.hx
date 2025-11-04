@@ -2386,9 +2386,11 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-		if (SONG.keys != null) {
+		if (SONG.keyCount != null)
+			Note.maniaKeys = SONG.keyCount;
+
+		if (SONG.keys != null)
 			Note.maniaKeys = SONG.keys;
-		}
 
 		if (maniaModifier == Note.maniaKeys) {
 			maniaModifier = null;
@@ -2460,6 +2462,8 @@ class PlayState extends MusicBeatState
 
 			trace(friendNotes);
 			// trace(enemyNotes);
+
+			var notesCount:Array<Int> = [for (noteData in 0...Note.maniaKeys) 0];
 			
 			for (i => note in dataNotes) {
 				var daNoteDataSide:Int = Std.int(Std.int(note[1]) / Note.maniaKeys);
@@ -2468,7 +2472,7 @@ class PlayState extends MusicBeatState
 				var newNotes = friendNotes[daNoteData];
 				//if (maniaModifier < Note.maniaKeys)
 				//	 newNotes = enemyNotes[scaleKeyToNewKeys(daNoteData)];
-				note[1] = newNotes[i % newNotes.length];
+				note[1] = newNotes[notesCount[daNoteData]++ % newNotes.length];
 				note[1] += maniaModifier * daNoteDataSide;
 			}
 

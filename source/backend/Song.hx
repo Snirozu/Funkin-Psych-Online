@@ -36,12 +36,13 @@ typedef SwagSong =
 
 	//MOD SPECIFIC
 	@:optional var mania:Null<Int>;
+	@:optional var keyCount:Null<Int>;
 
 	//psych engine 1.0
 	@:optional var format:String;
 
 	//idk specify here
-	@:optional var keys:Null<Int>;
+	@:optional var keys:Null<Int>; 
 }
 
 class Song
