@@ -1100,22 +1100,9 @@ class PlayState extends MusicBeatState
 			noteGroup.add(grpHoldSplashes);
 			noteGroup.add(grpNoteSplashes);
 
-			var splash:NoteSplash = new NoteSplash(100, 100);
-			grpNoteSplashes.add(splash);
-			splash.alpha = 0.0001; //cant make it invisible or it won't allow precaching
-
-			SustainSplash.startCrochet = Conductor.stepCrochet;
-			SustainSplash.frameRate = Math.floor(24 / 100 * SONG.bpm);
-			var splash:SustainSplash = new SustainSplash();
-			grpHoldSplashes.add(splash);
-			splash.visible = true;
-			splash.alpha = 0.0001;
-
 			opponentStrums = new FlxTypedGroup<StrumNote>();
 			playerStrums = new FlxTypedGroup<StrumNote>();
-		});
 
-		preloadTasks.push(() -> {
 			generateSong(SONG.song);
 			keysArray = getKeysArray(Note.maniaKeys);
 
@@ -1126,6 +1113,19 @@ class PlayState extends MusicBeatState
 					}
 				// }
 			}
+		});
+
+		preloadTasks.push(() -> {
+			var splash:NoteSplash = new NoteSplash(100, 100);
+			grpNoteSplashes.add(splash);
+			splash.alpha = 0.0001; //cant make it invisible or it won't allow precaching
+
+			SustainSplash.startCrochet = Conductor.stepCrochet;
+			SustainSplash.frameRate = Math.floor(24 / 100 * SONG.bpm);
+			var splash:SustainSplash = new SustainSplash();
+			grpHoldSplashes.add(splash);
+			splash.visible = true;
+			splash.alpha = 0.0001;
 		});
 
 		preloadTasks.push(() -> {
@@ -2400,25 +2400,10 @@ class PlayState extends MusicBeatState
 		for (sectIndex => section in noteData) {
 			for (note in section.sectionNotes) {
 				var note:Array<Dynamic> = cast(note, Array<Dynamic>).copy();
-				if (maniaModifier != null) {
-					var daNoteDataSide:Int = Std.int(Std.int(note[1]) / Note.maniaKeys);
-					var daNoteData:Int = Std.int(note[1] % Note.maniaKeys);
-
-					// used my last non dyslexic neurons for this
-					note[1] = (daNoteData + Math.sin(dataNotes.length * 0.5)) * (maniaModifier / Note.maniaKeys);
-					note[1] = Math.max(0, Math.min(maniaModifier - 1, Math.round(note[1]))) + maniaModifier * daNoteDataSide;
-				}
 				dataNotes.push(note);
 				dataNotesSection.push(sectIndex);
 			}
 		}
-
-		if (maniaModifier != null) {
-			trace('Converted from: ' + Note.maniaKeys + 'k');
-			Note.maniaKeys = maniaModifier;
-		}
-
-		trace('Song Keys: ' + Note.maniaKeys + 'k');
 
 		haxe.ds.ArraySort.sort(dataNotes, function(a, b):Int {
 			if (a == null || b == null) {
@@ -2427,6 +2412,71 @@ class PlayState extends MusicBeatState
 
 			return a[0] - b[0];
 		});
+		
+		// MULTIKEY NOTES CONVERSION ALGO!!!
+		// also shoutouts to bromaster
+
+		if (maniaModifier != null) {
+			function scaleKeyToNewKeys(noteData:Int):Int {
+				return Std.int(noteData * (maniaModifier / Note.maniaKeys));
+			}
+			function scaleKeyBack(noteData:Int):Int {
+				return Std.int(noteData * (Note.maniaKeys / maniaModifier));
+			}
+
+			var scaledParentNotes:Array<Int> = [];
+			var orphanNotes:Array<Int> = [for (noteData in 0...maniaModifier) noteData];
+			var friendNotes:Array<Array<Int>> = [];
+			// var enemyNotes:Array<Array<Int>> = [];
+		
+			//initial note adoption
+			for (noteData in 0...Note.maniaKeys) {
+				var scaledNote = scaleKeyToNewKeys(noteData);
+				scaledParentNotes.push(scaledNote);
+				orphanNotes.remove(scaledNote);
+
+				friendNotes[noteData] = [];
+				friendNotes[noteData].push(scaledNote);
+			}
+
+			// find an parent with closest value to a orphan and adopt
+			while (orphanNotes.length > 0) {
+				haxe.ds.ArraySort.sort(scaledParentNotes, function(a, b):Int {
+					return Std.int(Math.abs(a - orphanNotes[0]) - Math.abs(b - orphanNotes[0]));
+				});
+
+				friendNotes[scaleKeyBack(scaledParentNotes[0])].push(orphanNotes[0]);
+				orphanNotes.shift();
+			}
+
+			//TODO less jacky more key to less key conversion
+
+			// for (i => notes in friendNotes) {
+			// 	for (note in notes) {
+			// 		enemyNotes[note] ??= [];
+			// 		enemyNotes[note].push(note);
+			// 	}
+			// }
+
+			trace(friendNotes);
+			// trace(enemyNotes);
+			
+			for (i => note in dataNotes) {
+				var daNoteDataSide:Int = Std.int(Std.int(note[1]) / Note.maniaKeys);
+				var daNoteData:Int = Std.int(note[1] % Note.maniaKeys);
+
+				var newNotes = friendNotes[daNoteData];
+				//if (maniaModifier < Note.maniaKeys)
+				//	 newNotes = enemyNotes[scaleKeyToNewKeys(daNoteData)];
+				note[1] = newNotes[i % newNotes.length];
+				note[1] += maniaModifier * daNoteDataSide;
+			}
+
+			trace('Converted from: ' + Note.maniaKeys + 'k');
+			Note.maniaKeys = maniaModifier;
+		}
+
+		trace('Song Keys: ' + Note.maniaKeys + 'k');
 
 		for (i => songNotes in dataNotes) {
 			var section = noteData[dataNotesSection[i]];

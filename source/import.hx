@@ -60,4 +60,5 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import online.backend.Deflection;
 
 using StringTools;
+using ArrayTools;
 #end
