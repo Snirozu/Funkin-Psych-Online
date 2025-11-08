@@ -13,7 +13,7 @@ function switchState(state) { // game state gets switched
         var infoTxt = new FlxText(0, 170, FlxG.width);
 		infoTxt.setFormat("VCR OSD Mono", 16, 0xFFFFFFFF, "center", state.playersOnline.borderStyle, 0xFF000000);
 		infoTxt.alpha = 0.6;
-        infoTxt.text = "(THE NETWORK IS CURRENTLY OFFLINE, WE'LL BE BACK LATER TOMORROW, SORRY!)";
+        infoTxt.text = "(AUTHENTICATION IS TEMPORARILY DISABLED, SORRY!)";
         infoTxt.screenCenter(0x01);
 		state.add(infoTxt);
     }
