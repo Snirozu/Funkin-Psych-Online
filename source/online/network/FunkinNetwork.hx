@@ -255,7 +255,7 @@ class FunkinNetwork {
 			return bytes;
 		}
 
-		var avatarResponse = FunkinNetwork.requestAPI('/api/avatar/' + StringTools.urlEncode(user), false);
+		var avatarResponse = FunkinNetwork.requestAPI('/api/user/avatar/' + StringTools.urlEncode(user), false);
 
 		var bytes = avatarResponse?.getBytes() ?? null;
 		if (bytes == null || !ShitUtil.isSupportedImage(bytes)) {

@@ -28,7 +28,7 @@ class ShitUtil {
 
 	static function timeAgo(time:Float):String {
 		var diff = Sys.time() - (time / 1000 - (Date.now().getTimezoneOffset() * 60));
-		if (diff <= 120)
+		if (diff <= 60)
 			return 'just now';
 		// if (diff < 60)
 		// 	return Math.floor(diff) + ' seconds ago';
@@ -479,6 +479,27 @@ class ShitUtil {
 			Reflect.setField(obj, key, value);
 		}
 		return obj;
+	}
+
+	public static function fetchBitmapBytesfromURL(url:String):Bytes {
+		var response = new online.http.HTTPHandler(url).request();
+
+		if (response.isFailed()) {
+			return null;
+		}
+
+		var bytes = response?.getBytes() ?? null;
+		if (bytes == null || !ShitUtil.isSupportedImage(bytes)) {
+			return null;
+		}
+
+		try {
+			return bytes;
+		}
+		catch (exc) {
+			trace(exc);
+			return null;
+		}
 	}
 }
 

@@ -3,6 +3,7 @@ package objects;
 // If you want to make a custom note type, you should search for:
 // "function set_noteType"
 
+import flixel.graphics.frames.FlxAtlasFrames;
 import backend.NoteSkinData;
 import online.GameClient;
 import backend.NoteTypesConfig;
@@ -89,7 +90,7 @@ class Note extends FlxSprite
 	}
 	public static var noteScale(get, default):Float = 0.7;
 	static function get_noteScale() {
-		return (swagWidth * 4) / (swagWidth * maniaKeys) + (0.05 * (maniaKeys - 4));
+		return (swagWidth * 4) / (swagWidth * maniaKeys) + (0.055 * (maniaKeys - 4));
 	}
 	public static var colArray:Array<String> = ['purple', 'blue', 'green', 'red'];
 	public static var defaultNoteSkin(default, never):String = 'noteSkins/NOTE_assets';
@@ -138,7 +139,7 @@ class Note extends FlxSprite
 	public var hits:Int = 0;
 
 	public static function getNoteOffsetX() {
-		return 3 * (Note.maniaKeys - 4);
+		return 3.2 * (Note.maniaKeys - 4);
 	}
 
 	private function set_multSpeed(value:Float):Float {
@@ -220,8 +221,8 @@ class Note extends FlxSprite
 		return value;
 	}
 
-	static function getColArrayFromKeys() {
-		var specialCol = 'blue';
+	public static function getColArrayFromKeys(?regularOnly:Bool = false) {
+		var specialCol = regularOnly ? 'blue' : 'odd';
 		switch (Note.maniaKeys) {
 			case 5:
 				return ['purple', 'blue', specialCol, 'green', 'red'];
@@ -237,7 +238,8 @@ class Note extends FlxSprite
 		return ['purple', 'blue', 'green', 'red'];
 	}
 
-	static function colToIndex(col:String):Int {
+	public static function colToIndex(col:String):Int {
+		if (col == 'odd') return Note.colArray.contains('odd') ? 0 : 1;
 		return ['purple', 'blue', 'green', 'red'].indexOf(col);
 	}
 
@@ -361,6 +363,8 @@ class Note extends FlxSprite
 		if(texture == null) texture = '';
 		if(postfix == null) postfix = '';
 
+		Note.colArray = Note.getColArrayFromKeys();
+
 		var skin:String = texture + postfix;
 		if(texture.length < 1) {
 			skin = PlayState.SONG != null ? PlayState.SONG.arrowSkin : null;
@@ -396,11 +400,19 @@ class Note extends FlxSprite
 		else skinPostfix = '';
 
 		if(PlayState.isPixelStage) {
+			var graphic = null;
 			if(isSustainNote) {
-				var graphic = Paths.image('pixelUI/' + skinPixel + 'ENDS' + skinPostfix);
+				graphic = Paths.image('pixelUI/' + skinPixel + 'ENDS' + skinPostfix);
 				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 2));
 				originalHeight = graphic.height / 2;
-			} else {
+			}
+			else if (colArray[noteData] == 'odd') {
+				graphic = Paths.image('pixelUI/' + skinPixel + skinPostfix + '_ODD');
+				if (graphic != null)
+					loadGraphic(graphic, true, Math.floor(graphic.width), Math.floor(graphic.height / 5));
+			}
+			if (graphic == null) {
+				Note.colArray = getColArrayFromKeys(true);
 				var graphic = Paths.image('pixelUI/' + skinPixel + skinPostfix);
 				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 5));
 			}
@@ -413,7 +425,11 @@ class Note extends FlxSprite
 				offsetX -= _lastNoteOffX;
 			}
 		} else {
-			frames = Paths.getSparrowAtlas(skin);
+			frames = Paths.getSparrowAtlas(skin + (colArray[noteData] == 'odd' ? '_ODD' : ''));
+			if (frames == null && colArray[noteData] == 'odd') {
+				Note.colArray = getColArrayFromKeys(true);
+			}
+			frames ??= Paths.getSparrowAtlas(skin);
 			loadNoteAnims();
 			if(!isSustainNote)
 			{

@@ -1,5 +1,6 @@
 package online.gui.sidebar.tabs;
 
+import haxe.ds.Either;
 import com.yagp.GifDecoder;
 import com.yagp.GifPlayer;
 import com.yagp.GifPlayerWrapper;
@@ -156,8 +157,8 @@ class FriendsTab extends TabSprite {
 		rect.y -= scrollDelta * 40;
 		if (rect.y <= 0)
 			rect.y = 0;
-		if (rect.y + rect.height >= realHeight)
-			rect.y = realHeight - rect.height;
+		if (rect.y + rect.height - y >= realHeight)
+			rect.y = realHeight - rect.height + y;
 		scrollRect = rect;
 	}
 }
@@ -250,8 +251,7 @@ class SmolProfile extends Sprite implements ITabInteractable {
 
 			var daUsername = data.name;
 			Thread.run(() -> {
-				var response = FunkinNetwork.requestAPI('/api/user/friends/request?name=' + StringTools.urlEncode(daUsername));
-
+				FunkinNetwork.requestAPI('/api/user/friends/request?name=' + StringTools.urlEncode(daUsername));
 				LoadingScreen.toggle(false);
 			});
 		}
@@ -262,12 +262,22 @@ class SmolProfile extends Sprite implements ITabInteractable {
 			Waiter.putPersist(() -> {
 				var prevIcon = icon;
 
+				var iconData:Either<BitmapData, com.yagp.Gif>;
+
 				if (avatarData == null)
-					icon = new Bitmap(FunkinNetwork.getDefaultAvatar());
+					iconData = Left(FunkinNetwork.getDefaultAvatar());
 				else if (!ShitUtil.isGIF(avatarData))
-					icon = new Bitmap(BitmapData.fromBytes(avatarData));
+					iconData = Left(BitmapData.fromBytes(avatarData));
 				else
-					icon = new GifPlayerWrapper(new GifPlayer(GifDecoder.parseBytes(avatarData)));
+					iconData = Right(GifDecoder.parseBytes(avatarData));
+
+				switch (iconData) {
+					case Left(v):
+						icon = new Bitmap(v);
+					case Right(v):
+						icon = new GifPlayerWrapper(new GifPlayer(v));
+					default:
+				}
 
 				addChildAt(icon, getChildIndex(prevIcon));
 				removeChild(prevIcon);

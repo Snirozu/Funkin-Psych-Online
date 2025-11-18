@@ -19,13 +19,14 @@ class SideUI extends WSprite {
 	public static final DEFAULT_TAB_WIDTH:Int = 400;
 
 	public var initTabs:Array<Class<TabSprite>> = [
+		NotificationsTab,
+		ProfileTab,
 		FriendsTab,
 		ChatTab,
-		ProfileTab,
 		// TODO 
 		// DownloaderTab,
 		// ReportTab,
-		// OptionsTab,
+		// ServerTab
 		// DebugTab
 	];
 

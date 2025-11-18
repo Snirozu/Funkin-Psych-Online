@@ -74,28 +74,13 @@ class Player extends Person {
 	@:type("string")
 	public var noteSkinURL: String = "";
 
-	@:type("array", "number")
-	public var arrowColor0: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	@:type("map", "string")
+	public var gameplaySettings:MapSchema<String> = new MapSchema<String>();
 
-	@:type("array", "number")
-	public var arrowColor1: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	@:type("map", ColorArray)
+	public var arrowColors: MapSchema<ColorArray> = new MapSchema<ColorArray>();
 
-	@:type("array", "number")
-	public var arrowColor2: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
-
-	@:type("array", "number")
-	public var arrowColor3: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
-
-	@:type("array", "number")
-	public var arrowColorP0: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
-
-	@:type("array", "number")
-	public var arrowColorP1: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
-
-	@:type("array", "number")
-	public var arrowColorP2: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
-
-	@:type("array", "number")
-	public var arrowColorP3: ArraySchema<Dynamic> = new ArraySchema<Dynamic>();
+	@:type("map", ColorArray)
+	public var arrowColorsPixel: MapSchema<ColorArray> = new MapSchema<ColorArray>();
 
 }

@@ -38,7 +38,7 @@ class Util {
 			format.color = color;
 			obj.defaultTextFormat = format;
 		}
-		obj.text = text + '\n ';
+		obj.text = text;
 		obj.width = obj.textWidth;
 		obj.height = obj.textHeight;
 		obj.scaleX = Math.min(1, (maxWidth ?? (SideUI.instance.curTab.tabWidth - obj.x - 20)) / obj.width);
@@ -46,11 +46,10 @@ class Util {
 	}
 
 	static function getTextWidth(obj:TextField) {
-		return obj.textWidth * obj.scaleX;
+		return obj.textWidth;
 	}
 	static function getTextHeight(obj:TextField):Float {
-		if (obj.text.length <= 0 || obj.text == '\n ') return 0;
-		return obj.textHeight * obj.scaleY - obj.defaultTextFormat.size * obj.scaleY;
+		return obj.textHeight;
 	}
 
 	static function inviteToPlay(daUsername:String) {
@@ -74,8 +73,8 @@ class Util {
 	static function getRealHeight(?parent:DisplayObject) {
 		var maxHeight:Float = 0;
 		for (child in @:privateAccess parent.__children) {
-			if (child.visible && child.y + child.height - parent.y > maxHeight)
-				maxHeight = child.y + child.height - parent.y;
+			if (child.visible)
+				maxHeight = Math.max(maxHeight, child.y + child.height - parent.y);
 		}
 		return maxHeight;
 	}

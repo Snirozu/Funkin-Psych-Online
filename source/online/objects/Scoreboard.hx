@@ -101,7 +101,7 @@ class Scoreboard extends FlxSpriteGroup {
 
 		selectedRow = row;
 
-		selectBox.alpha = row != -1 ? 1 : 0;
+		selectBox.alpha = row >= 0 ? 1 : 0;
 		selectBox.y = y + (row + 1) * rowHeight;
 		
 		for (rowI in 0...rows.length) {

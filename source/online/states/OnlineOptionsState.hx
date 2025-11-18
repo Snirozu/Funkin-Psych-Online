@@ -71,13 +71,17 @@ class OnlineOptionsState extends MusicBeatState {
 		// titleOption.ID = i++;
 
 		var skinsOption:InputOption;
-		items.add(skinsOption = new InputOption("Skin", "Choose your skin here!"));
+		items.add(skinsOption = new InputOption("Skin", "Choose your skin here!", null, () -> {
+			LoadingState.loadAndSwitchState(new SkinsState());
+		}));
 		skinsOption.y = nicknameOption.y + nicknameOption.height + 50;
 		skinsOption.screenCenter(X);
 		skinsOption.ID = i++;
 
 		var modsOption:InputOption;
-		items.add(modsOption = new InputOption("Setup Mods", "Set the URL's of your mods here!"));
+		items.add(modsOption = new InputOption("Setup Mods", "Set the URL's of your mods here!", null, () -> {
+			FlxG.switchState(() -> new SetupModsState(Mods.getModDirectories(), true));
+		}));
 		modsOption.y = skinsOption.y + skinsOption.height + 50;
 		modsOption.screenCenter(X);
 		modsOption.ID = i++;
@@ -144,22 +148,33 @@ class OnlineOptionsState extends MusicBeatState {
 		networkServerOption.ID = i++;
 
 		var trustedOption:InputOption;
-		items.add(trustedOption = new InputOption("Clear Trusted Domains", "Clear the list of all trusted domains!"));
+		items.add(trustedOption = new InputOption("Clear Trusted Domains", "Clear the list of all trusted domains!", null, () -> {
+			ClientPrefs.data.trustedSources = ["https://gamebanana.com/"];
+			ClientPrefs.saveSettings();
+			Alert.alert("Cleared the trusted domains list!", "");
+		}));
 		trustedOption.y = networkServerOption.y + networkServerOption.height + 50;
 		trustedOption.screenCenter(X);
 		trustedOption.ID = i++;
 
+		var lastOption:InputOption;
+		var recentOption:InputOption;
+		items.add(recentOption = new InputOption("Enable SSL Verification", "If checked, the game will check for valid SSL Certifications, which can lead to safer connections with downloads or rooms.\n(But It's not recommended because of Haxe\'s flawed sockets implementation.)", 
+		ClientPrefs.data.verifySSL,
+		() -> {
+			recentOption.checked = !recentOption.checked;
+			ClientPrefs.data.verifySSL = recentOption.checked;
+			ClientPrefs.saveSettings();
+			sys.ssl.Socket.DEFAULT_VERIFY_CERT = ClientPrefs.data.verifySSL;
+		}));
+		recentOption.y = trustedOption.y + trustedOption.height + 50;
+		recentOption.screenCenter(X);
+		recentOption.ID = i++;
+
 		if (Auth.authID == null && Auth.authToken == null) {
-			var section = new FlxText(0, trustedOption.y + trustedOption.height + 100, FlxG.width, "Account");
+			var section = new FlxText(0, recentOption.y + recentOption.height + 100, FlxG.width, "Account");
 			section.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			add(section);
-
-			// var registerOption:InputOption;
-			// items.add(registerOption = new InputOption("Join the Network",
-			// "Join the Psych Online Network\nSubmit your song replays to the leaderboard system!", null, false));
-			// registerOption.y = trustedOption.y + trustedOption.height + 50;
-			// registerOption.screenCenter(X);
-			// registerOption.ID = i++;
 
 			var registerOption:InputOption;
 			items.add(registerOption = new InputOption("Register to the Network",
@@ -219,18 +234,73 @@ class OnlineOptionsState extends MusicBeatState {
 			loginOption.ID = i++;
 		}
 		else {
+			lastOption = recentOption;
+			var recentOption:InputOption;
+			items.add(recentOption = new InputOption("Network Chat Notifications", 
+			'If checked, all messages from the Network Chat will be notified to you.\nCan be toggled with "/notify" Network command.', 
+			ClientPrefs.data.notifyOnChatMsg,
+			() -> {
+				recentOption.checked = !recentOption.checked;
+				ClientPrefs.data.notifyOnChatMsg = recentOption.checked;
+				ClientPrefs.saveSettings();
+			}));
+			recentOption.y = lastOption.y + lastOption.height + 50;
+			recentOption.screenCenter(X);
+			recentOption.ID = i++;
+
+			lastOption = recentOption;
+			var recentOption:InputOption;
+			items.add(recentOption = new InputOption("Mute PM Notifications",
+				'If checked, PM notifications are muted.\nCan be toggled with "/notify pm" Network command.',
+				ClientPrefs.data.disablePMs, () -> {
+					recentOption.checked = !recentOption.checked;
+					ClientPrefs.data.disablePMs = recentOption.checked;
+					ClientPrefs.saveSettings();
+				}));
+			recentOption.y = lastOption.y + lastOption.height + 50;
+			recentOption.screenCenter(X);
+			recentOption.ID = i++;
+
+			lastOption = recentOption;
+			var recentOption:InputOption;
+			items.add(recentOption = new InputOption("Mute Room Invites",
+				'If checked, room invites are muted.\nCan be toggled with "/notify roominvite" Network command.',
+				ClientPrefs.data.disableRoomInvites, () -> {
+					recentOption.checked = !recentOption.checked;
+					ClientPrefs.data.disableRoomInvites = recentOption.checked;
+					ClientPrefs.saveSettings();
+				}));
+			recentOption.y = lastOption.y + lastOption.height + 50;
+			recentOption.screenCenter(X);
+			recentOption.ID = i++;
+
+			lastOption = recentOption;
+			var recentOption:InputOption;
+			items.add(recentOption = new InputOption("Notify when Friend is Online",
+				'If checked, you\'ll receive a notification when your friend goes online.\nCan be toggled with "/notify friend" Network command.',
+				ClientPrefs.data.friendOnlineNotification, () -> {
+					recentOption.checked = !recentOption.checked;
+					ClientPrefs.data.friendOnlineNotification = recentOption.checked;
+					ClientPrefs.saveSettings();
+				}));
+			recentOption.y = lastOption.y + lastOption.height + 50;
+			recentOption.screenCenter(X);
+			recentOption.ID = i++;
+
 			var sezOption:InputOption;
 			items.add(sezOption = new InputOption("Leave a Global Message", "Leave a message for others to see in the Online Menu!\n(Please keep it English)", ["Message"],
 				(message, _) -> {
 					if (FunkinNetwork.postFrontMessage(message))
 						FlxG.switchState(() -> new OnlineState());
 				}));
-			sezOption.y = trustedOption.y + trustedOption.height + 50;
+			sezOption.y = recentOption.y + recentOption.height + 50;
 			sezOption.screenCenter(X);
 			sezOption.ID = i++;
 
 			var sidebarOption:InputOption;
-			items.add(sidebarOption = new InputOption("Open Sidebar", "Open the Network Sidebar, if you aren't able to.\n(Press " + InputFormatter.getKeyName(cast(ClientPrefs.keyBinds.get('sidebar')[0], FlxKey)) + " to open it at any time!)"));
+			items.add(sidebarOption = new InputOption("Open Sidebar", "Open the Network Sidebar, if you aren't able to.\n(Press " + InputFormatter.getKeyName(cast(ClientPrefs.keyBinds.get('sidebar')[0], FlxKey)) + " to open it at any time!)", null, () -> {
+				online.gui.sidebar.SideUI.instance.active = true;
+			}));
 			sidebarOption.y = sezOption.y + sezOption.height + 50;
 			sidebarOption.screenCenter(X);
 			sidebarOption.ID = i++;
@@ -240,7 +310,9 @@ class OnlineOptionsState extends MusicBeatState {
 			add(section);
 
 			var loginBrowserOption:InputOption;
-			items.add(loginBrowserOption = new InputOption("Login to Browser", "Authenticates you to the network in your default web browser"));
+			items.add(loginBrowserOption = new InputOption("Login to Browser", "Authenticates you to the network in your default web browser", null, () -> {
+				FlxG.openURL(FunkinNetwork.client.getURL("/api/auth/cookie?id=" + Auth.authID + "&token=" + Auth.authToken));
+			}));
 			loginBrowserOption.y = section.y + 100;
 			loginBrowserOption.screenCenter(X);
 			loginBrowserOption.ID = i++;
@@ -261,13 +333,28 @@ class OnlineOptionsState extends MusicBeatState {
 			emailOption.ID = i++;
 			
 			var deleteOption:InputOption;
-			items.add(deleteOption = new InputOption("Delete Network Account", "Bye!"));
+			items.add(deleteOption = new InputOption("Delete Network Account", "Bye!", null, () -> {
+				RequestSubstate.request('Are you sure you want to delete your account?\n(This action is irreversible!)', '', _ -> {
+					if (FunkinNetwork.deleteAccount()) {
+						openSubState(new VerifyCodeSubstate(code -> {
+							if (FunkinNetwork.deleteAccount(code)) {
+								Alert.alert("Account Deleted");
+							}
+						}));
+					}
+				}, null, true);
+			}));
 			deleteOption.y = emailOption.y + emailOption.height + 50;
 			deleteOption.screenCenter(X);
 			deleteOption.ID = i++;
 
 			var logoutOption:InputOption;
-			items.add(logoutOption = new InputOption("Logout of the Network", "Logout of the Psych Online Network"));
+			items.add(logoutOption = new InputOption("Logout of the Network", "Logout of the Psych Online Network", null, () -> {
+				RequestSubstate.request('Are you sure you want to logout?', '', _ -> {
+					FunkinNetwork.logout();
+					FlxG.resetState();
+				}, null, true);
+			}));
 			logoutOption.y = deleteOption.y + deleteOption.height + 50;
 			logoutOption.screenCenter(X);
 			logoutOption.ID = i++;
@@ -324,36 +411,9 @@ class OnlineOptionsState extends MusicBeatState {
 						for (i => input in curOption.inputs)
 							input.hasFocus = i == 0;
 				}
-				else
-					switch (curOption.id) {
-						case "skin":
-							LoadingState.loadAndSwitchState(new SkinsState());
-						case "setup mods":
-							FlxG.switchState(() -> new SetupModsState(Mods.getModDirectories(), true));
-						case "clear trusted domains":
-							ClientPrefs.data.trustedSources = ["https://gamebanana.com/"];
-							ClientPrefs.saveSettings();
-							Alert.alert("Cleared the trusted domains list!", "");
-						case "delete network account":
-							RequestSubstate.request('Are you sure you want to delete your account?\n(This action is irreversible!)', '', _ -> {
-								if (FunkinNetwork.deleteAccount()) {
-									openSubState(new VerifyCodeSubstate(code -> {
-										if (FunkinNetwork.deleteAccount(code)) {
-											Alert.alert("Account Deleted");
-										}
-									}));
-								}
-							}, null, true);
-						case "logout of the network":
-							RequestSubstate.request('Are you sure you want to logout?', '', _ -> {
-								FunkinNetwork.logout();
-								FlxG.resetState();
-							}, null, true);
-						case "login to browser":
-							FlxG.openURL(FunkinNetwork.client.getURL("/api/account/cookie?id=" + Auth.authID + "&token=" + Auth.authToken));
-						case "open sidebar":
-							online.gui.sidebar.SideUI.instance.active = true;
-					}
+				else if (curOption.onClick != null) {
+					curOption.onClick();
+				}
 			}
 		}
 
@@ -418,6 +478,20 @@ class OnlineOptionsState extends MusicBeatState {
 
 class InputOption extends FlxSpriteGroup {
 	var box:FlxSprite;
+	var checkbox:FlxSprite;
+	var check:FlxSprite;
+	public var checked(default, set):Bool = false;
+	function set_checked(value:Bool):Bool {
+		if (value == checked)
+			return value;
+
+		if (value && check != null) {
+			check.alpha = 1;
+			check.angle = 0;
+			check.scale.set(1.2, 1.2);
+		}
+		return checked = value;
+	}
 	public var borderline:FlxSprite;
 	public var text:FlxText;
 	public var descText:FlxText;
@@ -428,12 +502,18 @@ class InputOption extends FlxSpriteGroup {
 
 	public var id:String;
 	public var isInput:Bool;
+	public var isCheck:Bool;
+	public var onEnter:(text:String, input:Int) -> Void;
+	public var onClick:Void -> Void;
 
-    public function new(title:String, description:String, ?inputList:Array<String>, ?onEnter:(text:String, input:Int)->Void) {
+	public function new(title:String, description:String, input:Dynamic, ?onClick:Void->Void, ?onEnter:(text:String, input:Int)->Void) {
         super();
 
 		id = title.toLowerCase();
-		this.isInput = inputList != null;
+		this.isInput = input is Array;
+		this.isCheck = input is Bool;
+		checked = isCheck && input;
+		this.onClick = onClick;
 
 		box = new FlxSprite();
 		box.setPosition(-5, -10);
@@ -444,14 +524,15 @@ class InputOption extends FlxSpriteGroup {
 		text.x = 10;
 		add(text);
 
-		descText = new FlxText(0, 0, box.width - 30, description);
+		descText = new FlxText(0, 0, 0, description);
 		descText.setFormat("VCR OSD Mono", 18, FlxColor.WHITE);
+		descText.fieldWidth = Math.min(700, descText.fieldWidth);
 		descText.x = text.x;
 		descText.y = text.height + 5;
 		add(descText);
 
 		if (isInput) {
-			for (i => placeholder in inputList) {
+			for (i => placeholder in cast (input, Array<Dynamic>)) {
 				var inputBg = new FlxSprite();
 				inputBg.makeGraphic(700, 50, FlxColor.BLACK);
 				inputBg.x = text.x;
@@ -483,8 +564,32 @@ class InputOption extends FlxSpriteGroup {
 		}
 
 		var width = Std.int(width) + 10;
-		if (width < 700) {
-			width = 700;
+		if (width < 600) {
+			width = 600;
+		}
+
+		if (isCheck) {
+			checkbox = new FlxSprite(0, 5);
+			checkbox.makeGraphic(50, 50, 0x50000000);
+			FlxSpriteUtil.drawRect(checkbox, 0, 0, checkbox.width, checkbox.height, FlxColor.TRANSPARENT, {thickness: 5, color: FlxColor.WHITE});
+			checkbox.updateHitbox();
+			checkbox.x = width - checkbox.width - 10;
+			add(checkbox);
+
+			check = new FlxSprite(checkbox.x, checkbox.y);
+			check.loadGraphic(Paths.image('check'));
+			check.alpha = checked ? 1 : 0;
+			add(check);
+
+			descText.fieldWidth = checkbox.x - 30;
+
+			if (checked) {
+				check.scale.set(1, 1);
+			}
+			else {
+				check.alpha = 0;
+				check.scale.set(0.01, 0.01);
+			}
 		}
 
 		box.makeGraphic(Std.int(width) + 10, Std.int(height) + 20, 0x81000000);
@@ -503,6 +608,21 @@ class InputOption extends FlxSpriteGroup {
 		if (isInput)
 			for (i => input in inputs)
 				inputPhs[i].visible = input.text == "";
+
+		if (check != null) {
+			if (checked) {
+				if (check.scale.x != 1 || check.scale.y != 1)
+					check.scale.set(FlxMath.lerp(check.scale.x, 1, elapsed * 10), FlxMath.lerp(check.scale.y, 1, elapsed * 10));
+			}
+			else {
+				if (check.alpha != 0) {
+					check.alpha = FlxMath.lerp(check.alpha, 0, elapsed * 15);
+					check.angle += elapsed * 800;
+				}
+				if (check.scale.x != 0.01 || check.scale.y != 0.01)
+					check.scale.set(FlxMath.lerp(check.scale.x, 0.01, elapsed * 15), FlxMath.lerp(check.scale.y, 0.01, elapsed * 15));
+			}
+		}
 
 		//targetScale = alpha == 1 ? 1.02 : 1;
 		//scale.set(FlxMath.lerp(scale.x, targetScale, elapsed * 10), FlxMath.lerp(scale.y, targetScale, elapsed * 10));

@@ -66,7 +66,7 @@ class AlertMessage extends Sprite implements IMousable {
 
 		bg.alpha = 0.8;
 		bg.scaleX = Math.max(title.getTextWidth(), content.getTextWidth()) + 20;
-		if (content.getTextHeight() == 0)
+		if ((messageText ?? '').trim().length == 0 || content.getTextHeight() == 0)
 			bg.scaleY = title.y + title.getTextHeight() + 25;
 		else
 			bg.scaleY = content.y + content.getTextHeight() + 25;

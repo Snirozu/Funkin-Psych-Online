@@ -1,5 +1,6 @@
 package objects;
 
+import flixel.graphics.frames.FlxAtlasFrames;
 import online.GameClient;
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
@@ -19,6 +20,10 @@ class StrumNote extends FlxSprite
 	public var texture(default, set):String = null;
 	private function set_texture(value:String):String {
 		if(texture != value) {
+			Note.colArray = Note.getColArrayFromKeys();
+			if (Note.colArray[noteData % Note.maniaKeys] == 'odd' && !value.endsWith('_ODD')) {
+				value = value + '_ODD';
+			}
 			texture = value;
 			reloadNote();
 		}
@@ -67,10 +72,20 @@ class StrumNote extends FlxSprite
 		var lastAnim:String = null;
 		if(animation.curAnim != null) lastAnim = animation.curAnim.name;
 
+		Note.colArray = Note.getColArrayFromKeys();
+
 		if(PlayState.isPixelStage)
 		{
-			loadGraphic(Paths.image('pixelUI/' + texture));
-			width = width / 4;
+			var graphic = Paths.image('pixelUI/' + texture);
+			if (graphic == null && texture.endsWith('_ODD')) {
+				@:bypassAccessor texture = texture.substring(0, texture.length - '_ODD'.length);
+				graphic = Paths.image('pixelUI/' + texture);
+				Note.colArray = Note.getColArrayFromKeys(true);
+			}
+
+			loadGraphic(graphic);
+			if (!texture.endsWith('_ODD'))
+				width = width / 4;
 			height = height / 5;
 			loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
 
@@ -81,19 +96,20 @@ class StrumNote extends FlxSprite
 			animation.add('red', [7]);
 			animation.add('blue', [5]);
 			animation.add('purple', [4]);
+			animation.add('odd', [1]);
 
 			var dirs = [addLeft, addDown, addUp, addRight];
 			switch (Note.maniaKeys) {
 				case 5:
-					dirs = [addLeft, addDown, addDown, addUp, addRight];
+					dirs = [addLeft, addDown, addOdd, addUp, addRight];
 				case 6:
 					dirs = [addLeft, addDown, addRight, addLeft, addUp, addRight];
 				case 7:
-					dirs = [addLeft, addDown, addRight, addDown, addLeft, addUp, addRight];
+					dirs = [addLeft, addDown, addRight, addOdd, addLeft, addUp, addRight];
 				case 8:
 					dirs = [addLeft, addDown, addUp, addRight, addLeft, addDown, addUp, addRight];
 				case 9:
-					dirs = [addLeft, addDown, addUp, addRight, addDown, addLeft, addDown, addUp, addRight];
+					dirs = [addLeft, addDown, addUp, addRight, addOdd, addLeft, addDown, addUp, addRight];
 			}
 
 			dirs[Std.int(Math.abs(noteData) % Note.maniaKeys)]();
@@ -101,10 +117,17 @@ class StrumNote extends FlxSprite
 		else
 		{
 			frames = Paths.getSparrowAtlas(texture);
+			if (graphic == null && texture.endsWith('_ODD')) {
+				@:bypassAccessor texture = texture.substring(0, texture.length - '_ODD'.length);
+				frames = Paths.getSparrowAtlas(texture);
+				Note.colArray = Note.getColArrayFromKeys(true);
+			}
+
 			animation.addByPrefix('green', 'arrowUP');
 			animation.addByPrefix('blue', 'arrowDOWN');
 			animation.addByPrefix('purple', 'arrowLEFT');
 			animation.addByPrefix('red', 'arrowRIGHT');
+			animation.addByPrefix('odd', 'arrowODD');
 
 			antialiasing = ClientPrefs.data.antialiasing;
 			setGraphicSize(Std.int(width * 0.7 * Note.noteScale));
@@ -112,15 +135,15 @@ class StrumNote extends FlxSprite
 			var dirs = [addLeft, addDown, addUp, addRight];
 			switch (Note.maniaKeys) {
 				case 5:
-					dirs = [addLeft, addDown, addDown, addUp, addRight];
+					dirs = [addLeft, addDown, addOdd, addUp, addRight];
 				case 6:
 					dirs = [addLeft, addDown, addRight, addLeft, addUp, addRight];
 				case 7:
-					dirs = [addLeft, addDown, addRight, addDown, addLeft, addUp, addRight];
+					dirs = [addLeft, addDown, addRight, addOdd, addLeft, addUp, addRight];
 				case 8:
 					dirs = [addLeft, addDown, addUp, addRight, addLeft, addDown, addUp, addRight];
 				case 9:
-					dirs = [addLeft, addDown, addUp, addRight, addDown, addLeft, addDown, addUp, addRight];
+					dirs = [addLeft, addDown, addUp, addRight, addOdd, addLeft, addDown, addUp, addRight];
 			}
 
 			dirs[Std.int(Math.abs(noteData) % Note.maniaKeys)]();
@@ -182,6 +205,23 @@ class StrumNote extends FlxSprite
 		animation.addByPrefix('confirm', 'right confirm', 24, false);
 	}
 
+	function addOdd() {
+		if (!Note.colArray.contains('odd')) {
+			addDown();
+			return;
+		}
+
+		if (PlayState.isPixelStage) {
+			animation.add('static', [0]);
+			animation.add('pressed', [1, 2], 12, false);
+			animation.add('confirm', [3, 4], 24, false);
+			return;
+		}
+		animation.addByPrefix('static', 'arrowODD');
+		animation.addByPrefix('pressed', 'odd press', 24, false);
+		animation.addByPrefix('confirm', 'odd confirm', 24, false);
+	}
+
 	var initialized:Bool = false;
 
 	public function postAddedToGroup() {
@@ -234,15 +274,23 @@ class StrumNote extends FlxSprite
 	}
 
 	override function set_visible(value:Bool):Bool {
-		if (initialized && ClientPrefs.data.disableStrumMovement) {
-			return visible;
+		if (initialized) {
+			if (forceHide)
+				return super.set_visible(false);
+
+			if (ClientPrefs.data.disableStrumMovement)
+				return visible;
 		}
 		return super.set_visible(value);
 	}
 
 	override function set_alpha(value:Float):Float {
-		if (initialized && ClientPrefs.data.disableStrumMovement) {
-			return super.set_alpha(FlxMath.bound(value, 0.75, 1));
+		if (initialized) {
+			if (forceHide)
+				return super.set_alpha(0);
+
+			if (ClientPrefs.data.disableStrumMovement)
+				return super.set_alpha(FlxMath.bound(value, 0.75, 1));
 		}
 		return super.set_alpha(value);
 	}

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="NOTE_assets_ODD.png">
+	<!-- Created with Adobe Animate version 23.0.2.103 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="arrowODD0000" x="256" y="0" width="154" height="155"/>
+	<SubTexture name="odd0000" x="102" y="0" width="153" height="155"/>
+	<SubTexture name="odd confirm0000" x="411" y="0" width="230" height="231"/>
+	<SubTexture name="odd confirm0001" x="642" y="0" width="230" height="231"/>
+	<SubTexture name="odd confirm0002" x="0" y="232" width="230" height="231"/>
+	<SubTexture name="odd confirm0003" x="0" y="232" width="230" height="231"/>
+	<SubTexture name="odd hold end0000" x="0" y="0" width="50" height="64"/>
+	<SubTexture name="odd hold piece0000" x="51" y="0" width="50" height="44"/>
+	<SubTexture name="odd press0000" x="231" y="232" width="146" height="146"/>
+	<SubTexture name="odd press0001" x="231" y="232" width="146" height="146"/>
+	<SubTexture name="odd press0002" x="378" y="232" width="146" height="146"/>
+	<SubTexture name="odd press0003" x="378" y="232" width="146" height="146"/>
+</TextureAtlas>
