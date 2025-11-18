@@ -5378,17 +5378,20 @@ class PlayState extends MusicBeatState
 		// 	stage3D = null;
 		// }
 		super.destroy();
-		if (!FlxG.fullscreen) {
-			if (Lib.application.window.width != FlxG.width) {
-				Lib.application.window.x += Std.int((Lib.application.window.width - FlxG.width) / 2);
-				Lib.application.window.width = FlxG.width;
-			}
-			if (Lib.application.window.height != FlxG.height) {
-				Lib.application.window.y += Std.int((Lib.application.window.height - FlxG.height) / 2);
-				Lib.application.window.height = FlxG.height;
-			}
-		}
-		Lib.application.window.resizable = true;
+		//
+		// great haxeflixel
+		//
+		// if (!FlxG.fullscreen) {
+		// 	if (Lib.application.window.width != FlxG.width) {
+		// 		Lib.application.window.x += Std.int((Lib.application.window.width - FlxG.width) / 2);
+		// 		Lib.application.window.width = FlxG.width;
+		// 	}
+		// 	if (Lib.application.window.height != FlxG.height) {
+		// 		Lib.application.window.y += Std.int((Lib.application.window.height - FlxG.height) / 2);
+		// 		Lib.application.window.height = FlxG.height;
+		// 	}
+		// }
+		// Lib.application.window.resizable = true;
 		Lib.application.window.title = "Friday Night Funkin': Psych Online" + (states.TitleState.inDev ? ' [DEV]' : '');
 		#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 	}

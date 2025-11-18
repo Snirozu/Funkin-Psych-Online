@@ -44,7 +44,7 @@ class Main extends Sprite
 
 	public static var fpsVar:FPS;
 
-	public static final PSYCH_ONLINE_VERSION:String = "0.13.0";
+	public static final PSYCH_ONLINE_VERSION:String = "0.13.1";
 	public static final CLIENT_PROTOCOL:Float = 10;
 	public static final NETWORK_PROTOCOL:Float = 8;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
