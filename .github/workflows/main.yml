@@ -122,7 +122,7 @@ jobs:
           haxelib install hxcpp > /dev/null --quiet
           haxelib install hmm --quiet
           haxelib run hmm install
-          haxelib install lime 8.2.0
+          haxelib install lime 8.3.0
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
       - name: Compile
