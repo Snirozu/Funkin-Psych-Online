@@ -96,7 +96,7 @@ jobs:
           name: windowsBuild
           path: export/release/windows/bin
   buildMac:
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
