@@ -205,6 +205,7 @@ class ReplayRecorder extends FlxBasic {
 		data.points = FunkinPoints.calcFP(state.ratingPercent, state.songMisses, state.songDensity, state.totalNotesHit, state.maxCombo);
 		data.beat_time = Date.now().getTime();
 		data.note_offset = ClientPrefs.data.noteOffset;
+		data.keys = Note.maniaKeys;
 
 		if (data.accuracy < 5) {
 			Alert.alert("git gud", 'your performance was SHIT');

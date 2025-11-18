@@ -217,7 +217,8 @@ class ChartingState extends MusicBeatState
 				player2: 'dad',
 				gfVersion: 'gf',
 				speed: 1,
-				stage: 'stage'
+				stage: 'stage',
+				format: 'psych_legacy'
 			};
 			addSection();
 			PlayState.loadSongFromSwag(_song);

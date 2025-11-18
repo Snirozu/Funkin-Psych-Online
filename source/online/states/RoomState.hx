@@ -1129,7 +1129,7 @@ class LobbyCharacter extends FlxTypedGroup<FlxObject> {
 		profileBox.text.clearFormats();
 
 		profileBox.text.applyMarkup(
-			(player.verified ? '<y>${player.name}<y>' : player.name) + ' • ' + FlxStringUtil.formatMoney(player.points, false) + 'FP'
+		(player.verified ? '<y>${player.name + (profileBox?.profileData?.club != null ? ' [${profileBox.profileData.club}]' : '')}<y>' : player.name) + ' • ' + FlxStringUtil.formatMoney(player.points, false) + 'FP'
 		, [yellowMarker]);
 
 		profileBox.desc.applyMarkup(

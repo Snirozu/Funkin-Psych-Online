@@ -219,7 +219,7 @@ class Song
 				player2: "",
 				gfVersion: "",
 				stage: "",
-				format: 'psych_v1'
+				format: 'psych_legacy'
 			};
 		}
 
