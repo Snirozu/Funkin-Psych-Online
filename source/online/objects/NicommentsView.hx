@@ -5,6 +5,9 @@ import online.network.FunkinNetwork;
 class NicommentsView extends FlxTypedGroup<Nicomment> {
 	var songComments:Array<SongComment>;
 
+	public var alpha:Float = 1.0;
+	public var offsetY:Float = 0;
+
     public function new(songId:String) {
 		super();
 
@@ -18,7 +21,7 @@ class NicommentsView extends FlxTypedGroup<Nicomment> {
 			var comment = songComments.shift();
 
 			var text = recycle(Nicomment);
-			text.init(comment.content);
+			text.init(comment.content, this);
 			add(text);
 		}
     }
@@ -34,21 +37,23 @@ class Nicomment extends FlxText {
 	public function new() {
 		super(0, 0);
 		setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		scrollFactor.set(0, 0);
 	}
 
 	var speed:Float = 1;
 
-	public function init(content:String) {
-		setPosition(FlxG.width, FlxG.random.float(20, 250));
+	public function init(content:String, nico:NicommentsView) {
+		setPosition(camera.viewRight + camera.viewMarginRight, nico.offsetY + FlxG.random.float(20, 250));
 		text = content;
 		speed = FlxG.random.float(1, 2);
+		alpha = nico.alpha;
 	}
 
 	override function update(elapsed) {
 		super.update(elapsed);
 
 		x -= elapsed * 200 * speed;
-		if (x + width < 0) {
+		if (!isOnScreen(camera) && x < camera.viewX) {
 			kill();
 		}
 	}

@@ -1,5 +1,10 @@
 package online.gui.sidebar.tabs;
 
+import openfl.display.Shape;
+import openfl.display.InterpolationMethod;
+import openfl.display.SpreadMethod;
+import openfl.display.GradientType;
+import openfl.geom.Matrix;
 import com.yagp.GifPlayerWrapper;
 import com.yagp.GifPlayer;
 import com.yagp.GifDecoder;
@@ -106,7 +111,7 @@ class ProfileTab extends TabSprite {
 		addChild(web);
 
 		settings = new TabButton('wheel', () -> {
-			FlxG.openURL(FunkinNetwork.client.getURL("/api/account/cookie?id=" + Auth.authID + "&token=" + Auth.authToken));
+			FlxG.openURL(FunkinNetwork.client.getURL("/api/auth/cookie?id=" + Auth.authID + "&token=" + Auth.authToken));
 		});
 		settings.x = web.x;
 		settings.y = web.y;
@@ -213,11 +218,29 @@ class ProfileTab extends TabSprite {
 		});
 	}
 
+	var tabBgGradient:Shape;
+
     function renderData() {
 		loading = false;
         var loadingUser = username;
 		
-		tabBg.bitmapData = new BitmapData(tabBg.bitmapData.width, tabBg.bitmapData.height, true, FlxColor.fromHSL(user.profileHue, 0.2, 0.2));
+		tabBg.visible = true;
+		tabBg.bitmapData = new BitmapData(tabBg.bitmapData.width, tabBg.bitmapData.height, true, FlxColor.fromHSL(user.profileHue, 0.35, 0.2));
+
+		removeChild(tabBgGradient);
+		if (user.profileHue2 != null) {
+			tabBgGradient = new Shape();
+			var gradMatrix = new Matrix();
+			gradMatrix.createGradientBox(tabBg.bitmapData.width, tabBg.bitmapData.height, Math.PI / 2, 0, 0);
+			tabBgGradient.graphics.beginGradientFill(GradientType.LINEAR, [
+				FlxColor.fromHSL(user.profileHue, 0.35, 0.2),
+				FlxColor.fromHSL(user.profileHue2, 0.40, 0.15)
+			], [1, 1], [0, 255], gradMatrix, SpreadMethod.PAD, InterpolationMethod.LINEAR_RGB, 0);
+			tabBgGradient.graphics.drawRect(0, 0, tabBg.bitmapData.width, tabBg.bitmapData.height);
+			tabBgGradient.alpha = tabBg.alpha;
+			addChildAt(tabBgGradient, getChildIndex(tabBg));
+			tabBg.visible = false;
+		}
 
 		var prevAvatar = avatar;
 		avatar = new Bitmap(FunkinNetwork.getDefaultAvatar());
@@ -260,7 +283,7 @@ class ProfileTab extends TabSprite {
 		});
 
 		updateUsernameText();
-		role.setText(user.role != null ? user.role : 'Member');
+		role.setText((user.club != null ? '[${user.club}] | ' : '') + (user.role != null ? user.role : 'Member'));
 		var seenAgo = ShitUtil.timeAgo(ShitUtil.parseISODate(user.lastActive).getTime());
 		if (seenAgo == 'just now')
 			seen.setText("ONLINE", null, FlxColor.LIME);
@@ -342,7 +365,9 @@ typedef UserDetailsData = {
 	var friends:Array<String>;
 	var canFriend:Bool;
 	var profileHue:Int;
+	var profileHue2:Null<Int>;
 	var avgAccuracy:Float;
 	var rank:Float;
 	var country:String;
+	var club:String;
 }

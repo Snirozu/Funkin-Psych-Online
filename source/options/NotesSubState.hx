@@ -187,7 +187,7 @@ class NotesSubState extends MusicBeatSubstate
 	override function update(elapsed:Float) {
 		if (controls.BACK) {
 			if (GameClient.isConnected()) {
-				GameClient.send('updateArrColors', [ClientPrefs.data.arrowRGB, ClientPrefs.data.arrowRGBPixel]);
+				GameClient.send('updateArrColors', ClientPrefs.getArrowRGBCompleteMaps());
 			}
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			isOpened = false;
@@ -478,8 +478,8 @@ class NotesSubState extends MusicBeatSubstate
 				for (i in 0...Note.maniaKeys)
 				{
 					var strumRGB:RGBShaderReference = myNotes.members[curSelectedNote].rgbShader;
-					var color:FlxColor = !onPixel ? ClientPrefs.defaultData.arrowRGB[curSelectedNote][i] :
-													ClientPrefs.defaultData.arrowRGBPixel[curSelectedNote][i];
+					var color:FlxColor = !onPixel ? ClientPrefs.getRGBColorDefault()[curSelectedNote][i] :
+													ClientPrefs.getRGBColorDefault('pixel')[curSelectedNote][i];
 					switch(i)
 					{
 						case 0:
@@ -492,7 +492,7 @@ class NotesSubState extends MusicBeatSubstate
 					dataArray[curSelectedNote][i] = color;
 				}
 			}
-			setShaderColor(!onPixel ? ClientPrefs.defaultData.arrowRGB[curSelectedNote][curSelectedMode] : ClientPrefs.defaultData.arrowRGBPixel[curSelectedNote][curSelectedMode]);
+			setShaderColor(!onPixel ? ClientPrefs.getRGBColorDefault()[curSelectedNote][curSelectedMode] : ClientPrefs.getRGBColorDefault('pixel')[curSelectedNote][curSelectedMode]);
 			FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
 			updateColors();
 		}

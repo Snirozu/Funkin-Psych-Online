@@ -134,7 +134,7 @@ class MallErect extends BaseStage
 		
 		game.tweenCameraZoom(0.85, 2, true, FlxEase.expoOut);
 		game.camFollow.setPosition(santa.getMidpoint().x + 230, santa.getMidpoint().y - 120);
-		//FlxG.camera.follow(santa, LOCKON, 0.05);
+		FlxG.camera.follow(game.camFollow, LOCKON, 0.05);
 
 		santa.visible = false; // guys the real santa is not dead!@!!! wie cool ist das bitte
 		santaSpeak.anim.play('scene');

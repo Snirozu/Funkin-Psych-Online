@@ -105,6 +105,15 @@ class NetworkClient {
 			});
 		});
 
+		room.onMessage("friendOnlineNotif", function(player:String) {
+			if (player == null || !ClientPrefs.data.friendOnlineNotification)
+				return;
+
+			Waiter.putPersist(() -> {
+				Alert.alert(player + ' is now online!', null);
+			});
+		});
+
 		room.onError += (code:Int, e:String) -> {
 			Thread.safeCatch(() -> {
 				Waiter.putPersist(() -> {

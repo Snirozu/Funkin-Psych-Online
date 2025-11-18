@@ -1,5 +1,6 @@
 package online.objects;
 
+import flixel.util.FlxGradient;
 import openfl.display.BitmapData;
 import flixel.util.FlxStringUtil;
 import online.network.FunkinNetwork;
@@ -139,13 +140,30 @@ class ProfileBox extends FlxSpriteGroup {
 
 		drawBG();
     }
+	
+	var tempMask:FlxSprite;
 
     public function drawBG() {
 		var profileHue = profileData?.profileHue ?? 230;
+		var profileHue2 = profileData?.profileHue2;
 
 		bg.makeGraphic(320 + 10 * sizeAdd, cardHeight, FlxColor.TRANSPARENT);
-		// later concept for detailed cards, fill a tall round rectangle with darker color and then draw the normal card
-		FlxSpriteUtil.drawRoundRect(bg, 0, 0, 320 + 10 * sizeAdd, cardHeight, 40, 40, FlxColor.fromHSL(profileHue, 0.25, 0.25));
+
+		if (profileHue2 != null) {
+			tempMask ??= new FlxSprite();
+			tempMask.makeGraphic(bg.frameWidth, bg.frameHeight, FlxColor.TRANSPARENT, true);
+
+			FlxSpriteUtil.drawRoundRect(tempMask, 0, 0, bg.width, bg.height, 40, 40, FlxColor.WHITE);
+
+			FlxSpriteUtil.alphaMaskFlxSprite(FlxGradient.createGradientFlxSprite(bg.frameWidth, bg.frameHeight, [
+				FlxColor.fromHSL(profileHue, 0.35, 0.3),
+				FlxColor.fromHSL(profileHue2, 0.4, 0.25)
+			], 1, 90, true), tempMask, bg);
+		}
+		else {
+			FlxSpriteUtil.drawRoundRect(bg, 0, 0, bg.width, bg.height, 40, 40, FlxColor.fromHSL(profileHue, 0.25, 0.25));
+		}
+
 		bg.updateHitbox();
 
 		fitAvatar();

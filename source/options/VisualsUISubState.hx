@@ -194,9 +194,20 @@ class VisualsUISubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Disable Song Comments',
-			'Disables song comments on the replay viewer',
+			'Disables song comments on the replay viewer and (if visible, while playing)',
 			'disableSongComments',
 			'bool');
+		addOption(option);
+		
+		var option:Option = new Option('Song Comments Opacity',
+			'How visible should the song comments be while you\'re playing a song',
+			'midSongCommentsOpacity',
+			'percent');
+		option.scrollSpeed = 1.6;
+		option.minValue = 0.0;
+		option.maxValue = 1;
+		option.changeValue = 0.1;
+		option.decimals = 1;
 		addOption(option);
 
 		var option:Option = new Option('Show Funkin Points Counter',
@@ -216,33 +227,6 @@ class VisualsUISubState extends BaseOptionsMenu
 			'If checked, the Rating text will be colored depending on your current... well... Rating, same with Combo.',
 			'colorRating',
 			'bool');
-		addOption(option);
-
-		var option:Option = new Option('Network Chat Notifications',
-			'If checked, all player messages from the Network Chat will be notified to you, can be toggled with "/notify" in the network chat.',
-			'notifyOnChatMsg',
-			'bool');
-		addOption(option);
-
-		var option:Option = new Option('Mute PM Notifications',
-			'If checked, PM notifications are muted, can be toggled with "/notify pm" in the network chat.',
-			'disablePMs',
-			'bool');
-		addOption(option);
-
-		var option:Option = new Option('Mute Room Invites',
-			'If checked, room invites are muted, can be toggled with "/notify roominvite" in the network chat.',
-			'disableRoomInvites',
-			'bool');
-		addOption(option);
-
-		var option:Option = new Option('SSL Verification',
-			'If checked, the game will check for valid SSL certificates, which can lead to safer connections with downloads or rooms.\n(Not recommended because of Haxe\'s flawed sockets implementation.)',
-			'verifySSL',
-			'bool');
-		option.onChange = () -> {
-			sys.ssl.Socket.DEFAULT_VERIFY_CERT = ClientPrefs.data.verifySSL;
-		};
 		addOption(option);
 
 		var option:Option = new Option('Favorite Tracks Menu Theme',

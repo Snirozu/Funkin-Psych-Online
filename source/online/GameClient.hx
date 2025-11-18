@@ -225,8 +225,8 @@ class GameClient {
 			"name" => ClientPrefs.getNickname(), 
 			"protocol" => Main.CLIENT_PROTOCOL,
 			"points" => FunkinPoints.funkinPoints,
-			"arrowRGBT" => ClientPrefs.data.arrowRGB,
-			"arrowRGBP" => ClientPrefs.data.arrowRGBPixel,
+			"arrowRGB" => ClientPrefs.getArrowRGBCompleteMaps(),
+			"gameplaySettings" => ClientPrefs.data.gameplaySettings
 		];
 
 		if (reqAddress == networkServerAddress && Auth.authID != null && Auth.authToken != null) {
@@ -244,10 +244,6 @@ class GameClient {
 		options.set('noteSkin', data.skin);
 		options.set('noteSkinMod', data.folder);
 		options.set('noteSkinURL', data.url);
-
-		// if (asHost) {
-		// 	options.set("gameplaySettings", ClientPrefs.data.gameplaySettings);
-		// }
 
 		return options;
 	}
@@ -326,14 +322,8 @@ class GameClient {
 				continue;
 
 			clearCallbacks(player);
-			clearCallbacks(player.arrowColor0);
-			clearCallbacks(player.arrowColor1);
-			clearCallbacks(player.arrowColor2);
-			clearCallbacks(player.arrowColor3);
-			clearCallbacks(player.arrowColorP0);
-			clearCallbacks(player.arrowColorP1);
-			clearCallbacks(player.arrowColorP2);
-			clearCallbacks(player.arrowColorP3);
+			clearCallbacks(player.arrowColors);
+			clearCallbacks(player.arrowColorsPixel);
 		}
 
 		// clear waiter queue to avoid tasks that want to access stuff from the previous state
@@ -595,15 +585,33 @@ class GameClient {
 	}
 
 	public static function getGameplaySetting(key:String):Dynamic {
-		if (key == 'songspeed') {
+		if (key == 'songspeed' || key == 'mania') {
 			var daSetting:String = room.state.gameplaySettings.get(key);
+			if (daSetting == null)
+				return null;
+
 			if (daSetting == "true" || daSetting == "false") {
 				return daSetting == "true" ? true : false;
 			}
-			var _tryNum:Null<Float> = Std.parseFloat(daSetting);
-			if (_tryNum != null && !Math.isNaN(_tryNum)) {
-				return _tryNum;
+
+			var hasNonNumbers = false;
+			var i = daSetting.length;
+			var charCode = -1;
+			while (i > 0) {
+				i--;
+				charCode = daSetting.charCodeAt(i);
+
+				if (charCode < 48 || charCode > 57)
+					hasNonNumbers = true;
 			}
+
+			if (!hasNonNumbers) {
+				var _tryNum:Null<Float> = Std.parseFloat(daSetting);
+				if (_tryNum != null && !Math.isNaN(_tryNum)) {
+					return _tryNum;
+				}
+			}
+			
 			return daSetting;
 		}
 

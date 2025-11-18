@@ -1,5 +1,7 @@
 package states;
 
+import online.network.FunkinNetwork;
+import objects.Note;
 import online.util.ShitUtil;
 import flixel.FlxBasic;
 import flixel.FlxSubState;
@@ -115,7 +117,19 @@ class FreeplayState extends MusicBeatState
 	var listening:Bool = false;
 	var selected:Bool = false;
 	var selectedItem:Int = 0;
-	var selectedScore:Int = 0;
+	var selectedScore(default, set):Int = -1;
+	function set_selectedScore(v) {
+		if (v == -1 && selectedItem == 4) {
+			infoText.text = "LEFT or RIGHT to Switch Time / ACCEPT to view this leaderboard in browser";
+			topCategory.alpha = 1;
+		}
+		else {
+			infoText.text = "LEFT or RIGHT to Flip Pages / ACCEPT to view Player's replay of this song";
+			topCategory.alpha = 0.6;
+		}
+
+		return selectedScore = v;
+	}
 
 	static var bustSound:FlxSound;
 	static var favSound:FlxSound;
@@ -130,6 +144,7 @@ class FreeplayState extends MusicBeatState
 	var resetSelect:Alphabet = new Alphabet(0, 0, "RESET SCORE", true);
 
 	var topTitle:Alphabet = new Alphabet(0, 0, "LEADERBOARD", true);
+	var topCategory:Alphabet = new Alphabet(0, 0, "< ALL TIME >", true);
 	var topLoading:Alphabet = new Alphabet(0, 0, "LOADING", true);
 	var topShit:Scoreboard = new Scoreboard(FlxG.width - 200, 32, 15, ["PLAYER", "SCORE", "ACCURACY"]);
 
@@ -412,10 +427,16 @@ class FreeplayState extends MusicBeatState
 		resetSelect.cameras = [itemsCamera];
 		add(resetSelect);
 
-		topTitle.setScale(0.8);
+		topTitle.setScale(0.7);
 		topTitle.visible = false;
 		topTitle.cameras = [itemsCamera];
 		add(topTitle);
+
+		topCategory.text = '< ${Leaderboard.categoryTitles[curCategory]} >';
+		topCategory.setScale(0.4);
+		topCategory.visible = false;
+		topCategory.cameras = [itemsCamera];
+		add(topCategory);
 
 		topLoading.setScale(0.5);
 		topLoading.visible = false;
@@ -1130,7 +1151,19 @@ class FreeplayState extends MusicBeatState
 						openSubState(new ResetScoreSubState(getSongName(), curDifficulty, songs[curSelected].songCharacter));
 						FlxG.sound.play(Paths.sound('scrollMenu'));
 					case 4:
-						if (!GameClient.isConnected()) {
+						if (selectedScore == -1) {
+							FlxG.openURL(FunkinNetwork.client.getURL("/song/" + 
+								StringTools.urlEncode(filterCharacters(PlayState.SONG.song)
+								+ "-"
+								+ filterCharacters(Difficulty.getString(curDifficulty))
+								+ "-"
+								+ filterCharacters(Md5.encode(PlayState.RAW_SONG)))
+								+ "?strum="
+								+ (ClientPrefs.getGameplaySetting('opponentplay') ? 1 : 2)
+								+ (Leaderboard.categories[curCategory] != null ? "&category=" + Leaderboard.categories[curCategory] : '')
+							));
+						}
+						else if (!GameClient.isConnected()) {
 							if (top[selectedScore] != null)
 								playReplay(Leaderboard.fetchReplay(top[selectedScore].id), top[selectedScore].id);
 						}
@@ -1138,7 +1171,7 @@ class FreeplayState extends MusicBeatState
 			}
 
 			if (controls.UI_UP_P || FlxG.mouse.wheel > 0) {
-				if (selectedItem == 4 && selectedScore != 0) {
+				if (selectedItem == 4 && selectedScore != -1) {
 					selectedScore--;
 				}
 				else {
@@ -1166,7 +1199,7 @@ class FreeplayState extends MusicBeatState
 						selectedItem = 0;
 
 					if (selectedItem == 4) {
-						selectedScore = 0;
+						selectedScore = -1;
 					}
 				}
 
@@ -1193,15 +1226,31 @@ class FreeplayState extends MusicBeatState
 				}
 			}
 			else if (selectedItem == 4) {
-				if (controls.UI_LEFT_P && curPage != 0) {
-					curPage--;
-					if (curPage < 0)
-						curPage = 0;
+				if (controls.UI_LEFT_P && (selectedScore == -1 || curPage != 0)) {
+					if (selectedScore != -1) {
+						curPage--;
+						if (curPage < 0)
+							curPage = 0;
+					}
+					else {
+						curCategory--;
+						if (curCategory < 0)
+							curCategory = Leaderboard.categories.length - 1;
+						topCategory.text = '< ${Leaderboard.categoryTitles[curCategory]} >';
+					}
 					
 					leaderboardTimer = 0;
 				}
 				else if (controls.UI_RIGHT_P) {
-					curPage++;
+					if (selectedScore != -1) {
+						curPage++;
+					}
+					else {
+						curCategory++;
+						if (curCategory >= Leaderboard.categories.length)
+							curCategory = 0;
+						topCategory.text = '< ${Leaderboard.categoryTitles[curCategory]} >';
+					}
 
 					leaderboardTimer = 0;
 				}
@@ -1256,6 +1305,7 @@ class FreeplayState extends MusicBeatState
 	}
 
 	var curPage:Int = 0;
+	var curCategory:Int = 0;
 	var top:Array<TopScore> = [];
 	var hasLeaderboardTimerEnded:Bool = false; 
 	var leaderboardTimer(default, set):Float = 3;
@@ -1286,9 +1336,14 @@ class FreeplayState extends MusicBeatState
 				PlayState.loadSong(formatSong, getSongName().toLowerCase());
 			}
 			_ledSong = formatSong;
+
+			Song.updateManiaKeys(PlayState.SONG);
+			if (['4k', '5k', '6k', '7k', '8k', '9k'].contains(ClientPrefs.getGameplaySetting('mania'))) {
+				Note.maniaKeys = Std.parseInt(ClientPrefs.getGameplaySetting('mania').split('k')[0]);
+			}
 			
 			var uhhPage = curPage;
-			Leaderboard.fetchLeaderboard(curPage,
+			Leaderboard.fetchLeaderboard(curPage, Leaderboard.categories[curCategory], Note.maniaKeys,
 				filterCharacters(PlayState.SONG.song)
 				+ "-"
 				+ filterCharacters(Difficulty.getString(curDifficulty))
@@ -1400,6 +1455,7 @@ class FreeplayState extends MusicBeatState
 				resetSelect.alpha = 0.6;
 				replaysSelect.alpha = 0.6;
 				topTitle.alpha = 0.6;
+				topCategory.alpha = 0.6;
 				topLoading.alpha = 0.6;
 			case 1:
 				infoText.text = "ACCEPT to open Gameplay Modifers Menu";
@@ -1413,6 +1469,7 @@ class FreeplayState extends MusicBeatState
 				replaysSelect.alpha = 0.6;
 				resetSelect.alpha = 0.6;
 				topTitle.alpha = 0.6;
+				topCategory.alpha = 0.6;
 				topLoading.alpha = 0.6;
 			case 2:
 				infoText.text = "ACCEPT to load a Replay data file";
@@ -1426,6 +1483,7 @@ class FreeplayState extends MusicBeatState
 				replaysSelect.alpha = 1;
 				resetSelect.alpha = 0.6;
 				topTitle.alpha = 0.6;
+				topCategory.alpha = 0.6;
 				topLoading.alpha = 0.6;
 			case 3:
 				infoText.text = "ACCEPT to reset Score and Accuracy of this Song";
@@ -1439,12 +1497,13 @@ class FreeplayState extends MusicBeatState
 				replaysSelect.alpha = 0.6;
 				resetSelect.alpha = 1;
 				topTitle.alpha = 0.6;
+				topCategory.alpha = 0.6;
 				topLoading.alpha = 0.6;
 			case 4:
 				infoText.text = "LEFT or RIGHT to Flip Pages / ACCEPT to view Player's replay of this song";
 
 				itemsCamera.follow(topShit.background, null, 0.15);
-				itemsCamera.targetOffset.y -= 100 + topTitle.height;
+				itemsCamera.targetOffset.y -= 120 + topTitle.height;
 
 				grpSongs.members[curSelected].alpha = 0.6;
 				diffSelect.alpha = 0.6;
@@ -1452,6 +1511,7 @@ class FreeplayState extends MusicBeatState
 				replaysSelect.alpha = 0.6;
 				resetSelect.alpha = 0.6;
 				topTitle.alpha = 1;
+				selectedScore = selectedScore;
 				topLoading.alpha = 1;
 
 				scoreText.visible = false;
@@ -1805,11 +1865,14 @@ class FreeplayState extends MusicBeatState
 					topTitle.x = daCenter - topTitle.width / 2;
 					topTitle.y = resetSelect.y + resetSelect.height + 50;
 
+					topCategory.x = daCenter - topCategory.width / 2;
+					topCategory.y = topTitle.y + topTitle.height + 3;
+
 					topShit.x = daCenter - topShit.width / 2;
-					topShit.y = topTitle.y + topTitle.height + 30;
+					topShit.y = topTitle.y + topTitle.height + 60;
 
 					topLoading.x = daCenter - topLoading.width / 2;
-					topLoading.y = topTitle.y + 50;
+					topLoading.y = topCategory.y + topCategory.height + 5;
 				}
 				else
 					item.alpha -= elapsed * 4;
@@ -1847,6 +1910,7 @@ class FreeplayState extends MusicBeatState
 				replaysSelect.visible = true;
 				modifiersSelect.visible = true;
 				topTitle.visible = true;
+				topCategory.visible = true;
 			}
 			else {
 				diffSelect.visible = false;
@@ -1854,6 +1918,7 @@ class FreeplayState extends MusicBeatState
 				replaysSelect.visible = false;
 				modifiersSelect.visible = false;
 				topTitle.visible = false;
+				topCategory.visible = false;
 				topLoading.visible = false;
 				topShit.visible = false;
 			}

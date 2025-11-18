@@ -45,7 +45,7 @@ class Main extends Sprite
 	public static var fpsVar:FPS;
 
 	public static final PSYCH_ONLINE_VERSION:String = "0.13.0";
-	public static final CLIENT_PROTOCOL:Float = 9;
+	public static final CLIENT_PROTOCOL:Float = 10;
 	public static final NETWORK_PROTOCOL:Float = 8;
 	public static final GIT_COMMIT:String = online.backend.Macros.getGitCommitHash();
 	public static final LOW_STORAGE:Bool = online.backend.Macros.hasNoCapacity();
@@ -85,13 +85,13 @@ class Main extends Sprite
 		}
 		
 		Lib.current.addChild(view3D = new online.away.View3DHandler());
-		Lib.current.addChild(new online.gui.sidebar.SideUI());
 		Lib.current.addChild(new online.gui.Alert());
 		Lib.current.addChild(new online.gui.LoadingScreen());
 		
 		var daMain = new Main();
 		Lib.current.addChild(daMain);
 		Lib.current.setChildIndex(daMain, Lib.current.getChildIndex(view3D) + 1);
+		Lib.current.addChild(new online.gui.sidebar.SideUI());
 	}
 
 	public function new()

@@ -210,6 +210,8 @@ class SaveVariables {
 	public var hiddenTips:Array<String> = null;
 	public var nameplateFadeTime:Float = 10;
 	public var verticalRatingPos:Bool = false;
+	public var midSongCommentsOpacity:Float = 0.5;
+	public var friendOnlineNotification:Bool = false;
 
 	public function new()
 	{
@@ -560,22 +562,21 @@ class ClientPrefs {
 			return (Note.maniaKeys != 4 ? data.arrowRGBMap.get(Note.maniaKeys + 'k') : data.arrowRGB);
 
 		if (player == 0)
-			return [ 
-				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor0),
-				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor1),
-				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor2),
-				CoolUtil.asta(GameClient.getPlayerSelf().arrowColor3),
-			];
+			return CoolUtil.to2DArrayfrom1D(CoolUtil.asta(GameClient.getPlayerSelf().arrowColors.get(Note.maniaKeys + 'k').value), 3);
 
 		if (PlayState.instance?.opponentPlayer == null)
-			return (Note.maniaKeys != 4 ? defaultData.arrowRGBMap.get(Note.maniaKeys + 'k') : defaultData.arrowRGB);
+			return getRGBColorDefault();
 		
-		return [
-			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor0),
-			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor1),
-			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor2),
-			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColor3),
-		];
+		// TODO support seperate mania from both strums
+		// var opKeys = PlayState.instance.opponentPlayer.gameplaySettings.get('mania') ?? (Note.maniaKeys + 'k');
+		return CoolUtil.to2DArrayfrom1D(CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColors.get(Note.maniaKeys + 'k').value), 3);
+	}
+
+	public static function getRGBColorDefault(?variant:String) {
+		if (variant == 'pixel')
+			return (Note.maniaKeys != 4 ? defaultData.arrowRGBPixelMap.get(Note.maniaKeys + 'k') : defaultData.arrowRGBPixel);
+
+		return (Note.maniaKeys != 4 ? defaultData.arrowRGBMap.get(Note.maniaKeys + 'k') : defaultData.arrowRGB);
 	}
 
 	public static function getRGBPixelColor(player:Int = 0):Array<Array<FlxColor>> {
@@ -583,22 +584,13 @@ class ClientPrefs {
 			return (Note.maniaKeys != 4 ? data.arrowRGBPixelMap.get(Note.maniaKeys + 'k') : data.arrowRGBPixel);
 
 		if (player == 0)
-			return [
-				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP0),
-				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP1),
-				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP2),
-				CoolUtil.asta(GameClient.getPlayerSelf().arrowColorP3),
-			];
+			return CoolUtil.to2DArrayfrom1D(CoolUtil.asta(GameClient.getPlayerSelf().arrowColorsPixel.get(Note.maniaKeys + 'k').value), 3);
 
 		if (PlayState.instance?.opponentPlayer == null)
-			return (Note.maniaKeys != 4 ? defaultData.arrowRGBPixelMap.get(Note.maniaKeys + 'k') : defaultData.arrowRGBPixel);
+			return getRGBColorDefault('pixel');
 
-		return [
-			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP0),
-			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP1),
-			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP2),
-			CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorP3),
-		];
+		// var opKeys = PlayState.instance.opponentPlayer.gameplaySettings.get('mania') ?? (Note.maniaKeys + 'k');
+		return CoolUtil.to2DArrayfrom1D(CoolUtil.asta(PlayState.instance.opponentPlayer.arrowColorsPixel.get(Note.maniaKeys + 'k').value), 3);
 	}
 
 	public static function getNoteSkin(player:Int = 0):String
@@ -610,5 +602,13 @@ class ClientPrefs {
 			return GameClient.getPlayerSelf().noteSkin;
 		else
 			return PlayState.instance?.opponentPlayer?.noteSkin ?? defaultData.noteSkin;
+	}
+
+	public static function getArrowRGBCompleteMaps():Array<Map<String, Array<Array<FlxColor>>>> {
+		var copyRGBMap = ClientPrefs.data.arrowRGBMap.copy();
+		copyRGBMap.set('4k', ClientPrefs.data.arrowRGB);
+		var copyRGBPixelMap = ClientPrefs.data.arrowRGBPixelMap.copy();
+		copyRGBPixelMap.set('4k', ClientPrefs.data.arrowRGBPixel);
+		return [copyRGBMap, copyRGBPixelMap];
 	}
 }

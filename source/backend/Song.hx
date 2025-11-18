@@ -1,5 +1,6 @@
 package backend;
 
+import objects.Note;
 import tjson.TJSON as Json;
 import lime.utils.Assets;
 
@@ -40,9 +41,6 @@ typedef SwagSong =
 
 	//psych engine 1.0
 	@:optional var format:String;
-
-	//idk specify here
-	@:optional var keys:Null<Int>; 
 }
 
 class Song
@@ -226,5 +224,35 @@ class Song
 		}
 
 		throw new haxe.Exception("No song data found, or is invalid.");
+	}
+
+	public static function updateManiaKeys(songData:SwagSong):Int {
+		var keys = null;
+
+		if (songData.mania != null)
+			if ((songData.format ?? '').startsWith('psych_v1') || (songData.splashSkin != null)) {
+				keys = songData.mania + 1;
+			}
+			else {
+				switch (songData.mania) {
+					case 0: // 4k
+						keys = 4;
+					case 4: // 5k
+						keys = 5;
+					case 1, 5, 6: // 6k
+						keys = 6;
+					case 2, 7: // 7k
+						keys = 7;
+					case 3, 8: // 9k
+						keys = 9;
+					default:
+						keys = songData.mania;
+				}
+			}
+
+		if (keys == null && songData.keyCount != null)
+			keys = songData.keyCount;
+
+		return Note.maniaKeys = keys ?? 4;
 	}
 }

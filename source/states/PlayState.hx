@@ -1373,9 +1373,14 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-			if (!ClientPrefs.data.disableSongComments && replayPlayer != null && songId != null) {
+			if (!ClientPrefs.data.disableSongComments && (replayPlayer != null || cpuControlled || ClientPrefs.data.midSongCommentsOpacity > 0.0) && songId != null) {
 				nicomments = new NicommentsView(songId);
 				nicomments.cameras = [camOther];
+				if (replayPlayer == null && ClientPrefs.data.midSongCommentsOpacity > 0.0) {
+					nicomments.cameras = [camGame];
+					nicomments.alpha = ClientPrefs.data.midSongCommentsOpacity;
+					nicomments.offsetY = !ClientPrefs.data.downScroll ? 100 : 0;
+				}
 				add(nicomments);
 			}
 
@@ -2368,29 +2373,7 @@ class PlayState extends MusicBeatState
 
 		var isPsychRelease = (songData.format ?? '').startsWith('psych_v1');
 
-		Note.maniaKeys = 4;
-		if (SONG.mania != null)
-			if (isPsychRelease) {
-				Note.maniaKeys = SONG.mania + 1;
-			}
-			else {
-				switch (SONG.mania) {
-					case 1, 5, 6: // 6k
-						Note.maniaKeys = 6;
-					case 2, 7: // 7k
-						Note.maniaKeys = 7;
-					case 3, 8: // 9k
-						Note.maniaKeys = 9;
-					default:
-						Note.maniaKeys = SONG.mania;
-				}
-			}
-
-		if (SONG.keyCount != null)
-			Note.maniaKeys = SONG.keyCount;
-
-		if (SONG.keys != null)
-			Note.maniaKeys = SONG.keys;
+		Song.updateManiaKeys(SONG);
 
 		if (maniaModifier == Note.maniaKeys) {
 			maniaModifier = null;
@@ -2413,65 +2396,88 @@ class PlayState extends MusicBeatState
 
 			return Std.int(a[0] - b[0]);
 		});
+
+		function getMustPressFromRaw(section:SwagSection, rawNote:Array<Dynamic>):Bool {
+			var gottaHitNote:Bool = section.mustHitSection;
+			if (!isPsychRelease) {
+				if (rawNote[1] > Note.maniaKeys - 1) {
+					gottaHitNote = !section.mustHitSection;
+				}
+			}
+			else {
+				gottaHitNote = rawNote[1] < Note.maniaKeys;
+			}
+			return gottaHitNote;
+		}
 		
 		// MULTIKEY NOTES CONVERSION ALGO!!!
 		// also shoutouts to bromaster
 
 		if (maniaModifier != null) {
-			function scaleKeyToNewKeys(noteData:Int):Int {
-				return Std.int(noteData * (maniaModifier / Note.maniaKeys));
+			function scaleKeyToNew(noteData:Int):Int {
+				return Math.round(noteData * ((maniaModifier - 1) / (Note.maniaKeys - 1))) % maniaModifier;
 			}
 			function scaleKeyBack(noteData:Int):Int {
-				return Std.int(noteData * (Note.maniaKeys / maniaModifier));
+				return Math.round(noteData * ((Note.maniaKeys - 1) / (maniaModifier - 1))) % Note.maniaKeys;
 			}
 
-			var scaledParentNotes:Array<Int> = [];
-			var orphanNotes:Array<Int> = [for (noteData in 0...maniaModifier) noteData];
 			var friendNotes:Array<Array<Int>> = [];
-			// var enemyNotes:Array<Array<Int>> = [];
 		
 			//initial note adoption
-			for (noteData in 0...Note.maniaKeys) {
-				var scaledNote = scaleKeyToNewKeys(noteData);
-				scaledParentNotes.push(scaledNote);
-				orphanNotes.remove(scaledNote);
-
-				friendNotes[noteData] = [];
-				friendNotes[noteData].push(scaledNote);
+			if (Note.maniaKeys > maniaModifier) {
+				for (noteData in 0...Note.maniaKeys) {
+					friendNotes[noteData] ??= [];
+					friendNotes[noteData].push(scaleKeyToNew(noteData));
+				}
+			}
+			else {
+				for (newNoteData in 0...maniaModifier) {
+					friendNotes[scaleKeyBack(newNoteData)] ??= [];
+					friendNotes[scaleKeyBack(newNoteData)].push(newNoteData);
+				}
 			}
 
-			// find an parent with closest value to a orphan and adopt
-			while (orphanNotes.length > 0) {
-				haxe.ds.ArraySort.sort(scaledParentNotes, function(a, b):Int {
-					return Std.int(Math.abs(a - orphanNotes[0]) - Math.abs(b - orphanNotes[0]));
-				});
+			trace("NEW Note Mapping: " + friendNotes);
 
-				friendNotes[scaleKeyBack(scaledParentNotes[0])].push(orphanNotes[0]);
-				orphanNotes.shift();
-			}
+			var notesCount:Array<Int> = [for (_ in 0...Note.maniaKeys) 0];
+			// var bonusCount:Array<Int> = [for (_ in 0...maniaModifier) 0];
+			var jackStack:Array<Int> = [-1, -1];
+			var fuckStack:Array<Int> = [-1, -1];
 
-			//TODO less jacky more key to less key conversion
+			// var method:String = 'rando3';
 
-			// for (i => notes in friendNotes) {
-			// 	for (note in notes) {
-			// 		enemyNotes[note] ??= [];
-			// 		enemyNotes[note].push(note);
+			function nextNoteData(daNoteData:Int, mustPress:Int) {
+				var daNoteDataFull:Int = daNoteData + (Note.maniaKeys * (mustPress));
+
+				// switch (method) {
+				// 	case 'mapping': {
+						var noteMaps = friendNotes[daNoteData];
+						if (jackStack[mustPress] == -1 || jackStack[mustPress] != daNoteData) {
+							notesCount[daNoteDataFull]++;
+						}
+						// jackStack[mustPress] = note[2] <= 0 ? daNoteData : -1;
+						jackStack[mustPress] = daNoteData;
+						return noteMaps[notesCount[daNoteDataFull] % noteMaps.length];
+			// 		}
+			// 		case 'rando3': {
+			// 			var noteMaps = friendNotes[daNoteData];
+			// 			var scaledNote = noteMaps[notesCount[daNoteDataFull]++ % noteMaps.length];
+			// 			if (fuckStack[mustPress] == scaledNote + (++bonusCount[daNoteDataFull] % 3 - 1)) {
+			// 				bonusCount[daNoteDataFull]++;
+			// 			}
+			// 			var newKey = scaledNote + (bonusCount[daNoteDataFull] % 3 - 1);
+			// 			return fuckStack[mustPress] = (Std.int(Math.abs(newKey) % (maniaModifier)));
+			// 		}
 			// 	}
-			// }
-
-			trace(friendNotes);
-			// trace(enemyNotes);
-
-			var notesCount:Array<Int> = [for (noteData in 0...Note.maniaKeys) 0];
+			// 	return daNoteData;
+			}
 			
 			for (i => note in dataNotes) {
 				var daNoteDataSide:Int = Std.int(Std.int(note[1]) / Note.maniaKeys);
 				var daNoteData:Int = Std.int(note[1] % Note.maniaKeys);
+				var mustPress:Int = cast getMustPressFromRaw(noteData[dataNotesSection[i]], note);
 
-				var newNotes = friendNotes[daNoteData];
-				//if (maniaModifier < Note.maniaKeys)
-				//	 newNotes = enemyNotes[scaleKeyToNewKeys(daNoteData)];
-				note[1] = newNotes[notesCount[daNoteData]++ % newNotes.length];
+				note[1] = nextNoteData(daNoteData, mustPress);
 				note[1] += maniaModifier * daNoteDataSide;
 			}
 
@@ -2489,16 +2495,7 @@ class PlayState extends MusicBeatState
 			var daNoteData:Int = Std.int(songNotes[1] % Note.maniaKeys);
 			if (songNotes[1] < 0 || songNotes[1] > Note.maniaKeys * 2 - 1) // this should prevent most exe mods from crashing
 				continue;
-			var gottaHitNote:Bool = section.mustHitSection;
-
-			if (!isPsychRelease) {
-				if (songNotes[1] > Note.maniaKeys - 1) {
-					gottaHitNote = !section.mustHitSection;
-				}
-			}
-			else {
-				gottaHitNote = songNotes[1] < Note.maniaKeys;
-			}
+			var gottaHitNote:Bool = getMustPressFromRaw(section, songNotes);
 
 			var oldNote:Note;
 			if (unspawnNotes.length > 0)
@@ -2999,6 +2996,7 @@ class PlayState extends MusicBeatState
 				}
 				else if (controls.RESET) {
 					playbackRate = 1;
+					botplayTxt.text = "BOTPLAY";
 				}
 			}
 		}
@@ -3286,11 +3284,13 @@ class PlayState extends MusicBeatState
 				}
 
 				if (forceShowOpStrums) {
+					camHUD.visible = true;
+					camHUD.alpha = 1;
 					for (strum in opponentStrums) {
-						camHUD.visible = true;
-						camHUD.alpha = 1;
-						strum.alpha = 1;
-						strum.visible = true;
+						if (!strum.forceHide) {
+							strum.alpha = 1;
+							strum.visible = true;
+						}
 					}
 				}
 			}
@@ -5378,13 +5378,15 @@ class PlayState extends MusicBeatState
 		// 	stage3D = null;
 		// }
 		super.destroy();
-		if (Lib.application.window.width != FlxG.width) {
-			Lib.application.window.x += Std.int((Lib.application.window.width - FlxG.width) / 2);
-			Lib.application.window.width = FlxG.width;
-		}
-		if (Lib.application.window.height != FlxG.height) {
-			Lib.application.window.y += Std.int((Lib.application.window.height - FlxG.height) / 2);
-			Lib.application.window.height = FlxG.height;
+		if (!FlxG.fullscreen) {
+			if (Lib.application.window.width != FlxG.width) {
+				Lib.application.window.x += Std.int((Lib.application.window.width - FlxG.width) / 2);
+				Lib.application.window.width = FlxG.width;
+			}
+			if (Lib.application.window.height != FlxG.height) {
+				Lib.application.window.y += Std.int((Lib.application.window.height - FlxG.height) / 2);
+				Lib.application.window.height = FlxG.height;
+			}
 		}
 		Lib.application.window.resizable = true;
 		Lib.application.window.title = "Friday Night Funkin': Psych Online" + (states.TitleState.inDev ? ' [DEV]' : '');
@@ -5807,10 +5809,9 @@ class PlayState extends MusicBeatState
 	#if ACHIEVEMENTS_ALLOWED
 	private function checkForAchievement(achievesToCheck:Array<String> = null)
 	{
-		if(chartingMode) return;
+		if(chartingMode || isInvalidScore()) return;
 
 		var usedPractice:Bool = (ClientPrefs.getGameplaySetting('practice') || ClientPrefs.getGameplaySetting('botplay'));
-		if(cpuControlled) return;
 
 		for (name in achievesToCheck) {
 			if(!Achievements.exists(name)) continue;

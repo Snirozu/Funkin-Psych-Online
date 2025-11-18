@@ -33,12 +33,12 @@ class SustainSplash extends FlxSprite {
 
 		if (strumNote != null && animation != null && strumNote.animation != null) {
 			if (online.backend.SyncScript.dispatch('testSusSplashUpdate', [this]) == null) {
-				setPosition(
-					(strumNote.x - (Note.swagWidth - Note.swagScaledWidth)) - Note.swagScaledWidth * 0.95, 
-					(strumNote.y - (Note.swagWidth - Note.swagScaledWidth)) - Note.swagScaledWidth
-				);
+				x = strumNote.x - (Note.swagWidth - Note.swagScaledWidth);
+				y = strumNote.y - (Note.swagWidth - Note.swagScaledWidth);
+				setPosition(x - Note.swagScaledWidth * 0.95, y - Note.swagScaledWidth);
 			}
-			visible = strumNote.visible;
+			//TODO sustain splash for more keys
+			visible = Note.maniaKeys == 4 && strumNote.visible;
 			alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
 
 			if (animation.curAnim != null && strumNote.animation.curAnim != null && animation.curAnim.name == "hold" && strumNote.animation.curAnim.name == "static") {

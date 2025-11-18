@@ -5,6 +5,15 @@ import haxe.Http;
 
 @:unreflective
 class Leaderboard {
+	public static var categories:Array<String> = [
+		null,
+		'week'
+	];
+	public static var categoryTitles:Array<String> = [
+		'All Time',
+		'Weekly'
+	];
+
     public static function submitScore(replayData:String) {
 		if (!FunkinNetwork.loggedIn)
             return null;
@@ -19,9 +28,9 @@ class Leaderboard {
 		});
     }
 
-	public static function fetchLeaderboard(page:Int = 0, songID:String, callback:Array<TopScore>->Void) {
+	public static function fetchLeaderboard(page:Int = 0, category:Null<String>, keys:Null<Int>, songID:String, callback:Array<TopScore>->Void) {
 		Thread.run(() -> {
-			var response = FunkinNetwork.requestAPI("/api/top/song?song=" + StringTools.urlEncode(songID) + "&strum=" + (ClientPrefs.getGameplaySetting('opponentplay') ? 1 : 2) + "&page=" + page);
+			var response = FunkinNetwork.requestAPI("/api/top/song?song=" + StringTools.urlEncode(songID) + "&strum=" + (ClientPrefs.getGameplaySetting('opponentplay') ? 1 : 2) + "&page=" + page + (category != null ? '&category=' + category : '') + (keys != null ? '&keys=' + keys : ''));
 
 			if (response == null) {
 				callback(null);
@@ -34,9 +43,9 @@ class Leaderboard {
 		});
 	}
 
-	public static function fetchPlayerLeaderboard(page:Int = 0, callback:Array<Dynamic>->Void) {
+	public static function fetchPlayerLeaderboard(page:Int = 0, category:Null<String>, sort:Null<String>, callback:Array<Dynamic>->Void) {
 		Thread.run(() -> {
-			var response = FunkinNetwork.requestAPI("/api/top/players?page=" + page);
+			var response = FunkinNetwork.requestAPI("/api/top/players?page=" + page + (category != null ? '&category=' + category : '') + (sort != null ? '&sort=${sort}' : ''));
 
 			if (response == null) {
 				callback(null);
