@@ -105,8 +105,13 @@ class NotificationsTab extends TabSprite {
 		rect.y -= scrollDelta * 40;
 		if (rect.y <= 0)
 			rect.y = 0;
-		if (rect.y + rect.height - y >= realHeight)
-			rect.y = realHeight - rect.height + y;
+		if (realHeight > rect.height) {
+			if (rect.y + rect.height - y >= realHeight)
+				rect.y = realHeight - rect.height + y;
+		}
+		else {
+			rect.y = 0;
+		}
 		scrollRect = rect;
 	}
 }
