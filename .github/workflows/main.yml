@@ -122,11 +122,10 @@ jobs:
           haxelib install hxcpp > /dev/null --quiet
           haxelib install hmm --quiet
           haxelib run hmm install
-          haxelib install lime 8.3.0
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
       - name: Compile
-        run: haxelib run lime build mac --app-version="4.0.0-${{ github.run_id}}"
+        run: arch -x86_64 haxelib run lime build mac --app-version="4.0.0-${{ github.run_id}}"
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
         with:
