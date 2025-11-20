@@ -38,9 +38,8 @@ class Util {
 			format.color = color;
 			obj.defaultTextFormat = format;
 		}
+		obj.autoSize = LEFT;
 		obj.text = text;
-		obj.width = obj.textWidth;
-		obj.height = obj.textHeight;
 		obj.scaleX = Math.min(1, (maxWidth ?? (SideUI.instance.curTab.tabWidth - obj.x - 20)) / obj.width);
 		obj.scaleY = obj.scaleX;
 	}
