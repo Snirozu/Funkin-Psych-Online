@@ -98,21 +98,7 @@ class StrumNote extends FlxSprite
 			animation.add('purple', [4]);
 			animation.add('odd', [1]);
 
-			var dirs = [addLeft, addDown, addUp, addRight];
-			switch (Note.maniaKeys) {
-				case 5:
-					dirs = [addLeft, addDown, addOdd, addUp, addRight];
-				case 6:
-					dirs = [addLeft, addDown, addRight, addLeft, addUp, addRight];
-				case 7:
-					dirs = [addLeft, addDown, addRight, addOdd, addLeft, addUp, addRight];
-				case 8:
-					dirs = [addLeft, addDown, addUp, addRight, addLeft, addDown, addUp, addRight];
-				case 9:
-					dirs = [addLeft, addDown, addUp, addRight, addOdd, addLeft, addDown, addUp, addRight];
-			}
-
-			dirs[Std.int(Math.abs(noteData) % Note.maniaKeys)]();
+			addDirection();
 		}
 		else
 		{
@@ -132,21 +118,7 @@ class StrumNote extends FlxSprite
 			antialiasing = ClientPrefs.data.antialiasing;
 			setGraphicSize(Std.int(width * 0.7 * Note.noteScale));
 
-			var dirs = [addLeft, addDown, addUp, addRight];
-			switch (Note.maniaKeys) {
-				case 5:
-					dirs = [addLeft, addDown, addOdd, addUp, addRight];
-				case 6:
-					dirs = [addLeft, addDown, addRight, addLeft, addUp, addRight];
-				case 7:
-					dirs = [addLeft, addDown, addRight, addOdd, addLeft, addUp, addRight];
-				case 8:
-					dirs = [addLeft, addDown, addUp, addRight, addLeft, addDown, addUp, addRight];
-				case 9:
-					dirs = [addLeft, addDown, addUp, addRight, addOdd, addLeft, addDown, addUp, addRight];
-			}
-
-			dirs[Std.int(Math.abs(noteData) % Note.maniaKeys)]();
+			addDirection();
 		}
 
 		updateHitbox();
@@ -155,6 +127,18 @@ class StrumNote extends FlxSprite
 		{
 			playAnim(lastAnim, true);
 		}
+	}
+
+	function addDirection() {
+		var colDirs = [
+			'purple' => addLeft,
+			'blue' => addDown,
+			'odd' => addOdd,
+			'green' => addUp,
+			'red' => addRight
+		];
+
+		colDirs.get(Note.getColArrayFromKeys()[Std.int(Math.abs(noteData) % Note.maniaKeys)])();
 	}
 
 	function addLeft() {
@@ -207,7 +191,7 @@ class StrumNote extends FlxSprite
 
 	function addOdd() {
 		if (!Note.colArray.contains('odd')) {
-			addDown();
+			addUp();
 			return;
 		}
 

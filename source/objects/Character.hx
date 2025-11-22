@@ -540,12 +540,16 @@ class Character extends FlxSprite {
 			}
 
 			if (AnimName.startsWith("sing") && !animExists(AnimName)) {
-				for (anim in ['singLEFT', 'singRIGHT', 'singUP', 'singDOWN']) {
+				for (anim in ['singLEFT', 'singRIGHT', 'singODD', 'singUP', 'singDOWN']) {
 					if (AnimName.startsWith(anim)) {
 						AnimName = anim + (AnimName.contains('miss') ? 'miss' : '');
 						break;
 					}
 				}
+			}
+
+			if (AnimName.startsWith("singODD") && !animExists(AnimName)) {
+				AnimName = 'singUP' + (AnimName.contains('miss') ? 'miss' : '');
 			}
 
 			if (AnimName.endsWith("miss") && !animExists(AnimName)) {

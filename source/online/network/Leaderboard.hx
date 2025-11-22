@@ -32,7 +32,7 @@ class Leaderboard {
 		Thread.run(() -> {
 			var response = FunkinNetwork.requestAPI("/api/top/song?song=" + StringTools.urlEncode(songID) + "&strum=" + (ClientPrefs.getGameplaySetting('opponentplay') ? 1 : 2) + "&page=" + page + (category != null ? '&category=' + category : '') + (keys != null ? '&keys=' + keys : ''));
 
-			if (response == null) {
+			if (response == null || response.isFailed()) {
 				callback(null);
 				return;
 			}
@@ -47,7 +47,7 @@ class Leaderboard {
 		Thread.run(() -> {
 			var response = FunkinNetwork.requestAPI("/api/top/players?page=" + page + (category != null ? '&category=' + category : '') + (sort != null ? '&sort=${sort}' : ''));
 
-			if (response == null) {
+			if (response == null || response.isFailed()) {
 				callback(null);
 				return;
 			}
@@ -61,7 +61,7 @@ class Leaderboard {
 	public static function fetchReplay(scoreID:String) {
 		var response = FunkinNetwork.requestAPI("/api/score/replay?id=" + StringTools.urlEncode(scoreID));
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return null;
 
 		return response.getString();
@@ -75,7 +75,7 @@ class Leaderboard {
 			post: true
 		});
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return null;
 
 		return response.getString();

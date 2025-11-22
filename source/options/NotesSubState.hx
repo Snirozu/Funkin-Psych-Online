@@ -21,7 +21,7 @@ class NotesSubState extends MusicBeatSubstate
 
 	var onModeColumn:Bool = true;
 	var curSelectedMode(default, set):Int = 0;
-	var curSelectedNote:Int = 0;
+	var curSelectedNote(default, set):Int = 0;
 	var onPixel:Bool = false;
 	var dataArray:Array<Array<FlxColor>>;
 
@@ -69,12 +69,12 @@ class NotesSubState extends MusicBeatSubstate
 		FlxTween.tween(grid, {alpha: 1}, 0.5, {ease: FlxEase.quadOut});
 		add(grid);
 
-		modeBG = new FlxSprite(215, 85).makeGraphic(315, 115, FlxColor.BLACK);
+		modeBG = new FlxSprite(215, 85).makeGraphic(390, 115, FlxColor.BLACK);
 		modeBG.visible = false;
 		modeBG.alpha = 0.4;
 		add(modeBG);
 
-		notesBG = new FlxSprite(140, 190).makeGraphic(480, 125, FlxColor.BLACK);
+		notesBG = new FlxSprite(140, 190).makeGraphic(1, 1, FlxColor.BLACK);
 		notesBG.visible = false;
 		notesBG.alpha = 0.4;
 		add(notesBG);
@@ -545,9 +545,8 @@ class NotesSubState extends MusicBeatSubstate
 
 	function set_curSelectedMode(v:Int) {
 		if (v == 3) {
-			var maniaKeysList = ['4k', '5k', '6k', '7k', '8k', '9k'];
-			openSubState(new online.substates.SoFunkinSubstate(['4k', '5k', '6k', '7k', '8k', '9k'], maniaKeysList.indexOf(Note.maniaKeys + 'k'), (i) -> {
-				Note.maniaKeys = Std.parseInt(maniaKeysList[i].split('k')[0]);
+			openSubState(new online.substates.SoFunkinSubstate(Note.maniaKeysStringList, Note.maniaKeysStringList.indexOf(Note.maniaKeys + 'k'), (i) -> {
+				Note.maniaKeys = Std.parseInt(Note.maniaKeysStringList[i].split('k')[0]);
 				spawnNotes();
 				updateNotes(true);
 				return true;
@@ -568,13 +567,17 @@ class NotesSubState extends MusicBeatSubstate
 		updateNotes();
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
+
+	function set_curSelectedNote(v) {
+		if (v < 0)
+			v = dataArray.length - 1;
+		if (v >= dataArray.length)
+			v = 0;
+		return curSelectedNote = v;
+	}
+
 	function changeSelectionNote(change:Int = 0) {
 		curSelectedNote += change;
-		if (curSelectedNote < 0)
-			curSelectedNote = dataArray.length-1;
-		if (curSelectedNote >= dataArray.length)
-			curSelectedNote = 0;
-		
 		modeBG.visible = false;
 		notesBG.visible = true;
 		bigNote.rgbShader.parent = Note.globalRgbShaders[curSelectedNote];
@@ -602,6 +605,7 @@ class NotesSubState extends MusicBeatSubstate
 	public function spawnNotes()
 	{
 		dataArray = !onPixel ? ClientPrefs.getRGBColor(-1) : ClientPrefs.getRGBPixelColor(-1);
+		curSelectedNote = curSelectedNote;
 		if (onPixel) PlayState.stageUI = "pixel";
 
 		// clear groups
@@ -682,11 +686,18 @@ class NotesSubState extends MusicBeatSubstate
 		for (i in 0...Note.colArray.length)
 		{
 			if(!onPixel) bigNote.animation.addByPrefix('note$i', Note.colArray[i] + '0', 24, true);
-			else bigNote.animation.add('note$i', [i + 4], 24, true);
+			else bigNote.animation.add('note$i', [Note.colToIndex(Note.colArray[i]) + 4], 24, true);
 		}
 		insert(members.indexOf(myNotes) + 1, bigNote);
 		_storedColor = getShaderColor();
 		PlayState.stageUI = "normal";
+
+		modeBG.x = pickersBG.x / 2 - modeBG.width / 2; 
+
+		notesBG.scale.set(Note.maniaKeys * Note.swagScaledWidth - (Note.getNoteOffsetX() * (Note.maniaKeys - 1)), Note.swagScaledWidth);
+		notesBG.updateHitbox();
+		notesBG.x = myNotes.members[0].x;
+		notesBG.y = myNotes.members[0].y; 
 	}
 
 	function updateNotes(?instant:Bool = false)

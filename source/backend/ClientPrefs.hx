@@ -34,114 +34,11 @@ class SaveVariables {
 	public var hideHud:Bool = false;
 	public var noteOffset:Int = 0;
 
-	public var arrowRGB:Array<Array<FlxColor>> = [
-		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-		[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
-		[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-		[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]];
+	public var arrowRGB:Array<Array<FlxColor>> = ClientPrefs.genArrowColors(4);
+	public var arrowRGBMap:Map<String, Array<Array<FlxColor>>> = ClientPrefs.genArrowColorsExtraMap();
 
-	public var arrowRGBMap:Map<String, Array<Array<FlxColor>>> = [
-		'5k' => [
-			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
-			[0xFFFFE600, 0xFFFFFFFF, 0xFF754D10],
-			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
-		],
-		'6k' => [
-			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
-			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038],
-			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
-		],
-		'7k' => [
-			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
-			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038],
-			[0xFFFFE600, 0xFFFFFFFF, 0xFF754D10],
-			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
-		],
-		'8k' => [
-			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
-			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038],
-			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
-			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
-		],
-		'9k' => [
-			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
-			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038],
-			[0xFFFFE600, 0xFFFFFFFF, 0xFF754D10],
-			[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-			[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
-			[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-			[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
-		],
-	];
-
-	public var arrowRGBPixel:Array<Array<FlxColor>> = [
-		[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
-		[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
-		[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
-		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
-	];
-
-	public var arrowRGBPixelMap:Map<String, Array<Array<FlxColor>>> = [
-		'5k' => [
-			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
-			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
-			[0xFFFFE600, 0xFFFFF5F0, 0xFF754D10],
-			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
-			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
-		],
-		'6k' => [
-			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
-			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
-			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000],
-			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
-			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
-			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
-		],
-		'7k' => [
-			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
-			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
-			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000],
-			[0xFFFFE600, 0xFFFFF5F0, 0xFF754D10],
-			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
-			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
-			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
-		],
-		'8k' => [
-			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
-			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
-			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
-			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000],
-			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
-			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
-			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
-			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
-		],
-		'9k' => [
-			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
-			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
-			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
-			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000],
-			[0xFFFFE600, 0xFFFFF5F0, 0xFF754D10],
-			[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
-			[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
-			[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
-			[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
-		],
-	];
+	public var arrowRGBPixel:Array<Array<FlxColor>> = ClientPrefs.genArrowColors(4, true);
+	public var arrowRGBPixelMap:Map<String, Array<Array<FlxColor>>> = ClientPrefs.genArrowColorsExtraMap(true);
 
 	public var ghostTapping:Bool = true;
 	public var timeBarType:String = 'Time Left';
@@ -164,6 +61,7 @@ class SaveVariables {
 		'opponentplay' => false,
 		'nobadnotes' => false,
 		'mania' => '(Chart)',
+		'scrollspeedbymania' => false,
 	];
 
 	public var comboOffset:Array<Int> = [0, 0, 0, 0];
@@ -472,13 +370,13 @@ class ClientPrefs {
 			if(save.data.keyboard != null) {
 				var loadedControls:Map<String, Array<FlxKey>> = save.data.keyboard;
 				for (control => keys in loadedControls) {
-					if(keyBinds.exists(control)) keyBinds.set(control, keys);
+					/*if(keyBinds.exists(control))*/ keyBinds.set(control, keys);
 				}
 			}
 			if(save.data.gamepad != null) {
 				var loadedControls:Map<String, Array<FlxGamepadInputID>> = save.data.gamepad;
 				for (control => keys in loadedControls) {
-					if(gamepadBinds.exists(control)) gamepadBinds.set(control, keys);
+					/*if(gamepadBinds.exists(control))*/ gamepadBinds.set(control, keys);
 				}
 			}
 			reloadVolumeKeys();
@@ -487,7 +385,21 @@ class ClientPrefs {
 		//away3d.debug.Debug.active = ClientPrefs.isDebug();
 	}
 
-	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic = null, ?customDefaultValue:Bool = false):Dynamic {
+	public static function getGameplaySetting(name:String, defaultValue:Dynamic = null, ?customDefaultValue:Bool = false):Dynamic {
+		if (data.gameplaySettings.get('scrollspeedbymania') && (name == 'scrollspeed' || name == 'scrolltype')) {
+			var v = ClientPrefs.getGameplaySetting(name + '_' + Note.maniaKeys + 'k');
+			if (v != null)
+				return v;
+			else {
+				switch (name) {
+					case 'scrollspeed':
+						return 1;
+					case 'scrolltype':
+						return 'multiplicative';
+				}
+			}
+		}
+
 		if(!customDefaultValue) defaultValue = defaultData.gameplaySettings.get(name);
 		var daGameplaySetting:Dynamic = GameClient.isConnected() ? GameClient.getGameplaySetting(name) : data.gameplaySettings.get(name);
 		if (PlayState.replayData?.gameplay_modifiers != null) {
@@ -610,5 +522,37 @@ class ClientPrefs {
 		var copyRGBPixelMap = ClientPrefs.data.arrowRGBPixelMap.copy();
 		copyRGBPixelMap.set('4k', ClientPrefs.data.arrowRGBPixel);
 		return [copyRGBMap, copyRGBPixelMap];
+	}
+
+	public static inline function genArrowColors(keys:Int, ?isPixel:Bool = false):Array<Array<FlxColor>> {
+		var colColors = isPixel ? [
+			'purple' => [0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
+			'blue' => [0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
+			'odd' => [0xFFFFE600, 0xFFFFF5F0, 0xFF754D10],
+			'green' => [0xFF71E300, 0xFFF6FFE6, 0xFF003100],
+			'red' => [0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]
+		] : [
+			'purple' => [0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+			'blue' => [0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
+			'odd' => [0xFFFFE600, 0xFFFFFFFF, 0xFF754D10],
+			'green' => [0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
+			'red' => [0xFFF9393F, 0xFFFFFFFF, 0xFF651038]
+		];
+		var arr = [];
+		var colArray = Note.getColArrayFromKeys(keys);
+		for (key in 0...keys) {
+			arr.push(colColors.get(colArray[key]));
+		}
+		return arr;
+	}
+
+	public static inline function genArrowColorsExtraMap(?isPixel:Bool = false):Map<String, Array<Array<FlxColor>>> {
+		var map = new Map();
+		for (keys in Note.maniaKeysList) {
+			if (keys == 4)
+				continue;
+			map.set('${keys}k', genArrowColors(keys, isPixel));
+		}
+		return map;
 	}
 }

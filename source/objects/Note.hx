@@ -75,9 +75,12 @@ class Note extends FlxSprite
 	public var lateHitMult:Float = 1;
 	public var lowPriority:Bool = false;
 
+	public static var rankedManiaKeysList:Array<Int> = [4, 5, 6, 7, 8, 9];
+	public static var maniaKeysList:Array<Int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 55];
+	public static var maniaKeysStringList:Array<String> = [for (keys in maniaKeysList) '${keys}k'];
 	public static var maniaKeys(default, set):Int = 4;
 	static function set_maniaKeys(v) {
-		maniaKeys = Std.int(Math.max(Math.min(v, 9), 4));
+		maniaKeys = (maniaKeysList.contains(v) ? v : 4);
 		colArray = getColArrayFromKeys();
 		return v;
 	}
@@ -90,8 +93,13 @@ class Note extends FlxSprite
 	}
 	public static var noteScale(get, default):Float = 0.7;
 	static function get_noteScale() {
-		return (swagWidth * 4) / (swagWidth * maniaKeys) + (0.055 * (maniaKeys - 4));
+		return (swagWidth * 4) / (swagWidth * Math.max(4, maniaKeys)) * (1 + (0.1 * (Math.min(9, Math.max(4, maniaKeys)) - 4)));
 	}
+
+	public static function getNoteOffsetX() {
+		return (swagScaledWidth / 30.0) * (Math.min(9, Math.max(4, maniaKeys)) - 4);
+	}
+
 	public static var colArray:Array<String> = ['purple', 'blue', 'green', 'red'];
 	public static var defaultNoteSkin(default, never):String = 'noteSkins/NOTE_assets';
 
@@ -137,10 +145,6 @@ class Note extends FlxSprite
 	public var hitsound:String = 'hitsound';
 
 	public var hits:Int = 0;
-
-	public static function getNoteOffsetX() {
-		return 3.2 * (Note.maniaKeys - 4);
-	}
 
 	private function set_multSpeed(value:Float):Float {
 		resizeByRatio(value / multSpeed);
@@ -221,9 +225,10 @@ class Note extends FlxSprite
 		return value;
 	}
 
-	public static function getColArrayFromKeys(?regularOnly:Bool = false) {
-		var specialCol = regularOnly ? 'blue' : 'odd';
-		switch (Note.maniaKeys) {
+	public static function getColArrayFromKeys(?regularOnly:Bool = false, ?keys:Null<Int> = null) {
+		keys ??= Note.maniaKeys;
+		var specialCol = regularOnly ? 'green' : 'odd';
+		switch (keys) {
 			case 5:
 				return ['purple', 'blue', specialCol, 'green', 'red'];
 			case 6:
@@ -234,6 +239,29 @@ class Note extends FlxSprite
 				return ['purple', 'blue', 'green', 'red', 'purple', 'blue', 'green', 'red'];
 			case 9:
 				return ['purple', 'blue', 'green', 'red', specialCol, 'purple', 'blue', 'green', 'red'];
+
+			//not used lolol
+			case 2:
+				return ['purple', 'red'];
+			case 3:
+				return ['purple', specialCol, 'red'];
+
+			//fallback
+			default: {
+				var isEven = keys % 2 != 0;
+				var arr = [];
+				var ki = 0;
+				for (key in 0...keys) {
+					if (isEven && key == Std.int(keys / 2)) {
+						arr.push(specialCol);
+						ki = 0;
+						continue;
+					}
+					arr.push(['purple', 'blue', 'green', 'red'][ki % 4]);
+					ki++;
+				}
+				return arr;
+			}
 		}
 		return ['purple', 'blue', 'green', 'red'];
 	}

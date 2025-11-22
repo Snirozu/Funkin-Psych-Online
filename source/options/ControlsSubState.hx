@@ -326,9 +326,8 @@ class ControlsSubState extends MusicBeatSubstate
 					swapMode();
 				}
 				else if (curOptionName == switchMania) {
-					var maniaKeysList = ['4k', '5k', '6k', '7k', '8k', '9k'];
-					openSubState(new online.substates.SoFunkinSubstate(['4k', '5k', '6k', '7k', '8k', '9k'], maniaKeysList.indexOf(Note.maniaKeys + 'k'), (i) -> {
-						Note.maniaKeys = Std.parseInt(maniaKeysList[i].split('k')[0]);
+					openSubState(new online.substates.SoFunkinSubstate(Note.maniaKeysStringList, Note.maniaKeysStringList.indexOf(Note.maniaKeys + 'k'), (i) -> {
+							Note.maniaKeys = Std.parseInt(Note.maniaKeysStringList[i].split('k')[0]);
 						createTexts();
 						curSelected = 0;
 						updateText();
@@ -386,7 +385,7 @@ class ControlsSubState extends MusicBeatSubstate
 				holdingEsc += elapsed;
 				if(holdingEsc > 0.5)
 				{
-					ClientPrefs.keyBinds.get(curOption[2])[altNum] = NONE;
+					(ClientPrefs.keyBinds.get(curOption[2]) ?? []) [altNum] = NONE;
 					ClientPrefs.clearInvalidKeys(curOption[2]);
 					updateBind(Math.floor(curSelected * 2) + altNum, onKeyboardMode ? InputFormatter.getKeyName(NONE) : InputFormatter.getGamepadName(NONE));
 					FlxG.sound.play(Paths.sound('cancelMenu'));
@@ -397,7 +396,13 @@ class ControlsSubState extends MusicBeatSubstate
 			{
 				holdingEsc = 0;
 				var changed:Bool = false;
+
+				if (!ClientPrefs.keyBinds.exists(curOption[2]))
+					ClientPrefs.keyBinds.set(curOption[2], []);
 				var curKeys:Array<FlxKey> = ClientPrefs.keyBinds.get(curOption[2]);
+
+				if (!ClientPrefs.gamepadBinds.exists(curOption[2]))
+					ClientPrefs.gamepadBinds.set(curOption[2], []);
 				var curButtons:Array<FlxGamepadInputID> = ClientPrefs.gamepadBinds.get(curOption[2]);
 
 				if(onKeyboardMode)
