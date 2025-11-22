@@ -28,9 +28,9 @@ class LuaModuleSwap {
 				if (stopFunc != null)
 					stopFunc();
 				else {
-					try {
-						Lua.error(lua);
-					} catch (exc) {}
+					// try {
+					// 	Lua.error(lua);
+					// } catch (exc) {}
 					Lua.close(lua);
 				}
 			},

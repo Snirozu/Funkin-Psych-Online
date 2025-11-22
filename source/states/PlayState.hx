@@ -397,22 +397,30 @@ class PlayState extends MusicBeatState
 	// how big to stretch the pixel art assets
 	public static var daPixelZoom:Float = 6;
 	private var singAnimations(get, set):Array<String>;
+	var _singAnimations:Array<String>;
+	var _singAnimations_keys:Int = -1;
+	var _singAnimations_colDirs = [
+		'purple' => 'singLEFT', 
+		'blue' => 'singDOWN', 
+		'odd' => 'singODD', 
+		'green' => 'singUP', 
+		'red' => 'singRIGHT'
+	];
 	function get_singAnimations() {
-		return singAnimationsMap.get(Note.maniaKeys + 'k');
+		if (Note.maniaKeys == _singAnimations_keys) {
+			return _singAnimations;
+		}
+
+		_singAnimations_keys = Note.maniaKeys;
+		_singAnimations = [];
+		for (key in 0...Note.maniaKeys) {
+			_singAnimations.push(_singAnimations_colDirs.get(Note.getColArrayFromKeys()[key]));
+		}
+		return _singAnimations;
 	}
 	function set_singAnimations(v) {
-		singAnimationsMap.set(Note.maniaKeys + 'k', v);
-		return v;
+		return _singAnimations = v;
 	}
-
-	var singAnimationsMap = [
-		'4k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'],
-		'5k' => ['singLEFT', 'singDOWN', 'singDOWN', 'singUP', 'singRIGHT'],
-		'6k' => ['singLEFT', 'singDOWN', 'singRIGHT', 'singLEFT', 'singUP', 'singRIGHT'],
-		'7k' => ['singLEFT', 'singDOWN', 'singRIGHT', 'singDOWN', 'singLEFT', 'singUP', 'singRIGHT'],
-		'8k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT', 'singLEFT', 'singDOWN', 'singUP', 'singRIGHT'],
-		'9k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT', 'singDOWN', 'singLEFT', 'singDOWN', 'singUP', 'singRIGHT']
-	];
 	
 	public var inCutscene:Bool = false;
 	public var skipCountdown:Bool = false;
@@ -624,7 +632,7 @@ class PlayState extends MusicBeatState
 			cpuControlled = ClientPrefs.getGameplaySetting('botplay');
 			opponentMode = ClientPrefs.getGameplaySetting('opponentplay');
 			noBadNotes = ClientPrefs.getGameplaySetting('nobadnotes');
-			if (singAnimationsMap.exists(ClientPrefs.getGameplaySetting('mania'))) {
+			if (Note.maniaKeysStringList.contains(ClientPrefs.getGameplaySetting('mania'))) {
 				maniaModifier = Std.parseInt(ClientPrefs.getGameplaySetting('mania').split('k')[0]);
 			}
 		});
@@ -1108,7 +1116,7 @@ class PlayState extends MusicBeatState
 
 			for (key in keysArray) {
 				// for (bind in controls.keyboardBinds['taunt']) {
-					if (controls.keyboardBinds[key].contains(FlxKey.SPACE)) {
+					if (controls.keyboardBinds[key] != null && controls.keyboardBinds[key].contains(FlxKey.SPACE)) {
 						canSpaceTaunt = false;
 					}
 				// }
@@ -2306,14 +2314,6 @@ class PlayState extends MusicBeatState
 	{
 		// FlxG.log.add(ChartParser.parse());
 		songSpeed = PlayState.SONG.speed;
-		songSpeedType = ClientPrefs.getGameplaySetting('scrolltype');
-		switch(songSpeedType)
-		{
-			case "multiplicative":
-				songSpeed = SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed');
-			case "constant":
-				songSpeed = ClientPrefs.getGameplaySetting('scrollspeed');
-		}
 
 		var songData = SONG;
 		Conductor.bpm = songData.bpm;
@@ -2486,6 +2486,14 @@ class PlayState extends MusicBeatState
 		}
 
 		trace('Song Keys: ' + Note.maniaKeys + 'k');
+
+		songSpeedType = ClientPrefs.getGameplaySetting('scrolltype');
+		switch(songSpeedType) {
+			case "multiplicative":
+				songSpeed = SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed');
+			case "constant":
+				songSpeed = ClientPrefs.getGameplaySetting('scrollspeed');
+		}
 
 		for (i => songNotes in dataNotes) {
 			var section = noteData[dataNotesSection[i]];
@@ -2730,7 +2738,7 @@ class PlayState extends MusicBeatState
 			{
 				//babyArrow.y -= 10;
 				babyArrow.alpha = 0;
-				FlxTween.tween(babyArrow, {/*y: babyArrow.y + 10,*/ alpha: targetAlpha}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
+				FlxTween.tween(babyArrow, {/*y: babyArrow.y + 10,*/ alpha: targetAlpha}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + 4 / Note.maniaKeys * 0.2 * i});
 			}
 			else
 				babyArrow.alpha = targetAlpha;
@@ -4123,8 +4131,9 @@ class PlayState extends MusicBeatState
 				var offlinePoints = online.FunkinPoints.save(ratingPercent, songMisses, songDensity, totalNotesHit, maxCombo);
 				if (!online.network.FunkinNetwork.loggedIn)
 					gainedPoints = offlinePoints;
-				if (replayRecorder != null)
+				if (replayRecorder != null) {
 					gainedPoints = replayRecorder.save();
+				}
 			}
 			#end
 			playbackRate = 1;
@@ -4931,6 +4940,9 @@ class PlayState extends MusicBeatState
 			for (i in 0...arr.length)
 			{
 				var note:Array<FlxKey> = Controls.instance.keyboardBinds[arr[i]];
+				if (note == null)
+					continue;
+
 				for (noteKey in note)
 					if(key == noteKey)
 						return i;

@@ -1,5 +1,6 @@
 package substates;
 
+import objects.Note;
 import states.FreeplayState;
 import online.backend.Waiter;
 import online.GameClient;
@@ -19,8 +20,11 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	function getOptions()
 	{
 		var option:GameplayOption = new GameplayOption('Mania', 'mania', 'string', '(Chart)', [
-			'(Chart)', '4k', '5k', '6k', '7k', '8k', '9k'
-		]);
+			'(Chart)'
+		].concat(Note.maniaKeysStringList));
+		option.onChange = () -> {
+			updateAll();
+		};
 		optionsArray.push(option);
 
 		var goption:GameplayOption = new GameplayOption('Scroll Type', 'scrolltype', 'string', 'multiplicative', ["multiplicative", "constant"]);
@@ -41,6 +45,12 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 			option.displayFormat = "%v";
 			option.maxValue = 6;
 		}
+		optionsArray.push(option);
+
+		var option:GameplayOption = new GameplayOption('Scroll Speed By Mania', 'scrollspeedbymania', 'bool', false);
+		option.onChange = () -> {
+			updateAll();
+		};
 		optionsArray.push(option);
 
 		#if !html5
@@ -169,12 +179,16 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 	function receiveChange(_:Dynamic, __:Dynamic) {
 		Waiter.put(() -> {
-			reloadCheckboxes();
-			for (option in optionsArray) {
-				updateTextFrom(option);
-			}
-			FreeplayState.updateFreeplayMusicPitch();
+			updateAll();
 		});
+	}
+
+	function updateAll() {
+		reloadCheckboxes();
+		for (option in optionsArray) {
+			updateTextFrom(option);
+		}
+		FreeplayState.updateFreeplayMusicPitch();
 	}
 
 	override function destroy() {
@@ -363,6 +377,17 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		}
 		var def:Dynamic = option.defaultValue;
 		option.text = text.replace('%v', val).replace('%d', def);
+		if (option.variable == 'mania' && val is String) {
+			if (val == '(Chart)') {
+				option.text = '(Chart) (${Note.maniaKeys}k)';
+			}
+			else {
+				var mania = Std.int(val.split('k')[0]);
+				if (Note.maniaKeysList.contains(mania) && !Note.rankedManiaKeysList.contains(mania)) {
+					option.text = option.text + ' (Unranked)';
+				}
+			}
+		}
 	}
 
 	function clearHold()
@@ -422,7 +447,12 @@ class GameplayOption
 	public var showBoyfriend:Bool = false;
 	public var scrollSpeed:Float = 50; //Only works on int/float, defines how fast it scrolls per second while holding left/right
 
-	private var variable:String = null; //Variable from ClientPrefs.hx's gameplaySettings
+	public var variable(get, default):String = null; //Variable from ClientPrefs.hx's gameplaySettings
+	function get_variable() {
+		if (ClientPrefs.getGameplaySetting('scrollspeedbymania') && (variable == 'scrollspeed' || variable == 'scrolltype'))
+			return variable + (Note.maniaKeysStringList.contains(ClientPrefs.getGameplaySetting('mania')) ? '_${ClientPrefs.getGameplaySetting('mania')}' : '_${Note.maniaKeys}k');
+		return variable;
+	}
 	public var defaultValue:Dynamic = null;
 
 	public var curOption:Int = 0; //Don't change this
@@ -494,19 +524,20 @@ class GameplayOption
 	public function getValue():Dynamic
 	{
 		if (GameClient.isConnected()) {
-			return GameClient.getGameplaySetting(variable);
+			// needs to be explicitly states as dynamic type, is this a haxe bug????
+			var v:Dynamic = GameClient.getGameplaySetting(variable);
+			switch (type) {
+				case 'float' | 'percent':
+					return FlxMath.roundDecimal(v, decimals);
+			}
+			return v;
 		}
-		return ClientPrefs.data.gameplaySettings.get(variable);
+		return ClientPrefs.data.gameplaySettings.get(variable) ?? defaultValue;
 	}
 	public function setValue(value:Dynamic)
 	{
 		if (GameClient.isConnected()) {
-			if (GameClient.hasPerms()) {
-				GameClient.send("setGameplaySetting", [variable, value]);
-			}
-
-			if (variable == 'songspeed')
-				return;
+			GameClient.send("setGameplaySetting", [variable, value]);
 		}
 		ClientPrefs.data.gameplaySettings.set(variable, value);
 	}

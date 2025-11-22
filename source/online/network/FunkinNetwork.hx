@@ -35,7 +35,7 @@ class FunkinNetwork {
 			post: true
 		});
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return false;
 
 		if (code != null)
@@ -58,7 +58,7 @@ class FunkinNetwork {
 			post: true
 		});
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return false;
 
 		return true;
@@ -67,7 +67,7 @@ class FunkinNetwork {
 	public static function deleteAccount(?code:String) {
 		var response = requestAPI("/api/account/delete" + (code != null ? '?code=' + code : ''));
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return false;
 
 		if (code != null) {
@@ -90,7 +90,7 @@ class FunkinNetwork {
 
 		var response = requestAPI("/api/account/me", false);
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return loggedIn = false;
 
 		var json = Json.parse(response.getString());
@@ -115,7 +115,7 @@ class FunkinNetwork {
 			post: true
 		});
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return false;
 
 		if (code != null)
@@ -154,7 +154,7 @@ class FunkinNetwork {
 			post: true
 		});
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return nickname;
 
 		return nickname = response.getString();
@@ -170,7 +170,7 @@ class FunkinNetwork {
 			post: true
 		});
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return false;
 
 		return true;
@@ -179,7 +179,7 @@ class FunkinNetwork {
 	public static function fetchFront():Dynamic {
 		var response = requestAPI("/api/front", false);
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return null;
 
 		try {
@@ -194,7 +194,7 @@ class FunkinNetwork {
 	public static function fetchSongComments(songId:String):Array<SongComment> {
 		var response = requestAPI("/api/song/comments?id=" + StringTools.urlEncode(songId));
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return null;
 
 		try {
@@ -218,7 +218,7 @@ class FunkinNetwork {
 			post: true
 		});
 
-		if (response == null)
+		if (response == null || response.isFailed())
 			return null;
 
 		try {
@@ -256,6 +256,8 @@ class FunkinNetwork {
 		}
 
 		var avatarResponse = FunkinNetwork.requestAPI('/api/user/avatar/' + StringTools.urlEncode(user), false);
+		if (avatarResponse.isFailed())
+			return null;
 
 		var bytes = avatarResponse?.getBytes() ?? null;
 		if (bytes == null || !ShitUtil.isSupportedImage(bytes)) {
@@ -312,7 +314,7 @@ class FunkinNetwork {
 					);
 					Alert.alert(response.getErrorTitle(), errorDetails);
 				});
-			return null;
+			return response;
 		}
 
 		return response;

@@ -18,14 +18,21 @@ import flixel.FlxBasic;
 class ReplayRecorder extends FlxBasic {
 	@:unreflective
 	private var REGISTER_BINDS(default, null) = [];
-	private static final KEYS_MAP:Map<String, Array<String>> = [
-		'4k' => ["note_up", "note_down", "note_left", "note_right"],
-		'5k' => ['5k_note_1', '5k_note_2', '5k_note_3', '5k_note_4', '5k_note_5'],
-		'6k' => ['6k_note_1', '6k_note_2', '6k_note_3', '6k_note_4', '6k_note_5', '6k_note_6'],
-		'7k' => ['7k_note_1', '7k_note_2', '7k_note_3', '7k_note_4', '7k_note_5', '7k_note_6', '7k_note_7'],
-		'8k' => ['8k_note_1', '8k_note_2', '8k_note_3', '8k_note_4', '8k_note_5', '8k_note_6', '8k_note_7', '8k_note_8'],
-		'9k' => ['9k_note_1', '9k_note_2', '9k_note_3', '9k_note_4', '9k_note_5', '9k_note_6', '9k_note_7', '9k_note_8', '9k_note_9']
-	];
+	private static final KEYS_MAP:Map<String, Array<String>> = genKeysMap();
+
+	public static inline function genKeysMap():Map<String, Array<String>> {
+		var map = new Map();
+
+		for (keys in Note.maniaKeysList) {
+			if (keys == 4) {
+				map.set('${keys}k', ["note_up", "note_down", "note_left", "note_right"]);
+				continue;
+			}
+			map.set('${keys}k', [for (i in 0...keys) '${keys}k_note_${i + 1}']);
+		}
+
+		return map;
+	}
 
 	public static function genRegisterBinds() {
 		return ['taunt'].concat(KEYS_MAP.get(Note.maniaKeys + 'k'));
@@ -219,29 +226,42 @@ class ReplayRecorder extends FlxBasic {
 			"MyReplay-" + PlayState.SONG.song + "-" + Difficulty.getString().toUpperCase() + "-" + DateTools.format(Date.now(), "%Y-%m-%d_%H'%M'%S") + ".funkinreplay"
 		]), replayData);
 		trace("Saved a replay!");
-		
-		if (!ClientPrefs.data.disableSubmiting) {
-			var response = Leaderboard.submitScore(replayData);
-			final MAX_TRIES = 3;
-			var tries = MAX_TRIES;
-			while (response == null && tries > 0) {
-				tries--;
-				Sys.sleep(1);
-				response = Leaderboard.submitScore(replayData);
+
+		return upload();
+    }
+
+	public function upload():Float {
+		if (!Note.rankedManiaKeysList.contains(data.keys) || ClientPrefs.data.disableSubmiting) {
+			return 0;
+		}
+
+		trace("Uploading replay...");
+
+		var response = null;
+		final MAX_TRIES = 3;
+		var tries = MAX_TRIES;
+		while (response == null && tries > 0) {
+			tries--;
+			Sys.sleep(1);
+			response = Leaderboard.submitScore(Json.stringify(data));
+			if (response != null && response.isFailed() && response.status == 429) {
+				response = null;
+				break;
 			}
-			if (response != null) {
-				var res = Json.parse(response.getString() ?? "{}");
-				states.FreeplayState.gainedRanks += res.climbed_ranks ?? 0;
-				if (tries < MAX_TRIES) {
-					Alert.alert('Replay Uploaded!', 'After try #' + (MAX_TRIES - tries));
-				}
-				if (res.gained_points != null) {
-					return res.gained_points;
-				}
+		}
+		if (response != null && !response.isFailed()) {
+			var res = Json.parse(response.getString() ?? "{}");
+			states.FreeplayState.gainedRanks += res.climbed_ranks ?? 0;
+			if (tries < (MAX_TRIES - 1)) {
+				Alert.alert('Replay Uploaded!', 'After try #' + (MAX_TRIES - tries));
+			}
+			if (res.gained_points != null) {
+				trace("Uploaded replay!");
+				return res.gained_points;
 			}
 		}
 		return 0;
-    }
+	}
 }
 
 typedef ReplayData = {
