@@ -1691,11 +1691,13 @@ class ChartingState extends MusicBeatState
 		mouseAction = NONE;
 		if (mousePressTime >= 0) {
 			if (FlxG.mouse.pressed) {
-				mouseAction = PRESSING;
+				if ((Math.abs(FlxG.mouse.screenX - mouseActionOriginPos[0]) >= GRID_SIZE || Math.abs(FlxG.mouse.screenY - mouseActionOriginPos[1]) >= GRID_SIZE) || mousePressTime >= 0.1) {
+					mouseAction = PRESSING;
+				}
 				mousePressTime += elapsed;
 			}
 			else {
-				if (Math.abs(FlxG.mouse.screenX - mouseActionOriginPos[0]) < 10 && Math.abs(FlxG.mouse.screenY - mouseActionOriginPos[1]) < 10 && mousePressTime < 0.2) {
+				if (Math.abs(FlxG.mouse.screenX - mouseActionOriginPos[0]) < GRID_SIZE && Math.abs(FlxG.mouse.screenY - mouseActionOriginPos[1]) < GRID_SIZE && mousePressTime < 0.2) {
 					mouseAction = CLICK;
 				}
 				mousePressTime = -1;
@@ -1786,6 +1788,9 @@ class ChartingState extends MusicBeatState
 					FlxG.sound.music.time -= getStrumTime(FlxG.mouse.deltaScreenY * zoomList[curZoom]);
 					if (camPos.x > strumLine.x + CAM_OFFSET) {
 						camPos.x = strumLine.x + CAM_OFFSET;
+					}
+					if (camPos.x < strumLine.x - 150 + FlxG.camera.width / 2) {
+						camPos.x = strumLine.x - 150 + FlxG.camera.width / 2;
 					}
 				}
 			}

@@ -1,5 +1,6 @@
 package online.objects;
 
+import flixel.graphics.FlxGraphic;
 import flixel.FlxBasic;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
@@ -12,7 +13,8 @@ class LoadingSprite extends FlxTypedGroup<FlxBasic> {
         super();
         
 		var funkay = new FlxSprite();
-		var funkayGraphic = Paths.image('funkay', null, false).bitmap;
+		var _funkayGraphic = Paths.image('funkay', null, false);
+		var funkayGraphic = (_funkayGraphic ?? FlxGraphic.fromRectangle(1675, 1083, FlxColor.BLACK)).bitmap;
 		funkay.makeGraphic(FlxG.width, FlxG.height, funkayGraphic.getPixel32(0, 0), true, "_funkay"); // kms
 		funkayGraphic.image.resize(Std.int(funkayGraphic.image.width * (FlxG.height / funkayGraphic.image.height)), FlxG.height);
 		funkay.graphic.bitmap.copyPixels(funkayGraphic, new Rectangle(0, 0, funkay.graphic.bitmap.width, funkay.graphic.bitmap.height),
