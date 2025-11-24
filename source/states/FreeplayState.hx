@@ -1165,7 +1165,7 @@ class FreeplayState extends MusicBeatState
 							));
 						}
 						else if (!GameClient.isConnected()) {
-							if (top[selectedScore] != null)
+							if (top != null && top[selectedScore] != null)
 								playReplay(Leaderboard.fetchReplay(top[selectedScore].id), top[selectedScore].id);
 						}
 				}
