@@ -54,6 +54,8 @@ import sys.FileSystem;
 
 class FreeplayState extends MusicBeatState
 {
+	public static var localPreviewMode:Bool = false;
+
 	public static var instance:FreeplayState;
 	public var songs:Array<SongMetadata> = [];
 
@@ -1093,7 +1095,29 @@ class FreeplayState extends MusicBeatState
 			else if (controls.ACCEPT) {
 				switch (selectedItem) {
 					case 0:
-						if (GameClient.isConnected()) {
+						if (localPreviewMode) {
+							localPreviewMode = false; // Immediately reset to avoid loops
+							updateMod();
+							var songLowercase:String = Paths.formatToSongPath(getSongName());
+							var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
+
+							try {
+								PlayState.loadSong(poop, songLowercase);
+								
+								// Success, proceed to preview
+								online.states.RoomState.previewSong = poop;
+								online.states.RoomState.previewFolder = songLowercase;
+								online.states.RoomState.startWithPreview = true;
+								FlxG.switchState(() -> new online.states.RoomState());
+							}
+							catch (e:Dynamic)
+							{
+								// Song not found or other error, stay in Freeplay and allow another choice
+								FlxG.sound.play(Paths.sound('cancelMenu'));
+								localPreviewMode = true; // Set flag back to true so the next selection also uses this logic
+							}
+						}
+						else if (GameClient.isConnected()) {
 							var songLowercase:String = Paths.formatToSongPath(getSongName());
 							var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
 
