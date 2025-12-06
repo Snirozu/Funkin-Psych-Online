@@ -291,7 +291,7 @@ class ChartPreviewSubState extends MusicBeatSubstate {
 				var songData = PlayState.SONG;
 				Conductor.bpm = songData.bpm;
 		
-				var diff = Difficulty.getString(GameClient.room.state.diff);
+				var diff = Difficulty.getString(PlayState.storyDifficulty);
 				var trackSuffix = diff == "Erect" || diff == "Nightmare" ? "-erect" : "";
 		
 				vocals = new FlxSound();

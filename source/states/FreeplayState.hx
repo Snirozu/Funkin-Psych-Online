@@ -1103,6 +1103,7 @@ class FreeplayState extends MusicBeatState
 
 							try {
 								PlayState.loadSong(poop, songLowercase);
+								PlayState.storyDifficulty = curDifficulty;
 								
 								// Success, proceed to preview
 								online.states.RoomState.previewSong = poop;
