@@ -169,6 +169,7 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 		sprite3D.mesh.x = 0;
 		sprite3D.mesh.y = 0;
 
+		// uv to the frame from the spritesheet
 		if (spriteFlx.frame != null) {
 			final frame = spriteFlx.frame;
 
@@ -181,6 +182,7 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 			_vectorFrame[3] = frame.frame.height / sprite3D.texture.bitmapData.height;
 		}
 
+		// haxeflixel crap there from FlxSprite.draw
 		spriteFlx.checkEmptyFrame();
 
 		if (spriteFlx.alpha == 0 || spriteFlx._frame.type == FlxFrameType.EMPTY)
@@ -193,24 +195,29 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 			return;
 		}
 
+		// code based mainly on FlxSprite.drawFrameComplex
+		// FIXME: doesn't work properly with spritesheets that have rotated frames
 		final frame = spriteFlx.frame;
 		if (frame != null) {
 			final frame = spriteFlx.frame;
 			final matrix = spriteFlx._matrix;
 			final flipX = spriteFlx.checkFlipX();
 			final flipY = spriteFlx.checkFlipY();
+
+			// calc new mesh width and height based on its rotation
 			final radians:Float = sprite3D.mesh.rotationZ * FlxAngle.TO_RAD;
 			final rotatedWidth = frame.frame.width * Math.abs(Math.cos(radians)) + frame.frame.height * Math.abs(Math.sin(radians));
 			final rotatedHeight = frame.frame.height * Math.abs(Math.cos(radians)) + frame.frame.width * Math.abs(Math.sin(radians));
 
+			// prepare the initial matrix for frame positioning from the spritesheet data
 			frame.prepareMatrix(matrix, 0, flipX, flipY);
 
-			if (frame.angle == -90) {
+			// for rotated frames in spritesheets; true if sparrow atlas subtexture has rotated key set to true
+			if (frame.angle == -90)
 				matrix.translate(0, -frame.sourceSize.y);
-			}
-			else if (frame.angle == 90) {
+			// this line was not tested lol
+			else if (frame.angle == 90)
 				matrix.translate(-frame.sourceSize.x, 0);
-			}
 
 			matrix.translate(-spriteFlx.origin.x, -spriteFlx.origin.y);
 			matrix.scale(spriteFlx.scale.x, spriteFlx.scale.y);
@@ -222,6 +229,7 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 					matrix.rotateWithTrig(spriteFlx._cosAngle, spriteFlx._sinAngle);
 			}
 
+			// now add the position from flxsprite to the frame position
 			if (spriteFlx._point == null)
 				spriteFlx._point = FlxPoint.get();
 			spriteFlx._point.set(spriteFlx.x, spriteFlx.y);
@@ -229,10 +237,11 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 			spriteFlx._point.set(spriteFlx._point.x + spriteFlx.origin.x, spriteFlx._point.y + spriteFlx.origin.y);
 			matrix.translate(spriteFlx._point.x, spriteFlx._point.y);
 
+			// the mesh is always centered to the center of the frame so we have to revert that
 			matrix.translate(rotatedWidth * 0.5 * (flipX ? -1 : 1), rotatedHeight * 0.5 * (flipY ? -1 : 1));
 
 			sprite3D.mesh.x = matrix.tx;
-			sprite3D.mesh.y = -matrix.ty;
+			sprite3D.mesh.y = -matrix.ty; // away3d has reversed Y direction
 		}
     }
 
