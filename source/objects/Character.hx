@@ -178,7 +178,7 @@ class Character extends FlxSprite {
 				isAnimateAtlas = false;
 
 				var split:Array<String> = json.image.split(',');
-				imageFile = split[0];
+				imageFile = split[0].trim();
 
 				#if MODS_ALLOWED
 				var modAnimToFind:String = Paths.modFolders('images/' + imageFile + '/Animation.json');
@@ -214,7 +214,8 @@ class Character extends FlxSprite {
 						sprite3D = PlayState.instance.stage3D.createSprite(charType, true, graphic.bitmap);
 					}
 
-					for (imgFile in split) {
+					for (_imgFile in split) {
+						final imgFile = _imgFile.trim(); 
 						if (!imageFile.contains(imgFile))
 							imageFile += ',$imgFile';
 						var daAtlas = Paths.getAtlas(imgFile);

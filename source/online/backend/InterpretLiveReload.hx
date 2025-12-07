@@ -19,6 +19,18 @@ class InterpretLiveReload {
 			// StringTools can be used with `using` in dynamic classes because we exposed it
 			env.addModule('StringTools', DynamicModule.fromStatic(StringTools));
 			env.addModule('Math', DynamicModule.fromStatic(Math));
+
+			env.addModule('away3d.materials.passes.MaterialPassBase', DynamicModule.fromStatic(away3d.materials.passes.MaterialPassBase));
+			env.addModule('openfl.display3D.Context3DProgramType', DynamicModule.fromStatic(openfl.display3D.Context3DProgramType));
+			env.addModule('away3d.core.base.SubMesh', DynamicModule.fromStatic(away3d.core.base.SubMesh));
+			env.addModule('away3d.materials.MaterialBase', DynamicModule.fromStatic(away3d.materials.MaterialBase));
+			env.addModule('away3d.cameras.Camera3D', DynamicModule.fromStatic(away3d.cameras.Camera3D));
+			env.addModule('away3d.core.base.IRenderable', DynamicModule.fromStatic(away3d.core.base.IRenderable));
+			env.addModule('away3d.core.managers.Stage3DProxy', DynamicModule.fromStatic(away3d.core.managers.Stage3DProxy));
+			env.addModule('away3d.materials.TextureMaterial', DynamicModule.fromStatic(away3d.materials.TextureMaterial));
+			env.addModule('away3d.animators.AnimatorBase', DynamicModule.fromStatic(away3d.animators.AnimatorBase));
+			env.addModule('away3d.animators.IAnimator', DynamicModule.fromStatic(away3d.animators.IAnimator));
+			env.addModule('away3d.animators.SpriteSheetAnimationSet', DynamicModule.fromStatic(away3d.animators.SpriteSheetAnimationSet));
 		};
 
 		// Start live reload

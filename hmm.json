@@ -151,6 +151,11 @@
       "dir": null,
       "ref": "1966f8fbbbc509ed90d4b520f3c49c084fc92fd6",
       "url": "https://github.com/FunkinCrew/funkVis"
+    },
+    {
+      "name": "tink_await",
+      "type": "haxelib",
+      "version": "0.6.0"
     }
   ]
 }

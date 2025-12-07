@@ -1,5 +1,7 @@
 package online.flx3d;
 
+import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
+import flixel.graphics.frames.FlxFrame.FlxFrameType;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import sys.FileSystem;
@@ -19,6 +21,7 @@ import away3d.entities.Mesh;
 import away3d.materials.TextureMaterial;
 import openfl.display.BitmapData;
 import away3d.animators.*;
+import flixel.math.FlxPoint;
 
 class FlxSprite3D extends ObjectContainer3D {
     public var sprite:FlxSprite;
@@ -86,7 +89,7 @@ class FlxSprite3D extends ObjectContainer3D {
 
 		flipX = (sprite.frame.flipX ? !sprite.flipX : sprite.flipX);
 		flipY = (sprite.frame.flipY ? !sprite.flipY : sprite.flipY);
-		mesh.rotationZ = -sprite.angle - Std.int(sprite.frame.angle) * (sprite.flipX ? -1 : 1);
+		mesh.rotationZ = -sprite.angle - Std.int(sprite.frame.angle) * (flipX ? -1 : 1);
 		material.alpha = !sprite.visible ? 0 : sprite.alpha;
 		scaleX = sprite.scale.x;
 		scaleY = sprite.scale.y;
@@ -136,6 +139,7 @@ class FlxSprite3D extends ObjectContainer3D {
 	}
 }
 
+@:access(flixel.FlxSprite)
 class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
     var sprite3D:FlxSprite3D;
 	var _vectorFrame:Vector<Float>;
@@ -154,16 +158,18 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 	var _origin:Array<Float> = [0, 0];
 
 	public function updateOffset() {
-		if (sprite3D.sprite.animation.frameIndex == _lastFrameIndex)
-            return;
+		final spriteFlx = sprite3D.sprite;
 
-		_lastFrameIndex = sprite3D.sprite.animation.frameIndex;
+		// if (spriteFlx.animation.frameIndex == _lastFrameIndex)
+        //     return;
+
+		// _lastFrameIndex = spriteFlx.animation.frameIndex;
 
 		sprite3D.mesh.x = 0;
 		sprite3D.mesh.y = 0;
 
-		if (sprite3D.sprite.frame != null) {
-			final frame = sprite3D.sprite.frame;
+		if (spriteFlx.frame != null) {
+			final frame = spriteFlx.frame;
 
 			sprite3D.planeGeom.width = frame.frame.width;
 			sprite3D.planeGeom.height = frame.frame.height;
@@ -172,32 +178,61 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 			_vectorFrame[1] = frame.frame.y / sprite3D.texture.bitmapData.height;
 			_vectorFrame[2] = frame.frame.width / sprite3D.texture.bitmapData.width;
 			_vectorFrame[3] = frame.frame.height / sprite3D.texture.bitmapData.height;
-
-			//todo: needs to be redone to support angled width and height
-			if (sprite3D.flipX)
-				sprite3D.mesh.x = (-sprite3D.sprite.frame.frame.width * 0.5 - sprite3D.sprite.frame.offset.x) + sprite3D.sprite.frame.sourceSize.x;
-			else
-				sprite3D.mesh.x = (sprite3D.sprite.frame.frame.width * 0.5 + sprite3D.sprite.frame.offset.x);
-
-			if (sprite3D.flipY)
-				sprite3D.mesh.y = (sprite3D.sprite.frame.frame.height * 0.5 + sprite3D.sprite.frame.offset.y) - sprite3D.sprite.frame.sourceSize.y;
-			else
-				sprite3D.mesh.y = (-sprite3D.sprite.frame.frame.height * 0.5 - sprite3D.sprite.frame.offset.y);	
 		}
 
-		//todo: support origin position
-		sprite3D.mesh.x = sprite3D.sprite.x - sprite3D.planeGeom.width / 2 + sprite3D.mesh.x - sprite3D.sprite.offset.x / sprite3D.scaleX;
-		sprite3D.mesh.y = -sprite3D.sprite.y + sprite3D.planeGeom.height / 2 + sprite3D.mesh.y + sprite3D.sprite.offset.y / sprite3D.scaleX;
+		spriteFlx.checkEmptyFrame();
 
-		_angle = -sprite3D.sprite.angle * (Math.PI / 180);
-		_origin = [
-			sprite3D.sprite.origin.x - sprite3D.planeGeom.width / 2,
-			sprite3D.sprite.origin.y + sprite3D.planeGeom.height / 2,
-		];
+		if (spriteFlx.alpha == 0 || spriteFlx._frame.type == FlxFrameType.EMPTY)
+			return;
 
-		// rotate around origin
-		sprite3D.mesh.x -= _origin[0] * Math.cos(_angle) - _origin[1] * Math.sin(_angle);
-		sprite3D.mesh.y -= _origin[1] * Math.cos(_angle) + _origin[0] * Math.sin(_angle);
+		if (spriteFlx.dirty) // rarely
+			spriteFlx.calcFrame(spriteFlx.useFramePixels);
+
+		if (FlxScriptedState3D.dispatch("updateOffset", [this]) != null) {
+			return;
+		}
+
+		final frame = spriteFlx.frame;
+		if (frame != null) {
+			final frame = spriteFlx.frame;
+			final matrix = spriteFlx._matrix;
+			final flipX = spriteFlx.checkFlipX();
+			final flipY = spriteFlx.checkFlipY();
+			final radians:Float = sprite3D.mesh.rotationZ * FlxAngle.TO_RAD;
+			final rotatedWidth = frame.frame.width * Math.abs(Math.cos(radians)) + frame.frame.height * Math.abs(Math.sin(radians));
+			final rotatedHeight = frame.frame.height * Math.abs(Math.cos(radians)) + frame.frame.width * Math.abs(Math.sin(radians));
+
+			frame.prepareMatrix(matrix, 0, flipX, flipY);
+
+			if (frame.angle == -90) {
+				matrix.translate(0, -frame.sourceSize.y);
+			}
+			else if (frame.angle == 90) {
+				matrix.translate(-frame.sourceSize.x, 0);
+			}
+
+			matrix.translate(-spriteFlx.origin.x, -spriteFlx.origin.y);
+			matrix.scale(spriteFlx.scale.x, spriteFlx.scale.y);
+
+			if (spriteFlx.bakedRotationAngle <= 0) {
+				spriteFlx.updateTrig();
+
+				if (spriteFlx.angle != 0)
+					matrix.rotateWithTrig(spriteFlx._cosAngle, spriteFlx._sinAngle);
+			}
+
+			if (spriteFlx._point == null)
+				spriteFlx._point = FlxPoint.get();
+			spriteFlx._point.set(spriteFlx.x, spriteFlx.y);
+			spriteFlx._point.set(spriteFlx._point.x - spriteFlx.offset.x, spriteFlx._point.y - spriteFlx.offset.y);
+			spriteFlx._point.set(spriteFlx._point.x + spriteFlx.origin.x, spriteFlx._point.y + spriteFlx.origin.y);
+			matrix.translate(spriteFlx._point.x, spriteFlx._point.y);
+
+			matrix.translate(rotatedWidth * 0.5 * (flipX ? -1 : 1), rotatedHeight * 0.5 * (flipY ? -1 : 1));
+
+			sprite3D.mesh.x = matrix.tx;
+			sprite3D.mesh.y = -matrix.ty;
+		}
     }
 
 	public function setRenderState(stage3DProxy:Stage3DProxy, renderable:IRenderable, vertexConstantOffset:Int, vertexStreamOffset:Int, camera:Camera3D) {

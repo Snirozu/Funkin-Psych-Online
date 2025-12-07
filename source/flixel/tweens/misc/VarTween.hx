@@ -64,6 +64,7 @@ class VarTween extends FlxTween
             catch (exc) {
                 trace("Tween encountered an error and has closed!");
                 trace(exc);
+				active = false;
                 destroy();
             }
 		}
@@ -100,14 +101,13 @@ class VarTween extends FlxTween
 
 	function setStartValues()
 	{
-		for (info in _propertyInfos)
-		{
+		for (info in _propertyInfos) {
 			if (Reflect.getProperty(info.object, info.field) == null)
 				throw 'The object does not have the property "${info.field}"';
 
 			var value:Dynamic = Reflect.getProperty(info.object, info.field);
 			if (Math.isNaN(value))
-				throw 'The property "${info.field}" is not numeric.';
+				throw 'Value "${value}" for property "${info.field}" is not numeric.';
 
 			info.startValue = value;
 			info.range = info.range - value;

@@ -26,8 +26,8 @@ import openfl.utils.Assets as OpenFlAssets;
 @:build(lumod.LuaScriptClass.build())
 #end
 @:publicFields
-#if interpret @:nullSafety(Off) #end
-class RoomState extends MusicBeatState #if interpret implements interpret.Interpretable #end {
+/*#if interpret @:nullSafety(Off) #end*/
+class RoomState extends MusicBeatState /*#if interpret implements interpret.Interpretable #end */ {
 	var verifyMod:FlxText;
 	var verifyModBg:FlxSprite;
 	var roomCodeBg:FlxSprite;
@@ -954,7 +954,7 @@ class RoomState extends MusicBeatState #if interpret implements interpret.Interp
 		itemTipBg.updateHitbox();
     }
 
-	@interpret
+	// @interpret
 	function updateCharacters() {
 		if (destroyed)
 			return;
