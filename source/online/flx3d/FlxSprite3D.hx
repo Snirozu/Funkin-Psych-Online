@@ -1,5 +1,6 @@
 package online.flx3d;
 
+import flixel.math.FlxAngle;
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
 import flixel.graphics.frames.FlxFrame.FlxFrameType;
 import flixel.graphics.FlxGraphic;
