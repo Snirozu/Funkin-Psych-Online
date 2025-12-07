@@ -2928,6 +2928,9 @@ class PlayState extends MusicBeatState
 		addHealth(2);
 	}
 
+	var nearNoteValue:Float = 0;
+	final NEAR_NOTE_DISTANCE:Float = 1000;
+
 	override public function update(elapsed:Float)
 	{
 		if (forcePause)
@@ -3255,8 +3258,9 @@ class PlayState extends MusicBeatState
 
 							if (isPlayerNote(daNote))
 							{
-								if (!isPlayNoteNear && Conductor.songPosition - daNote.strumTime < 500)
+								if (!isPlayNoteNear && daNote.strumTime - Conductor.songPosition < NEAR_NOTE_DISTANCE) {
 									isPlayNoteNear = true;
+								}
 
 								if(cpuControlled && !daNote.blockHit && daNote.canBeHit && (daNote.isSustainNote || daNote.strumTime <= Conductor.songPosition))
 									goodNoteHit(daNote);
@@ -3305,6 +3309,11 @@ class PlayState extends MusicBeatState
 			checkEventNote();
 		}
 
+		if (isPlayNoteNear)
+			nearNoteValue = Math.min(1.0, nearNoteValue + elapsed * (1000 / NEAR_NOTE_DISTANCE));
+		else
+			nearNoteValue = Math.max(0.0, nearNoteValue - elapsed * (1000 / NEAR_NOTE_DISTANCE));
+
 		if (ClientPrefs.data.noteUnderlayOpacity > 0) {
 			var playingStrums = getPlayerStrums();
 			for (i in 0...noteUnderlays.length) {
@@ -3316,7 +3325,7 @@ class PlayState extends MusicBeatState
 				else {
 					underlay.x = sturm.x;
 					underlay.angle = sturm.direction - 90;
-					underlay.alpha = ClientPrefs.data.noteUnderlayOpacity * sturm.alpha;
+					underlay.alpha = Math.min(1.0, ClientPrefs.data.noteUnderlayOpacity * sturm.alpha) * nearNoteValue;
 				}
 			}
 		}

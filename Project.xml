@@ -133,6 +133,7 @@
 	<haxelib name="grig.audio" />
 	<haxelib name="away3d" />
 	<haxelib name="yagp" />
+	<haxelib name="tink_await" />
 	<!-- <haxelib name="interpret" /> -->
 
 	<haxedef name="interpretable" />

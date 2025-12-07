@@ -70,7 +70,7 @@ class FlxScriptedState3D extends FlxState3D {
 	}
 
 	@:unreflective
-	var script:SScript;
+	static var script:SScript;
 	function initScript(path:String) {
 		trace(path);
 		script = new SScript(path);
@@ -88,7 +88,7 @@ class FlxScriptedState3D extends FlxState3D {
 		}
 	}
 
-	function dispatch(func:String, ?args:Array<Any>) {
+	public static function dispatch(func:String, ?args:Array<Any>) {
 		if (script != null && @:privateAccess !script._destroyed) {
 			return script.call(func, args).returnValue;
 		}

@@ -1131,10 +1131,26 @@ class FreeplayState extends MusicBeatState
 						}
 					case 1:
 						if (!GameClient.isConnected()) {
-							persistentUpdate = false;
-							_substateIsModifiers = true;
-							loadSong();
-							openSubState(new GameplayChangersSubstate());
+							try {
+								loadSong();
+								persistentUpdate = false;
+								_substateIsModifiers = true;
+								openSubState(new GameplayChangersSubstate());
+							}
+							catch (e:Dynamic) {
+								trace('ERROR! $e');
+
+								var errorStr:String = e.toString();
+								if (errorStr.startsWith('[file_contents,assets/data/'))
+									errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length - 1); // Missing chart
+								missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
+								missingText.screenCenter(Y);
+								missingText.visible = true;
+								missingTextBG.visible = true;
+								FlxG.sound.play(Paths.sound('cancelMenu'));
+
+								updateTexts(elapsed);
+							}
 						}
 					case 2:
 						if (!GameClient.isConnected()) {

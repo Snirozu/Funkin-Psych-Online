@@ -38,6 +38,7 @@ typedef SwagSong =
 	//MOD SPECIFIC
 	@:optional var mania:Null<Int>;
 	@:optional var keyCount:Null<Int>;
+	@:optional var cutsceneType:String;
 
 	//psych engine 1.0
 	@:optional var format:String;
@@ -230,7 +231,7 @@ class Song
 		var keys = null;
 
 		if (songData.mania != null)
-			if ((songData.format ?? '').startsWith('psych_v1') || (songData.splashSkin != null)) {
+			if ((songData.format ?? '').startsWith('psych_v1') || (songData.splashSkin != null) || songData.cutsceneType != null) {
 				keys = songData.mania + 1;
 			}
 			else {
