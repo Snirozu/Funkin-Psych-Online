@@ -1,5 +1,8 @@
 package online.flx3d;
 
+import openfl.geom.Vector3D;
+import openfl.geom.Matrix3D;
+import openfl.geom.Matrix;
 import flixel.math.FlxAngle;
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
 import flixel.graphics.frames.FlxFrame.FlxFrameType;
@@ -191,7 +194,7 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 		if (spriteFlx.dirty) // rarely
 			spriteFlx.calcFrame(spriteFlx.useFramePixels);
 
-		if (FlxScriptedState3D.dispatch("updateOffset", [this]) != null) {
+		if (ClientPrefs.isDebug() && FlxScriptedState3D.dispatch("updateOffset", [this]) != null) {
 			return;
 		}
 
@@ -205,7 +208,7 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 			final flipY = spriteFlx.checkFlipY();
 
 			// calc new mesh width and height based on its rotation
-			final radians:Float = sprite3D.mesh.rotationZ * FlxAngle.TO_RAD;
+			final radians:Float = frame.angle * FlxAngle.TO_RAD;
 			final rotatedWidth = frame.frame.width * Math.abs(Math.cos(radians)) + frame.frame.height * Math.abs(Math.sin(radians));
 			final rotatedHeight = frame.frame.height * Math.abs(Math.cos(radians)) + frame.frame.width * Math.abs(Math.sin(radians));
 
@@ -242,8 +245,40 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 
 			sprite3D.mesh.x = matrix.tx;
 			sprite3D.mesh.y = -matrix.ty; // away3d has reversed Y direction
+
+			// apply2DMatrixToMatrix3D(matrix);
 		}
     }
+
+	// public function apply2DMatrixToMatrix3D(matrix:Matrix) {
+	// 	var delta = matrix.a * matrix.d - matrix.b * matrix.c;
+
+	// 	var translation = [matrix.tx, matrix.ty];
+	// 	var rotation = 0.0;
+	// 	var scale = [0.0, 0.0];
+	// 	var skew = [0.0, 0.0];
+
+	// 	if (matrix.a != 0 || matrix.b != 0) {
+	// 		var r = Math.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
+	// 		rotation = matrix.b > 0 ? Math.acos(matrix.a / r) : -Math.acos(matrix.a / r);
+	// 		scale = [r, delta / r];
+	// 		skew = [Math.atan((matrix.a * matrix.c + matrix.b * matrix.d) / (r * r)), 0];
+	// 	}
+	// 	else if (matrix.c != 0 || matrix.d != 0) {
+	// 		var s = Math.sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
+	// 		rotation = Math.PI / 2 - (matrix.d > 0 ? Math.acos(-matrix.c / s) : -Math.acos(matrix.c / s));
+	// 		scale = [delta / s, s];
+	// 		skew = [0, Math.atan((matrix.a * matrix.c + matrix.b * matrix.d) / (s * s))];
+	// 	}
+
+	// 	sprite3D.mesh.transform.identity();
+	// 	sprite3D.mesh.transform.appendScale(scale[0], scale[1], 0);
+	// 	sprite3D.mesh.transform.appendRotation(rotation * FlxAngle.TO_DEG, Vector3D.Z_AXIS);
+	// 	sprite3D.mesh.transform.appendTranslation(matrix.tx, -matrix.ty, 0);
+	// 	sprite3D.mesh.transform = sprite3D.mesh.transform;
+	// 	sprite3D.mesh.rotationZ = -rotation;
+	// }
+
 
 	public function setRenderState(stage3DProxy:Stage3DProxy, renderable:IRenderable, vertexConstantOffset:Int, vertexStreamOffset:Int, camera:Camera3D) {
 		var material:MaterialBase = renderable.material;
