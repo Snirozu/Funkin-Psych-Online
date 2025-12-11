@@ -316,6 +316,7 @@ class ChartingState extends MusicBeatState
 
 		camPos = new FlxObject(0, 0, 1, 1);
 		camPos.setPosition(strumLine.x + CAM_OFFSET, strumLine.y);
+		updateCamPos();
 
 		dummyArrow = new FlxSprite().makeGraphic(GRID_SIZE, GRID_SIZE);
 		dummyArrow.antialiasing = ClientPrefs.data.antialiasing;
@@ -1644,6 +1645,15 @@ class ChartingState extends MusicBeatState
 		return daPos;
 	}
 
+	function updateCamPos() {
+		if (camPos.x > strumLine.x + CAM_OFFSET) {
+			camPos.x = strumLine.x + CAM_OFFSET;
+		}
+		if (camPos.x < strumLine.x - 400 + FlxG.camera.width / 2) {
+			camPos.x = strumLine.x - 400 + FlxG.camera.width / 2;
+		}
+	}
+
 	var lastConductorPos:Float;
 	var colorSine:Float = 0;
 	var mousePressTime:Float = -1;
@@ -1776,9 +1786,8 @@ class ChartingState extends MusicBeatState
 				}
 
 				if (mouseAction == PRESSING) {
-					if (Note.maniaKeys > 9) {
-						camPos.x -= FlxG.mouse.deltaScreenX;
-					}
+					// if (Note.maniaKeys > 9)
+					camPos.x -= FlxG.mouse.deltaScreenX;
 					FlxG.sound.music.pause();
 					for (v in [vocals, opponentVocals]) {
 						if (v == null) continue;
@@ -1786,12 +1795,7 @@ class ChartingState extends MusicBeatState
 						v.time = FlxG.sound.music.time;
 					}
 					FlxG.sound.music.time -= getStrumTime(FlxG.mouse.deltaScreenY * zoomList[curZoom]);
-					if (camPos.x > strumLine.x + CAM_OFFSET) {
-						camPos.x = strumLine.x + CAM_OFFSET;
-					}
-					if (camPos.x < strumLine.x - 150 + FlxG.camera.width / 2) {
-						camPos.x = strumLine.x - 150 + FlxG.camera.width / 2;
-					}
+					updateCamPos();
 				}
 			}
 		}

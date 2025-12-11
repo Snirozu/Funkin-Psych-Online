@@ -58,12 +58,24 @@ class VarTween extends FlxTween
                 super.update(elapsed);
 
                 if (active)
-                    for (info in _propertyInfos)
+                    for (info in _propertyInfos) {
+						if (Math.isNaN(info.startValue + info.range * scale))
+							continue;
+
                         Reflect.setProperty(info.object, info.field, info.startValue + info.range * scale);
+					}
             }
             catch (exc) {
                 trace("Tween encountered an error and has closed!");
                 trace(exc);
+
+				if (onStart != null)
+					onStart(this);
+				if (onUpdate != null)
+					onUpdate(this);
+				if (onComplete != null)
+					onComplete(this);
+
 				active = false;
                 destroy();
             }
