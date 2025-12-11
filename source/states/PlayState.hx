@@ -3556,6 +3556,9 @@ class PlayState extends MusicBeatState
 	}
 
 	public function tweenCameraZoom(zoom:Float, duration:Float, direct:Bool, ease:Null<Float->Float>) {
+		if (Math.isNaN(zoom) || Math.isNaN(duration))
+			return;
+
 		if (cameraTwn != null)
 			cameraTwn.cancel();
 		cameraTwn = FlxTween.tween(this, {forceCameraZoom: zoom * (direct ? FlxCamera.defaultZoom : stageData.defaultZoom)}, duration, {ease: ease, onComplete: twn -> {cameraTwn = null;}});

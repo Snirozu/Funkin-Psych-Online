@@ -1,5 +1,6 @@
 package substates;
 
+import backend.Song;
 import objects.Note;
 import states.FreeplayState;
 import online.backend.Waiter;
@@ -17,8 +18,12 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	private var checkboxGroup:FlxTypedSpriteGroup<CheckboxThingie>;
 	private var grpTexts:FlxTypedSpriteGroup<AttachedText>;
 
+	public static var chartKeys:Int = 4;
+
 	function getOptions()
 	{
+		chartKeys = Song.updateManiaKeys(PlayState.SONG, true);
+
 		var option:GameplayOption = new GameplayOption('Mania', 'mania', 'string', '(Chart)', [
 			'(Chart)'
 		].concat(Note.maniaKeysStringList));
@@ -379,7 +384,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		option.text = text.replace('%v', val).replace('%d', def);
 		if (option.variable == 'mania' && val is String) {
 			if (val == '(Chart)') {
-				option.text = '(Chart) (${Note.maniaKeys}k)';
+				option.text = '(Chart - ${chartKeys}k)';
 			}
 			else {
 				var mania = Std.int(val.split('k')[0]);
@@ -450,7 +455,7 @@ class GameplayOption
 	public var variable(get, default):String = null; //Variable from ClientPrefs.hx's gameplaySettings
 	function get_variable() {
 		if (ClientPrefs.getGameplaySetting('scrollspeedbymania') && (variable == 'scrollspeed' || variable == 'scrolltype'))
-			return variable + (Note.maniaKeysStringList.contains(ClientPrefs.getGameplaySetting('mania')) ? '_${ClientPrefs.getGameplaySetting('mania')}' : '_${Note.maniaKeys}k');
+			return variable + (Note.maniaKeysStringList.contains(ClientPrefs.getGameplaySetting('mania')) ? '_${ClientPrefs.getGameplaySetting('mania')}' : '_${GameplayChangersSubstate.chartKeys}k');
 		return variable;
 	}
 	public var defaultValue:Dynamic = null;

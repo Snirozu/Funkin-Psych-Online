@@ -227,7 +227,7 @@ class Song
 		throw new haxe.Exception("No song data found, or is invalid.");
 	}
 
-	public static function updateManiaKeys(songData:SwagSong):Int {
+	public static function updateManiaKeys(songData:SwagSong, ?noUpdate:Bool = false):Int {
 		var keys = null;
 
 		if (songData.mania != null)
@@ -253,6 +253,9 @@ class Song
 
 		if (keys == null && songData.keyCount != null)
 			keys = songData.keyCount;
+
+		if (noUpdate)
+			return keys ?? 4;
 
 		return Note.maniaKeys = keys ?? 4;
 	}
