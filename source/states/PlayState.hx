@@ -577,6 +577,10 @@ class PlayState extends MusicBeatState
 		camGame.bgColor = FlxColor.TRANSPARENT;
 
 		isErect = Difficulty.getString() == "Erect" || Difficulty.getString() == "Nightmare";
+		// Fix for Erect/Nightmare not working when Host has a different song selected (Difficulty List mismatch)
+		if (!isErect && GameClient.isConnected() && PlayState.storyDifficulty >= Difficulty.list.length) {
+			isErect = true;
+		}
 		songSuffix = isErect ? "erect" : "";
 
 		canPause = !(GameClient.isConnected() || redditMod);
