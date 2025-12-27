@@ -216,6 +216,12 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('FP V5 Preview',
+			'If enabled, new FP algorithm will be shown in the Counter',
+			'newFPPreview',
+			'bool');
+		addOption(option);
+
 		var option:Option = new Option('Group Songs:',
 			"How should songs on Freeplay menu be group by?",
 			'groupSongsBy',

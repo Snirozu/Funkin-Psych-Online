@@ -123,6 +123,7 @@ class Notification extends Sprite implements ITabInteractable {
 	public var underlay:Bitmap;
 	var remove:TabButton;
 	var view:TabButton;
+	var profile:TabButton;
 	public var isAction(default, set):Bool = false;
 	var _actionTime:Float = 0;
 
@@ -131,7 +132,10 @@ class Notification extends Sprite implements ITabInteractable {
 		title.visible = !v;
 		desc.visible = !v;
 		remove.visible = v;
-		view.visible = v;
+
+		profile.visible = v && data.href != null && data.href.startsWith('/user/');
+		view.visible = v && data.href != null && !profile.visible;
+
 		return isAction = v;
 	}
 
@@ -149,7 +153,7 @@ class Notification extends Sprite implements ITabInteractable {
 		icon.y = 10;
 		addChild(icon);
 
-		title = this.createText(icon.width + 20, 20, 22);
+		title = this.createText(icon.width + 20, 15, 22);
 		title.wordWrap = true;
 		title.multiline = true;
 		title.width = SideUI.instance.curTab.tabWidth - title.x - 20;
@@ -175,13 +179,24 @@ class Notification extends Sprite implements ITabInteractable {
 		view = new TabButton('internet', () -> {
 			if (_actionTime < 0.1)
 				return;
-			
+
 			var url = data.href.startsWith('/') ? FunkinNetwork.client.getURL(data.href) : data.href;
 			FlxG.openURL(url);
 		});
 		view.x = remove.x - view.width - 10;
 		view.y = underlay.height / 2 - view.height / 2;
 		addChild(view);
+
+		profile = new TabButton('profile', () -> {
+			if (_actionTime < 0.1)
+				return;
+
+			var userName = data.href.substr('/user/'.length).urlDecode();
+			ProfileTab.view(userName);
+		});
+		profile.x = remove.x - view.width - 10;
+		profile.y = underlay.height / 2 - view.height / 2;
+		addChild(profile);
 
 		isAction = isAction;
 
@@ -195,7 +210,13 @@ class Notification extends Sprite implements ITabInteractable {
 		title.text = (data.title);
 		desc.text = (data.content);
 
-		underlay.bitmapData = new BitmapData(SideUI.DEFAULT_TAB_WIDTH, Std.int(Math.max(100, desc.y + desc.textHeight + 20)), true, FlxColor.fromHSL(0, 0.2, 0.3));
+		// gracias openfl
+		title.height = title.textHeight + 1;
+		desc.height = desc.textHeight + 1;
+
+		desc.y = title.y + title.height + 10;
+
+		underlay.bitmapData = new BitmapData(SideUI.DEFAULT_TAB_WIDTH, Std.int(Math.max(100, desc.y + desc.height + 20)), true, FlxColor.fromHSL(0, 0.2, 0.3));
 
 		Thread.run(() -> {
 			var url = data.image.startsWith('/') ? FunkinNetwork.client.getURL(data.image) : data.image;
@@ -241,7 +262,7 @@ class Notification extends Sprite implements ITabInteractable {
 	}
 
 	private function mouseDown(event:MouseEvent) {
-		if (this.overlapsMouse() && !remove.overlapsMouse() && !view.overlapsMouse()) {
+		if (this.overlapsMouse() && !remove.overlapsMouse() && !view.overlapsMouse() && !profile.overlapsMouse()) {
 			isAction = !isAction;
 		}
 	}

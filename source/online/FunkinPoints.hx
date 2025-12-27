@@ -5,10 +5,14 @@ class FunkinPoints {
 	@:forwardField(FlxG.save.data.funkinPointsv4, 0)
 	public static var funkinPoints(get, set):Float;
 
-    public static function calcFP(accuracy:Float, misses:Float, songDensity:Float, notesHit:Float, maxCombo:Float):Float {
+	public static function calcFP(accuracy:Float, misses:Float, songDensity:Float, notesHit:Float, maxCombo:Float):Float {
+		// we floor the fp instead of rounding it, so you get less fp :)
+		return Math.ffloor(FunkinPoints.fcalcFP(accuracy, misses, songDensity, notesHit, maxCombo));
+	}
+
+    public static function fcalcFP(accuracy:Float, misses:Float, songDensity:Float, notesHit:Float, maxCombo:Float):Float {
 		if (accuracy <= 0 || notesHit <= 0)
             return 0;
-
 
 		// depends on the amount of hitted notes and the density of the song
 		// (density changes depending on the playbackRate of the song)
@@ -19,9 +23,28 @@ class FunkinPoints {
 		fp *= 1 + maxCombo / 2000;
 		// depends on player's note accuracy (weighted by power of 3; 95% = x0.85, 90% = x0.72, 80% = x0.512)
 		fp *= Math.pow(accuracy, 3) / (1 + misses * 0.25);
-		// we then floor the fp instead of rounding it, so you get less fp :)
-		return Math.ffloor(fp);
+		return fp;
     }
+
+	public static function devFP(accuracy:Float, misses:Float, songDensity:Float, notesHit:Float, maxCombo:Float) {
+
+		// the current system works good for the most part, but there are three main issues with it
+		// - missing a note does a big damage to FP
+		// - bloat of FP on spammy songs leads to massive FP (1000+)
+		// - casuals aren't able to gain so much fp
+
+		// var fp:Float = Math.pow(1 + songDensity, 2.5) * Math.pow(accuracy, 2);
+		// // fp *= Math.min(1000, Math.max(0, notesHit - 50)) / 1000;
+		// fp *= (Math.max(0, notesHit) - Math.pow(notesHit, 1.05)) / 1000;
+		// return fp;
+
+		var fp:Float = (1 + Math.pow(songDensity, 1.5)) * (notesHit / 300);
+		// depends on player's note streak (x2fp per 2000 combo)
+		fp *= 1 + maxCombo / 2000;
+		// depends on player's note accuracy (weighted by power of 3; 95% = x0.85, 90% = x0.72, 80% = x0.512)
+		fp *= Math.pow(accuracy, 2) / (1 + misses * 0.1);
+		return fp;
+	}
 
 	public static function save(accuracy:Float, misses:Float, songDensity:Float, notesHit:Float, maxCombo:Float) {
 		var gained:Float = online.FunkinPoints.calcFP(accuracy, misses, songDensity, notesHit, maxCombo);

@@ -13,8 +13,11 @@ class WSprite extends Sprite {
 		_windowHeight = Lib.application.window.height;
 
         Lib.application.window.onResize.add((w, h) -> {
-			scaleX = w / _windowWidth;
-			scaleY = h / _windowHeight;
+			final scale = Math.min(w / _windowWidth, h / _windowHeight);
+			scaleX = scale;
+			scaleY = scale;
+			x = w / 2 - _windowWidth * scale / 2;
+			y = h / 2 - _windowHeight * scale / 2;
         });
     }
 }
