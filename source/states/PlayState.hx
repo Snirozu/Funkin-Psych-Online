@@ -1077,7 +1077,7 @@ class PlayState extends MusicBeatState
 		preloadTasks.push(() -> {
 			Conductor.songPosition = -5000 / Conductor.songPosition;
 			showTime = (ClientPrefs.data.timeBarType != 'Disabled');
-			timeTxt = new FlxText(0, 19, FlxG.width, "", 32);
+			timeTxt = new FlxText(0, 10, FlxG.width, "", 32);
 			timeTxt.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', !isPixelStage ? 32 : 28, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			timeTxt.scrollFactor.set();
 			timeTxt.alpha = 0;
@@ -2173,7 +2173,9 @@ class PlayState extends MusicBeatState
 
 	public function updateScore(miss:Bool = false, ?skipRest:Bool = false)
 	{
-		var points = online.FunkinPoints.calcFP(ratingPercent, songMisses, songDensity, totalNotesHit, maxCombo);
+		var points = FlxMath.roundDecimal(
+			online.FunkinPoints.fcalcFP(ratingPercent, songMisses, songDensity, totalNotesHit, maxCombo)
+		, 2);
 		if (points != songPoints) {
 			songPoints = points;
 			GameClient.send("updateSongFP", songPoints);
@@ -2201,7 +2203,7 @@ class PlayState extends MusicBeatState
 
 		if (skipRest) {
 			if (ClientPrefs.data.showFP)
-				scoreTextObject.text += ' | FP: ' + songPoints + ' (${CoolUtil.floorDecimal(pointsPercent * 100, 1)}%)';
+				addFPToScoreTxt(scoreTextObject);
 			return;
 		}
 
@@ -2219,6 +2221,13 @@ class PlayState extends MusicBeatState
 		}
 		callOnScripts('onUpdateScore', [miss]);
 		if (ClientPrefs.data.showFP)
+			addFPToScoreTxt(scoreTextObject);
+	}
+
+	function addFPToScoreTxt(scoreTextObject:FlxText) {
+		if (ClientPrefs.data.newFPPreview)
+			scoreTextObject.text += ' | FP: ' + songPoints + ' (V5: ${FlxMath.roundDecimal(online.FunkinPoints.devFP(ratingPercent, songMisses, songDensity, totalNotesHit, maxCombo), 2)})';
+		else
 			scoreTextObject.text += ' | FP: ' + songPoints + ' (${CoolUtil.floorDecimal(pointsPercent * 100, 1)}%)';
 	}
 
@@ -2301,7 +2310,7 @@ class PlayState extends MusicBeatState
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence (with Time Left)
-		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")" + getPresencePoints(), iconP2.getCharacter(), true, songLength);
+		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")" + ' [${Note.maniaKeys}k]' + getPresencePoints(), iconP2.getCharacter(), true, songLength);
 		#end
 		setOnScripts('songLength', songLength);
 		callOnScripts('onSongStart');
@@ -2617,6 +2626,10 @@ class PlayState extends MusicBeatState
 
 		var maxFP = online.FunkinPoints.calcFP(1, 0, songDensity, playingNoteCount, playingNoteCount);
 		trace("max points: ~" + maxFP + 'FP');
+		if (ClientPrefs.data.newFPPreview) {
+			var maxFP = online.FunkinPoints.devFP(1, 0, songDensity, playingNoteCount, playingNoteCount);
+			trace("max points: ~" + maxFP + 'FP');
+		}
 
 		for (event in songData.events) //Event Notes
 			for (i in 0...event[1].length)
@@ -2838,7 +2851,7 @@ class PlayState extends MusicBeatState
 	override public function onFocusLost():Void
 	{
 		#if DISCORD_ALLOWED
-		if (isCreated && health > 0 && !paused) DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")" + getPresencePoints(), iconP2.getCharacter());
+		if (isCreated && health > 0 && !paused) DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")" + ' [${Note.maniaKeys}k]' + getPresencePoints(), iconP2.getCharacter());
 		#end
 
 		super.onFocusLost();
@@ -2849,9 +2862,9 @@ class PlayState extends MusicBeatState
 	{
 		#if DISCORD_ALLOWED
 		if (cond)
-			DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")" + getPresencePoints(), iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.data.noteOffset);
+			DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")" + ' [${Note.maniaKeys}k]' + getPresencePoints(), iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.data.noteOffset);
 		else
-			DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")" + getPresencePoints(), iconP2.getCharacter());
+			DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")" + ' [${Note.maniaKeys}k]' + getPresencePoints(), iconP2.getCharacter());
 		#end
 	}
 
@@ -3426,7 +3439,7 @@ class PlayState extends MusicBeatState
 		//}
 
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")" + getPresencePoints(), iconP2.getCharacter());
+		DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")" + ' [${Note.maniaKeys}k]' + getPresencePoints(), iconP2.getCharacter());
 		#end
 	}
 

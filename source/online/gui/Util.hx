@@ -16,7 +16,7 @@ class Util {
 	}
 
 	static function overlapsMouse(obj:DisplayObject) {
-		return obj.visible && obj.alpha > 0 && obj.mouseX > 0 && obj.mouseX < obj.width && obj.mouseY > 0 && obj.mouseY < obj.height;
+		return obj != null && obj.visible && obj.alpha > 0 && obj.mouseX > 0 && obj.mouseX < obj.width && obj.mouseY > 0 && obj.mouseY < obj.height;
 		//return obj.mouseX >= obj.x && obj.mouseX <= obj.x + obj.width && obj.mouseY >= obj.y && obj.mouseY <= obj.y + obj.height;
 	}
 
