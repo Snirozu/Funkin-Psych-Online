@@ -36,6 +36,8 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 	var songNameBg:FlxSprite;
 	var playIcon:FlxSprite;
 	var playIconBg:FlxSprite;
+	var previewIcon:FlxSprite;
+	var previewIconBg:FlxSprite;
 	var chatBox:ChatBox;
 
 	var characters:Map<String, LobbyCharacter> = new Map();
@@ -62,6 +64,9 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 	var revealTimer:FlxTimer;
 	var playerHold(default, set):Bool = false;
 
+	public static var startWithPreview:Bool = false;
+	public static var previewSong:String = null;
+	public static var previewFolder:String = null;
 	static var instance:RoomState = null;
 
 	function set_playerHold(v) {
@@ -413,6 +418,25 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		playIcon.ID = 2;
 		items.add(playIcon);
 
+		previewIconBg = new FlxSprite();
+		previewIconBg.makeGraphic(100, 100, TEXT_BG_COLOR);
+		previewIconBg.updateHitbox();
+		previewIconBg.y = playIconBg.y;
+		previewIconBg.x = playIconBg.x - previewIconBg.width - 20;
+		groupHUD.add(previewIconBg);
+
+		previewIcon = new FlxSprite(previewIconBg.x, previewIconBg.y);
+		previewIcon.antialiasing = ClientPrefs.data.antialiasing;
+		previewIcon.frames = Paths.getSparrowAtlas('online_play'); // Reusing play icon for now
+		previewIcon.animation.addByPrefix('idle', "play", 24);
+		previewIcon.animation.play('idle');
+		previewIcon.color = 0xFF00FFFF; // Cyan tint to distinguish
+		previewIcon.updateHitbox();
+		previewIcon.x += previewIconBg.width / 2 - previewIcon.width / 2;
+		previewIcon.y += previewIconBg.height / 2 - previewIcon.height / 2;
+		previewIcon.ID = 6;
+		items.add(previewIcon);
+
 		roomCode = new FlxText(0, 0, 0, "Room Code: ????");
 		roomCode.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		roomCode.x = settingsIconBg.x + settingsIconBg.width - roomCode.width;
@@ -490,6 +514,19 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		GameClient.send("status", "In the Lobby");
 
 		registerMessages();
+
+		if (startWithPreview) {
+			startWithPreview = false;
+			if (previewSong != null) {
+				PlayState.loadSong(previewSong, previewFolder);
+				previewSong = null;
+				previewFolder = null;
+			}
+			
+			if (PlayState.SONG != null) {
+				openSubState(new online.substates.ChartPreviewSubState(1));
+			}
+		}
 	}
 
 	var hasStage:Bool = false;
@@ -540,6 +577,13 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 	override function closeSubState() {
 		super.closeSubState();
+
+		if (online.substates.ChartPreviewSubState.shouldSwitchToFreeplay) {
+			online.substates.ChartPreviewSubState.shouldSwitchToFreeplay = false;
+			FreeplayState.localPreviewMode = true;
+			FlxG.switchState(() -> new FreeplayState());
+			return;
+		}
 
 		GameClient.send("status", "In the Lobby");
 	}
@@ -623,6 +667,9 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 						item.scale.set(FlxMath.lerp(item.scale.x, 1.05, elapsed * 10), FlxMath.lerp(item.scale.y, 1.05, elapsed * 10));
 					}
 				}
+				else if (item == previewIcon) {
+					item.scale.set(FlxMath.lerp(item.scale.x, 1.1, elapsed * 10), FlxMath.lerp(item.scale.y, 1.1, elapsed * 10));
+				}
 				else
 					item.scale.set(FlxMath.lerp(item.scale.x, 1.1, elapsed * 10), FlxMath.lerp(item.scale.y, 1.1, elapsed * 10));
 			}
@@ -632,6 +679,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 			}
 		}
 		playIcon.alpha = GameClient.getPlayerSelf().hasSong ? 1.0 : 0.5;
+		previewIcon.alpha = 1.0;
 
 		if (!chatBox.focused) {
 			if (FlxG.mouse.justMoved) {
@@ -643,6 +691,9 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 				}
 				else if (FlxG.mouse.overlaps(playIconBg, camHUD)) {
 					curSelected = playIcon.ID;
+				}
+				else if (FlxG.mouse.overlaps(previewIconBg, camHUD)) {
+					curSelected = previewIcon.ID;
 				}
 				else if (FlxG.mouse.overlaps(roomCodeBg, camHUD)) {
 					curSelected = roomCode.ID;
@@ -787,6 +838,14 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 					case 5:
 						if (verifyDownloadMod(true)) {
 							FlxG.switchState(() -> new DownloaderState());
+						}
+					case 6:
+						if (GameClient.getPlayerSelf().hasSong) {
+							openSubState(new online.substates.ChartPreviewSubState(1));
+						}
+						else {
+							FreeplayState.localPreviewMode = true;
+							FlxG.switchState(() -> new FreeplayState());
 						}
 				}
 			}
@@ -942,6 +1001,8 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 				itemTip.text = " - SELECT SONG - \nSelects the song.\n\n(Players with host permissions\ncan only do that)";
 			case 5:
 				itemTip.text = " - MOD - \nDownloads the currently selected mod\nif it isn't installed.\n\nAfter you install it\npress this button again!\n\nRIGHT CLICK - Open Mod Downloader";
+			case 6:
+				itemTip.text = " - PREVIEW SONG - \nPlay the chart of the song\nwhile you wait for other players!";
 			default:
 				itemTip.text = " - LOBBY - \nPress UI keybinds\nor use your mouse\nto select an option!";
 		}
