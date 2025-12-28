@@ -1098,7 +1098,7 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
-			if (ClientPrefs.data.noteUnderlayOpacity > 0) {
+			if (replayPlayer == null && ClientPrefs.data.noteUnderlayOpacity > 0) {
 				noteUnderlays = new FlxTypedGroup<FlxSprite>();
 				noteGroup.add(noteUnderlays);
 			}
@@ -2746,6 +2746,7 @@ class PlayState extends MusicBeatState
 			}
 
 			var babyArrow:StrumNote = new StrumNote(strumLineX, strumLineY, i, player);
+			babyArrow.forceShow = ClientPrefs.data.opponentStrums && ClientPrefs.data.disableStrumMovement;
 			babyArrow.downScroll = ClientPrefs.data.downScroll;
 			if (!isStoryMode && !skipArrowStartTween)
 			{
@@ -2768,7 +2769,7 @@ class PlayState extends MusicBeatState
 			}
 
 			strumGroup.add(babyArrow);
-			if (ClientPrefs.data.noteUnderlayOpacity > 0 && strumGroup == getPlayerStrums() && ClientPrefs.data.noteUnderlayType == 'By Note') {
+			if (replayPlayer == null && ClientPrefs.data.noteUnderlayOpacity > 0 && strumGroup == getPlayerStrums() && ClientPrefs.data.noteUnderlayType == 'By Note') {
 				var underlay = new FlxSprite().makeGraphic(1, FlxG.width * 2, FlxColor.BLACK);
 				underlay.alpha = ClientPrefs.data.noteUnderlayOpacity;
 				underlay.scale.x = Note.swagScaledWidth;
@@ -2787,7 +2788,7 @@ class PlayState extends MusicBeatState
 			babyArrow.postAddedToGroup();
 		}
 
-		if (ClientPrefs.data.noteUnderlayOpacity > 0 && strumGroup == getPlayerStrums() && ClientPrefs.data.noteUnderlayType == 'All-In-One') {
+		if (replayPlayer == null && ClientPrefs.data.noteUnderlayOpacity > 0 && strumGroup == getPlayerStrums() && ClientPrefs.data.noteUnderlayType == 'All-In-One') {
 			var underlay = new FlxSprite().makeGraphic(1, FlxG.width * 2, FlxColor.BLACK);
 			underlay.alpha = ClientPrefs.data.noteUnderlayOpacity;
 			underlay.scale.x = Note.swagScaledWidth * Note.maniaKeys - (Note.getNoteOffsetX() * (Note.maniaKeys - 1));
@@ -3294,6 +3295,7 @@ class PlayState extends MusicBeatState
 
 								daNote.kill();
 								notes.remove(daNote, true);
+								//TODO: don't destroy notes
 								daNote.destroy();
 							}
 						});
@@ -3327,7 +3329,7 @@ class PlayState extends MusicBeatState
 		else
 			nearNoteValue = Math.max(0.0, nearNoteValue - elapsed * (1000 / NEAR_NOTE_DISTANCE));
 
-		if (ClientPrefs.data.noteUnderlayOpacity > 0) {
+		if (replayPlayer == null && ClientPrefs.data.noteUnderlayOpacity > 0 ) {
 			var playingStrums = getPlayerStrums();
 			for (i in 0...noteUnderlays.length) {
 				var underlay = noteUnderlays.members[i];
@@ -4145,14 +4147,14 @@ class PlayState extends MusicBeatState
 		{
 			replayData = null;
 
-			var prevHighscore = Highscore.getScore(SONG.song, storyDifficulty);
+			var prevHighscore = Highscore.getScore(SONG.song + '${Note.maniaKeys == 4 ? '' : '$' + Note.maniaKeys + 'k'}', storyDifficulty);
 
 			#if !switch
 			var percent:Float = ratingPercent;
 			var gainedPoints:Float = 0;
 			if(Math.isNaN(percent)) percent = 0;
 			if (!isInvalidScore() && finishingSong) {
-				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent);
+				Highscore.saveScore(SONG.song + '${Note.maniaKeys == 4 ? '' : '$' + Note.maniaKeys + 'k'}', songScore, storyDifficulty, percent);
 				var offlinePoints = online.FunkinPoints.save(ratingPercent, songMisses, songDensity, totalNotesHit, maxCombo);
 				if (!online.network.FunkinNetwork.loggedIn)
 					gainedPoints = offlinePoints;

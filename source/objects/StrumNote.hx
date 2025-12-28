@@ -16,6 +16,8 @@ class StrumNote extends FlxSprite
 	public var sustainReduce:Bool = true;
 	private var player:Int;
 	public var maxAlpha:Float = 1.;
+
+	public var forceShow:Bool = false;
 	
 	public var texture(default, set):String = null;
 	private function set_texture(value:String):String {
@@ -262,7 +264,7 @@ class StrumNote extends FlxSprite
 			if (forceHide)
 				return super.set_visible(false);
 
-			if (ClientPrefs.data.disableStrumMovement)
+			if (forceShow)
 				return visible;
 		}
 		return super.set_visible(value);
@@ -273,21 +275,21 @@ class StrumNote extends FlxSprite
 			if (forceHide)
 				return super.set_alpha(0);
 
-			if (ClientPrefs.data.disableStrumMovement)
+			if (forceShow)
 				return super.set_alpha(FlxMath.bound(value, 0.75, 1));
 		}
 		return super.set_alpha(value);
 	}
 
 	override function set_x(value:Float):Float {
-		if (initialized && ClientPrefs.data.disableStrumMovement) {
+		if (initialized && forceShow) {
 			return x;
 		}
 		return super.set_x(value);
 	}
 
 	override function set_y(value:Float):Float {
-		if (initialized && ClientPrefs.data.disableStrumMovement) {
+		if (initialized && forceShow) {
 			return y;
 		}
 		return super.set_y(value);

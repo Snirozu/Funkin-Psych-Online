@@ -754,6 +754,8 @@ class FreeplayState extends MusicBeatState
 	override function closeSubState() {
 		curPage = 0;
 		changeSelection(0, false);
+		if (selected)
+			changeDiff();
 		if (_substateIsModifiers) {
 			leaderboardTimer = 0;
 			
@@ -1349,6 +1351,10 @@ class FreeplayState extends MusicBeatState
 		}
 		_ledSong = formatSong;
 
+		updateManiaKeys();
+	}
+
+	function updateManiaKeys() {
 		Song.updateManiaKeys(PlayState.SONG);
 		if (Note.maniaKeysStringList.contains(ClientPrefs.getGameplaySetting('mania'))) {
 			Note.maniaKeys = Std.parseInt(ClientPrefs.getGameplaySetting('mania').split('k')[0]);
@@ -1675,9 +1681,11 @@ class FreeplayState extends MusicBeatState
 		if (songs[curSelected] == null)
 			return;
 
+		updateManiaKeys();
+
 		#if !switch
-		intendedScore = Highscore.getScore(getSongName(), curDifficulty);
-		intendedRating = Highscore.getRating(getSongName(), curDifficulty);
+		intendedScore = Highscore.getScore(getSongName() + '${Note.maniaKeys == 4 ? '' : '$' + Note.maniaKeys + 'k'}', curDifficulty);
+		intendedRating = Highscore.getRating(getSongName() + '${Note.maniaKeys == 4 ? '' : '$' + Note.maniaKeys + 'k'}', curDifficulty);
 		#end
 
 		lastDifficultyName = Difficulty.getString(curDifficulty);

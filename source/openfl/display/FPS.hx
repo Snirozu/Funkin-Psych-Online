@@ -118,6 +118,9 @@ class FPS extends TextField
 			text += "\nstage3DDC: " + Context3DStats.contextDrawCalls(DrawCallContext.STAGE3D);
 			#end
 
+			if (states.TitleState.inDev)
+				text += "\n(" + Main.GIT_COMMIT + ")";
+
 			text += "\n";
 		}
 
