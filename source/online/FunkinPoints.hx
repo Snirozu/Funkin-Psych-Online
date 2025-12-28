@@ -38,9 +38,10 @@ class FunkinPoints {
 		// fp *= (Math.max(0, notesHit) - Math.pow(notesHit, 1.05)) / 1000;
 		// return fp;
 
-		var fp:Float = (1 + Math.pow(songDensity, 1.5)) * (notesHit / 300);
-		// depends on player's note streak (x2fp per 2000 combo)
-		fp *= 1 + maxCombo / 2000;
+		// todo: maybe make notesHit be divided by a value based on songDensity?
+		var fp:Float = (1 + Math.pow(songDensity, 2)) * (notesHit / 200);
+		// depends on player's note streak (x2fp per 4000 combo)
+		fp *= 1 + maxCombo / 4000;
 		// depends on player's note accuracy (weighted by power of 3; 95% = x0.85, 90% = x0.72, 80% = x0.512)
 		fp *= Math.pow(accuracy, 2) / (1 + misses * 0.1);
 		return fp;

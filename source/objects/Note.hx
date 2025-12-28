@@ -76,7 +76,7 @@ class Note extends FlxSprite
 	public var lowPriority:Bool = false;
 
 	public static var rankedManiaKeysList:Array<Int> = [4, 5, 6, 7, 8, 9];
-	public static var maniaKeysList:Array<Int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 55];
+	public static var maniaKeysList:Array<Int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 20, 21, 26, 50, 55, 61];
 	public static var maniaKeysStringList:Array<String> = [for (keys in maniaKeysList) '${keys}k'];
 	public static var maniaKeys(default, set):Int = 4;
 	static function set_maniaKeys(v) {
@@ -612,35 +612,35 @@ class Note extends FlxSprite
 	}
 
 	override function set_visible(value:Bool):Bool {
-		if (following != null && ClientPrefs.data.disableStrumMovement) {
+		if (following != null && following.forceShow) {
 			return super.set_visible(following.visible);
 		}
 		return super.set_visible(value);
 	}
 
 	override function set_alpha(value:Float):Float {
-		if (following != null && ClientPrefs.data.disableStrumMovement) {
+		if (following != null && following.forceShow) {
 			return super.set_alpha(following.alpha);
 		}
 		return super.set_alpha(value);
 	}
 
 	override function set_x(value:Float):Float {
-		if (following != null && ClientPrefs.data.disableStrumMovement) {
+		if (following != null && following.forceShow) {
 			return x;
 		}
 		return super.set_x(value);
 	}
 
 	override function set_y(value:Float):Float {
-		if (following != null && ClientPrefs.data.disableStrumMovement) {
+		if (following != null && following.forceShow) {
 			return y;
 		}
 		return super.set_y(value);
 	}
 
 	function set_multAlpha(value:Float):Float {
-		if (following != null && ClientPrefs.data.disableStrumMovement) {
+		if (following != null && following.forceShow) {
 			return multAlpha;
 		}
 		return multAlpha = value;
