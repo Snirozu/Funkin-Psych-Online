@@ -125,7 +125,7 @@ class FindRoomState extends MusicBeatState {
                 var newSelected = null;
 
                 for (room in rooms) {
-					var swagRoom = new RoomBox(room.metadata.name, room.roomId, room.metadata.ping ?? "?", room.metadata.points, room.metadata.verified);
+					var swagRoom = new RoomBox(room);
 					swagRoom.ID = i++;
 					items.add(swagRoom);
                     
@@ -158,8 +158,16 @@ class RoomBox extends FlxSpriteGroup {
 
     public var hitbox:FlxObject;
 
-    public function new(name:String, code:String, pingMs:String, points:Null<Float>, verified:Bool) {
+	public function new(room:io.colyseus.Client.RoomAvailable) {
         super();
+
+		var name:String = room.metadata.name;
+		var code:String = room.roomId;
+		var pingMs:String = room.metadata.ping ?? "?";
+		var points:Null<Float> = room.metadata.points;
+		var verified:Bool = room.metadata.verified;
+		var clients:Int = room.metadata.clients;
+		var maxClients:Int = room.metadata.maxClients;
 
 		this.code = code;
 
@@ -169,7 +177,7 @@ class RoomBox extends FlxSpriteGroup {
 		bg.makeGraphic(Std.int(hitbox.width), 1, 0x81000000);
         add(bg);
 
-		title = new FlxText(0, 0, bg.width - 20, name + (points != null ? ' [${points}FP]' : ''));
+		title = new FlxText(0, 0, bg.width - 20, '[${clients}/${maxClients}] ' + name + (points != null ? ' [${points}FP]' : ''));
 		title.setFormat("VCR OSD Mono", 22, FlxColor.WHITE, LEFT);
 		title.setPosition(10, 10);
 		if (verified)

@@ -6,6 +6,7 @@ import backend.WeekData;
 import flixel.effects.FlxFlicker;
 import sys.FileSystem;
 import objects.Character;
+import openfl.Lib;
 
 #if lumod
 @:build(lumod.LuaScriptClass.build())
@@ -54,11 +55,16 @@ class ResultsState extends MusicBeatState {
 		camHUD.bgColor.alpha = 0;
 		camZoomedHUD.bgColor.alpha = 0;
 
+		cam.setScrollBounds(-5000, 5000, -1000, 1020);
+
 		CustomFadeTransition.nextCamera = camHUD;
 
         super.create();
 
 		CustomFadeTransition.nextCamera = camHUD;
+
+		if (!Lib.application.window.resizable)
+			Lib.application.window.resizable = true;
 
 		#if MODS_ALLOWED
 		Mods.pushGlobalMods();
@@ -90,31 +96,30 @@ class ResultsState extends MusicBeatState {
 		stageFloor.setGraphicSize(stageFloor.width * 1.05);
 		stageFloor.updateHitbox();
 		stageFloor.x = -1390;
-		stageFloor.y = 600;
+		stageFloor.y = 625;
 		stageFloor.cameras = [cam];
 		add(stageFloor);
 
 		var curtains:FlxSprite = new FlxSprite().loadGraphic(Paths.image('curtains'));
-		curtains.setGraphicSize(curtains.width * 1.05);
+		curtains.setGraphicSize(curtains.width * 1.1);
 		curtains.updateHitbox();
 		curtains.x = -1020;
-		curtains.y = -270;
+		curtains.y = -310;
 		curtains.cameras = [cam];
 		curtains.scrollFactor.set(0.95, 0.85);
 		add(curtains);
 
 		var lights:FlxSprite = new FlxSprite().loadGraphic(Paths.image('lights'));
-		lights.setGraphicSize(lights.width * 0.9);
+		lights.setGraphicSize(lights.width * 1.1);
 		lights.updateHitbox();
-		lights.x = -250;
-		lights.y = -180;
+		lights.x = -520;
+		lights.y = -210;
 		lights.angle = 1.0;
 		lights.cameras = [cam];
-		lights.scrollFactor.set(0.6, 0.7);
+		lights.scrollFactor.set(0.55, 0.7);
 		add(lights);
 
 		cam.scroll.set(camScrollOrigin[0], camScrollOrigin[1]);
-		cam.zoom = 0.75;
 		camZoomedHUD.scroll.set(cam.scroll.x, cam.scroll.y);
 		camZoomedHUD.zoom = cam.zoom;
 
@@ -128,9 +133,9 @@ class ResultsState extends MusicBeatState {
 		win.animation.play('idle');
 		win.scale.set(0.65, 0.65);
 		win.updateHitbox();
-		win.y = 50;
+		win.y = -20;
         win.alpha = 0;
-		win.cameras = [camZoomedHUD];
+		// win.cameras = [camZoomedHUD];
 		add(win);
 
 		lose = new FlxSprite();
@@ -142,7 +147,7 @@ class ResultsState extends MusicBeatState {
 		lose.updateHitbox();
 		lose.y = win.y + 10;
 		lose.alpha = 0;
-		lose.cameras = [camZoomedHUD];
+		// lose.cameras = [camZoomedHUD];
 		add(lose);
 
 		tie = new FlxSprite();
@@ -155,7 +160,7 @@ class ResultsState extends MusicBeatState {
 		tie.x = 680;
 		tie.y = win.y + 10;
 		tie.alpha = 0;
-		tie.cameras = [camZoomedHUD];
+		// tie.cameras = [camZoomedHUD];
 		add(tie);
 
 		back = new FlxSprite();
@@ -197,13 +202,14 @@ class ResultsState extends MusicBeatState {
 		var playersBySide = [0, 0];
 
 		for (sid => player in GameClient.room.state.players) {
-			var char = new LobbyCharacter(player, camZoomedHUD, player.verified, 5);
+			var char = new LobbyCharacter(player, camZoomedHUD, player.verified, 6);
 			char.yBoxStepOffset = 0;
-			char.xBoxStepOffset = 380;
-			char.xCharStepOffset = 300;
-			char.profileBoxXOffset = 530;
-			char.profileBoxXOffsetP2 = 270;
-			char.profileBoxYOffset = 200;
+			char.xBoxStepOffset = 390;
+			char.xCharStepOffset = 350;
+			char.profileBoxXOffset = 560;
+			char.profileBoxXOffsetP2 = 240;
+			char.profileBoxYOffset = 300;
+			char.charOffsetX = 100;
 			var pAccuracy = GameClient.getPlayerAccuracyPercent(player);
 			char.profileBox.desc.text = 'Accuracy: ${pAccuracy}%';
 			char.profileBox.desc.text += '\nScore: ${FlxStringUtil.formatMoney(player.score, false)} - ${player.songPoints}FP';
@@ -349,6 +355,7 @@ class ResultsState extends MusicBeatState {
 
 			maxOffset = Math.max(maxOffset, character.character.ox);
 		}
+		cam.zoom = maxOffset > 1 ? 0.6 : 0.7;
 
 		charactersLayer.members.sort(function (a:LobbyCharacter, b:LobbyCharacter) {
 			if (a == null || b == null)
@@ -637,7 +644,7 @@ class ResultsState extends MusicBeatState {
         super.update(elapsed);
 
 		cam.scroll.set(
-			FlxMath.lerp(cam.scroll.x, camScrollOrigin[0] + (FlxG.mouse.screenX - FlxG.width / 2) * 0.1, elapsed * 2), 
+			FlxMath.lerp(cam.scroll.x, camScrollOrigin[0] + (FlxG.mouse.screenX - FlxG.width / 2) * 0.2, elapsed * 2), 
 			FlxMath.lerp(cam.scroll.y, camScrollOrigin[1] + (FlxG.mouse.screenY - FlxG.height / 2) * 0.05, elapsed * 2)
 		);
 		camZoomedHUD.scroll.set(cam.scroll.x, cam.scroll.y);

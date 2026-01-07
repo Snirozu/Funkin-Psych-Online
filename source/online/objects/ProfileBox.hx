@@ -170,11 +170,13 @@ class ProfileBox extends FlxSpriteGroup {
         updatePositions();
     }
 
+	public var avatarMaxSize:Int = 80;
+
     public function fitAvatar() {
 		if (avatar == null || avatar.width < 1)
             return;
 
-		avatar.setGraphicSize(Math.min(cardHeight * 0.8, 80), Math.min(cardHeight * 0.8, 80));
+		avatar.setGraphicSize(Math.min(cardHeight * 0.8, avatarMaxSize), Math.min(cardHeight * 0.8, avatarMaxSize));
 		avatar.updateHitbox();
 		updatePositions();
     }

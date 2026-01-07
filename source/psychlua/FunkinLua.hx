@@ -717,11 +717,11 @@ class FunkinLua {
 			game.RecalculateRating();
 		});
 		Lua_helper.add_callback(lua, "addMisses", function(value:Int = 0) {
-			game.songMisses += value;
+			game.addMisses(value);
 			game.RecalculateRating();
 		});
 		Lua_helper.add_callback(lua, "addHits", function(value:Int = 0) {
-			game.songHits += value;
+			game.addHits(value);
 			game.RecalculateRating();
 		});
 		Lua_helper.add_callback(lua, "setScore", function(value:Int = 0) {
@@ -729,11 +729,13 @@ class FunkinLua {
 			game.RecalculateRating();
 		});
 		Lua_helper.add_callback(lua, "setMisses", function(value:Int = 0) {
-			game.songMisses = value;
+			luaTrace('setMisses: This function is disabled in Psych Online.', false, false, FlxColor.RED);
+			// game.songMisses = value;
 			game.RecalculateRating();
 		});
 		Lua_helper.add_callback(lua, "setHits", function(value:Int = 0) {
-			game.songHits = value;
+			luaTrace('setHits: This function is disabled in Psych Online.', false, false, FlxColor.RED);
+			// game.songHits = value;
 			game.RecalculateRating();
 		});
 		Lua_helper.add_callback(lua, "getScore", function() {
@@ -895,7 +897,8 @@ class FunkinLua {
 			LuaUtils.cameraFromString(camera).fade(CoolUtil.colorFromString(color), duration, false,null,forced);
 		});
 		Lua_helper.add_callback(lua, "setRatingPercent", function(value:Float) {
-			game.ratingPercent = value;
+			luaTrace('setRatingPercent: This function is disabled in Psych Online.', false, false, FlxColor.RED);
+			// game.ratingPercent = value;
 		});
 		Lua_helper.add_callback(lua, "setRatingName", function(value:String) {
 			game.ratingName = value;

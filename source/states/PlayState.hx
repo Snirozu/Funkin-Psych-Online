@@ -265,8 +265,8 @@ class PlayState extends MusicBeatState
 		return _health = v;
 	}
 
-	public var maxCombo:Int = 0;
-	function set_combo(v:Int):Int {
+	public var maxCombo(default, null):Int = 0;
+	@:unreflective function set_combo(v:Int):Int {
 		if (gf != null)
 			gf.onCombo(combo, v);
 		maxCombo = Math.floor(Math.max(maxCombo, v));
@@ -333,13 +333,23 @@ class PlayState extends MusicBeatState
 		_tempDiff *= 1 + Math.max(0, combo - 1) * 0.001;
 		return songScore += Math.floor(_tempDiff);
 	}
-	public var songHits:Int = 0;
-	public var songMisses:Int = 0;
-	public var songSicks:Int = 0;
-	public var songGoods:Int = 0;
-	public var songBads:Int = 0;
-	public var songShits:Int = 0;
-	public var songPoints:Float = 0;
+	public var songHits(default, set):Int = 0;
+	function set_songHits(v) {
+		if (v < songHits)
+			return v;
+		return songHits = v;
+	}
+	public var songMisses(default, set):Int = 0;
+	function set_songMisses(v) {
+		if (v < songMisses)
+			return v;
+		return songMisses = v;
+	}
+	public var songSicks(default, null):Int = 0;
+	public var songGoods(default, null):Int = 0;
+	public var songBads(default, null):Int = 0;
+	public var songShits(default, null):Int = 0;
+	public var songPoints(default, null):Float = 0;
 
 	public var pointsPercent:Float = 0;
 
@@ -603,7 +613,7 @@ class PlayState extends MusicBeatState
 				};
 				endCallback = () -> {
 					finishingSong = true;
-					GameClient.send("updateSongFP", songPoints);
+					GameClient.send("updateSongFP", Math.ffloor(songPoints));
 					GameClient.send("updateMaxCombo", maxCombo);
 					GameClient.send("playerEnded");
 				};
@@ -1216,11 +1226,15 @@ class PlayState extends MusicBeatState
 				if (GameClient.room.state.teamMode) {
 					scoreTxtOthers.set('LEFTSIDE', createText(false));
 					scoreTxtOthers.set('RIGHTSIDE', createText(true));
+
+					scoreTxtOthers.get(getPlayerStats(GameClient.room.sessionId).player.bfSide ? 'RIGHTSIDE' : 'LEFTSIDE').color = FlxColor.YELLOW;
 				}
 				else {
 					for (sid => player in GameClient.room.state.players) {
 						scoreTxtOthers.set(sid, createText(player.bfSide, player.ox));
 					}
+
+					scoreTxtOthers.get(GameClient.room.sessionId).color = FlxColor.YELLOW;
 				}
 			});
 		}
@@ -2178,7 +2192,7 @@ class PlayState extends MusicBeatState
 		, 2);
 		if (points != songPoints) {
 			songPoints = points;
-			GameClient.send("updateSongFP", songPoints);
+			GameClient.send("updateSongFP", Math.ffloor(songPoints));
 			if (totalPlayed != 0) {
 				var maxPoints = online.FunkinPoints.calcFP(1, 0, songDensity, totalPlayed, totalPlayed);
 				pointsPercent = Math.min(1, Math.max(0, points / maxPoints));
@@ -2942,8 +2956,11 @@ class PlayState extends MusicBeatState
 		addHealth(2);
 	}
 
+	public function addMisses(value:Int) { songMisses += value; }
+	public function addHits(value:Int) { songHits += value; }
+
 	var nearNoteValue:Float = 0;
-	final NEAR_NOTE_DISTANCE:Float = 1000;
+	final NEAR_NOTE_DISTANCE:Float = 1500;
 
 	override public function update(elapsed:Float)
 	{
@@ -4176,8 +4193,6 @@ class PlayState extends MusicBeatState
 			}
 
 			if (GameClient.isConnected()) {
-				Lib.application.window.resizable = true;
-				states.TitleState.playFreakyMusic();
 				if (isInvalidScore()) online.gui.Alert.alert("Calculated Points", "+" + songPoints);
 				online.states.ResultsState.gainedPoints = gainedPoints;
 				if (!skipResults)
@@ -4281,8 +4296,8 @@ class PlayState extends MusicBeatState
 		eventNotes = [];
 	}
 
-	public var totalPlayed:Int = 0;
-	public var totalNotesHit:Float = 0.0;
+	public var totalPlayed(default, null):Int = 0;
+	public var totalNotesHit(default, null):Float = 0.0;
 
 	public var showCombo:Bool = false;
 	public var showComboNum:Bool = true;
@@ -5790,7 +5805,7 @@ class PlayState extends MusicBeatState
 	}
 
 	public var ratingName:String = '?';
-	public var ratingPercent:Float;
+	public var ratingPercent(default, null):Float;
 	public var ratingFC:String;
 	//WHY IS THIS IN UPPERCASE
 	public function RecalculateRating(badHit:Bool = false) {

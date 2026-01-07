@@ -119,7 +119,7 @@ class FPS extends TextField
 			#end
 
 			if (states.TitleState.inDev)
-				text += "\n(" + Main.GIT_COMMIT + ")";
+				text += "\n(" + Main.GIT_COMMIT.substr(0, 7) + ")";
 
 			text += "\n";
 		}

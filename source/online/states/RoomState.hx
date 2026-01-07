@@ -1,5 +1,7 @@
 package online.states;
 
+import states.stages.objects.PhillyTrain;
+import backend.StageData;
 import flixel.util.FlxStringUtil;
 import states.stages.Spooky;
 import flixel.util.FlxAxes;
@@ -21,6 +23,7 @@ import haxe.crypto.Md5;
 import states.FreeplayState;
 import states.ModsMenuState;
 import openfl.utils.Assets as OpenFlAssets;
+import openfl.Lib;
 
 #if lumod
 @:build(lumod.LuaScriptClass.build())
@@ -61,6 +64,47 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 	var revealTimer:FlxTimer;
 	var playerHold(default, set):Bool = false;
+
+	var funnyMode(default, set):Int = 1;
+	function set_funnyMode(v) {
+		funnyMode = v;
+		switch (funnyMode) {
+			case 0:
+				targetCamZoom = 0.65;
+				targetCamX = 200;
+				targetCamY = 120;
+			case 1:
+				targetCamZoom = 0.57;
+				targetCamX = 150;
+				targetCamY = 120;
+			case 2:
+				targetCamZoom = 0.45;
+				targetCamX = 50;
+				targetCamY = 180;
+			case 3:
+				targetCamZoom = 0.34;
+				targetCamX = 50;
+				targetCamY = 250;
+		}
+		startCamTween();
+		return funnyMode;
+	}
+
+	var targetCamTween:FlxTween;
+	var targetCamScrollTween:FlxTween;
+	var targetCamZoom:Float = 0.65;
+	var targetCamX:Float = 200;
+	var targetCamY:Float = 120;
+
+	function startCamTween() {
+		if (targetCamTween != null)
+			targetCamTween.cancel();
+		targetCamTween = FlxTween.tween(cum, {zoom: targetCamZoom}, 1, {ease: FlxEase.quadOut});
+
+		if (targetCamScrollTween != null)
+			targetCamScrollTween.cancel();
+		targetCamScrollTween = FlxTween.tween(cum.scroll, {x: targetCamX, y: targetCamY}, 1, {ease: FlxEase.quadOut});
+	}
 
 	static var instance:RoomState = null;
 
@@ -132,13 +176,13 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 			player.listen("isReady", (value, prev) -> {
 				Waiter.put(() -> {
 					if (value) {
-						var sond = FlxG.sound.play(Paths.sound('scrollMenu'), 0.5);
-						sond.pitch = 1.1;
+						var sond = FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
+						sond.pitch = 1.5;
 					}
-					// else {
-					// 	var sond = FlxG.sound.play(Paths.sound('cancelMenu'));
-					// 	sond.pitch = 1.1;
-					// }
+					else {
+						var sond = FlxG.sound.play(Paths.sound('cancelMenu'));
+						sond.pitch = 1.5;
+					}
 				});
 			});
 			player.listen("noteSkin", (value, prev) -> {
@@ -168,7 +212,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 		function initPlayer(sid:String, player:Player) {
 			if (!characters.exists(sid)) {
-				var char = new LobbyCharacter(player, camHUD);
+				var char = new LobbyCharacter(player);
 				characters.set(sid, char);
 				// HOW THE FUCK DOES THIS EVEN HAPPEN??!!??!
 				if (charactersLayer.members == null)
@@ -250,6 +294,9 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 	override function create() {
 		super.create();
 
+		if (!Lib.application.window.resizable)
+			Lib.application.window.resizable = true;
+
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("In the Lobby", null, null, false);
 		#end
@@ -273,40 +320,15 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 		// STAGE
 
-		if (online.backend.DateEvent.isHalloween) {
-			Paths.setCurrentLevel("week2");
-			stage = new Spooky();
-			untyped stage.room = this;
-		} 
-		else {
-			Paths.setCurrentLevel("week3");
-			var pStage = new Philly();
-			stage = pStage;
-			pStage.phillyTrain.sound.volume = 0;
-
-			if (!ClientPrefs.data.lowQuality) {
-				pStage.bg.setGraphicSize(Std.int(pStage.bg.width * 1));
-				pStage.bg.updateHitbox();
-
-				pStage.bg.x -= 80;
-				pStage.bg.y -= 50;
-			}
-			pStage.city.setGraphicSize(Std.int(pStage.city.width * 1.1));
-			pStage.city.updateHitbox();
-			pStage.phillyWindow.setGraphicSize(Std.int(pStage.phillyWindow.width * 1.1));
-			pStage.phillyWindow.updateHitbox();
-
-			pStage.city.x -= 80;
-			pStage.phillyWindow.x -= 80;
-			pStage.city.y -= 20;
-			pStage.phillyWindow.y -= 20;
-		}
-		
+		stage = new LobbyStage();
 		stage.cameras = [cum];
 		add(stage);
 
-		cum.scroll.set(100, 130);
-		cum.zoom = 0.85;
+		// var debugPoser = new online.objects.DebugPosHelper();
+		// add(debugPoser);
+
+		cum.scroll.set(200, 130);
+		cum.zoom = 0.5;
 
 		add(charactersLayer);
 
@@ -973,6 +995,8 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 		charactersLayer.members.sort(sortByOX);
 
+		funnyMode = Std.int(maxOffset);
+
 		//cum.zoom = 0.9 - (maxOffset * 0.1);
 	}
 	
@@ -1041,20 +1065,24 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 	}
 }
 
-class LobbyCharacter extends FlxTypedGroup<FlxObject> {
+#if lumod
+@:build(lumod.LuaScriptClass.build())
+#end
+class LobbyCharacter extends FlxTypedGroup<FlxSprite> {
 	public var player:Player;
 	public var character:Character;
 	public var profileBox:ProfileBox;
 	public var noSkin:Bool = false;
 	var dlSkinTxt:FlxText;
 	public var profileBoxXOffset:Float = 400;
-	public var profileBoxXOffsetP2:Float = 0;
+	public var profileBoxXOffsetP2:Float = 100;
 	public var profileBoxYOffset:Float = 50;
-	public var xBoxStepOffset:Float = 200;
+	public var xBoxStepOffset:Float = 450;
 	public var yBoxStepOffset:Float = 150;
-	public var xCharStepOffset:Float = 280;
+	public var xCharStepOffset:Float = 400;
+	public var charOffsetX:Float = 0;
 
-	public function new(player:Player, camHUD:FlxCamera, ?isVerified:Bool = false, ?sizeAdd:Int = 2) {
+	public function new(player:Player, ?camHUD:FlxCamera, ?isVerified:Bool = false, ?sizeAdd:Int = 12) {
 		super();
 
 		this.player = player;
@@ -1062,9 +1090,11 @@ class LobbyCharacter extends FlxTypedGroup<FlxObject> {
 		profileBox = new ProfileBox(isVerified ? player.name : null, isVerified, 50, sizeAdd);
 		profileBox.autoUpdateThings = false;
 		profileBox.autoCardHeight = true;
+		profileBox.avatarMaxSize = 100;
 		profileBox.text.text = player.name;
 		profileBox.setPosition(0, profileBoxYOffset);
-		profileBox.camera = camHUD;
+		//if (camHUD != null)
+		//	profileBox.camera = camHUD;
 		add(profileBox);
 
 		dlSkinTxt = new FlxText(0, 0, 0, "DOWNLOAD SKIN");
@@ -1129,12 +1159,12 @@ class LobbyCharacter extends FlxTypedGroup<FlxObject> {
 		profileBox.text.clearFormats();
 
 		profileBox.text.applyMarkup(
-		(player.verified ? '<y>${player.name + (profileBox?.profileData?.club != null ? ' [${profileBox.profileData.club}]' : '')}<y>' : player.name) + ' • ' + FlxStringUtil.formatMoney(player.points, false) + 'FP'
+		(player.verified ? '<y>${player.name + (profileBox?.profileData?.club != null ? ' [${profileBox.profileData.club}]' : '')}<y>' : player.name)
 		, [yellowMarker]);
 
 		profileBox.desc.applyMarkup(
 			(player.verified && profileBox.profileData != null ? 
-				"Rank: " + ShitUtil.toOrdinalNumber(profileBox.profileData.rank) + "\n"
+				FlxStringUtil.formatMoney(player.points, false) + 'FP (' + ShitUtil.toOrdinalNumber(profileBox.profileData.rank) + ")\n"
 			 : "") +
 			"Ping: <p>" + player.ping + "ms<p>\n\n" +
 			player.status + "\n" +
@@ -1207,6 +1237,8 @@ class LobbyCharacter extends FlxTypedGroup<FlxObject> {
 
 	var _bfSide = false;
 
+	// var _charCamPos = FlxPoint.get();
+
 	public function repos() {
 		if (_bfSide != player.bfSide) {
 			loadCharacter(false);
@@ -1215,16 +1247,75 @@ class LobbyCharacter extends FlxTypedGroup<FlxObject> {
 
 		// left side
 		if (!player.bfSide) {
-			character.x = 280 + character.positionArray[0] - character.ox * xCharStepOffset;
+			character.x = charOffsetX + 200 + character.positionArray[0] - character.ox * xCharStepOffset;
 			character.y = 120 + character.positionArray[1];
-			profileBox.x = profileBoxXOffset - profileBox.width / 2 - Math.min(1, character.ox) * xBoxStepOffset;
+			profileBox.x = profileBoxXOffset - profileBox.width / 2 - character.ox * xBoxStepOffset;
 		}
 		// right side
 		else {
-			character.x = 780 + character.positionArray[0] + character.ox * xCharStepOffset;
+			character.x = charOffsetX + 700 + character.positionArray[0] + character.ox * xCharStepOffset;
 			character.y = 120 + character.positionArray[1];
-			profileBox.x = profileBoxXOffsetP2 + FlxG.width - profileBoxXOffset - profileBox.width / 2 + Math.min(1, character.ox) * xBoxStepOffset;
+			profileBox.x = profileBoxXOffsetP2 + FlxG.width - profileBoxXOffset - profileBox.width / 2 + character.ox * xBoxStepOffset;
 		}
-		profileBox.y = profileBoxYOffset + character.ox * yBoxStepOffset;
+		// character.getScreenPosition(_charCamPos, profileBox.camera);
+		// profileBox.x = _charCamPos.x + character.width / 2 * character.camera.zoom - profileBox.width / 2; 
+		// profileBox.y = profileBoxYOffset + character.ox * yBoxStepOffset;
+		// profileBox.x = character.x + character.width / 2 - profileBox.width / 2;
+		profileBox.y = 100;
+	}
+}
+
+class LobbyStage extends BaseStage {
+	var sprites:Map<String, FlxSprite> = new Map();
+
+	var phillyTrain:PhillyTrain;
+	var phillyWindow:FlxSprite;
+	var curLight:Int = 0;
+	var phillyLightsColors:Array<FlxColor> = [0xFF31A2FD, 0xFF31FD8C, 0xFFFB33F5, 0xFFFD4531, 0xFFFBA633];
+
+	override function create() {
+		var stageData = StageData.getStageFile("lobby");
+		if (stageData == null) { // Stage couldn't be found, create a dummy stage for preventing a crash
+			stageData = StageData.dummy();
+		}
+		Paths.setCurrentLevel(stageData.directory);
+		var list = StageData.addObjectsToState(stageData.objects, null, null, null, this, ['train']);
+		for (key => spr in list)
+			if (!StageData.reservedNames.contains(key))
+				sprites.set(key, spr);
+
+		for (num => data in stageData.objects) {
+			if (data.name == 'train') {
+				// phillyTrain = new PhillyTrain(data.x, data.y);
+				// phillyTrain.sound.volume = 0.5;
+				// insert(members.indexOf(sprites.get('street')), phillyTrain);
+			}
+		}
+
+		phillyWindow = sprites.get('window');
+		if (phillyWindow != null) {
+			phillyWindow.alpha = 0;
+		}
+	}
+
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+
+		if (phillyWindow != null) {
+			phillyWindow.alpha -= (Conductor.crochet / 1000) * FlxG.elapsed * 1.5;
+		}
+	}
+
+	override function beatHit() {
+		if (phillyTrain != null)
+			phillyTrain.beatHit(curBeat);
+
+		if (phillyWindow != null) {
+			if (curBeat % 4 == 0) {
+				curLight = FlxG.random.int(0, phillyLightsColors.length - 1, [curLight]);
+				phillyWindow.color = phillyLightsColors[curLight];
+				phillyWindow.alpha = 1;
+			}
+		}
 	}
 }
