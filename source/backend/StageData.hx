@@ -153,12 +153,12 @@ class StageData {
 
 	// PSYCH ENGINE 1.0 STUFFS
 	public static var reservedNames:Array<String> = ['gf', 'gfGroup', 'dad', 'dadGroup', 'boyfriend', 'boyfriendGroup']; //blocks these names from being used on stage editor's name input text
-	public static function addObjectsToState(objectList:Array<Dynamic>, gf:FlxSprite, dad:FlxSprite, boyfriend:FlxSprite, ?group:Dynamic = null, ?ignoreFilters:Bool = false)
+	public static function addObjectsToState(objectList:Array<Dynamic>, gf:FlxSprite, dad:FlxSprite, boyfriend:FlxSprite, ?group:Dynamic = null, ?ignoreFilters:Bool = false, ?ignoreNames:Array<String> = null)
 	{
 		var addedObjects:Map<String, FlxSprite> = [];
 		for (num => data in objectList)
 		{
-			if (addedObjects.exists(data)) continue;
+			if (addedObjects.exists(data) || ignoreNames.contains(data.name)) continue;
 
 			switch(data.type)
 			{
