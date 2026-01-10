@@ -5,8 +5,82 @@ import CompileTime;
 class Deflection {
 	//@:unreflective public static final luaClassBlacklist:Array<String> = ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http'];
     @:unreflective public static var classBlacklist(get, default):Array<Class<Dynamic>> = null;
+	public static var CLASS_ALIASES:Map<String, String> = [
+		"Achievements" => "backend.Achievements",
+		"AchievementsMenuState" => "",
+		"Alphabet" => "objects.Alphabet",
+		"AttachedSprite" => "objects.AttachedSprite",
+		"AttachedText" => "objects.AttachedText",
+		"BGSprite" => "objects.BGSprite",
+		"BackgroundDancer" => "states.stages.objects.BackgroundDancer",
+		"BackgroundGirls" => "states.stages.objects.BackgroundGirls",
+		"BlendModeEffect" => "shaders.BlendModeEffect",
+		"Boyfriend" => "objects.Character",
+		"ButtonRemapSubstate" => "",
+		"Character" => "objects.Character",
+		// "ChartParser" => "", // removed?
+		"CheckboxThingie" => "objects.CheckboxThingie",
+		"ClientPrefs" => "backend.ClientPrefs",
+		"ColorSwap" => "shaders.ColorSwap",
+		"Conductor" => "backend.Conductor",
+		"Controls" => "backend.Controls",
+		"CoolUtil" => "backend.CoolUtil",
+		"CreditsState" => "states.CreditsState",
+		"CustomFadeTransition" => "backend.CustomFadeTransition",
+		"CutsceneHandler" => "cutscenes.CutsceneHandler",
+		"DialogueBox" => "cutscenes.DialogueBox",
+		"DialogueBoxPsych" => "cutscenes.DialogueBoxPsych",
+		"Discord" => "backend.Discord",
+		"FlashingState" => "states.FlashingState",
+		"FlxUIDropDownMenuCustom" => "objects.FlxScrollableDropDownMenu",
+		"FreeplayState" => "states.FreeplayState",
+		"FunkinLua" => "psychlua.FunkinLua",
+		"GameOverSubstate" => "substates.GameOverSubstate",
+		"GameplayChangersSubstate" => "substates.GameplayChangersSubstate",
+		// "GitarooPause" => "", // removed
+		"HealthIcon" => "objects.HealthIcon",
+		"Highscore" => "backend.Highscore",
+		"InputFormatter" => "backend.InputFormatter",
+		// "LatencyState" => "", // removed
+		"LoadingState" => "states.LoadingState",
+		"MainMenuState" => "states.MainMenuState",
+		"MenuCharacter" => "objects.MenuCharacter",
+		"MenuItem" => "objects.MenuItem",
+		"ModsMenuState" => "states.ModsMenuState",
+		"MusicBeatState" => "backend.MusicBeatState",
+		"MusicBeatSubstate" => "backend.MusicBeatSubstate",
+		"Note" => "objects.Note",
+		"NoteSplash" => "objects.NoteSplash",
+		"OutdatedState" => "states.OutdatedState",
+		"OverlayShader" => "shaders.OverlayShader",
+		"Paths" => "backend.Paths",
+		"PauseSubState" => "substates.PauseSubState",
+		"PhillyGlowParticle" => "states.stages.objects.PhillyGlowParticle",
+		"PhillyGlowGradient" => "states.stages.objects.PhillyGlowGradient",
+		"PlayState" => "states.PlayState",
+		// "PlayerSettings" => "", // whatever this is
+		"Prompt" => "substates.Prompt",
+		"ResetScoreSubState" => "substates.ResetScoreSubState",
+		"Section" => "backend.Section",
+		// "Snd" => "", // unused
+		// "SndTV" => "",
+		"Song" => "backend.Song",
+		"StageData" => "backend.StageData",
+		"StoryMenuState" => "states.StoryMenuState",
+		"StrumNote" => "objects.StrumNote",
+		"TankmenBG" => "states.stages.objects.TankmenBG",
+		"TitleState" => "states.TitleState",
+		"TypedAlphabet" => "objects.TypedAlphabet",
+		"WeekData" => "backend.WeekData",
+		"WiggleEffect" => "shaders.WiggleEffect",
+	];
 
     public static function resolveClass(clsName:String):Class<Dynamic> {
+		var aliasFound = CLASS_ALIASES.get(clsName);
+		if (aliasFound != null) {
+			clsName = aliasFound;
+		}
+
 		var cls = Type.resolveClass(clsName);
 
 		// if (clsName == 'hxcodec.flixel.FlxVideo' || clsName == 'vlc.MP4Handler') {

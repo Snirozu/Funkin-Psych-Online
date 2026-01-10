@@ -228,6 +228,9 @@ class Song
 	}
 
 	public static function updateManiaKeys(songData:SwagSong, ?noUpdate:Bool = false):Int {
+		if (songData == null)
+			return Note.maniaKeys = 4;
+		
 		var keys = null;
 
 		if (songData.mania != null)

@@ -252,8 +252,27 @@ class ResultsSoloState extends MusicBeatState {
 		var shits = new TallieNumbers(193, 440, data.shits, 0xDC3834);
 		var misses = new TallieNumbers(255, 492, data.misses, 0xA244D5);
 		var score = new Seg7Numbers(72, 607, data.score);
+		
+		score.visible = false;
+		add(score);
+		hitNotes.visible = false;
+		add(hitNotes);
+		combo.visible = false;
+		add(combo);
+		sicks.visible = false;
+		add(sicks);
+		goods.visible = false;
+		add(goods);
+		bads.visible = false;
+		add(bads);
+		shits.visible = false;
+		add(shits);
+		misses.visible = false;
+		add(misses);
 
 		var clearText = new ClearText(800, 250);
+		clearText.visible = false;
+		add(clearText);
 
         //show diff only for erect and nightmare difficulty
 
@@ -278,7 +297,7 @@ class ResultsSoloState extends MusicBeatState {
 				scoreName.animation.play('idle');
 				scoreName.animation.callback = (n, frameNum, frameIndex) -> {
 					if (frameIndex == 1) {
-						add(score);
+						score.visible = true;
 						scoreName.animation.callback = null;
 
 						flash.alpha = 0.5;
@@ -326,20 +345,20 @@ class ResultsSoloState extends MusicBeatState {
 							);
 							#end
 						}});
-						add(clearText);
+						clearText.visible = true;
 					}
 				};
 			};
 
 			// idfc about making this look fancy
 			FlxTimer.wait(0.4, () -> {
-				add(hitNotes);
+				hitNotes.visible = true;
 			FlxTimer.wait(0.4, () -> {
-				add(combo);
+				combo.visible = true;
 			FlxTimer.wait(0.4, () -> {
-				add(sicks);
+				sicks.visible = true;
 			FlxTimer.wait(0.4, () -> {
-				add(goods);
+				goods.visible = true;
 				if (data.isHighscore) {
 					FlxTimer.wait(1, () -> {
 						highscore.visible = true;
@@ -347,12 +366,12 @@ class ResultsSoloState extends MusicBeatState {
 					});
 				}
 			FlxTimer.wait(0.4, () -> {
-				add(bads);
+				bads.visible = true;
 				score.playAnimAllDelay('activate', 0.1);
 			FlxTimer.wait(0.4, () -> {
-				add(shits);
+				shits.visible = true;
 			FlxTimer.wait(0.4, () -> {
-				add(misses);
+				misses.visible = true;
 			});});});});});});});
 
 			songText.alpha = 1;

@@ -146,6 +146,15 @@ class Note extends FlxSprite
 
 	public var hits:Int = 0;
 
+	// thanks shadowmario for not leaving vars deprecated for backwards compatibility
+	@:deprecated public var noteSplashDisabled(get, set):Bool;
+	function get_noteSplashDisabled() {
+		return noteSplashData.disabled;
+	}
+	function set_noteSplashDisabled(v) {
+		return noteSplashData.disabled = v;
+	}
+
 	private function set_multSpeed(value:Float):Float {
 		resizeByRatio(value / multSpeed);
 		multSpeed = value;
@@ -396,7 +405,7 @@ class Note extends FlxSprite
 		var skin:String = texture + postfix;
 		if(texture.length < 1) {
 			skin = PlayState.SONG != null ? PlayState.SONG.arrowSkin : null;
-			if(skin == null || skin.length < 1) {
+			if (skin == null || skin.length < 1 || skin == "NOTE_assets") {
 				skin = defaultNoteSkin + postfix;
 
 				lastTexture = defaultNoteSkin;
