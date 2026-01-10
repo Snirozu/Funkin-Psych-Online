@@ -1600,21 +1600,23 @@ class PlayState extends MusicBeatState
 		switch(type) {
 			case 0:
 				function addBoyfriend(character:Character, ?sid:String) {
-					if (character.isPlayer != boyfriend.isPlayer)
-						return;
-					
-					if (!ClientPrefs.data.modchartSkinChanges && character.isSkin)
-						return;
+					if (character != null) {
+						if (character.isPlayer != boyfriend.isPlayer)
+							return;
+						
+						if (!ClientPrefs.data.modchartSkinChanges && character.isSkin)
+							return;
+					}
 
 					var charID = newCharacter + (sid != null ? '__' + sid : '');
 					if (!boyfriendMap.exists(charID)) {
 						var newBoyfriend:Character;
-						if (character.isSkin && newCharacter == SONG.player1)
+						if (character?.isSkin && newCharacter == SONG.player1)
 							newBoyfriend = character;
 						else {
 							newBoyfriend = new Character(0, 0, newCharacter, playsAsBF(), false, 'bf');
-							newBoyfriend.ox = character.ox;
-							newBoyfriend.gameIconIndex = character.gameIconIndex;
+							newBoyfriend.ox = character?.ox ?? 0;
+							newBoyfriend.gameIconIndex = character?.gameIconIndex ?? 0;
 							if (!playsAsBF()) {
 								newBoyfriend.flipX = !newBoyfriend.flipX;
 							}
@@ -1634,21 +1636,23 @@ class PlayState extends MusicBeatState
 
 			case 1:
 				function addDad(character:Character, ?sid:String) {
-					if (character.isPlayer != dad.isPlayer)
-						return;
-					
-					if (!ClientPrefs.data.modchartSkinChanges && character.isSkin)
-						return;
+					if (character != null) {
+						if (character.isPlayer != dad.isPlayer)
+							return;
+						
+						if (!ClientPrefs.data.modchartSkinChanges && character.isSkin)
+							return;
+					}
 
 					var charID = newCharacter + (sid != null ? '__' + sid : '');
 					if(!dadMap.exists(charID)) {
 						var newDad:Character;
-						if (character.isSkin && newCharacter == SONG.player2)
+						if (character?.isSkin && newCharacter == SONG.player2)
 							newDad = character;
 						else {
 							newDad = new Character(0, 0, newCharacter, !playsAsBF(), false, 'dad');
-							newDad.ox = character.ox;
-							newDad.gameIconIndex = character.gameIconIndex;
+							newDad.ox = character?.ox ?? 0;
+							newDad.gameIconIndex = character?.gameIconIndex ?? 0;
 							if (!playsAsBF()) {
 								newDad.flipX = !newDad.flipX;
 							}
@@ -2990,6 +2994,12 @@ class PlayState extends MusicBeatState
 			ClientPrefs.saveSettings();
 			Alert.alert("Replay Submiting: " + (ClientPrefs.data.disableSubmiting ? "OFF" : "ON"));
 		}
+
+		if (FlxG.keys.justPressed.F3) {
+			ClientPrefs.data.debugMode = !ClientPrefs.data.debugMode;
+			ClientPrefs.saveSettings();
+			Alert.alert("Debug Mode: " + (ClientPrefs.data.debugMode ? "ON" : "OFF"));
+		}
 		
 		if (!GameClient.isConnected()) {
 			if (!ClientPrefs.data.disableLagDetection
@@ -3427,6 +3437,29 @@ class PlayState extends MusicBeatState
 
 				if (isP1)
 					icon.x += 75 * iconSizeMult(iconP1s);
+			case 3:
+				switch (i) {
+					case 0:
+						if (isP1)
+							icon.x += 20;
+						else
+							icon.x -= 20;
+						icon.y += 20;
+					case 1:
+						if (isP1)
+							icon.x += 20;
+						else
+							icon.x -= 20;
+						icon.y -= 20;
+					case 2:
+						if (isP1)
+							icon.x -= 20;
+						else
+							icon.x += 20;
+				}
+
+				if (isP1)
+					icon.x += 75 * iconSizeMult(iconP1s);
 		}
 	}
 
@@ -3434,7 +3467,10 @@ class PlayState extends MusicBeatState
 		if (from.length <= 1)
 			return 1;
 
-		return 0.65;
+		if (from.length <= 2)
+			return 0.65;
+
+		return 0.6;
 	}
 
 	function openPauseMenu()

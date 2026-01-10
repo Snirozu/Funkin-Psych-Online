@@ -1,5 +1,6 @@
 package online.backend;
 
+import psychlua.FunkinLua;
 import sys.io.FileOutput;
 import sys.io.FileInput;
 import sys.FileSystem;
@@ -7,7 +8,9 @@ import sys.io.File;
 import haxe.io.Path;
 
 class LuaModuleSwap {
-	public static function doLua(lua:llua.State, ?stopFunc:Void->Void) {
+	public static function doLua(lua:llua.State, originPath:String, ?stopFunc:Void->Void) {
+		originPath = Path.normalize(originPath);
+
 		var launchTime:Float = haxe.Timer.stamp();
 
 		set(lua, 'os', {
@@ -193,7 +196,166 @@ class LuaModuleSwap {
 				return files.get(filename).write(str);
 			}
 		});
-		set(lua, 'require', function(?module:String) {
+		set(lua, 'require', function(?module:String):Dynamic {
+			switch (module) {
+				//have you ever wanted movies free
+				case 'ffi':
+					return {
+						cdef: function(def:String) {
+							return;
+						},
+						C: {},
+						load: function(name:String, ?global:String) {
+							return {};
+						},
+						"new": function(ct:Dynamic, ?nelem:Dynamic, ?init:Dynamic) {
+							return {};
+						},
+						typeof: function(ct:Dynamic) {
+							return {};
+						},
+						"cast": function(ct:Dynamic, init:Dynamic) {
+							return {};
+						},
+						metatype: function(ct:Dynamic, metatable:Dynamic) {
+							return null;
+						},
+						gc: function(cdata:Dynamic, finalizer:Dynamic) {
+							return null;
+						},
+						sizeof: function(ct:Dynamic, ?nelem:Dynamic) {
+							return haxe.Json.parse(ct)?.length;
+						},
+						alignof: function(ct:Dynamic) {
+							return 0;
+						},
+						offsetof: function(ct:Dynamic, field:Dynamic) {
+							return 0;
+						},
+						istype: function(ct:Dynamic, obj:Dynamic) {
+							return false;
+						},
+						errno: function(?newerr:Dynamic) {
+							return 0;
+						},
+						string: function(ptr:Dynamic, ?len:Dynamic) {
+							return null;
+						},
+						copy: function(dst:Dynamic, ?srcOrStr:Dynamic, ?len:Dynamic) {
+							return;
+						},
+						fill: function(dst:Dynamic, len:Dynamic, ?c:Dynamic) {
+							return;
+						},
+						abi: function(param:String) {
+							return false;
+						},
+
+						#if windows
+						os: 'Windows',
+						#elseif linux
+						os: 'Linux',
+						#elseif mac
+						os: 'OSX',
+						#else
+						os: 'Other',
+						#end
+
+						#if (HXCPP_M32 || HXCPP_X86)
+						arch: 'x86',
+						#elseif HXCPP_M64
+						arch: 'x64',
+						#elseif (HXCPP_ARM64 || HXCPP_LINUX_ARM64)
+						arch: 'arm64',
+						#elseif (HXCPP_ARMV6 || HXCPP_ARMV7 || HXCPP_ARMV7S || HXCPP_LINUX_ARMV7) 
+						arch: 'arm',
+						#else
+						arch: null
+						#end
+					};
+			}
+
+			if (!module.endsWith('.lua')) {
+				module += '.lua';
+			}
+
+			if (!FileSystem.exists(filePath(module))) {
+				var pathSplit = originPath.split('/');
+				pathSplit.pop();
+				var relativePath = pathSplit.join('/');
+				module = Path.join([relativePath, module]);
+			}
+
+			if (FileSystem.exists(filePath(module))) {
+				var funkinLua = new FunkinLua(module);
+				var lua = funkinLua.lua;
+
+				// https://stackoverflow.com/a/46374744
+				var fields:Array<String> = [];
+				Lua.pushvalue(lua, Lua.LUA_GLOBALSINDEX); // Get global table
+				Lua.pushnil(lua); // put a nil key on stack
+				while (Lua.next(lua, -2) != 0) { // key(-1) is replaced by the next key(-1) in table(-2)
+					fields.push(Lua.tostring(lua, -2)); // Get key(-2) name
+					Lua.pop(lua, 1); // remove value(-1), now key on top at(-1)
+				}
+				Lua.pop(lua, 1); // remove global table(-1)
+
+				var obj:Dynamic = {};
+				
+				for (field in fields) {
+
+					Lua.getglobal(lua, field);
+					var luaType = Lua.type(lua, -1);
+					Lua.pop(lua, 1);
+
+					switch (luaType) {
+						case Lua.LUA_TFUNCTION:
+							// doesn't workkkkggghh....
+							// Reflect.setField(obj, field, function(...params:Dynamic) {
+							// 	return funkinLua.call(field, params);
+							// });
+
+							// supports up to 10 arguments/parameters
+							Reflect.setField(obj, field, function(?v1:Dynamic, ?v2:Dynamic, ?v3:Dynamic, ?v4:Dynamic, ?v5:Dynamic, ?v6:Dynamic, ?v7:Dynamic, ?v8:Dynamic, ?v9:Dynamic, ?v10:Dynamic) {
+								return funkinLua.call(field, [v1, v2, v3, v4, v5, v6, v7, v8, v9, v10]);
+							});
+						default:
+							// global fields aren't really used in fnf scripts idk 
+							// they will always have the initial value so use getfield() and setfield(v) instead when scripting
+							// also if anyone knows how to make global fields work properly then do a cool pr
+
+							try {
+								Lua.getglobal(lua, field);
+								var result = Convert.fromLua(lua, -1);
+								Lua.pop(lua, 1);
+
+								Reflect.setField(obj, field, result);
+							} catch (exc) {
+								if (backend.ClientPrefs.isDebug()) {
+									trace(field);
+									trace(exc);
+								}
+							}
+
+							if (!Reflect.hasField(obj, 'get' + field))
+								Reflect.setField(obj, 'get' + field, function() {
+									Lua.getglobal(lua, field);
+									var result = Convert.fromLua(lua, -1);
+									Lua.pop(lua, 1);
+									return result;
+								});
+
+							if (!Reflect.hasField(obj, 'set' + field))
+								Reflect.setField(obj, 'set' + field, function(v:Dynamic) {
+									funkinLua.set(field, v);
+									return v;
+								});
+					}
+				}
+
+				return obj;
+			}
+
 			return null;
 		});
 		set(lua, 'debug', null);
@@ -212,7 +374,7 @@ class LuaModuleSwap {
 
 	static function filePath(path:String) {
 		path = path.trim();
-		if (path.endsWith('dll') || path.endsWith('exe')) {
+		if (path.endsWith('lib') || path.endsWith('dll') || path.endsWith('exe')) {
 			return null;
 		}
 		return Path.join([Sys.getCwd(), path]);
@@ -226,7 +388,7 @@ class LuaModuleSwap {
 #if lumod
 class LumodModuleAddon extends lumod.addons.LumodAddon {
 	override function init() {
-		LuaModuleSwap.doLua(instance.__lua);
+		LuaModuleSwap.doLua(instance.__lua, instance.__scriptPath);
 	}
 }
 #end

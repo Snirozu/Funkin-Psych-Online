@@ -239,6 +239,15 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 			updateGroup();
 		}
 
+		if (FlxG.keys.justPressed.HOME) {
+			curSelected = -1;
+			changeSelection();
+		}
+		else if (FlxG.keys.justPressed.END) {
+			curSelected = grpTexts.length - 1;
+			changeSelection();
+		}
+
 		if (controls.BACK) {
 			close();
 		}

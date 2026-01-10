@@ -177,6 +177,9 @@ class DiscordClient
 
 	public static function updatePresence()
 	{
+		if (!ClientPrefs.data.discordRPC)
+			return;
+
 		Discord.UpdatePresence(cpp.RawConstPointer.addressOf(presence.__presence));
 	}
 	
@@ -219,6 +222,7 @@ class DiscordClient
 			if(newID == null) newID = _defaultID;
 			clientID = newID;
 		});
+		Lua_helper.add_callback(lua, "changePresence", changePresence);
 	}
 	#end
 }
