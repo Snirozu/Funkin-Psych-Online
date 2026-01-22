@@ -9,6 +9,8 @@ class AlphaLikeText extends FlxText implements Scrollable {
 	public var isMenuItem:Bool = true;
 	public var scaleX(default, set):Float = 1;
 	public var scaleY(default, set):Float = 1;
+	public var changeX:Bool = true;
+	public var changeY:Bool = true;
 
 	public function new(x:Float, y:Float, text:String = "") {
 		super(x, y);
@@ -24,16 +26,20 @@ class AlphaLikeText extends FlxText implements Scrollable {
 	override function update(elapsed:Float) {
 		if (isMenuItem) {
 			var lerpVal:Float = FlxMath.bound(elapsed * 9.6, 0, 1);
-            x = FlxMath.lerp(x, (targetY * distancePerItem.x) + startPosition.x, lerpVal);
-            y = FlxMath.lerp(y, (targetY * 1.3 * distancePerItem.y) + startPosition.y, lerpVal);
+			if (changeX)
+            	x = FlxMath.lerp(x, (targetY * distancePerItem.x) + startPosition.x, lerpVal);
+			if (changeY)
+            	y = FlxMath.lerp(y, (targetY * 1.3 * distancePerItem.y) + startPosition.y, lerpVal);
 		}
 		super.update(elapsed);
 	}
 
     public function snapToPosition()
 	{
-        x = (targetY * distancePerItem.x) + startPosition.x;
-        y = (targetY * 1.3 * distancePerItem.y) + startPosition.y;
+		if (changeX)
+        	x = (targetY * distancePerItem.x) + startPosition.x;
+		if (changeX)
+        	y = (targetY * 1.3 * distancePerItem.y) + startPosition.y;
 	}
 
 	private function set_scaleX(value:Float) {

@@ -74,4 +74,10 @@ class Room extends Schema {
 	@:type("boolean")
 	public var disableSkins: Bool = false;
 
+	@:type("boolean")
+	public var royalMode:Bool = false;
+
+	@:type("boolean")
+	public var royalModeBfSide:Bool = true;
+
 }

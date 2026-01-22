@@ -154,7 +154,7 @@ class ProfileTab extends TabSprite {
 
 		loading = true;
 		Thread.run(() -> {
-			var response = FunkinNetwork.requestAPI('/api/user/details?name=' + StringTools.urlEncode(username));
+			var response = FunkinNetwork.requestAPI('/api/user/details?name=' + StringTools.urlEncode(username), false);
 
 			if (response != null && !response.isFailed()) {
 				Waiter.putPersist(() -> {
@@ -162,6 +162,12 @@ class ProfileTab extends TabSprite {
 						user = Json.parse(response.getString());
 						renderData();
                     }
+				});
+			}
+			else {
+				Waiter.putPersist(() -> {
+					loadingTxt.setText('Failed to fetch!');
+					loadingTxt.visible = true;
 				});
 			}
 		});
@@ -174,6 +180,7 @@ class ProfileTab extends TabSprite {
 			child.visible = !v;
 		}
 		tabBg.visible = true;
+		loadingTxt.setText('Fetching...');
 		loadingTxt.visible = v;
 		if (v)
 			tabBg.bitmapData = new BitmapData(tabBg.bitmapData.width, tabBg.bitmapData.height, true, FlxColor.fromRGB(10, 10, 10));

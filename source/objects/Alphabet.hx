@@ -7,6 +7,8 @@ interface Scrollable extends IFlxSprite {
 	public var distancePerItem:FlxPoint;
 	public var startPosition:FlxPoint;
 	function snapToPosition():Void;
+	public var changeX:Bool;
+	public var changeY:Bool;
 
 	var isMenuItem:Bool;
 	var scaleX(default, set):Float;

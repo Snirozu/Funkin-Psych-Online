@@ -517,7 +517,22 @@ class GameClient {
 
 	public static function getAvailableRooms(address:String, result:(Error, Array<RoomAvailable>) -> Void) {
 		Thread.run(() -> {
-			new Client(address).getAvailableRooms("room", result);
+			var http = new Http(addressToUrl(address) + "/rooms/room");
+
+			http.onData = function(data:String) {
+				try {
+					result(null, haxe.Json.parse(data));
+				}
+				catch (exc) {
+					result(new Error(0, 'failed to parse json request'), null);
+				}
+			}
+
+			http.onError = function(error) {
+				result(new Error(0, error), null);
+			}
+
+			http.request();
 		});
 	}
 

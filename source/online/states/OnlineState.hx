@@ -224,7 +224,8 @@ class OnlineState extends MusicBeatState {
 			if (!Main.UNOFFICIAL_BUILD)
 				add(twitter);
 		}
-		
+
+		var microblog = (twitterIsDead ? bsky : twitter);
 
 		itemDesc = new FlxText(0, FlxG.height - 170);
 		itemDesc.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -243,6 +244,14 @@ class OnlineState extends MusicBeatState {
 		availableRooms.alpha = 0.6;
 		availableRooms.screenCenter(X);
 		add(availableRooms);
+
+		var credit = new FlxText(0, 0, 0, 'Psych Online by Snirozu');
+		credit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		credit.alpha = 0.3;
+		credit.screenCenter(X);
+		credit.x = (microblog.x + microblog.width - discord.x) / 2 + discord.x - credit.width / 2;
+		credit.y = FlxG.height - credit.height - 5;
+		add(credit);
 
 		// networkBg = new FlxSprite(20, 20);
 		// networkBg.makeGraphic(1, 1, FlxColor.BLACK);
@@ -271,19 +280,22 @@ class OnlineState extends MusicBeatState {
 		frontMessage.x = FlxG.width - frontMessage.fieldWidth - 50;
 		add(frontMessage);
 
-		FunkinNetwork.ping();
-		var profileBox = new ProfileBox(FunkinNetwork.nickname, true);
-		profileBox.setPosition(FlxG.width - profileBox.width - 20, 20);
-		add(profileBox);
-		
-		changeSelection(0);
+		Thread.run(() -> {
+			FunkinNetwork.ping();
+
+			if (FunkinNetwork.loggedIn)
+				Waiter.put(() -> {
+					var profileBox = new ProfileBox(FunkinNetwork.nickname, true);
+					profileBox.setPosition(FlxG.width - profileBox.width - 20, 20);
+					add(profileBox);
+				});
+		});
 
 		Thread.run(() -> {
 			var data = FunkinNetwork.fetchFront();
 			Waiter.put(() -> {
 				if (data == null) {
 					playersOnline.text = "NETWORK OFFLINE";
-					profileBox.visible = false;
 					// networkPlayer.visible = false;
 					// networkBg.visible = false;
 				}
@@ -298,6 +310,8 @@ class OnlineState extends MusicBeatState {
 				availableRooms.screenCenter(X);
 			});
 		});
+
+		changeSelection(0);
 
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 

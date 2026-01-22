@@ -11,7 +11,7 @@ class CreditsState extends MusicBeatState
 {
 	var curSelected:Int = -1;
 
-	private var grpOptions:FlxTypedGroup<Alphabet>;
+	private var grpOptions:FlxTypedGroup<FlxSprite>;
 	private var iconArray:Array<AttachedSprite> = [];
 	private var creditsStuff:Array<Array<String>> = [];
 
@@ -36,7 +36,7 @@ class CreditsState extends MusicBeatState
 		add(bg);
 		bg.screenCenter();
 		
-		grpOptions = new FlxTypedGroup<Alphabet>();
+		grpOptions = new FlxTypedGroup<FlxSprite>();
 		add(grpOptions);
 
 		#if MODS_ALLOWED
@@ -83,12 +83,16 @@ class CreditsState extends MusicBeatState
 		for (i in 0...creditsStuff.length)
 		{
 			var isSelectable:Bool = !unselectableCheck(i);
-			var optionText:Alphabet = new Alphabet(FlxG.width / 2, 300, creditsStuff[i][0], !isSelectable);
+			var optionText:Scrollable;
+			if (isSelectable && ClientPrefs.data.disableFreeplayAlphabet)
+				optionText = new online.objects.AlphaLikeText(FlxG.width / 2, 300, creditsStuff[i][0]);
+			else
+				optionText = new Alphabet(FlxG.width / 2, 300, creditsStuff[i][0], !isSelectable);
 			optionText.isMenuItem = true;
 			optionText.targetY = i;
 			optionText.changeX = false;
 			optionText.snapToPosition();
-			grpOptions.add(optionText);
+			grpOptions.add(cast optionText);
 
 			if(isSelectable) {
 				if(creditsStuff[i][5] != null)
@@ -100,7 +104,10 @@ class CreditsState extends MusicBeatState
 				if (Paths.image('credits/' + creditsStuff[i][1]) != null) str = 'credits/' + creditsStuff[i][1];
 				var icon:AttachedSprite = new AttachedSprite(str);
 				icon.xAdd = optionText.width + 10;
-				icon.sprTracker = optionText;
+				if (optionText is online.objects.AlphaLikeText) {
+					optionText.offset.y = -(icon.height / 2 - 20);
+				}
+				icon.sprTracker = cast optionText;
 	
 				// using a FlxGroup is too much fuss!
 				iconArray.push(icon);
@@ -109,7 +116,14 @@ class CreditsState extends MusicBeatState
 
 				if(curSelected == -1) curSelected = i;
 			}
-			else optionText.alignment = CENTERED;
+			else {
+				if (optionText is Alphabet) {
+					(cast (optionText, Alphabet)).alignment = CENTERED;
+				}
+				if (optionText is online.objects.AlphaLikeText) {
+					(cast(optionText, online.objects.AlphaLikeText)).alignment = CENTER;
+				}
+			}
 		}
 		
 		descBox = new AttachedSprite();
@@ -196,13 +210,15 @@ class CreditsState extends MusicBeatState
 		
 		for (item in grpOptions.members)
 		{
-			if(!item.bold)
+			final item:Scrollable = cast item;
+
+			if (item is online.objects.AlphaLikeText || (item is Alphabet && !cast (item, Alphabet).bold))
 			{
 				var lerpVal:Float = FlxMath.bound(elapsed * 12, 0, 1);
 				if(item.targetY == 0)
 				{
 					var lastX:Float = item.x;
-					item.screenCenter(X);
+					cast (item, FlxSprite).screenCenter(X);
 					item.x = FlxMath.lerp(lastX, item.x - 70, lerpVal);
 				}
 				else
@@ -244,6 +260,8 @@ class CreditsState extends MusicBeatState
 
 		for (item in grpOptions.members)
 		{
+			final item:Scrollable = cast item;
+
 			item.targetY = bullShit - curSelected;
 			bullShit++;
 

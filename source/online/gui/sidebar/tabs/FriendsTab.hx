@@ -125,13 +125,19 @@ class FriendsTab extends TabSprite {
     function loadData() {
         loading = true;
 		Thread.run(() -> {
-			var response = FunkinNetwork.requestAPI('/api/account/friends');
+			var response = FunkinNetwork.requestAPI('/api/account/friends', false);
 
 			if (response != null && !response.isFailed()) {
 				Waiter.putPersist(() -> {
 					loading = false;
 					data = Json.parse(response.getString());
 					renderData();
+				});
+			}
+			else {
+				Waiter.putPersist(() -> {
+					loadingTxt.setText('Failed to fetch!');
+					loadingTxt.visible = true;
 				});
 			}
 		});
@@ -142,6 +148,7 @@ class FriendsTab extends TabSprite {
 			child.visible = !v;
 		}
 		tabBg.visible = true;
+		loadingTxt.setText('Fetching...');
 		loadingTxt.visible = v;
 		return loading = v;
 	}

@@ -62,3 +62,7 @@ import online.backend.Deflection;
 using StringTools;
 using ArrayTools;
 #end
+
+#if away3d
+import away3d.tools.utils.Drag3D;
+#end

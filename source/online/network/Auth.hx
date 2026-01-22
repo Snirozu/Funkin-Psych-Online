@@ -18,8 +18,18 @@ class Auth {
 		return "Basic " + Base64.encode(Bytes.ofString((authID ?? Auth.authID) + ":" + (authToken ?? Auth.authToken)));
 	}
 
-    public static function load() {
+    public static function load() {		
 		savePath = lime.system.System.applicationStorageDirectory + 'peo_auth.json';
+
+		//migrate old path
+		var legacyPath = Path.normalize(savePath).replace(
+			FlxG.stage.application.meta.get('company') + '/' + FlxG.stage.application.meta.get('file')
+			, 'ShadowMario/PsychEngine');
+		if (FileSystem.exists(legacyPath)) {
+			File.saveContent(savePath, File.getContent(legacyPath));
+			FileSystem.deleteFile(legacyPath);
+			trace('migrated auth data');
+		}
 
 		if (!FileSystem.exists(savePath))
 			generateSave();
@@ -69,6 +79,10 @@ class Auth {
     }
 
 	public static function saveClose() {
+		//don't mind me adding it here
+		if (online.gui.sidebar.tabs.HostServerTab.process != null)
+			online.gui.sidebar.tabs.HostServerTab.stopServer();
+
 		if (saveData.id == null || saveData.token == null) {
 			saveData = {
 				id: authID,

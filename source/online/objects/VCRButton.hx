@@ -34,7 +34,7 @@ class VCRButton extends FlxSpriteGroup {
     override function update(elapsed) {
         super.update(elapsed);
 
-		if (FlxG.mouse.justMoved) {
+		if (FlxG.mouse.deltaX != 0 || FlxG.mouse.deltaY != 0) {
 			selected = FlxG.mouse.overlaps(this, camera);
         }
 

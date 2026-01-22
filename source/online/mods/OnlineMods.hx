@@ -280,10 +280,17 @@ class OnlineMods {
 					continue;
 				}
 
-				if (!FileSystem.exists(Path.directory(Path.join([parentFolder, entry.fileName.substring(beginFolder.length)])))) {
-					FileSystem.createDirectory(Path.join([parentFolder, Path.directory(entry.fileName).substring(beginFolder.length)]));
+				try {
+					if (!FileSystem.exists(Path.directory(Path.join([parentFolder, entry.fileName.substring(beginFolder.length)])))) {
+						FileSystem.createDirectory(Path.join([parentFolder, Path.directory(entry.fileName).substring(beginFolder.length)]));
+					}
+					File.saveBytes(Path.join([parentFolder, entry.fileName.substring(beginFolder.length)]), Reader.unzip(entry));
 				}
-				File.saveBytes(Path.join([parentFolder, entry.fileName.substring(beginFolder.length)]), Reader.unzip(entry));
+				catch (exc) {
+					Waiter.putPersist(() -> {
+						Alert.alert("Copying a file failed!", ShitUtil.prettyError(exc));
+					});
+				}
 			}
 		}
 

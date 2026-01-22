@@ -1,5 +1,6 @@
 package substates;
 
+import online.GameClient;
 import online.util.ShitUtil;
 import online.substates.PostTextSubstate;
 import sys.io.File;
@@ -25,7 +26,7 @@ class PauseSubState extends MusicBeatSubstate
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
 	var menuItems:Array<String> = [];
-	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Change Difficulty', 'Options', 'Exit to menu'];
+	var menuItemsOG:Array<String> = [];
 	var difficultyChoices = [];
 	var curSelected:Int = 0;
 
@@ -43,42 +44,51 @@ class PauseSubState extends MusicBeatSubstate
 	public function new(x:Float, y:Float)
 	{
 		super();
-		if(Difficulty.list.length < 2) menuItemsOG.remove('Change Difficulty'); //No need to change difficulty if there is only one!
 
-		if(PlayState.chartingMode)
-		{
-			menuItemsOG.insert(2, 'Leave Charting Mode');
-			
-			var num:Int = 0;
-			if(!PlayState.instance.startingSong)
+		if (!GameClient.isConnected()) {
+			menuItemsOG = ['Resume', 'Restart Song', 'Change Difficulty', 'Options', 'Exit to menu'];
+
+			if(Difficulty.list.length < 2) menuItemsOG.remove('Change Difficulty'); //No need to change difficulty if there is only one!
+
+			if(PlayState.chartingMode)
 			{
-				num = 1;
-				menuItemsOG.insert(3, 'Skip Time');
+				menuItemsOG.insert(2, 'Leave Charting Mode');
+				
+				var num:Int = 0;
+				if(!PlayState.instance.startingSong)
+				{
+					num = 1;
+					menuItemsOG.insert(3, 'Skip Time');
+				}
+				menuItemsOG.insert(3 + num, 'End Song');
+				menuItemsOG.insert(4 + num, 'Toggle Practice Mode');
+				menuItemsOG.insert(5 + num, 'Toggle Botplay');
 			}
-			menuItemsOG.insert(3 + num, 'End Song');
-			menuItemsOG.insert(4 + num, 'Toggle Practice Mode');
-			menuItemsOG.insert(5 + num, 'Toggle Botplay');
-		}
 
-		var oof = 0;
-		if (!ClientPrefs.data.disableSongComments && PlayState.instance.songId != null) {
-			menuItemsOG.insert(3, 'Post a Comment Now');
-			oof++;
-		}
+			var oof = 0;
+			if (!ClientPrefs.data.disableSongComments && PlayState.instance.songId != null) {
+				menuItemsOG.insert(3, 'Post a Comment Now');
+				oof++;
+			}
 
-		if (ClientPrefs.isDebug()) {
-			menuItemsOG.insert(3, 'Debug Tools');
-			oof++;
-		}
+			if (ClientPrefs.isDebug()) {
+				menuItemsOG.insert(3, 'Debug Tools');
+				oof++;
+			}
 
-		if (PlayState.replayData != null) {
-			menuItemsOG.remove('Change Difficulty');
-			menuItemsOG.insert(2 + oof, 'Skip Time');
-			menuItemsOG.insert(3 + oof, 'Save Replay');
-			if (PlayState.replayID != null) {
-				menuItemsOG.insert(4 + oof, 'Report Replay');
+			if (PlayState.replayData != null) {
+				menuItemsOG.remove('Change Difficulty');
+				menuItemsOG.insert(2 + oof, 'Skip Time');
+				menuItemsOG.insert(3 + oof, 'Save Replay');
+				if (PlayState.replayID != null) {
+					menuItemsOG.insert(4 + oof, 'Report Replay');
+				}
 			}
 		}
+		else {
+			menuItemsOG = ['Resume', 'Exit to lobby'];
+		}
+
 		menuItems = menuItemsOG;
 
 		for (i in 0...Difficulty.list.length) {
@@ -87,24 +97,25 @@ class PauseSubState extends MusicBeatSubstate
 		}
 		difficultyChoices.push('BACK');
 
-
-		pauseMusic = new FlxSound();
-		if(songName != null) {
-			pauseMusic.loadEmbedded(Paths.music(songName), true, true);
-		} else if (songName != 'None') {
-			var msc = null;
-			if (ClientPrefs.data.modSkin != null) {
-			   ShitUtil.tempSwitchMod(ClientPrefs.data.modSkin[0], () -> {
-		              msc = Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic + '-' + ClientPrefs.data.modSkin[1]));
-			   });
+		if (!FlxG.sound.music.playing) {
+			pauseMusic = new FlxSound();
+			if(songName != null) {
+				pauseMusic.loadEmbedded(Paths.music(songName), true, true);
+			} else if (songName != 'None') {
+				var msc = null;
+				if (ClientPrefs.data.modSkin != null) {
+				ShitUtil.tempSwitchMod(ClientPrefs.data.modSkin[0], () -> {
+						msc = Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic + '-' + ClientPrefs.data.modSkin[1]));
+				});
+				}
+				msc ??= Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic));
+				pauseMusic.loadEmbedded(msc, true, true);
 			}
-			msc ??= Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic));
-			pauseMusic.loadEmbedded(msc, true, true);
-		}
-		pauseMusic.volume = 0;
-		pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
+			pauseMusic.volume = 0;
+			pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
 
-		FlxG.sound.list.add(pauseMusic);
+			FlxG.sound.list.add(pauseMusic);
+		}
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0;
@@ -189,7 +200,7 @@ class PauseSubState extends MusicBeatSubstate
 	override function update(elapsed:Float)
 	{
 		cantUnpause -= elapsed;
-		if (pauseMusic.volume < 0.5)
+		if (pauseMusic != null && pauseMusic.volume < 0.5)
 			pauseMusic.volume += 0.01 * elapsed;
 
 		super.update(elapsed);
@@ -264,7 +275,7 @@ class PauseSubState extends MusicBeatSubstate
 				
 		}
 
-		if (accepted && (cantUnpause <= 0 || !controls.controllerMode))
+		if (accepted && cantUnpause <= 0)
 		{
 			if (menuItems == difficultyChoices)
 			{
@@ -358,7 +369,7 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.instance.paused = true; // For lua
 					PlayState.instance.vocals.volume = 0;
 					FlxG.switchState(() -> new OptionsState());
-					if(ClientPrefs.data.pauseMusic != 'None')
+					if (pauseMusic != null && ClientPrefs.data.pauseMusic != 'None')
 					{
 						FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)), pauseMusic.volume);
 						FlxTween.tween(FlxG.sound.music, {volume: 1}, 0.8);
@@ -449,6 +460,8 @@ class PauseSubState extends MusicBeatSubstate
 				case 'Back':
 					menuItems = menuItemsOG;
 					regenMenu();
+				case 'Exit to lobby':
+					GameClient.send("requestEndSong");
 				default:
 					close();
 			}
@@ -484,7 +497,8 @@ class PauseSubState extends MusicBeatSubstate
 
 	override function destroy()
 	{
-		pauseMusic.destroy();
+		if (pauseMusic != null)
+			pauseMusic.destroy();
 
 		super.destroy();
 	}

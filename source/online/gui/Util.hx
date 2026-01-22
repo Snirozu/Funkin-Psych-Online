@@ -27,6 +27,7 @@ class Util {
 		obj.selectable = false;
 		obj.multiline = true;
 		obj.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, size, color, false);
+		obj.embedFonts = true;
 		return obj;
 	}
 
@@ -40,7 +41,7 @@ class Util {
 		}
 		obj.autoSize = LEFT;
 		obj.text = text;
-		obj.scaleX = Math.min(1, (maxWidth ?? (SideUI.instance.curTab.tabWidth - obj.x - 20)) / obj.width);
+		obj.scaleX = Math.min(1, (maxWidth ?? ((SideUI.instance.curTab?.tabWidth ?? SideUI.DEFAULT_TAB_WIDTH) - obj.x - 20)) / obj.width);
 		obj.scaleY = obj.scaleX;
 	}
 
@@ -78,7 +79,7 @@ class Util {
 		return maxHeight;
 	}
 
-	static function wrapText(text:String, ?everyCharacters:Int = 45, ?stopAtLine:Int = 10) {
+	static function wrapText(text:String, ?everyCharacters:Int = 45, ?stopAtLine:Int = 10, ?trimLines:Bool = true) {
 		var output = '';
 		var i = -1;
 		var score = 0;
@@ -95,18 +96,24 @@ class Util {
 
 			if (score >= everyCharacters) {
 				score = 0;
-				output += '[...]\n';
 				lineScore++;
+
 				if (lineScore >= stopAtLine) {
 					break;
 				}
 
-				while (++i < text.length) {
-					if (text.charAt(i) == ' ' || text.charAt(i) == '\n') {
-						break;
+				if (trimLines) {
+					output += '[...]\n';
+					while (++i < text.length) {
+						if (text.charAt(i) == ' ' || text.charAt(i) == '\n') {
+							break;
+						}
 					}
+					continue;
 				}
-				continue;
+				else {
+					output += '\n';
+				}
 			}
 			else if (score >= everyCharacters - 10 && char == ' ') {
 				score = 0;

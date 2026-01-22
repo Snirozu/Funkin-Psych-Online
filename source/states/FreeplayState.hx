@@ -203,19 +203,19 @@ class FreeplayState extends MusicBeatState
 
 		FlxG.mouse.visible = false;
 		FlxG.autoPause = false;
-
-		//Paths.clearStoredMemory();
-		//Paths.clearUnusedMemory();
 		
 		persistentUpdate = true;
 		PlayState.isStoryMode = false;
+		var stamp = haxe.Timer.stamp();
 		WeekData.reloadWeekFiles(false);
+		trace(haxe.Timer.stamp() - stamp);
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", "Freeplay");
 		#end
 
+		var stamp = haxe.Timer.stamp();
 		for (i in 0...WeekData.weeksList.length) {
 			if (weekIsLocked(WeekData.weeksList[i]))
 				continue;
@@ -241,6 +241,7 @@ class FreeplayState extends MusicBeatState
 				addSong(song[0], i, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]), song[3], song[4]);
 			}
 		}
+		trace(haxe.Timer.stamp() - stamp);
 
 		Mods.loadTopMod();
 
@@ -334,6 +335,7 @@ class FreeplayState extends MusicBeatState
 		Mods.loadTopMod();
 
 		trace("loading songs");
+		var stamp = haxe.Timer.stamp();
 		var drawTime = Sys.time();
 
 		for (i in 0...initSongs.length) {
@@ -359,9 +361,12 @@ class FreeplayState extends MusicBeatState
 			}
 			initSongItems.push([songText, icon]);
 		}
+		trace(haxe.Timer.stamp() - stamp);
 		WeekData.setDirectoryFromWeek();
 
+		var stamp = haxe.Timer.stamp();
 		loadCharacterWeeks();
+		trace(haxe.Timer.stamp() - stamp);
 
 		trace("finished loading songs (" + FlxMath.roundDecimal(Sys.time() - drawTime, 2) + "s)"
 		+ (ClientPrefs.data.disableFreeplayAlphabet ? ' (fast render)' : '')
@@ -384,7 +389,9 @@ class FreeplayState extends MusicBeatState
 		searchInput.cameras = [hudCamera];
 		scoreText.cameras = [hudCamera];
 
+		var stamp = haxe.Timer.stamp();
 		updateGroups();
+		trace(haxe.Timer.stamp() - stamp);
 
 		// sickScore = new FlxSprite(Paths.image('sickScore'));
 		// sickScore.antialiasing = ClientPrefs.data.antialiasing;
@@ -647,7 +654,8 @@ class FreeplayState extends MusicBeatState
 		}
 		if (newGroup != searchGroup) {
 			searchGroup = newGroup;
-			searchGroupValue = 0;
+			if (searchGroup != null) 
+				searchGroupValue = 0;
 		}
 
 		switch (searchGroup) {
@@ -663,7 +671,9 @@ class FreeplayState extends MusicBeatState
 
 		if (!refresh) {
 			if (searchGroup == MIX) {
-				searchGroupValue = searchGroupVList.indexOf(curSkin[1]);
+				final skinIndex = searchGroupVList.indexOf(curSkin[1]);
+				if (skinIndex != -1)
+					searchGroupValue = skinIndex;
 			}
 		}
 
@@ -1330,6 +1340,7 @@ class FreeplayState extends MusicBeatState
 	var leaderboardTimer(default, set):Float = 3;
 	function set_leaderboardTimer(v:Float) {
 		if (v == 0) {
+			topLoading.text = 'Loading...';
 			topLoading.visible = true;
 			topShit.visible = false;
 			hasLeaderboardTimerEnded = false;
@@ -1387,7 +1398,7 @@ class FreeplayState extends MusicBeatState
 				this.top = top;
 
 				if (top == null) {
-					topLoading.visible = false;
+					topLoading.text = 'Failed to fetch!';
 					return;
 				}
 
@@ -1434,7 +1445,7 @@ class FreeplayState extends MusicBeatState
 			});
 		}
 		catch (e:Dynamic) {
-			topLoading.visible = false;
+			topLoading.text = 'Failed to load!';
 		}
 	}
 
@@ -2030,8 +2041,17 @@ class FreeplayState extends MusicBeatState
 		#end
 	}
 
-	static var searchGroup:GroupType = DEFAULT;
-	static var searchGroupValue:Int = 0;
+	static var searchGroup:GroupType = null;
+	static var searchGroupValue(get, set):Int;
+	static function get_searchGroupValue() {
+		return ClientPrefs.data.groupSongsValue ?? 0;
+	}
+	static function set_searchGroupValue(v:Int) {
+		ClientPrefs.data.groupSongsValue = v;
+		ClientPrefs.saveSettings();
+		return ClientPrefs.data.groupSongsValue ?? 0;
+	}
+
 	static var searchGroupVList:Array<String> = [];
 	static var searchString(default, set):String = '';
 	static function set_searchString(v) {

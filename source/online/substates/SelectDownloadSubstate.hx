@@ -136,7 +136,7 @@ class SelectDownloadSubstate extends MusicBeatSubstate {
 		super.update(elapsed);
 
 		if (items.length > 0)
-			coolCam.follow(items.members[selected], null, 0.1);
+			coolCam.follow(items.members[selected], TOPDOWN, 0.1);
 	}
 }
 
@@ -209,7 +209,7 @@ class DownloadBox extends FlxSpriteGroup {
 	override function update(elapsed) {
 		super.update(elapsed);
 
-		if (FlxG.mouse.overlaps(bg, camera) && (FlxG.mouse.deltaScreenX != 0 || FlxG.mouse.deltaScreenY != 0 || FlxG.mouse.justPressed)) {
+		if (FlxG.mouse.overlaps(bg, camera) && (FlxG.mouse.deltaX != 0 || FlxG.mouse.deltaY != 0 || FlxG.mouse.justPressed)) {
 			SelectDownloadSubstate.instance.selected = ID;
 		}
 

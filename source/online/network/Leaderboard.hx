@@ -30,7 +30,7 @@ class Leaderboard {
 
 	public static function fetchLeaderboard(page:Int = 0, category:Null<String>, keys:Null<Int>, songID:String, callback:Array<TopScore>->Void) {
 		Thread.run(() -> {
-			var response = FunkinNetwork.requestAPI("/api/top/song?song=" + StringTools.urlEncode(songID) + "&strum=" + (ClientPrefs.getGameplaySetting('opponentplay') ? 1 : 2) + "&page=" + page + (category != null ? '&category=' + category : '') + (keys != null ? '&keys=' + keys : ''));
+			var response = FunkinNetwork.requestAPI("/api/top/song?song=" + StringTools.urlEncode(songID) + "&strum=" + (ClientPrefs.getGameplaySetting('opponentplay') ? 1 : 2) + "&page=" + page + (category != null ? '&category=' + category : '') + (keys != null ? '&keys=' + keys : ''), false);
 
 			if (response == null || response.isFailed()) {
 				callback(null);

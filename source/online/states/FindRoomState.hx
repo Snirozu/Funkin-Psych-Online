@@ -36,7 +36,7 @@ class FindRoomState extends MusicBeatState {
 		DiscordClient.changePresence("Looking for a room.", null, null, false);
 		#end
 
-		camera.follow(camFollow = new FlxObject(FlxG.width / 2), 0.1);
+		camera.follow(camFollow = new FlxObject(FlxG.width / 2), TOPDOWN, 0.1);
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff252844;
@@ -206,7 +206,7 @@ class RoomBox extends FlxSpriteGroup {
 		hitbox.x = x;
 		hitbox.y = y;
 
-		if (FlxG.mouse.overlaps(hitbox) && (FlxG.mouse.deltaScreenX != 0 || FlxG.mouse.deltaScreenY != 0 || FlxG.mouse.justPressed)) {
+		if (FlxG.mouse.overlaps(hitbox) && (FlxG.mouse.deltaX != 0 || FlxG.mouse.deltaY != 0 || FlxG.mouse.justPressed)) {
 			FindRoomState.instance.selected = ID;
         }
 

@@ -72,13 +72,19 @@ class NotificationsTab extends TabSprite {
     function loadData() {
         loading = true;
 		Thread.run(() -> {
-			var response = FunkinNetwork.requestAPI('/api/account/notifications');
+			var response = FunkinNetwork.requestAPI('/api/account/notifications', false);
 
 			if (response != null && !response.isFailed()) {
 				Waiter.putPersist(() -> {
 					loading = false;
 					data = Json.parse(response.getString());
 					renderData();
+				});
+			}
+			else {
+				Waiter.putPersist(() -> {
+					loadingTxt.setText('Failed to fetch!');
+					loadingTxt.visible = true;
 				});
 			}
 		});

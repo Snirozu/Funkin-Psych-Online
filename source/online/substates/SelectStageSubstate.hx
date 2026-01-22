@@ -41,6 +41,32 @@ class SelectStageSubstate extends MusicBeatSubstate {
         stageNames = stages[0];
         stageMods = stages[1];
 
+        var sortingStage = [];
+		for (i in 0...stageNames.length) {
+			sortingStage.push([stageNames[i], stageMods[i]]);
+        }
+
+		sortingStage.sort((a, b) -> {
+            for (i in 0...Std.int(Math.min(a[0].length, b[0].length))) {
+				final orderA = a[0].toLowerCase().charCodeAt(i);
+                final orderB = b[0].toLowerCase().charCodeAt(i);
+
+				if (orderA == orderB)
+                    continue;
+
+                return orderA < orderB ? -1 : 1;
+            }
+
+            return 0;
+        });
+
+		stageNames = [];
+		stageMods = [];
+		for (stageInfo in sortingStage) {
+			stageNames.push(stageInfo[0]);
+			stageMods.push(stageInfo[1]);
+        }
+
         stageNames.unshift('(default)');
         stageMods.unshift('');
 
@@ -168,7 +194,7 @@ class StageText extends FlxText {
     }
 
     override function update(elapsed) {
-        if ((FlxG.mouse.justPressed || FlxG.mouse.justMoved) && FlxG.mouse.overlaps(this, camera)) {
+		if (parent.curSelected != ID && FlxG.mouse.overlaps(this, camera)) {
             parent.curSelected = ID;
             for (option in parent.options) option.updateText();
         }
@@ -186,7 +212,7 @@ class StageText extends FlxText {
     public function updateText() {
         if (parent.curSelected == ID) {
             text = "> " + ogText;
-            camera.follow(this, null, 0.1);
+			camera.follow(this, TOPDOWN, 0.1);
         }
         else {
             text = ogText;

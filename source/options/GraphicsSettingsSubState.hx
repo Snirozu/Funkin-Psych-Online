@@ -72,8 +72,8 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
-		var option:Option = new Option('Fast Freeplay Song Render', //Name
-			"If checked, freeplay songs will be render with the default HaxeFlixel font, greatly improving song loading time", //Description
+		var option:Option = new Option('Fast Text Render', //Name
+			"If checked, resource intensive texts will be render with the default HaxeFlixel font, greatly improving loading times.", //Description
 			'disableFreeplayAlphabet',
 			'bool');
 		addOption(option);

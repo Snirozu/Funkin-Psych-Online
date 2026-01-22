@@ -12,6 +12,20 @@ class LuaModuleSwap {
 		originPath = Path.normalize(originPath);
 
 		var launchTime:Float = haxe.Timer.stamp();
+		
+		//ignore fields of the module that is require'd
+		final ignoreFields = [
+			'jit',
+			'bit',
+			'package',
+			'coroutine',
+			'_G',
+			'os',
+			'string',
+			'table',
+			'io',
+			'math'
+		];
 
 		set(lua, 'os', {
 			clock: function() {
@@ -303,6 +317,8 @@ class LuaModuleSwap {
 				var obj:Dynamic = {};
 				
 				for (field in fields) {
+					if (ignoreFields.contains(field))
+						continue;
 
 					Lua.getglobal(lua, field);
 					var luaType = Lua.type(lua, -1);

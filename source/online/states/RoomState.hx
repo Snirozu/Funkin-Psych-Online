@@ -570,6 +570,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 	var elapsedShit = 3.;
 	var lastFocused = false;
+	var updateTimer = 1.0;
 
     override function update(elapsed:Float) {
 		super.update(elapsed);
@@ -598,6 +599,30 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		}
 
 		lastFocused = chatBox.focused && chatBox.typeText.text.length > 0;
+
+		updateTimer -= elapsed;
+		if (updateTimer <= 0) {
+			updateTimer = 5.0;
+
+			var sumReceivedBytes = 0.0;
+			var sumContentLength = 0.0;
+			for (down in ModDownloader.downloaders) {
+				if (down?.client != null && down.status == READING_BODY) {
+					sumReceivedBytes += down.client.receivedBytes;
+					sumContentLength += down.client.contentLength;
+				}
+			}
+
+			if (sumContentLength > 0) {
+				GameClient.send("status", 'Downloading (${Math.floor(sumReceivedBytes / sumContentLength * 100)}%)');
+			}
+			else {
+				if (lastFocused)
+					GameClient.send("status", "Typing...");
+				else
+					GameClient.send("status", "In the Lobby");
+			}
+		}
 		
 		// if (FlxG.keys.justPressed.SPACE) {
 		// 	Alert.alert("Camera Location:", '${cum.scroll.x},${cum.scroll.y} x ${cum.zoom}');

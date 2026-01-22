@@ -28,7 +28,7 @@ class OnlineOptionsState extends MusicBeatState {
     override function create() {
         super.create();
 
-		camera.follow(camFollow = new FlxObject(), 0.1);
+		camera.follow(camFollow = new FlxObject(), TOPDOWN_TIGHT, 0.1);
 
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("In the Menus", "Online Options");
@@ -55,7 +55,7 @@ class OnlineOptionsState extends MusicBeatState {
 			ClientPrefs.saveSettings();
 		}));
 		nicknameOption.inputs[0].text = ClientPrefs.getNickname();
-		nicknameOption.y = 100;
+		nicknameOption.y = 70;
 		nicknameOption.screenCenter(X);
 		nicknameOption.ID = i++;
 
@@ -172,13 +172,13 @@ class OnlineOptionsState extends MusicBeatState {
 		recentOption.ID = i++;
 
 		if (Auth.authID == null && Auth.authToken == null) {
-			var section = new FlxText(0, recentOption.y + recentOption.height + 100, FlxG.width, "Account");
+			var section = new FlxText(0, recentOption.y + recentOption.height + 50, FlxG.width, "Account");
 			section.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			add(section);
 
 			var registerOption:InputOption;
 			items.add(registerOption = new InputOption("Register to the Network",
-					"Join the Psych Online Network and submit your song replays\nto the leaderboards!" + (!Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a NOT OFFICIAL build)' : ''), ["Username", "Email"], (text, input) -> {
+					"Join the Psych Online Network and submit your song replays\nto the leaderboards!" + (Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a NOT OFFICIAL build)' : ''), ["Username", "Email"], (text, input) -> {
 					if (input == 0) {
 						registerOption.inputs[0].hasFocus = false;
 						registerOption.inputs[1].hasFocus = true;
@@ -210,7 +210,7 @@ class OnlineOptionsState extends MusicBeatState {
 						}));
 					}
 				}));
-			registerOption.y = section.y + 100;
+			registerOption.y = section.y + 70;
 			registerOption.screenCenter(X);
 			registerOption.ID = i++;
 			if (scrollToRegister) {
@@ -219,7 +219,7 @@ class OnlineOptionsState extends MusicBeatState {
 
 			var loginOption:InputOption;
 			items.add(loginOption = new InputOption("Login to the Network",
-				"Input your email address here and wait for your One-Time Login Code!" + (!Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a NOT OFFICIAL build)' : ''), ["me@example.org"], (mail, _) -> {
+				"Input your email address here and wait for your One-Time Login Code!" + (Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a NOT OFFICIAL build)' : ''), ["me@example.org"], (mail, _) -> {
 					if (FunkinNetwork.requestLogin(mail)) {
 						openSubState(new VerifyCodeSubstate(code -> {
 							if (FunkinNetwork.requestLogin(mail, code)) {
@@ -305,7 +305,7 @@ class OnlineOptionsState extends MusicBeatState {
 			sidebarOption.screenCenter(X);
 			sidebarOption.ID = i++;
 
-			var section = new FlxText(0, sidebarOption.y + sidebarOption.height + 100, FlxG.width, "Account");
+			var section = new FlxText(0, sidebarOption.y + sidebarOption.height + 50, FlxG.width, "Account");
 			section.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			add(section);
 
@@ -313,7 +313,7 @@ class OnlineOptionsState extends MusicBeatState {
 			items.add(loginBrowserOption = new InputOption("Login to Browser", "Authenticates you to the network in your default web browser", null, () -> {
 				FlxG.openURL(FunkinNetwork.client.getURL("/api/auth/cookie?id=" + Auth.authID + "&token=" + Auth.authToken));
 			}));
-			loginBrowserOption.y = section.y + 100;
+			loginBrowserOption.y = section.y + 70;
 			loginBrowserOption.screenCenter(X);
 			loginBrowserOption.ID = i++;
 
@@ -368,10 +368,15 @@ class OnlineOptionsState extends MusicBeatState {
         changeSelection(0);
     }
 
-    override function update(elapsed) {
+	var mouseMoveTimeout = 0.0;
+
+    override function update(elapsed:Float) {
 		if (curOption != null) {
 			camFollow.setPosition(curOption.getMidpoint().x, curOption.getMidpoint().y);
 		}
+
+		if (mouseMoveTimeout > 0)
+			mouseMoveTimeout -= elapsed;
 
 		if (!inputWait) {
 			if (controls.BACK) {
@@ -380,13 +385,17 @@ class OnlineOptionsState extends MusicBeatState {
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 			}
 
-			if (controls.UI_UP_P || FlxG.mouse.wheel == 1)
+			if (controls.UI_UP_P || FlxG.mouse.wheel == 1) {
+				mouseMoveTimeout = 0.6;
 				changeSelection(-1);
-			else if (controls.UI_DOWN_P || FlxG.mouse.wheel == -1)
+			}
+			else if (controls.UI_DOWN_P || FlxG.mouse.wheel == -1) {
+				mouseMoveTimeout = 0.6;
 				changeSelection(1);
-
-			if (FlxG.mouse.deltaScreenX != 0 || FlxG.mouse.deltaScreenY != 0 || FlxG.mouse.justPressed) {
-                curSelected = -1;
+			}
+			else if ((mouseMoveTimeout <= 0 && (FlxG.mouse.deltaX != 0 || FlxG.mouse.deltaY != 0)) || FlxG.mouse.justPressed) {
+				if (FlxG.mouse.justPressed)
+                	curSelected = -1;
                 var i = 0;
                  for (item in items) {
                     if (FlxG.mouse.overlaps(item, camera)) {

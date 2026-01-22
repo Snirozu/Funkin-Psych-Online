@@ -25,9 +25,9 @@ class TabSprite extends Sprite {
 		this.tabWidth = tabWidth;
 
 		if (stage != null)
-			_init();
+			_addedToStage();
 		else
-			addEventListener(Event.ADDED_TO_STAGE, _init);
+			addEventListener(Event.ADDED_TO_STAGE, _addedToStage);
 	}
 
 	public static inline function getDefaultFormat() {
@@ -35,7 +35,7 @@ class TabSprite extends Sprite {
 	}
 
 	var initialized:Bool = false;
-	function _init(?e):Void {
+	function _addedToStage(?e):Void {
 		if (!initialized) {
 			initialized = true;
 
@@ -45,10 +45,19 @@ class TabSprite extends Sprite {
 
 			create();
 		}
-		init();
+		addedToStage();
 	}
+	/**
+	 * Called when this tab gets added to the sidebar stage, only the first time
+	 */
 	function create():Void {}
-	function init():Void {}
+	/**
+	 * Called when this tab gets added to the sidebar stage
+	 */
+	function addedToStage():Void {}
+	/**
+	 * Called when this tab gets refreshed, or when the sidebar gets shown.
+	 */
 	function onShow():Void {
 		if (scrollRect != null) {
 			var rect = scrollRect;
@@ -57,7 +66,21 @@ class TabSprite extends Sprite {
 			scrollRect = rect;
 		}
 	}
+	/**
+	 * Always called after `onShow()`
+	 */
+	function onShowOnline():Void {}
+	/**
+	 * Always called after `onShow()`
+	 */
+	function onShowOffline():Void {}
+	/**
+	 * Called after this tab gets removed from the stage, and after `onHide()`
+	 */
 	function onRemove():Void {}
+	/**
+	 * Called when this tab gets either changed or refreshed, or when the sidebar gets hidden.
+	 */
 	function onHide():Void {};
 
 	function keyDown(e:KeyboardEvent):Void {

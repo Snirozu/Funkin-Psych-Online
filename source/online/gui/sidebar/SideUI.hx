@@ -23,6 +23,7 @@ class SideUI extends WSprite {
 		ProfileTab,
 		FriendsTab,
 		ChatTab,
+		#if !mobile HostServerTab #end,
 		// TODO 
 		// DownloaderTab,
 		// ReportTab,
@@ -99,10 +100,13 @@ class SideUI extends WSprite {
 		addChild(upBar);
 
 		welcome = this.createText(15, 15, 20);
+		welcome.setText('...');
 		addChild(welcome);
 
 		tip = this.createText(15, 15, 15);
 		tip.setText('Use ' + InputFormatter.getKeyName(cast(ClientPrefs.keyBinds.get('sidebar')[0], FlxKey)) + ' to toggle the Network Sidebar!', upBar.width, 0xFF535353);
+		tip.x = upBar.width / 2 - tip.width / 2;
+		tip.y = welcome.y;
 		addChild(tip);
 
 		tabTitle = this.createText(15, 15, 20);
@@ -231,25 +235,54 @@ class SideUI extends WSprite {
 		FlxG.keys.enabled = !active;
 		cursor.visible = active;
 
-		if (active) {
-			if (!FunkinNetwork.loggedIn)
-				FunkinNetwork.ping();
+		function onOnline() {
+			if (!active)
+				return;
 
-			tabUI.addChild(curTab);
-			curTab.onShow();
-			_wasMouseShown = FlxG.mouse.visible;
-			FlxG.mouse.visible = false;
-
-			welcome.setText(FunkinNetwork.loggedIn ? 'Logged as ${FunkinNetwork.nickname}' : 'Not logged in', upBar.width);
+			welcome.setText('Logged as ${FunkinNetwork.nickname}', upBar.width);
 			welcome.x = upBar.width - welcome.width - 50;
 			welcome.y = upBar.height / 2 - welcome.getTextHeight() / 2 - 5;
 
 			tip.x = upBar.width / 2 - tip.width / 2;
 			tip.y = welcome.y;
 
-			Actuate.tween(this, 1, {alpha: 1});
+			curTab.onShowOnline();
+		}
+
+		function onOffline() {
+			if (!active)
+				return;
+
+			welcome.setText('Not logged in', upBar.width);
+			welcome.x = upBar.width - welcome.width - 50;
+			welcome.y = upBar.height / 2 - welcome.getTextHeight() / 2 - 5;
+
+			tip.y = welcome.y;
+
+			curTab.onShowOffline();
+		}
+
+		if (active) {
+			tabUI.addChild(curTab);
+			curTab.onShow();
+			_wasMouseShown = FlxG.mouse.visible;
+			FlxG.mouse.visible = false;
+
+			if (!FunkinNetwork.loggedIn)
+				Thread.run(() -> {
+					FunkinNetwork.ping();
+
+					if (FunkinNetwork.loggedIn)
+						Waiter.putPersist(onOnline);
+					else
+						Waiter.putPersist(onOffline);
+				});
+			else
+				onOnline();
+
+			Actuate.tween(this, 0.5, {alpha: 1});
 			Actuate.tween(upBar, 0.2, {y: 0}).onComplete(() -> {
-				Actuate.tween(tabUI, 0.5, {x: 0});
+				Actuate.tween(tabUI, 0.2, {x: 0});
 			});
 		}
 		else {
@@ -257,11 +290,11 @@ class SideUI extends WSprite {
 
 			curTab.onHide();
 
-			Actuate.tween(this, 1, {alpha: 0}).onComplete(() -> {
+			Actuate.tween(this, 0.5, {alpha: 0}).onComplete(() -> {
 				tabUI.removeChild(curTab);
 				curTab.onRemove();
 			});
-			Actuate.tween(tabUI, 0.5, {x: -totalTabWidth()}).onComplete(() -> {
+			Actuate.tween(tabUI, 0.3, {x: -totalTabWidth()}).onComplete(() -> {
 				Actuate.tween(upBar, 0.2, {y: -upBar.height});
 			});
 		}

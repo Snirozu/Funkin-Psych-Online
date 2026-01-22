@@ -222,5 +222,5 @@ class WeekData {
 		if(data != null && data.folder != null && data.folder.length > 0) {
 			Mods.currentModDirectory = data.folder;
 		}
-	}
+		}
 }

@@ -16,6 +16,11 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 	var coolCam:FlxCamera;
 
     //options
+	var hideGF:Option;
+	var disableSkins:Option;
+	var winCondition:Option;
+	var modifers:Option;
+	var mods:Option;
 	var skinSelect:Option;
 	var gameOptions:Option;
 	var stageSelect:Option;
@@ -23,6 +28,8 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 	var anarchyMode:Option;
 	var swapSides:Option;
 	var teamMode:Option;
+	var royalMode:Option;
+	var royalModeBfSide:Option;
 
 	override function create() {
 		super.create();
@@ -52,16 +59,13 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 
 		items = new FlxTypedSpriteGroup<Option>(40, 40);
 
-		var i = 0;
-
 		items.add(publicRoom = new Option("Public Room", "If enabled, this room will be publicly listed in the FIND tab.", () -> {
 			GameClient.send("togglePrivate");
 		}, (elapsed) -> {
 			publicRoom.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
 			publicRoom.checked = !GameClient.room.state.isPrivate;
-		}, 0, 80 * i, !GameClient.room.state.isPrivate));
-		publicRoom.ID = i++;
+		}, 0, 0, !GameClient.room.state.isPrivate));
 
 		items.add(anarchyMode = new Option("Anarchy Mode", "This option gives other players host permissions.", () -> {
 			GameClient.send("anarchyMode");
@@ -69,8 +73,7 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			anarchyMode.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
 			anarchyMode.checked = GameClient.room.state.anarchyMode;
-		}, 0, 80 * i, GameClient.room.state.anarchyMode));
-		anarchyMode.ID = i++;
+		}, 0, 0, GameClient.room.state.anarchyMode));
 
 		items.add(swapSides = new Option("Boyfriend Side", "Play on Boyfriend's side.", () -> {
 			GameClient.send("swapSides");
@@ -78,8 +81,7 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			swapSides.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
 			swapSides.checked = GameClient.getPlayerSelf().bfSide;
-		}, 0, 80 * i, GameClient.getPlayerSelf().bfSide));
-		swapSides.ID = i++;
+		}, 0, 0, GameClient.getPlayerSelf().bfSide));
 
 		items.add(teamMode = new Option("Team Mode", "Compete in Teams rather than individually! Your performance will be averaged with your teammate.", () -> {
 			GameClient.send("teamMode");
@@ -87,31 +89,43 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			teamMode.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
 			teamMode.checked = GameClient.room.state.teamMode;
-		}, 0, 80 * i, GameClient.room.state.teamMode));
-		teamMode.ID = i++;
+		}, 0, 0, GameClient.room.state.teamMode));
 
-		var hideGF:Option;
+		items.add(royalMode = new Option("Royal Mode", "Everybody plays on the same side!", () -> {
+			GameClient.send("royalMode");
+		}, (elapsed) -> {
+			royalMode.alpha = GameClient.hasPerms() ? 1 : 0.8;
+
+			royalMode.checked = GameClient.room.state.royalMode;
+
+			updateItems();
+		}, 0, 0, GameClient.room.state.royalMode));
+		
+		items.add(royalModeBfSide = new Option("Royal Mode Opponent Side", "Everybody plays on opponent side when enabled.", () -> {
+			GameClient.send("royalModeBfSide");
+		}, (elapsed) -> {
+			royalModeBfSide.alpha = GameClient.hasPerms() ? 1 : 0.8;
+
+			royalModeBfSide.checked = !GameClient.room.state.royalModeBfSide;
+		}, 0, 0, !GameClient.room.state.royalModeBfSide));
+		
 		items.add(hideGF = new Option("Hide Girlfriend", "Hides GF from the stage.", () -> {
 			GameClient.send("toggleGF");
 		}, (elapsed) -> {
 			hideGF.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
 			hideGF.checked = GameClient.room.state.hideGF;
-		}, 0, 80 * i, GameClient.room.state.hideGF));
-		hideGF.ID = i++;
+		}, 0, 0, GameClient.room.state.hideGF));
 
-		var disableSkins:Option;
 		items.add(disableSkins = new Option("Disable Skins", "Forbids players from using skins.", () -> {
 			GameClient.send("toggleSkins");
 		}, (elapsed) -> {
 			disableSkins.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
 			disableSkins.checked = GameClient.room.state.disableSkins;
-		}, 0, 80 * i, GameClient.room.state.disableSkins));
-		disableSkins.ID = i++;
+		}, 0, 0, GameClient.room.state.disableSkins));
 
 		var prevCond:Int = -1;
-		var winCondition:Option;
 		items.add(winCondition = new Option("Win Condition", "...", () -> {
 			GameClient.send("nextWinCondition");
 		}, (elapsed) -> {
@@ -133,15 +147,12 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			}
 
 			prevCond = GameClient.room.state.winCondition;
-		}, 0, 80 * i, false, true));
-		winCondition.ID = i++;
+		}, 0, 0, false, true));
 
-		var modifers:Option;
 		items.add(modifers = new Option("Game Modifiers", "Set your Gameplay Modifiers here!", () -> {
 			close();
 			FlxG.state.openSubState(new GameplayChangersSubstate());
-		}, null, 0, 80 * i, false, true));
-		modifers.ID = i++;
+		}, null, 0, 0, false, true));
 
 		items.add(stageSelect = new Option("Select Stage", "Currently Selected: " + (GameClient.room.state.stageName == "" ? '(default)' : GameClient.room.state.stageName), () -> {
 			if (GameClient.hasPerms()) {
@@ -150,8 +161,7 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			}
 		}, (elapsed) -> {
 			stageSelect.alpha = GameClient.hasPerms() ? 1 : 0.8;
-		}, 0, 80 * i, false, true));
-		stageSelect.ID = i++;
+		}, 0, 0, false, true));
 
 		items.add(skinSelect = new Option("Select Skin", "Select your Skin here!", () -> {
 			if (!GameClient.room.state.disableSkins) {
@@ -160,30 +170,54 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			else {
 				Alert.alert('Skins are disabled!');
 			}
-		}, null, 0, 80 * i, false, true));
-		skinSelect.ID = i++;
+		}, null, 0, 0, false, true));
 
 		items.add(gameOptions = new Option("Game Options", "Open your Game Options here!", () -> {
 			LoadingState.loadAndSwitchState(new OptionsState());
 			OptionsState.onPlayState = false;
 			OptionsState.onOnlineRoom = true;
-		}, null, 0, 80 * i, false, true));
-		gameOptions.ID = i++;
+		}, null, 0, 0, false, true));
 
-		var mods:Option;
 		items.add(mods = new Option("Mods", "Check your installed Mods here!", () -> {
 			LoadingState.loadAndSwitchState(new ModsMenuState());
 			ModsMenuState.onOnlineRoom = true;
-		}, null, 0, 80 * i, false, true));
-		mods.ID = i++;
+		}, null, 0, 0, false, true));
+
+		updateItems();
 
 		add(items);
 
-		var lastItem = items.members[items.length - 1];
-
-		coolCam.setScrollBounds(FlxG.width, FlxG.width, 0, lastItem.y + lastItem.height + 40 > FlxG.height ? lastItem.y + lastItem.height + 40 : FlxG.height);
-
 		GameClient.send("status", "In the Room Settings");
+	}
+
+	function updateItems() {
+		var i = 0;
+
+		function nextItem(item:Option) {
+			item.y = items.y + 80 * i;
+			item.ID = i++;
+		}
+
+		nextItem(publicRoom);
+		nextItem(anarchyMode);
+		nextItem(swapSides);
+		nextItem(teamMode);
+		nextItem(royalMode);
+		royalModeBfSide.visible = GameClient.room.state.royalMode;
+		if (royalModeBfSide.visible) {
+			nextItem(royalModeBfSide);
+		}
+		nextItem(hideGF);
+		nextItem(disableSkins);
+		nextItem(winCondition);
+		nextItem(modifers);
+		nextItem(stageSelect);
+		nextItem(skinSelect);
+		nextItem(gameOptions);
+		nextItem(mods);
+		
+		var lastItem = items.members[items.length - 1];
+		coolCam.setScrollBounds(FlxG.width, FlxG.width, 0, lastItem.y + lastItem.height + 40 > FlxG.height ? lastItem.y + lastItem.height + 40 : FlxG.height);
 	}
 
 	override function closeSubState() {
@@ -202,6 +236,8 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		FlxG.cameras.remove(coolCam);
 	}
 
+	var mouseSelectTime = 0.0;
+
     override function update(elapsed) {
         if (controls.BACK) {
             close();
@@ -214,9 +250,15 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 
 		super.update(elapsed);
 
-		if (controls.UI_UP_P)
+		if (mouseSelectTime > 0.0)
+			mouseSelectTime -= elapsed;
+
+		if (FlxG.mouse.justPressed || FlxG.mouse.deltaX != 0 || FlxG.mouse.deltaY != 0)
+			mouseSelectTime = 0.5;
+
+		if (controls.UI_UP_P || FlxG.mouse.wheel == 1)
 			curSelectedID--;
-		else if (controls.UI_DOWN_P)
+		else if (controls.UI_DOWN_P || FlxG.mouse.wheel == -1)
 			curSelectedID++;
 
 		if (curSelectedID >= items.length) {
@@ -230,7 +272,7 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			if (GameClient.room == null)
 				return;
 			
-			if (FlxG.mouse.justMoved && FlxG.mouse.overlaps(option, camera)) {
+			if (mouseSelectTime > 0 && FlxG.mouse.overlaps(option, camera)) {
 				curSelectedID = option.ID;
             }
 
@@ -239,7 +281,7 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			}
 
 			if (option.ID == curSelectedID) {
-				coolCam.follow(option, null, 0.1);
+				coolCam.follow(option, TOPDOWN, 0.1);
 				option.text.alpha = 1;
 
                 if (controls.ACCEPT) {

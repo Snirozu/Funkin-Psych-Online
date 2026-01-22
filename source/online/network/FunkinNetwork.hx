@@ -192,7 +192,7 @@ class FunkinNetwork {
 	}
 
 	public static function fetchSongComments(songId:String):Array<SongComment> {
-		var response = requestAPI("/api/song/comments?id=" + StringTools.urlEncode(songId));
+		var response = requestAPI("/api/song/comments?id=" + StringTools.urlEncode(songId), false);
 
 		if (response == null || response.isFailed())
 			return null;

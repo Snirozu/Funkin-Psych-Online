@@ -17,7 +17,7 @@ class SaveVariables {
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
 	public var opponentStrums:Bool = true;
-	public var showFPS:Bool = true;
+	public var showFPS:Bool = false;
 	public var flashing:Bool = true;
 	public var autoPause:Bool = true;
 	public var antialiasing:Bool = true;
@@ -27,9 +27,9 @@ class SaveVariables {
 	public var holdSplashAlpha:Float = 0.6;
 	public var holdAlpha:Float = 0.6;
 	public var lowQuality:Bool = false;
-	public var shaders:Bool = true;
+	public var shaders:Bool = #if mobile false #else true #end;
 	// public var cacheOnGPU:Bool = #if !switch false #else true #end;
-	public var framerate:Int = 60;
+	public var framerate:Int = #if mobile 60 #else 120 #end;
 	public var camZooms:Bool = true;
 	public var hideHud:Bool = false;
 	public var noteOffset:Int = 0;
@@ -91,6 +91,7 @@ class SaveVariables {
 	public var disableFreeplayAlphabet:Bool = false;
 	public var disableLagDetection:Bool = false;
 	public var groupSongsBy:String = 'Default';
+	public var groupSongsValue:Int = 0;
 	public var hiddenSongs:Array<String> = []; //format: 'songname-originfolder'
 	public var favSongs:Array<String> = []; //format: 'songname-originfolder'
 	public var modchartSkinChanges:Bool = false;
@@ -305,6 +306,20 @@ class ClientPrefs {
 		if(data == null) data = new SaveVariables();
 		if(defaultData == null) defaultData = new SaveVariables();
 
+		function getPsycheSavePath() {
+			return #if (flixel < "5.0.0") 'ShadowMario' #else 'ShadowMario/PsychEngine' #end;
+		}
+
+		if (Reflect.fields(FlxG.save.data).length == 0) {
+			var psychEngineSave:FlxSave = new FlxSave();
+			psychEngineSave.bind('funkin', getPsycheSavePath());
+			for (key in Reflect.fields(psychEngineSave.data)) {
+				Reflect.setField(FlxG.save.data, key, Reflect.field(psychEngineSave.data, key));
+			}
+			psychEngineSave.flush();
+			FlxG.save.flush();
+		}
+
 		for (key in Reflect.fields(data)) {
 			if (key != 'gameplaySettings' && Reflect.hasField(FlxG.save.data, key)) {
 				//trace('loaded variable: $key');
@@ -366,6 +381,17 @@ class ClientPrefs {
 		// controls on a separate save file
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v3', CoolUtil.getSavePath());
+
+		if (Reflect.fields(save).length == 0) {
+			var psychEngineSaveControls:FlxSave = new FlxSave();
+			psychEngineSaveControls.bind('controls_v3', getPsycheSavePath());
+			for (key in Reflect.fields(psychEngineSaveControls.data)) {
+				Reflect.setField(save.data, key, Reflect.field(psychEngineSaveControls.data, key));
+			}
+			psychEngineSaveControls.flush();
+			save.flush();
+		}
+
 		if(save != null)
 		{
 			if(save.data.keyboard != null) {

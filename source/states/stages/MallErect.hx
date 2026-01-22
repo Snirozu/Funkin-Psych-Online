@@ -129,6 +129,7 @@ class MallErect extends BaseStage
 		inCutscene = true;
 		game.canPause = false;
 		game.canReset = false;
+		game.isCameraOnForcedPos = true;
 
 		FlxTween.tween(game.camHUD, {alpha: 0}, 1, {ease: FlxEase.quadIn});
 		
