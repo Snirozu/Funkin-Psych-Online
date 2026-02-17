@@ -41,7 +41,7 @@ class Option
 		this.type = type;
 		this.options = options;
 
-		if(this.type != 'keybind') this.defaultValue = Reflect.getProperty(ClientPrefs.defaultData, variable);
+		if(variable != null && this.type != 'keybind') this.defaultValue = Reflect.getProperty(ClientPrefs.defaultData, variable);
 		switch(type)
 		{
 			case 'bool':
@@ -95,6 +95,9 @@ class Option
 
 	dynamic public function getValue():Dynamic
 	{
+		if (variable == null)
+			return null;
+
 		var value = Reflect.getProperty(ClientPrefs.data, variable);
 		if(type == 'keybind') return !Controls.instance.controllerMode ? value.keyboard : value.gamepad;
 		return value;
@@ -102,6 +105,9 @@ class Option
 
 	dynamic public function setValue(value:Dynamic)
 	{
+		if (variable == null)
+			return null;
+
 		if(type == 'keybind')
 		{
 			var keys = Reflect.getProperty(ClientPrefs.data, variable);
@@ -137,6 +143,7 @@ class Option
 			case 'integer': newValue = 'int';
 			case 'str': newValue = 'string';
 			case 'fl': newValue = 'float';
+			case 'button': newValue = 'button';
 		}
 		type = newValue;
 		return type;

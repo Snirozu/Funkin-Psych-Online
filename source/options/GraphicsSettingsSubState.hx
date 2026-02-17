@@ -8,8 +8,8 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 	var boyfriend:Character = null;
 	public function new()
 	{
-		title = 'Graphics and Performance';
-		rpcTitle = 'Graphics Settings Menu'; //for Discord Rich Presence
+		title = 'Performance';
+		rpcTitle = 'Performance Settings Menu'; //for Discord Rich Presence
 
 		boyfriend = new Character(840, 170, 'bf', true);
 		boyfriend.setGraphicSize(Std.int(boyfriend.width * 0.75));
@@ -67,19 +67,19 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		#end
 
 		var option:Option = new Option('Disable Freeplay Icons', //Name
-			"If checked, freeplay menu song icons will not be shown, slightly decreases loading times.", //Description
+			"If checked, freeplay menu song icons will not be loaded, greatly decreases loading times.", //Description
 			'disableFreeplayIcons',
 			'bool');
 		addOption(option);
 
-		var option:Option = new Option('Fast Text Render', //Name
-			"If checked, resource intensive texts will be render with the default HaxeFlixel font, greatly improving loading times.", //Description
+		var option:Option = new Option('Disable Freeplay Alphabet', //Name
+			"If checked, various menu elements will be rendered using the pixel font.", //Description
 			'disableFreeplayAlphabet',
 			'bool');
 		addOption(option);
 
 		var option:Option = new Option('Combo Stacking',
-			"If unchecked, Ratings and Combo won't stack, saving on System Memory and making them easier to read",
+			"If unchecked, Ratings and Combo won't stack, saving on System Memory a little and making them easier to read",
 			'comboStacking',
 			'bool');
 		addOption(option);

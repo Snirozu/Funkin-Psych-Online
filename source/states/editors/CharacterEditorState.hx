@@ -1,5 +1,6 @@
 package states.editors;
 
+import flixel.addons.ui.FlxUIDropDownMenu;
 import openfl.display.BitmapData;
 import online.states.SkinsState;
 import flixel.FlxObject;
@@ -33,9 +34,10 @@ class CharacterEditorState extends MusicBeatState {
 	var ghostChar:Character;
 	var dadMilk:Character;
 	var bfGhost:Character;
+	var gfGhost:Character;
 	var textAnim:FlxText;
 	var bgLayer:FlxTypedGroup<FlxSprite>;
-	var charLayer:FlxTypedGroup<Character>;
+	var charLayer:FlxTypedGroup<FlxSprite>;
 	var dumbTexts:FlxTypedGroup<FlxText>;
 	// var animList:Array<String> = [];
 	var curAnim:Int = 0;
@@ -65,6 +67,8 @@ class CharacterEditorState extends MusicBeatState {
 	var cameraFollowPointer:FlxSprite;
 	var healthBar:HealthBar;
 
+	var ghostLayer:FlxTypedGroup<FlxSprite>;
+
 	override function create() {
 		// FlxG.sound.playMusic(Paths.music('breakfast'), 0.5);
 		// if (ClientPrefs.data.cacheOnGPU)
@@ -84,33 +88,12 @@ class CharacterEditorState extends MusicBeatState {
 		bgLayer = new FlxTypedGroup<FlxSprite>();
 		add(bgLayer);
 
-		bfGhost = new Character(0, 0, "bf", true);
-		if (bfGhost.animationsArray[0] != null) {
-			bfGhost.playAnim(bfGhost.animationsArray[0].anim, true);
-		}
-		bfGhost.debugMode = true;
-		bfGhost.setPosition(bfGhost.positionArray[0] + OFFSET_X + 100, bfGhost.positionArray[1]);
-		bfGhost.colorTransform.redOffset = -255;
-		bfGhost.colorTransform.greenOffset = -255;
-		bfGhost.colorTransform.blueOffset = -255;
-		bfGhost.alpha = 0.25;
-		bfGhost.visible = false;
-		add(bfGhost);
+		ghostLayer = new FlxTypedGroup<FlxSprite>();
+		add(ghostLayer);
 
-		dadMilk = new Character(0, 0, "dad", false);
-		if (dadMilk.animationsArray[0] != null) {
-			dadMilk.playAnim(dadMilk.animationsArray[0].anim, true);
-		}
-		dadMilk.debugMode = true;
-		dadMilk.setPosition(dadMilk.positionArray[0] + OFFSET_X + 100, dadMilk.positionArray[1]);
-		dadMilk.colorTransform.redOffset = -255;
-		dadMilk.colorTransform.greenOffset = -255;
-		dadMilk.colorTransform.blueOffset = -255;
-		dadMilk.alpha = 0.25;
-		dadMilk.visible = false;
-		add(dadMilk);
+		spawnGhosts();
 
-		charLayer = new FlxTypedGroup<Character>();
+		charLayer = new FlxTypedGroup<FlxSprite>();
 		add(charLayer);
 
 		var pointer:FlxGraphic = FlxGraphic.fromClass(FlixelGraphicCursorCross);
@@ -212,6 +195,9 @@ class CharacterEditorState extends MusicBeatState {
 
 		addCharacterUI();
 		addAnimationsUI();
+
+		reloadCharacterDropDown();
+
 		UI_characterbox.selected_tab_id = 'Character';
 
 		FlxG.mouse.visible = true;
@@ -220,9 +206,74 @@ class CharacterEditorState extends MusicBeatState {
 		super.create();
 	}
 
-	function showGhost(isPlayer:Bool) {
-		dadMilk.visible = !isPlayer;
-		bfGhost.visible = isPlayer;
+	var lastNoPixel:Null<Bool> = null;
+	function spawnGhosts() {
+		if (lastNoPixel == char?.noAntialiasing)
+			return;
+		lastNoPixel = char?.noAntialiasing;
+
+		ghostLayer.forEachAlive(function(spr:FlxSprite) spr.destroy());
+		ghostLayer.clear();
+
+		final pixelSuffix = char?.noAntialiasing ? '-pixel' : '';
+
+		bfGhost = new Character(0, 0, "bf" + pixelSuffix, true);
+		if (bfGhost.animationsArray[0] != null) {
+			bfGhost.playAnim(bfGhost.animationsArray[0].anim, true);
+		}
+		bfGhost.debugMode = true;
+		bfGhost.setPosition(bfGhost.positionArray[0] + OFFSET_X + 100, bfGhost.positionArray[1]);
+		bfGhost.colorTransform.redOffset = -255;
+		bfGhost.colorTransform.greenOffset = -255;
+		bfGhost.colorTransform.blueOffset = -255;
+		bfGhost.alpha = 0.25;
+		bfGhost.visible = false;
+		ghostLayer.add(bfGhost);
+
+		dadMilk = new Character(0, 0, pixelSuffix == '-pixel' ? 'senpai' : "dad" + pixelSuffix, false);
+		if (dadMilk.animationsArray[0] != null) {
+			dadMilk.playAnim(dadMilk.animationsArray[0].anim, true);
+		}
+		dadMilk.debugMode = true;
+		dadMilk.setPosition(dadMilk.positionArray[0] + OFFSET_X + 100, dadMilk.positionArray[1]);
+		dadMilk.colorTransform.redOffset = -255;
+		dadMilk.colorTransform.greenOffset = -255;
+		dadMilk.colorTransform.blueOffset = -255;
+		dadMilk.alpha = 0.25;
+		dadMilk.visible = false;
+		ghostLayer.add(dadMilk);
+
+		gfGhost = new Character(0, 0, "gf" + pixelSuffix, false);
+		if (gfGhost.animationsArray[0] != null) {
+			gfGhost.playAnim(gfGhost.animationsArray[0].anim, true);
+		}
+		gfGhost.debugMode = true;
+		gfGhost.setPosition(gfGhost.positionArray[0] + OFFSET_X + 100, gfGhost.positionArray[1]);
+		gfGhost.colorTransform.redOffset = -255;
+		gfGhost.colorTransform.greenOffset = -255;
+		gfGhost.colorTransform.blueOffset = -255;
+		gfGhost.alpha = 0.25;
+		gfGhost.visible = false;
+		ghostLayer.add(gfGhost);
+
+		showGhost();
+	}
+
+	function showGhost() {
+		dadMilk.visible = false;
+		bfGhost.visible = false;
+		gfGhost.visible = false;
+
+		final charType = charTypeDropDown?.selectedLabel ?? null;
+
+		switch (charType) {
+			case 'opponent':
+				dadMilk.visible = true;
+			case 'player':
+				bfGhost.visible = true;
+			case 'speaker':
+				gfGhost.visible = true;
+		}
 	}
 
 	var onPixelBG:Bool = false;
@@ -431,34 +482,48 @@ class CharacterEditorState extends MusicBeatState {
 		}';
 
 	var charDropDown:FlxScrollableDropDownMenu;
+	var charTypeDropDown:FlxUIDropDownMenu;
+
+	function updateCharTypeToAnim() {
+		if (daAnim.startsWith('bf') || daAnim.endsWith('-player')) {
+			charTypeDropDown.selectedLabel = 'player';
+		}
+		else if (daAnim.startsWith('gf') || daAnim.endsWith('-speaker') || char.speakerName != null) {
+			charTypeDropDown.selectedLabel = 'speaker';
+		}
+		else {
+			charTypeDropDown.selectedLabel = 'opponent';
+		}
+		charTypeDropDown.callback(charTypeDropDown.selectedId);
+	}
 
 	function addSettingsUI() {
 		var tab_group = new FlxUI(null, UI_box);
 		tab_group.name = "Settings";
 
-		var check_player = new FlxUICheckBox(10, 60, null, null, "Playable Character", 100);
-		check_player.checked = daAnim.startsWith('bf') || daAnim.endsWith('-player');
-		check_player.callback = function() {
-			char.isPlayer = !char.isPlayer;
-			char.flipX = !char.flipX;
+		final charTypes = ['opponent', 'speaker', 'player'];
+		charTypeDropDown = new FlxUIDropDownMenu(10, 70, FlxScrollableDropDownMenu.makeStrIdLabelArray(charTypes, true), function(typeId:String) {
+			final characterType = charTypes[Std.parseInt(typeId)];
+			char.isPlayer = characterType == 'player';
+			char.flipX = (_charIsPlayer == (characterType == 'player')) ? _charFlipX : !_charFlipX;
 			updatePointerPos();
 			reloadBGs();
 			ghostChar.flipX = char.flipX;
-			showGhost(char.isPlayer);
-		};
+			showGhost();
+		});
+		updateCharTypeToAnim();
 
 		charDropDown = new FlxScrollableDropDownMenu(10, 30, FlxScrollableDropDownMenu.makeStrIdLabelArray([''], true), function(character:String) {
 			daAnim = characterList[Std.parseInt(character)];
-			check_player.checked = daAnim.startsWith('bf') || daAnim.endsWith('-player');
-			loadChar(!check_player.checked);
+			loadChar(charTypeDropDown.selectedLabel != 'player');
+			updateCharTypeToAnim();
 			updatePresence();
 			reloadCharacterDropDown();
 		});
 		charDropDown.selectedLabel = daAnim;
-		reloadCharacterDropDown();
 
 		var reloadCharacter:FlxButton = new FlxButton(140, 20, "Reload Char", function() {
-			loadChar(!check_player.checked);
+			loadChar(charTypeDropDown.selectedLabel != 'player');
 			reloadCharacterDropDown();
 		});
 
@@ -476,7 +541,7 @@ class CharacterEditorState extends MusicBeatState {
 				}
 
 				character.singDuration = parsedJson.sing_duration;
-				character.positionArray = parsedJson.position;
+				character.positionArray = parsedJson.position ?? [0, 0];
 				character.cameraPosition = parsedJson.camera_position;
 
 				character.imageFile = parsedJson.image;
@@ -499,7 +564,8 @@ class CharacterEditorState extends MusicBeatState {
 		templateCharacter.label.color = FlxColor.WHITE;
 
 		tab_group.add(new FlxText(charDropDown.x, charDropDown.y - 18, 0, 'Character:'));
-		tab_group.add(check_player);
+		tab_group.add(new FlxText(charTypeDropDown.x, charTypeDropDown.y - 18, 0, 'Type:'));
+		tab_group.add(charTypeDropDown);
 		tab_group.add(reloadCharacter);
 		tab_group.add(charDropDown);
 		tab_group.add(reloadCharacter);
@@ -524,6 +590,8 @@ class CharacterEditorState extends MusicBeatState {
 	var healthColorStepperG:FlxUINumericStepper;
 	var healthColorStepperB:FlxUINumericStepper;
 
+	var speakerDropDown:FlxScrollableDropDownMenu;
+
 	function addCharacterUI() {
 		var tab_group = new FlxUI(null, UI_box);
 		tab_group.name = "Character";
@@ -547,9 +615,9 @@ class CharacterEditorState extends MusicBeatState {
 
 		healthIconInputText = new FlxUIInputText(15, imageInputText.y + 35, 75, leHealthIcon.getCharacter(), 8);
 
-		singDurationStepper = new FlxUINumericStepper(15, healthIconInputText.y + 45, 0.1, 4, 0, 999, 1);
+		singDurationStepper = new FlxUINumericStepper(15, healthIconInputText.y + 35, 0.1, 4, 0, 999, 1);
 
-		scaleStepper = new FlxUINumericStepper(15, singDurationStepper.y + 40, 0.1, 1, 0.05, 10, 1);
+		scaleStepper = new FlxUINumericStepper(15, singDurationStepper.y + 35, 0.1, 1, 0.05, 10, 1);
 
 		flipXCheckBox = new FlxUICheckBox(singDurationStepper.x + 80, singDurationStepper.y, null, null, "Flip X", 50);
 		flipXCheckBox.checked = char.flipX;
@@ -562,9 +630,11 @@ class CharacterEditorState extends MusicBeatState {
 				char.flipX = !char.flipX;
 
 			ghostChar.flipX = char.flipX;
+			_charFlipX = char.flipX;
+			_charIsPlayer = charTypeDropDown.selectedLabel == 'player';
 		};
 
-		noAntialiasingCheckBox = new FlxUICheckBox(flipXCheckBox.x, flipXCheckBox.y + 40, null, null, "No Antialiasing", 80);
+		noAntialiasingCheckBox = new FlxUICheckBox(flipXCheckBox.x, flipXCheckBox.y + 35, null, null, "Pixel", 80);
 		noAntialiasingCheckBox.checked = char.noAntialiasing;
 		noAntialiasingCheckBox.callback = function() {
 			char.antialiasing = false;
@@ -573,6 +643,7 @@ class CharacterEditorState extends MusicBeatState {
 			}
 			char.noAntialiasing = noAntialiasingCheckBox.checked;
 			ghostChar.antialiasing = char.antialiasing;
+			spawnGhosts();
 		};
 
 		positionXStepper = new FlxUINumericStepper(flipXCheckBox.x + 110, flipXCheckBox.y, 10, char.positionArray[0], -9000, 9000, 0);
@@ -581,13 +652,20 @@ class CharacterEditorState extends MusicBeatState {
 		positionCameraXStepper = new FlxUINumericStepper(positionXStepper.x, positionXStepper.y + 40, 10, char.cameraPosition[0], -9000, 9000, 0);
 		positionCameraYStepper = new FlxUINumericStepper(positionYStepper.x, positionYStepper.y + 40, 10, char.cameraPosition[1], -9000, 9000, 0);
 
-		var saveCharacterButton:FlxButton = new FlxButton(reloadImage.x, noAntialiasingCheckBox.y + 40, "Save Character", function() {
+		var saveCharacterButton:FlxButton = new FlxButton(reloadImage.x, noAntialiasingCheckBox.y + 35, "Save Character", function() {
 			saveCharacter();
 		});
 
 		healthColorStepperR = new FlxUINumericStepper(singDurationStepper.x, saveCharacterButton.y, 20, char.healthColorArray[0], 0, 255, 0);
 		healthColorStepperG = new FlxUINumericStepper(singDurationStepper.x + 65, saveCharacterButton.y, 20, char.healthColorArray[1], 0, 255, 0);
 		healthColorStepperB = new FlxUINumericStepper(singDurationStepper.x + 130, saveCharacterButton.y, 20, char.healthColorArray[2], 0, 255, 0);
+
+		speakerDropDown = new FlxScrollableDropDownMenu(15, healthColorStepperB.y + 35, FlxScrollableDropDownMenu.makeStrIdLabelArray([''], true), function(character:String) {
+			char.speakerName = characterList[Std.parseInt(character) - 1] ?? null;
+			loadSpeaker();
+			reloadCharacterDropDown();
+		});
+		speakerDropDown.selectedLabel = char.speakerName;
 
 		tab_group.add(new FlxText(15, imageInputText.y - 18, 0, 'Image file name:'));
 		tab_group.add(new FlxText(15, healthIconInputText.y - 18, 0, 'Health icon name:'));
@@ -596,6 +674,7 @@ class CharacterEditorState extends MusicBeatState {
 		tab_group.add(new FlxText(positionXStepper.x, positionXStepper.y - 18, 0, 'Character X/Y:'));
 		tab_group.add(new FlxText(positionCameraXStepper.x, positionCameraXStepper.y - 18, 0, 'Camera X/Y:'));
 		tab_group.add(new FlxText(healthColorStepperR.x, healthColorStepperR.y - 18, 0, 'Health bar R/G/B:'));
+		tab_group.add(new FlxText(speakerDropDown.x, speakerDropDown.y - 18, 0, 'Speaker:'));
 		tab_group.add(imageInputText);
 		tab_group.add(reloadImage);
 		tab_group.add(decideIconColor);
@@ -611,6 +690,7 @@ class CharacterEditorState extends MusicBeatState {
 		tab_group.add(healthColorStepperR);
 		tab_group.add(healthColorStepperG);
 		tab_group.add(healthColorStepperB);
+		tab_group.add(speakerDropDown);
 		tab_group.add(saveCharacterButton);
 		UI_characterbox.addGroup(tab_group);
 	}
@@ -982,10 +1062,13 @@ class CharacterEditorState extends MusicBeatState {
 		}
 	}
 
+	var _charIsPlayer:Bool = false;
+	var _charFlipX:Bool = false;
+
 	function loadChar(isDad:Bool, blahBlahBlah:Bool = true) {
 		var i:Int = charLayer.members.length - 1;
 		while (i >= 0) {
-			var memb:Character = charLayer.members[i];
+			var memb:FlxSprite = charLayer.members[i];
 			if (memb != null) {
 				memb.kill();
 				charLayer.remove(memb);
@@ -1018,13 +1101,56 @@ class CharacterEditorState extends MusicBeatState {
 				}
 		}*/
 
+		PlayState.stageUI = char.noAntialiasing ? 'pixel' : 'normal';
+
 		if (blahBlahBlah) {
 			genBoyOffsets();
 		}
 		reloadCharacterOptions();
 		reloadBGs();
 		updatePointerPos();
-		showGhost(!isDad);
+
+		_charIsPlayer = char.isPlayer;
+		_charFlipX = char.flipX;
+
+		loadSpeaker();
+		spawnGhosts();
+		showGhost();
+	}
+
+	function loadSpeaker() {
+		if (char.speaker != null) {
+			char.speaker.kill();
+			charLayer.remove(char.speaker, true);
+			char.speaker.destroy();
+			char.speaker = null;
+		}
+
+		if (speakerDropDown != null)
+			speakerDropDown.selectedLabel = char.speakerName;
+
+		if (char.speakerName == null)
+			return;
+
+		char.loadSpeaker();
+
+		if (char.speaker == null)
+			return;
+
+		charLayer.insert(0, char.speaker);
+
+		if (char.speaker is Character) {
+			final speaker:Character = cast char.speaker;
+
+			if (speaker.animationsArray[0] != null) {
+				speaker.playAnim(speaker.animationsArray[0].anim, true);
+			}
+			speaker.debugMode = true;
+			speaker.setPosition(speaker.positionArray[0] + OFFSET_X + 100, speaker.positionArray[1]);
+		}
+		else {
+			char.speaker.x += OFFSET_X + 100;
+		}
 	}
 
 	function updatePointerPos() {
@@ -1181,6 +1307,9 @@ class CharacterEditorState extends MusicBeatState {
 
 		charDropDown.setData(FlxScrollableDropDownMenu.makeStrIdLabelArray(characterList, true));
 		charDropDown.selectedLabel = daAnim;
+
+		speakerDropDown.setData(FlxScrollableDropDownMenu.makeStrIdLabelArray([''].concat(characterList), true));
+		speakerDropDown.selectedLabel = char?.speakerName;
 	}
 
 	function resetHealthBarColor() {
@@ -1413,7 +1542,13 @@ class CharacterEditorState extends MusicBeatState {
 
 			"flip_x": char.originalFlipX,
 			"no_antialiasing": char.noAntialiasing,
-			"healthbar_colors": char.healthColorArray
+			"healthbar_colors": char.healthColorArray,
+
+			"vocals_file": (char.vocalsFile == char.curCharacter ? null : char.vocalsFile),
+			"dead_character": char.deadName,
+			"results_character": char.resultsName,
+
+			"speaker": char.speakerName
 		};
 
 		var data:String = haxe.Json.stringify(json, "\t");

@@ -194,38 +194,43 @@ class SchoolErect extends BaseStage
 			};
 		}
 
-		var abot:ABotSpeaker = game.abot;
 
-		if(abot != null)
-		{
-			var abotSpeakerShader:DropShadow = new DropShadow();
-			abotSpeakerShader.setAdjustColor(-66, -10, 24, -23);
-			abotSpeakerShader.angle = 90;
-			abotSpeakerShader.color = 0xFF52351d;
-			abotSpeakerShader.distance = 5;
-			abotSpeakerShader.antialiasAmt = 0;
-			abotSpeakerShader.threshold = 1;
-
-			abotSpeakerShader.attachedSprite = abot.speakerPixel;
-			abot.speakerPixel.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
-				abotSpeakerShader.updateFrameInfo(abot.speakerPixel.frame);
-			};
-
-			abotSpeakerShader.loadAltMask('weeb/erect/masks/aBotPixel_mask');
-			abotSpeakerShader.maskThreshold = 0;
-			abotSpeakerShader.useAltMask = true;
-
+		if(gf.speaker != null) {
 			var noRimShader:AdjustColor = new AdjustColor();
 			noRimShader.hue = -10;
 			noRimShader.saturation = -23;
 			noRimShader.brightness = -66;
 			noRimShader.contrast = 24;
 
-			abot.bg.shader = noRimShader.shader;
-			abot.eyesPixel.shader = noRimShader.shader;
-			for(viz in abot.vizSprites)
-				viz.shader = noRimShader.shader;
-			abot.speakerPixel.shader = abotSpeakerShader.shader;
+			if (gf.speaker is ABotSpeaker) {
+				var abot:ABotSpeaker = cast gf.speaker;
+
+				var abotSpeakerShader:DropShadow = new DropShadow();
+				abotSpeakerShader.setAdjustColor(-66, -10, 24, -23);
+				abotSpeakerShader.angle = 90;
+				abotSpeakerShader.color = 0xFF52351d;
+				abotSpeakerShader.distance = 5;
+				abotSpeakerShader.antialiasAmt = 0;
+				abotSpeakerShader.threshold = 1;
+
+				abotSpeakerShader.attachedSprite = abot.speakerPixel;
+				abot.speakerPixel.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
+					abotSpeakerShader.updateFrameInfo(abot.speakerPixel.frame);
+				};
+
+				abotSpeakerShader.loadAltMask('weeb/erect/masks/aBotPixel_mask');
+				abotSpeakerShader.maskThreshold = 0;
+				abotSpeakerShader.useAltMask = true;
+
+				abot.bg.shader = noRimShader.shader;
+				abot.eyesPixel.shader = noRimShader.shader;
+				for(viz in abot.vizSprites)
+					viz.shader = noRimShader.shader;
+				abot.speakerPixel.shader = abotSpeakerShader.shader;
+			}
+			else {
+				gf.speaker.shader = noRimShader.shader;
+			}
 		}
 	}
 

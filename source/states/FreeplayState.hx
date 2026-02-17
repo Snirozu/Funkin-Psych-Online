@@ -56,6 +56,7 @@ class FreeplayState extends MusicBeatState
 {
 	public static var instance:FreeplayState;
 	public var songs:Array<SongMetadata> = [];
+	public var songsIcons:Array<HealthIcon> = [];
 
 	var selector:FlxText;
 	public static var curSelected:Int = 0; 
@@ -82,13 +83,14 @@ class FreeplayState extends MusicBeatState
 
 	var groupTitle:Scrollable;
 
-	private var grpSongs:FlxTypedGroup<FlxSprite>;
-	private var grpIcons:FlxTypedGroup<HealthIcon>;
-	private var grpHearts:FlxTypedGroup<Heart>;
+	private var renderSongs:FlxTypedGroup<FlxSprite>;
+	private var centerOfRenders:Int = 0;
+	private var renderIcons:FlxTypedGroup<HealthIcon>;
+	private var renderHearts:FlxTypedGroup<Heart>;
 	private var curPlaying:Bool = false;
 
 	private var initSongs:Array<SongMetadata> = [];
-	private var initSongItems:Array<Array<Dynamic>> = [];
+	private var initSongIcons:Array<HealthIcon> = [];
 
 	public static final GROUPS:Array<String> = ['Default', 'Alphabetically', 'Modpack', 'Character Mix'];
 
@@ -138,15 +140,15 @@ class FreeplayState extends MusicBeatState
 
 	// var dTime:Alphabet = new Alphabet(0, 0, "0:00", false);
 	// var dShots:FlxTypedGroup<FlxEffectSprite> = new FlxTypedGroup<FlxEffectSprite>();
-	var diffSelect:Alphabet = new Alphabet(0, 0, "< ? >", true);
-	var modifiersSelect:Alphabet = new Alphabet(0, 0, !GameClient.isConnected() ? "GAMEPLAY MODIFIERS" : "MODIFIERS UNAVAILABLE HERE", true);
-	var replaysSelect:Alphabet = new Alphabet(0, 0, !GameClient.isConnected() ? "LOAD REPLAY" : "REPLAYS UNAVAILABLE", true);
-	var resetSelect:Alphabet = new Alphabet(0, 0, "RESET SCORE", true);
+	var diffSelect:Alphabet;
+	var modifiersSelect:Alphabet;
+	var replaysSelect:Alphabet;
+	var resetSelect:Alphabet;
 
-	var topTitle:Alphabet = new Alphabet(0, 0, "LEADERBOARD", true);
-	var topCategory:Alphabet = new Alphabet(0, 0, "< ALL TIME >", true);
-	var topLoading:Alphabet = new Alphabet(0, 0, "LOADING", true);
-	var topShit:Scoreboard = new Scoreboard(FlxG.width - 200, 32, 15, ["PLAYER", "SCORE", "ACCURACY"]);
+	var topTitle:Alphabet;
+	var topCategory:Alphabet;
+	var topLoading:Alphabet;
+	var topShit:Scoreboard;
 
 	var touchingAndEmotionalQuotes:Array<Dynamic> = [
 		[80, [
@@ -192,8 +194,6 @@ class FreeplayState extends MusicBeatState
 
 	var itemsCamera:FlxCamera;
 	var hudCamera:FlxCamera;
-
-	var curSkin:Array<String> = [null, null];
 
 	override function create()
 	{
@@ -247,6 +247,15 @@ class FreeplayState extends MusicBeatState
 
 		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
 			playFreakyMusic();
+		
+		diffSelect = new Alphabet(0, 0, "< ? >", true);
+		modifiersSelect = new Alphabet(0, 0, !GameClient.isConnected() ? "GAMEPLAY MODIFIERS" : "MODIFIERS UNAVAILABLE HERE", true);
+		replaysSelect = new Alphabet(0, 0, !GameClient.isConnected() ? "LOAD REPLAY" : "REPLAYS UNAVAILABLE", true);
+		resetSelect = new Alphabet(0, 0, "RESET SCORE", true);
+		topTitle = new Alphabet(0, 0, "LEADERBOARD", true);
+		topCategory = new Alphabet(0, 0, "< ALL TIME >", true);
+		topLoading = new Alphabet(0, 0, "LOADING", true);
+		topShit = new Scoreboard(FlxG.width - 200, 32, 15, ["PLAYER", "SCORE", "ACCURACY"]);
 
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
@@ -263,18 +272,18 @@ class FreeplayState extends MusicBeatState
 		
 		CustomFadeTransition.nextCamera = hudCamera;
 
-		grpSongs = new FlxTypedGroup<FlxSprite>();
-		grpSongs.cameras = [itemsCamera];
-		add(grpSongs);
+		renderSongs = new FlxTypedGroup<FlxSprite>();
+		renderSongs.cameras = [itemsCamera];
+		add(renderSongs);
 
-		grpIcons = new FlxTypedGroup<HealthIcon>();
-		grpIcons.cameras = [itemsCamera];
-		add(grpIcons);
+		renderIcons = new FlxTypedGroup<HealthIcon>();
+		renderIcons.cameras = [itemsCamera];
+		add(renderIcons);
 
-		grpHearts = new FlxTypedGroup<Heart>();
-		grpHearts.cameras = [itemsCamera];
-		grpHearts.recycle(Heart);
-		add(grpHearts);
+		renderHearts = new FlxTypedGroup<Heart>();
+		renderHearts.cameras = [itemsCamera];
+		renderHearts.recycle(Heart);
+		add(renderHearts);
 
 		// if (!ClientPrefs.data.disableFreeplayAlphabet)
 			randomText = new Alphabet(90, 320, "RANDOM", true);
@@ -295,11 +304,16 @@ class FreeplayState extends MusicBeatState
 		groupTitle.cameras = [itemsCamera];
 		add(cast groupTitle);
 
-		curSkin = ClientPrefs.data.modSkin ?? [null, null];
+		var charaData:CharacterFile;
 
-		Mods.currentModDirectory = curSkin[0];
+		if (ClientPrefs.data.currentSkin != null) {
+			Mods.currentModDirectory = ClientPrefs.data.currentSkin[3];
+			charaData = Character.getCharacterFile(ClientPrefs.data.currentSkin[0]);
+		}
+		else {
+			charaData = Character.getCharacterFile('bf');
+		}
 
-		var charaData:CharacterFile = Character.getCharacterFile(curSkin[1]);
 		randomIcon = new HealthIcon(charaData.healthicon);
 		randomIcon.sprTracker = cast randomText;
 		randomIcon.scrollFactor.set(1, 1);
@@ -338,28 +352,41 @@ class FreeplayState extends MusicBeatState
 		var stamp = haxe.Timer.stamp();
 		var drawTime = Sys.time();
 
-		for (i in 0...initSongs.length) {
+		for (i in 0...12) {
 			var songText:Scrollable;
-			if (!ClientPrefs.data.disableFreeplayAlphabet)
-				songText = new Alphabet(90, 320, initSongs[i].songName, true);
+			if (!ClientPrefs.data.disableFreeplayAlphabet) {
+				songText = new Alphabet(90, 320, '', true);
+			}
 			else
-				songText = new online.objects.AlphaLikeText(90, 320, initSongs[i].songName);
-			songText.scaleX = Math.min(1, 980 / songText.width);
-			songText.targetY = i;
-			songText.snapToPosition();
-			songText.visible = songText.active = songText.isMenuItem = false;
+				songText = new online.objects.AlphaLikeText(90, 320, '');
+			songText.visible = songText.isMenuItem = false;
+			renderSongs.add(cast songText);
+		}
+		centerOfRenders = Std.int(renderSongs.members.length / 2);
+
+		for (i in 0...initSongs.length) {
+			// var songText:Scrollable;
+			// if (!ClientPrefs.data.disableFreeplayAlphabet) {
+			// 	songText = new Alphabet(90, 320, initSongs[i].songName, true);
+			// }
+			// else
+			// 	songText = new online.objects.AlphaLikeText(90, 320, initSongs[i].songName);
+			// songText.scaleX = Math.min(1, 980 / songText.width);
+			// songText.targetY = i;
+			// songText.snapToPosition();
+			// songText.visible = songText.active = songText.isMenuItem = false;
 
 			Mods.currentModDirectory = initSongs[i].folder;
 			var icon = ClientPrefs.data.disableFreeplayIcons ? null : new HealthIcon(initSongs[i].songCharacter);
 			if (icon != null) {
-				icon.sprTracker = cast(songText);
-				icon.visible = icon.active = false;
+				// icon.sprTracker = cast(songText);
+				// icon.visible = icon.active = false;
 				icon.scrollFactor.set(1, 1);
 			}
 			if (!modList.contains(Mods.currentModDirectory)) {
 				modList.push(Mods.currentModDirectory);
 			}
-			initSongItems.push([songText, icon]);
+			initSongIcons.push(icon);
 		}
 		trace(haxe.Timer.stamp() - stamp);
 		WeekData.setDirectoryFromWeek();
@@ -670,8 +697,8 @@ class FreeplayState extends MusicBeatState
 		}
 
 		if (!refresh) {
-			if (searchGroup == MIX) {
-				final skinIndex = searchGroupVList.indexOf(curSkin[1]);
+			if (searchGroup == MIX && ClientPrefs.data.currentSkin != null) {
+				final skinIndex = searchGroupVList.indexOf(ClientPrefs.data.currentSkin[0]);
 				if (skinIndex != -1)
 					searchGroupValue = skinIndex;
 			}
@@ -835,9 +862,9 @@ class FreeplayState extends MusicBeatState
 				v.time = FlxG.sound.music.time;
 		}
 
-		if (instPlaying != -1 && grpIcons.members[instPlaying] != null) {
-			var mult:Float = FlxMath.lerp(1, grpIcons.members[instPlaying].scale.x, FlxMath.bound(1 - (elapsed * 9), 0, 1));
-			grpIcons.members[instPlaying].scale.set(mult, mult);
+		if (instPlaying != -1 && getRenderedIcon(instPlaying) != null) {
+			var mult:Float = FlxMath.lerp(1, getRenderedIcon(instPlaying).scale.x, FlxMath.bound(1 - (elapsed * 9), 0, 1));
+			getRenderedIcon(instPlaying).scale.set(mult, mult);
 		}
 		else {
 			var mult:Float = FlxMath.lerp(1, randomIcon.scale.x, FlxMath.bound(1 - (elapsed * 9), 0, 1));
@@ -943,10 +970,10 @@ class FreeplayState extends MusicBeatState
 						bustSound.volume = 1;
 						bustSound.play(true);
 
-						var exploAmount:Int = Std.int((grpSongs.members[curSelected].width + grpIcons.members[curSelected].width) / 80) + 1;
+						var exploAmount:Int = Std.int((getRenderedSong(curSelected).width + getRenderedSong(curSelected).width) / 80) + 1;
 						for (i in 0...exploAmount) {
 							var explood = explods.recycle(Explod);
-							explood.boom(cast grpSongs.members[curSelected], i);
+							explood.boom(cast getRenderedSong(curSelected), i);
 						}
 					}
 					ClientPrefs.saveSettings();
@@ -1492,7 +1519,7 @@ class FreeplayState extends MusicBeatState
 					centerPoint = new FlxObject(FlxG.width / 2, FlxG.height / 2);
 				itemsCamera.follow(centerPoint, null, 0.15);
 
-				grpSongs.members[curSelected].alpha = 1;
+				getRenderedSong(curSelected).alpha = 1;
 				diffSelect.alpha = 1;
 				modifiersSelect.alpha = 0.6;
 				resetSelect.alpha = 0.6;
@@ -1506,7 +1533,7 @@ class FreeplayState extends MusicBeatState
 				itemsCamera.follow(modifiersSelect, null, 0.15);
 				itemsCamera.targetOffset.y += 200;
 
-				grpSongs.members[curSelected].alpha = 0.6;
+				getRenderedSong(curSelected).alpha = 0.6;
 				diffSelect.alpha = 0.6;
 				modifiersSelect.alpha = 1;
 				replaysSelect.alpha = 0.6;
@@ -1520,7 +1547,7 @@ class FreeplayState extends MusicBeatState
 				itemsCamera.follow(replaysSelect, null, 0.15);
 				itemsCamera.targetOffset.y += 200;
 
-				grpSongs.members[curSelected].alpha = 0.6;
+				getRenderedSong(curSelected).alpha = 0.6;
 				diffSelect.alpha = 0.6;
 				modifiersSelect.alpha = 0.6;
 				replaysSelect.alpha = 1;
@@ -1534,7 +1561,7 @@ class FreeplayState extends MusicBeatState
 				itemsCamera.follow(resetSelect, null, 0.15);
 				itemsCamera.targetOffset.y += 200;
 
-				grpSongs.members[curSelected].alpha = 0.6;
+				getRenderedSong(curSelected).alpha = 0.6;
 				diffSelect.alpha = 0.6;
 				modifiersSelect.alpha = 0.6;
 				replaysSelect.alpha = 0.6;
@@ -1548,7 +1575,7 @@ class FreeplayState extends MusicBeatState
 				itemsCamera.follow(topShit.background, null, 0.15);
 				itemsCamera.targetOffset.y -= 120 + topTitle.height;
 
-				grpSongs.members[curSelected].alpha = 0.6;
+				getRenderedSong(curSelected).alpha = 0.6;
 				diffSelect.alpha = 0.6;
 				modifiersSelect.alpha = 0.6;
 				replaysSelect.alpha = 0.6;
@@ -1715,6 +1742,21 @@ class FreeplayState extends MusicBeatState
 			listenToSong();
 	}
 
+	function swapItems(arr:Array<Dynamic>, indexA:Int, indexB:Int) {
+		var temp = arr[indexA];
+		arr[indexA] = arr[indexB];
+		arr[indexB] = temp;
+	}
+
+	function getRenderedSong(songsIndex:Int) {
+		return renderSongs.members[songsIndex - curSelected + centerOfRenders];
+	}
+
+	function getRenderedIcon(songsIndex:Int) {
+		// return renderIcons.members[songsIndex - curSelected + centerOfRenders];
+		return songsIcons[songsIndex];
+	}
+
 	function changeSelection(change:Int = 0, playSound:Bool = true)
 	{
 		if (selected)
@@ -1726,10 +1768,19 @@ class FreeplayState extends MusicBeatState
 		var lastList:Array<String> = Difficulty.list;
 		curSelected += change;
 
-		if (curSelected < -1)
+		if (curSelected < -1) {
 			curSelected = songs.length - 1;
-		if (curSelected >= songs.length)
+		}
+		if (curSelected >= songs.length) {
 			curSelected = -1;
+		}
+
+		if (curSelected - lerpSelected > renderSongs.members.length / 3) {
+			lerpSelected = curSelected - Std.int(renderSongs.members.length / 3);
+		}
+		if (curSelected - lerpSelected < -renderSongs.members.length / 3) {
+			lerpSelected = curSelected + Std.int(renderSongs.members.length / 3);
+		}
 
 		if (curSelected > -1 && trackPlaying == 'freeplayRandom') {
 			playFreakyMusic();
@@ -1751,20 +1802,104 @@ class FreeplayState extends MusicBeatState
 
 		// selector.y = (70 * curSelected) + 30;
 
+		renderIcons.clear();
+		renderHearts.killMembers();
+
+		var foundTexts:Array<String> = [];
+
+		// 50 more loops here but it's way faster than just simply updating every text
+
+		for (i => obj in renderSongs.members) {
+			var meta = songs[curSelected + i - centerOfRenders];
+			if (meta == null) {
+				foundTexts[i] = null;
+				continue;
+			}
+
+			foundTexts[i] = (renderSongs.members[0] is online.objects.AlphaLikeText ? ' ' : '') + meta.songName + (renderSongs.members[0] is online.objects.AlphaLikeText ? '\n ' : '');
+		}
+
+		var newMembs = [for (_ in renderSongs.members) null];
+		var missings = [];
+		for (obj in renderSongs.members) {
+			var txt:Scrollable = cast obj;
+			final newIndex = foundTexts.indexOf(txt.text);
+
+			if (newIndex != -1 && foundTexts[newIndex] != null)
+				newMembs[newIndex] = obj;
+			else
+				missings.push(obj);
+
+			foundTexts[newIndex] = null;
+		}
+
+		for (obj in missings) {
+			newMembs[newMembs.indexOf(null)] = obj;
+		}
+
+		renderSongs.clear();
+
+		for (obj in newMembs) {
+			renderSongs.add(obj);
+		}
+
+		// var _debTxt = [];
+		for (i => obj in renderSongs.members) {
+			// _debTxt[i] = (cast (obj, Scrollable)).text;
+			var meta = songs[curSelected + i - centerOfRenders];
+
+			if (meta == null) {
+				obj.visible = false;
+				continue;
+			}
+
+			obj.visible = obj.active = true;
+
+			var songText:Scrollable = cast obj;
+			var wantText = (songText is online.objects.AlphaLikeText ? ' ' : '') + meta.songName + (songText is online.objects.AlphaLikeText ? '\n ' : '');
+			if (songText.text != wantText) {
+				songText.text = wantText;
+				songText.scaleX = Math.min(1, 980 / songText.width);
+				if (songText is online.objects.AlphaLikeText)
+					cast (songText, online.objects.AlphaLikeText).updateHitbox();
+				// trace(i + ' new text!');
+			}
+
+			songText.targetY = i - centerOfRenders + curSelected;
+			// songText.snapToPosition();
+
+			var songIcon = songsIcons[curSelected + i - centerOfRenders];
+			if (songIcon != null) {
+				songIcon.sprTracker = cast(songText);
+				renderIcons.add(songIcon);
+			}
+
+			var isFavorited = ClientPrefs.data.favSongs.contains(meta.songName + '-' + meta.folder);
+			if (isFavorited) {
+				final heart = renderHearts.recycle(Heart);
+				heart.target = songIcon ?? obj;
+				heart.copyScaling = songIcon != null;
+				heart.offset.x = songIcon != null ? 0 : -(songText.width + 10);
+			}
+		}
+		// trace(foundTexts);
+		// trace(_debTxt);
+
 		var bullShit:Int = 0;
 
-		for (i in 0...grpIcons.members.length)
+		var playingIcon = getRenderedIcon(instPlaying);
+		for (i => icon in renderIcons.members)
 		{
-			grpIcons.members[i].alpha = 0.6;
-			if (i != instPlaying)
-				grpIcons.members[i].scale.set(1, 1);
+			icon.alpha = 0.6;
+			if (icon != playingIcon)
+				icon.scale.set(1, 1);
 		}
 		
 		if (curSelected != -1) {
-			if (grpIcons.members[curSelected] != null)
-				grpIcons.members[curSelected].alpha = 1;
+			if (getRenderedIcon(curSelected) != null)
+				getRenderedIcon(curSelected).alpha = 1;
 
-			for (item in grpSongs.members)
+			for (item in renderSongs.members)
 			{
 				bullShit++;
 				item.alpha = 0.6;
@@ -1853,19 +1988,18 @@ class FreeplayState extends MusicBeatState
 			obj.alpha = FlxMath.bound(obj.alpha + elapsed * 5, 0, 0.6);
 	}
 
-	var _drawDistance:Int = 4;
-	var _lastVisibles:Array<Int> = [];
+	// var _lastVisibles:Array<Int> = [];
 	var _lastSelected:Bool = false;
 	public function updateTexts(elapsed:Float = 0.0)
 	{
-		lerpSelected = FlxMath.lerp(lerpSelected, curSelected, FlxMath.bound(elapsed * 9.6, 0, 1));
-		for (i in _lastVisibles)
-		{
-			grpSongs.members[i].visible = grpSongs.members[i].active = false;
-			if (grpIcons.members[i] != null)
-				grpIcons.members[i].visible = grpIcons.members[i].active = false;
-		}
-		_lastVisibles = [];
+		lerpSelected = FlxMath.lerp(lerpSelected, curSelected, FlxMath.bound(elapsed * 10, 0, 1));
+		// for (i in _lastVisibles)
+		// {
+		// 	grpSongs.members[i].visible = grpSongs.members[i].active = false;
+		// 	if (grpIcons.members[i] != null)
+		// 		grpIcons.members[i].visible = grpIcons.members[i].active = false;
+		// }
+		// _lastVisibles = [];
 
 		updateScrollable(groupTitle, elapsed);
 		updateScrollable(randomText, elapsed);
@@ -1873,21 +2007,19 @@ class FreeplayState extends MusicBeatState
 			randomText.alpha = 1;
 		randomIcon.alpha = randomText.alpha;
 
-		var min:Int = Math.round(Math.max(0, Math.min(songs.length, lerpSelected - _drawDistance)));
-		var max:Int = Math.round(Math.max(0, Math.min(songs.length, lerpSelected + _drawDistance)));
-		for (i in min...max)
+		for (grpIndex => item in renderSongs.members)
 		{
-			if (!(grpSongs.members[i] is Scrollable)) {
-				continue;
-			}
+			final i = curSelected + grpIndex - centerOfRenders;
+			// if (!(getRenderedSong(i) is Scrollable)) {
+			// 	continue;
+			// }
 
-			var item:Scrollable = cast(grpSongs.members[i], Scrollable);
-			item.visible = item.active = true;
+			var item:Scrollable = cast(item, Scrollable);
 			if (!selected)
 				item.x = ((item.targetY - lerpSelected) * item.distancePerItem.x) + item.startPosition.x;
 			item.y = ((item.targetY - lerpSelected) * 1.3 * item.distancePerItem.y) + item.startPosition.y;
 
-			_lastVisibles.push(i);
+			// _lastVisibles.push(i);
 
 			if (selected) {
 				if (i == curSelected) {
@@ -1941,7 +2073,7 @@ class FreeplayState extends MusicBeatState
 			// 	}
 			// }
 
-			var icon = grpIcons.members[i];
+			var icon = getRenderedIcon(i);
 			if (icon != null) {
 				icon.visible = icon.active = true;
 				icon.alpha = item.alpha;
@@ -1978,8 +2110,8 @@ class FreeplayState extends MusicBeatState
 			return;
 		}
 
-		if (listening && instPlaying > -1 && grpIcons.members[instPlaying] != null)
-			grpIcons.members[instPlaying].scale.set(1.2, 1.2);
+		if (listening && instPlaying > -1 && getRenderedIcon(instPlaying) != null)
+			getRenderedIcon(instPlaying).scale.set(1.2, 1.2);
 	}
 
 	function getSongName() {
@@ -2067,13 +2199,14 @@ class FreeplayState extends MusicBeatState
 	}
 
 	function search(?init:Bool = false) {
-		grpIcons.clear();
-		grpSongs.clear();
-		grpHearts.killMembers();
-		_lastVisibles = [];
+		// grpIcons.clear();
+		// grpSongs.clear();
+		// grpHearts.killMembers();
+		// _lastVisibles = [];
 		songs = [];
+		songsIcons = [];
 
-		updateOverCharts(searchGroup == MIX ? searchGroupVList[searchGroupValue] : curSkin[1]);
+		updateOverCharts(searchGroup == MIX ? searchGroupVList[searchGroupValue] : (ClientPrefs.data.currentSkin != null ? ClientPrefs.data.currentSkin[0] : null));
 
 		if (!init)
 			instPlaying = -1;
@@ -2084,8 +2217,7 @@ class FreeplayState extends MusicBeatState
 			searchGroupValue = 0;
 
 		var i:Int = 0;
-		for (songID => arr in initSongItems) {
-			var song:SongMetadata = initSongs[songID];
+		for (songI => song in initSongs) {
 			if (song == null)
 				continue;
 			
@@ -2114,22 +2246,23 @@ class FreeplayState extends MusicBeatState
 				song.folder.toLowerCase().replace('-', ' ').contains(searchString.toLowerCase()) ||
 				song.songCharacter.toLowerCase().replace('-', ' ').contains(searchString.toLowerCase())
 			) {
-				arr[0].targetY = i;
-				arr[0].snapToPosition();
+				// arr[0].targetY = i;
+				// arr[0].snapToPosition();
 
-				arr[0].visible = arr[0].active = arr[0].isMenuItem = false;
+				// arr[0].visible = arr[0].active = arr[0].isMenuItem = false;
 
-				grpSongs.add(arr[0]); // song
+				// grpSongs.add(arr[0]); // song
 
-				if (arr[1] != null) {
-					arr[1].visible = arr[1].active = false;
-					grpIcons.add(arr[1]); // icon
-				}
+				// if (arr[1] != null) {
+				// 	arr[1].visible = arr[1].active = false;
+				// 	grpIcons.add(arr[1]); // icon
+				// }
+				songsIcons.push(initSongIcons[songI]);
 				songs.push(song);
 
-				if (isFavorited) {
-					grpHearts.recycle(Heart).target = arr[1];
-				}
+				// if (isFavorited) {
+				// 	grpHearts.recycle(Heart).target = arr[1];
+				// }
 
 				var diff = Difficulty.getString(curDifficulty);
 				var trackSuffix = diff == "Erect" || diff == "Nightmare" ? "-erect" : "";
@@ -2162,22 +2295,27 @@ class FreeplayState extends MusicBeatState
 			});
 
 			var gsi = 0;
-			grpSongs.sort(function(o:Int, x:FlxSprite, y:FlxSprite):Int {
+			songsIcons.sort(function(x:HealthIcon, y:HealthIcon):Int {
 				return opHistory[gsi++];
 			});
 
-			var gii = 0;
-			grpIcons.sort(function(o:Int, x:HealthIcon, y:HealthIcon):Int {
-				return opHistory[gii++];
-			});
+			// var gsi = 0;
+			// grpSongs.sort(function(o:Int, x:FlxSprite, y:FlxSprite):Int {
+			// 	return opHistory[gsi++];
+			// });
 
-			var fgsi = 0;
-			for (_ds in grpSongs) {
-				var song:Dynamic = cast _ds;
-				song.targetY = fgsi;
-				song.snapToPosition();
-				fgsi++;
-			}
+			// var gii = 0;
+			// grpIcons.sort(function(o:Int, x:HealthIcon, y:HealthIcon):Int {
+			// 	return opHistory[gii++];
+			// });
+
+			// var fgsi = 0;
+			// for (_ds in grpSongs) {
+			// 	var song:Dynamic = cast _ds;
+			// 	song.targetY = fgsi;
+			// 	song.snapToPosition();
+			// 	fgsi++;
+			// }
 		}
 
 		if (songs.length < 1) {
@@ -2331,6 +2469,8 @@ class LockInSprite extends FlxSprite {
 		this.target = target;
 	}
 
+	public var copyScaling:Bool = true;
+
 	override function update(elapsed) {
 		super.update(elapsed);
 
@@ -2342,8 +2482,10 @@ class LockInSprite extends FlxSprite {
 		x = target.x;
 		y = target.y;
 		alpha = target.alpha;
-		scale.x = target.scale.x;
-		scale.y = target.scale.y;
+		if (copyScaling) {
+			scale.x = target.scale.x;
+			scale.y = target.scale.y;
+		}
 		visible = target.active && target.visible;
 	}
 

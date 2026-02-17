@@ -234,10 +234,9 @@ class GameClient {
 			options.set("networkToken", Auth.authToken);
 		}
 
-		if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
-			options.set("skinMod", ClientPrefs.data.modSkin[0]);
-			options.set("skinName", ClientPrefs.data.modSkin[1]);
-			options.set("skinURL", OnlineMods.getModURL(ClientPrefs.data.modSkin[0]));
+		if (ClientPrefs.data.currentSkin != null) {
+			options.set("skin", ClientPrefs.data.currentSkin);
+			options.set("skinURL", OnlineMods.getModURL(ClientPrefs.data.currentSkin[3]));
 		}
 
 		var data:NoteSkinStructure = NoteSkinData.getCurrent(-1);
@@ -374,11 +373,10 @@ class GameClient {
 
 		GameClient.room.onMessage("requestSkin", function(?msg:Dynamic) {
 			Waiter.putPersist(() -> {
-				if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
+				if (ClientPrefs.data.currentSkin != null) {
 					GameClient.send("setSkin", [
-						ClientPrefs.data.modSkin[0],
-						ClientPrefs.data.modSkin[1],
-						OnlineMods.getModURL(ClientPrefs.data.modSkin[0])
+						ClientPrefs.data.currentSkin,
+						OnlineMods.getModURL(ClientPrefs.data.currentSkin[3])
 					]);
 				}
 				else {

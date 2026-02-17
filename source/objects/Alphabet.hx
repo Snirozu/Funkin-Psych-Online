@@ -18,6 +18,8 @@ interface Scrollable extends IFlxSprite {
 	public var width(get, set):Float;
 	public var height(get, set):Float;
 	public var cameras(get, set):Array<FlxCamera>;
+
+	public var text(default, set):String;
 }
 
 enum Alignment
@@ -44,7 +46,7 @@ class Alphabet extends FlxSpriteGroup implements Scrollable
 	public var scaleY(default, set):Float = 1;
 	public var rows:Int = 0;
 
-	public var distancePerItem:FlxPoint = new FlxPoint(20, 120);
+	public var distancePerItem:FlxPoint = new FlxPoint(20, 100);
 	public var startPosition:FlxPoint = new FlxPoint(0, 0); //for the calculations
 
 	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = true)

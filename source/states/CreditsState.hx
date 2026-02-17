@@ -45,14 +45,14 @@ class CreditsState extends MusicBeatState
 
 		var defaultList:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
 			['Psych Online'],
-			['Snirozu', 'snirozu', 'Developer', 'https://sniro.boo', 'FFCC33'],
+			['Snirozu', 'snirozu', 'helo i made this mod :)', 'https://sniro.boo', 'FFCC33'],
+			['Til', 'til', 'Code Contributor with over 30 commits!\nDeveloper of the upcoming Mobile Port', 'https://techniktil.tilnotdrip.org', 'FFFF00'],
 			[''],
 			['Contributors'],
-			['Til', 'til', 'Awesome Code Contributor!', 'https://techniktil.tilnotdrip.org', 'FFFF00'],
 			['Poyo', 'pojo', '2v2 Update Playtester and Network Helper', 'https://twitter.com/_Poyo_09', 'B462DD'],
-			['Mad!', 'mad', 'Results Screen Re-Assets', 'https://twitter.com/MadWolfAround', 'BF53D1'],
+			['Mad!', 'mad', 'UI Concept Artist & Results Screen Art', 'https://twitter.com/MadWolfAround', 'BF53D1'],
 			['Magniill', 'notmagniill', 'Redrew the Online Menu Button', 'https://twitter.com/magniill', '910000'],
-			['Vortex', 'vor', 'Multiple Atlas Support', 'https://github.com/Vortex2Oblivion', '00FFFF'],
+			['Vortex', 'vor', 'Code Contributor; notably: Multi-Atlas Support!', 'https://github.com/Vortex2Oblivion', '00FFFF'],
 			['xenkap', '', 'Code Contributor', 'https://github.com/xenkap', '9370DB'],
 			[''],
 			['Psych Engine Team'],
@@ -110,7 +110,7 @@ class CreditsState extends MusicBeatState
 				icon.sprTracker = cast optionText;
 	
 				// using a FlxGroup is too much fuss!
-				iconArray.push(icon);
+				iconArray[i] = icon;
 				add(icon);
 				Mods.currentModDirectory = '';
 
@@ -208,7 +208,7 @@ class CreditsState extends MusicBeatState
 			}
 		}
 		
-		for (item in grpOptions.members)
+		for (item in renderTexts)
 		{
 			final item:Scrollable = cast item;
 
@@ -229,6 +229,8 @@ class CreditsState extends MusicBeatState
 		}
 		super.update(elapsed);
 	}
+
+	var renderTexts:Array<FlxSprite> = [];
 
 	var moveTween:FlxTween = null;
 	function changeSelection(change:Int = 0)
@@ -258,12 +260,21 @@ class CreditsState extends MusicBeatState
 
 		var bullShit:Int = 0;
 
-		for (item in grpOptions.members)
+		renderTexts = [];
+
+		for (i => item in grpOptions.members)
 		{
 			final item:Scrollable = cast item;
 
 			item.targetY = bullShit - curSelected;
 			bullShit++;
+
+			item.visible = item.targetY < 6 && item.targetY > -6;
+			if (iconArray[i] != null)
+				iconArray[i].visible = item.visible;
+			if (item.visible) {
+				renderTexts.push(cast item);
+			}
 
 			if(!unselectableCheck(bullShit-1)) {
 				item.alpha = 0.6;

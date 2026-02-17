@@ -71,7 +71,7 @@
 				0,
 				0
 			],
-			"anim": "drop70",
+			"anim": "laughCutscene",
 			"fps": 24,
 			"name": "laughing nene xmas0",
 			"indices": [
@@ -193,8 +193,7 @@
 	"no_antialiasing": false,
 	"image": "characters/neneChristmas/neneChristmas",
 	"position": [
-		50,
-		0
+		60, 20
 	],
 	"healthicon": "face",
 	"flip_x": false,
@@ -208,5 +207,6 @@
 		40
 	],
 	"sing_duration": 6.1,
+	"speaker": "abot",
 	"scale": 1
 }

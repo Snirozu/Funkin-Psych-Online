@@ -59,8 +59,8 @@
     "no_antialiasing": false,
     "image": "characters/otisSpeaker",
     "position": [
-        -40,
-        -25
+        30,
+        15
     ],
     "healthicon": "face",
     "flip_x": false,
@@ -74,5 +74,6 @@
         0
     ],
     "sing_duration": 4,
+	"speaker": "abot",
     "scale": 1
 }

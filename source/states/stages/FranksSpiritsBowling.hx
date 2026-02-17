@@ -99,19 +99,31 @@ class FranksSpiritsBowling extends BaseStage {
 
 				var gf:Character = cast daGf;
 				if (gf.curCharacter.endsWith('-speaker')) {
-					var firstTank:TankmenBG = new TankmenBG(20, 500, true);
-					firstTank.resetShit(20, 600, true);
-					firstTank.strumTime = 10;
-					firstTank.visible = false;
-					tankmanRun.add(firstTank);
+					var nextTime = 0;
+
+					var tankrunShader:DropShadow = null;
+					if (ClientPrefs.data.shaders) {
+						tankrunShader = new DropShadow();
+						tankrunShader.baseBrightness = -46;
+						tankrunShader.baseHue = -38;
+						tankrunShader.baseContrast = -25;
+						tankrunShader.baseSaturation = -20;
+						tankrunShader.angle = 45;
+						tankrunShader.threshold = 0.4;
+					}
 
 					for (i in 0...TankmenBG.animationNotes.length) {
-						if (FlxG.random.bool(20)) {
+						final time = TankmenBG.animationNotes[i][0];
+
+						if (time >= nextTime) {
+							nextTime = time + FlxG.random.int(500, 1000);
+
 							var tankBih = tankmanRun.recycle(TankmenBG);
-							tankBih.strumTime = TankmenBG.animationNotes[i][0];
-							tankBih.resetShit(500, 320, TankmenBG.animationNotes[i][1] < 2);
+							tankBih.strumTime = time;
+							tankBih.resetShit(500, 290, TankmenBG.animationNotes[i][1] < 2);
 							tankBih.scale.set(1.1, 1.1);
 							tankBih.updateHitbox();
+							tankBih.shader = tankrunShader.shader;
 							tankmanRun.add(tankBih);
 						}
 					}

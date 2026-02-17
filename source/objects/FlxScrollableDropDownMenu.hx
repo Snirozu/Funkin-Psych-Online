@@ -46,11 +46,6 @@ class FlxScrollableDropDownMenu extends FlxUIDropDownMenu  {
 					updateButtonPositions();
 				}
 			}
-
-			if (FlxG.mouse.justPressed && !FlxG.mouse.overlaps(this, this.camera))
-			{
-				showList(false);
-			}
 		}
 		#end
     }

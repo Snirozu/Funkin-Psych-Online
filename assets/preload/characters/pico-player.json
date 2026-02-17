@@ -122,6 +122,54 @@
 			"indices": []
 		},
 		{
+			"offsets": [256, 232],
+			"indices": [],
+			"fps": 24,
+			"anim": "shoot",
+			"loop": false,
+			"name": "Pico Shoot Hip Full0"
+		},
+		{
+			"offsets": [0, 0],
+			"indices": [],
+			"fps": 24,
+			"anim": "shootMISS",
+			"loop": false,
+			"name": "Pico Hit Can0"
+		},
+		{
+			"offsets": [0, 0],
+			"indices": [],
+			"fps": 24,
+			"anim": "cock",
+			"loop": false,
+			"name": "Pico Reload0"
+		},
+		{
+			"offsets": [60, 0],
+			"indices": [],
+			"fps": 24,
+			"anim": "intro1",
+			"loop": false,
+			"name": "Pico Gets Pissed0"
+		},
+		{
+			"offsets": [0, 0],
+			"indices": [],
+			"fps": 24,
+			"anim": "cockCutscene",
+			"loop": false,
+			"name": "cutscene cock0"
+		},
+		{
+			"offsets": [255, 231],
+			"indices": [],
+			"fps": 24,
+			"anim": "intro2",
+			"loop": false,
+			"name": "shoot and return0"
+		},
+		{
 			"fps": 24,
 			"loop": false,
 			"indices": [],
@@ -228,7 +276,7 @@
 		}
 	],
 	"no_antialiasing": false,
-	"image": "characters/Pico_FNF_assetss,characters/Pico_Finger,characters/Pico_Censored,characters/Pico_Burps,characters/Pico_Death,characters/pico-yeah",
+	"image": "characters/Pico_FNF_assetss,characters/picoAnims/Pico_Intro,characters/picoAnims/Pico_Shooting,characters/Pico_Finger,characters/Pico_Censored,characters/Pico_Burps,characters/Pico_Death,characters/pico-yeah",
 	"position": [
 		0,
 		300
@@ -245,5 +293,6 @@
 		0
 	],
 	"sing_duration": 4,
-	"scale": 1
+	"scale": 1,
+	"speaker": "nene"
 }

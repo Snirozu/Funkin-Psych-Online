@@ -62,6 +62,8 @@ class SustainSplash extends FlxSprite {
 			setGraphicSize(Std.int(width * Note.noteScale));
 		}
 
+		frameRate = 24;
+
 		animation.play('hold', true, false, 0);
 		if (animation.curAnim != null) {
 			animation.curAnim.frameRate = frameRate;

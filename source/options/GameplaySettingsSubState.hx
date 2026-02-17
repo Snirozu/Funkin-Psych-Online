@@ -1,12 +1,10 @@
 package options;
 
+import states.FreeplayState;
+
 class GameplaySettingsSubState extends BaseOptionsMenu
 {
-	public function new()
-	{
-		title = 'Gameplay';
-		rpcTitle = 'Gameplay Settings Menu'; //for Discord Rich Presence
-
+	function openGameOptions() {
 		//I'd suggest using "Downscroll" as an example for making your own option since it is the simplest here
 		var option:Option = new Option('Downscroll', //Name
 			'If checked, notes go Down instead of Up, simple enough.', //Description
@@ -115,6 +113,36 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Modchart Skin Changes',
+			'If enabled, the song events will change the character of your active skin',
+			'modchartSkinChanges',
+			'bool');
+		addOption(option);
+
+		var option:Option = new Option('Disable Lag Detection',
+			'If checked, the game will no longer rewind 3 seconds when a lag is detected',
+			'disableLagDetection',
+			'bool');
+		addOption(option);
+	}
+
+	function openPreferences() {
+		#if CHECK_FOR_UPDATES
+		var option:Option = new Option('Check for Updates',
+			'On Release builds, turn this on to check for updates when you start the game.',
+			'checkForUpdates',
+			'bool');
+		addOption(option);
+		#end
+
+		#if DISCORD_ALLOWED
+		var option:Option = new Option('Discord Rich Presence',
+			"Uncheck this to prevent accidental leaks, it will hide the Application from your \"Playing\" box on Discord",
+			'discordRPC',
+			'bool');
+		addOption(option);
+		#end
+		
 		var option:Option = new Option('Disable Recording Replays',
 			'If checked, the game will no longer record your gameplay, this will cause your scores to not be submitted to the leaderboard!',
 			'disableReplays',
@@ -127,34 +155,72 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
-		var option:Option = new Option('Disable Lag Detection',
-			'If checked, the game will no longer rewind 3 seconds when a lag is detected',
-			'disableLagDetection',
+		var option:Option = new Option('Disable Automatic Downloads',
+			'Disables automatic downloads of Mods and Skins from the opponent',
+			'disableAutoDownloads',
 			'bool');
 		addOption(option);
 
-		var option:Option = new Option('Modchart Skin Changes',
-			'If enabled, the song events will change the character of your active skin',
-			'modchartSkinChanges',
-			'bool');
-		addOption(option);
-
-		var option:Option = new Option('Note Underlay Opacity', 'If higher than 0%, an underlay will be displayed behind player notes.', 'noteUnderlayOpacity', 'percent');
-		addOption(option);
-		option.scrollSpeed = 1.6;
-		option.minValue = 0.0;
-		option.maxValue = 1;
-		option.changeValue = 0.05;
-		option.decimals = 2;
-
-		var option:Option = new Option('Note Underlay Type:',
-			"How should the game render note underlays.",
-			'noteUnderlayType',
+		var option:Option = new Option('Pause Screen Song:',
+			"What song do you prefer for the Pause Screen?",
+			'pauseMusic',
 			'string',
-			['All-In-One', 'By Note']);
+			['None', 'Breakfast', 'Tea Time']);
 		addOption(option);
+		option.onChange = onChangePauseMusic;
+
+		var option:Option = new Option('Group Songs:',
+			"How should songs on Freeplay menu be group by?",
+			'groupSongsBy',
+			'string',
+			FreeplayState.GROUPS);
+		addOption(option);
+
+		var option:Option = new Option('Favorite Tracks Menu Theme',
+			'If checked, the game will be picking your random favorite song as the main menu theme!',
+			'favsAsMenuTheme',
+			'bool');
+		option.onChange = () -> {
+			states.TitleState.playFreakyMusic();
+		};
+		addOption(option);
+
+		var option:Option = new Option('Debug Mode',
+			"If checked, enables debug warnings etc.",
+			'debugMode',
+			'bool');
+		addOption(option);
+	}
+
+	public function new(category:String)
+	{
+		title = category;
+		rpcTitle = 'Game Settings Menu'; //for Discord Rich Presence
+
+		switch (category) {
+			case 'Gameplay':
+				openGameOptions();
+			case 'Preferences':
+				openPreferences();
+		}
 
 		super();
+	}
+
+	var changedMusic:Bool = false;
+	function onChangePauseMusic()
+	{
+		if(ClientPrefs.data.pauseMusic == 'None')
+			FlxG.sound.music.volume = 0;
+		else
+			FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)));
+
+		changedMusic = true;
+	}
+
+	override function destroy() {
+		if(changedMusic && !OptionsState.onPlayState) states.TitleState.playFreakyMusic();
+		super.destroy();
 	}
 
 	function onChangeHitsoundVolume()

@@ -51,10 +51,16 @@ class Room extends Schema {
 	public var isPrivate: Bool = false;
 
 	@:type("boolean")
+	public var networkOnly: Bool = false;
+
+	@:type("boolean")
 	public var isStarted: Bool = false;
 
 	@:type("boolean")
 	public var anarchyMode: Bool = false;
+
+	@:type("boolean")
+	public var allPlayersChoose: Bool = false;
 
 	@:type("number")
 	public var health: Dynamic = 0;
@@ -78,6 +84,6 @@ class Room extends Schema {
 	public var royalMode:Bool = false;
 
 	@:type("boolean")
-	public var royalModeBfSide:Bool = true;
+	public var royalModeDadSide:Bool = false;
 
 }

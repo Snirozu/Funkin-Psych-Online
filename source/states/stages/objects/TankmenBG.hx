@@ -43,7 +43,7 @@ class TankmenBG extends FlxSprite
 	{
 		super.update(elapsed);
 
-		visible = (x > -0.5 * FlxG.width && x < 1.2 * FlxG.width);
+		// visible = (x > -0.5 * FlxG.width && x < 1.2 * FlxG.width);
 
 		if(animation.curAnim.name == "run")
 		{

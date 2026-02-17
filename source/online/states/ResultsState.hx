@@ -366,13 +366,12 @@ class ResultsState extends MusicBeatState {
 		var avgWinTeamMidX = 0.0;
 		var avgWinTeamMidXNums = 0;
 
-		var curSkin = ClientPrefs.data.modSkin ?? [null, null];
 		var charData:Dynamic = null;
 
-		if (curSkin[1] != null) {
-			selfCharMod = curSkin[0];
+		if (ClientPrefs.data.currentSkin != null) {
+			selfCharMod = ClientPrefs.data.currentSkin[3];
 			ShitUtil.tempSwitchMod(selfCharMod, () -> {
-				selfCharName = curSkin[1];
+				selfCharName = ClientPrefs.data.currentSkin[0];
 				charData = ShitUtil.getJson('characters_results/${selfCharName}');
 			});
 		}
@@ -616,9 +615,9 @@ class ResultsState extends MusicBeatState {
 			FlxG.sound.playMusic(Paths.music('title'), 0);
 			FlxG.sound.music.onComplete = () -> {
 				var msc = null;
-				if (ClientPrefs.data.modSkin != null) {
-					ShitUtil.tempSwitchMod(ClientPrefs.data.modSkin[0], () -> {
-						msc = Paths.music(Paths.formatToSongPath('breakfast-' + ClientPrefs.data.modSkin[1]));
+				if (ClientPrefs.data.currentSkin != null) {
+					ShitUtil.tempSwitchMod(ClientPrefs.data.currentSkin[3], () -> {
+						msc = Paths.music(Paths.formatToSongPath('breakfast-' + ClientPrefs.data.currentSkin[0]));
 					});
 				}
 				msc ??= Paths.music(Paths.formatToSongPath('breakfast'));

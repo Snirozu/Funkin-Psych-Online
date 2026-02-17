@@ -49,7 +49,7 @@ class Nene extends Character {
             }
 
 			if (to == 0 && from >= 70) {
-				playAnim('drop70', false);
+				playAnim('laughCutscene', false);
                 specialAnim = true;
             }
 		}

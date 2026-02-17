@@ -21,7 +21,7 @@ class NicommentsView extends FlxTypedGroup<Nicomment> {
 			var comment = songComments.shift();
 
 			var text = recycle(Nicomment);
-			text.init(comment.content, this);
+			text.init(comment.content + ' - ' + comment.player, this);
 			add(text);
 		}
     }

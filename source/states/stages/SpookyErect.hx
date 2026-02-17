@@ -1,5 +1,6 @@
 package states.stages;
 
+import states.stages.objects.ABotSpeaker;
 import objects.Character;
 
 class SpookyErect extends BaseStage
@@ -38,8 +39,9 @@ class SpookyErect extends BaseStage
 			lightList.push(dad);
 			if (gf != null)
 				lightList.push(gf);
-			if (game.abot != null)
-				lightList.push(game.abot.speaker);
+			if (gf.speaker != null && gf.speaker is ABotSpeaker) {
+				lightList.push(cast (gf.speaker, ABotSpeaker).speaker);
+			}
 
 			online.util.ShitUtil.tempSwitchMod(boyfriend.modDir, () -> {
 				bfDark = new Character(boyfriend.x, boyfriend.y, boyfriend.curCharacter + '-dark', boyfriend.isPlayer);

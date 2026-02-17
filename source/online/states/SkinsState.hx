@@ -15,12 +15,17 @@ import objects.Character;
 @:build(lumod.LuaScriptClass.build())
 #end
 class SkinsState extends MusicBeatState {
-	var charactersWithWeeks:Array<String> = new Array<String>();
-	var charactersName:Array<String> = new Array<String>();
-	var charactersLength:Int = 0;
-    var character:FlxTypedGroup<Character>;
+	static var BLACKLISTED_CHARACTERS = ['default'];
+	static var LEFT_SUFFIX = ['-opponent', '-left'];
+	static var RIGHT_SUFFIX = ['-player', '-playable', '-right'];
+	static var SKIP_SUFFICES = ['-pixel', '-christmas', '-blazin'];
+
+	var charactersWithWeeks:Array<Int> = [];
+	// [x] = [character_name_or_dir, left_side_suffix, right_side_suffix, mod_name]
+	var charactersList:Array<Array<String>> = [];
     static var curCharacter:Int = -1;
-    var charactersMod:Map<String, String> = new Map<String, String>();
+	
+    var character:FlxTypedGroup<Character>;
 	var characterCamera:FlxCamera;
 
 	var hud:FlxCamera;
@@ -217,68 +222,121 @@ class SkinsState extends MusicBeatState {
 			stageObjects = [stageBg, stageCrowd, stage, swageLight1, swageLight2, stageCurtain, stageSpeakers];
 		}
 
-        var i = 0;
-
 		var oldModDir = Mods.currentModDirectory;
 
-		// var defaultName = !flipped ? "default" : "default-player";
-		// characterList.set(defaultName, new Character(0, 0, defaultName, flipped));
-		// charactersMod.set(defaultName, null);
-		// charactersName.set(i, defaultName);
-        // i++;
-
-		var hardList = [];
-
-		for (name in [null].concat(Mods.parseList().enabled)) {
+		// iterate over mods and assets to search for characters
+		for (origin in [null].concat(Mods.parseList().enabled)) {
 			var characters:String;
 			var charactersWeeks:String;
-			if (name == null) {
+
+			// game assets
+			if (origin == null) {
 				Mods.loadTopMod();
 				characters = 'assets/characters/';
 				charactersWeeks = 'assets/characters_weeks/';
 			}
+			// mod
 			else {
-				Mods.currentModDirectory = name;
-				characters = Paths.mods(name + '/characters/');
-				charactersWeeks = Paths.mods(name + '/characters_weeks/');
+				Mods.currentModDirectory = origin;
+				characters = Paths.mods(origin + '/characters/');
+				charactersWeeks = Paths.mods(origin + '/characters_weeks/');
 			}
-			if (FileSystem.exists(characters)) {
-				for (file in FileSystem.readDirectory(characters)) {
-					var path = Path.join([characters, file]);
-					if (!sys.FileSystem.isDirectory(path) && file.endsWith('.json')) {
-						var character:String = file.substr(0, file.length - 5);
-						if (!flipped ? character.endsWith("-player") : !character.endsWith("-player")) {
-                            continue;
-                        }
 
-						if (!hardList.contains(character) && FileSystem.exists(Path.join([characters, (!flipped ? character + "-player" : character.substring(0, character.length - "-player".length)) + ".json"]))) {
-							if (name == null)
-								hardList.push(character);
-							
-							if (FileSystem.exists(Path.join([
-								charactersWeeks,
-								(flipped ? character.substring(0, character.length - "-player".length) : character) + ".json"
-							]))) {
-								charactersWithWeeks.push(character + ' ' + name);
+			// if characters/ folder doesn't exist--skip
+			if (!FileSystem.exists(characters)) {
+				continue;
+			}
+
+			var charSkipSearch = [];
+
+			function addCharacter(characterName:String, leftSuffix:String, rightSuffix:String, origin:String) {
+				if (BLACKLISTED_CHARACTERS.contains(characterName))
+					return false;
+
+				for (suffix in SKIP_SUFFICES) {
+					if (characterName.endsWith(suffix)) {
+						return false;
+					}
+				}
+
+				charactersList.push([characterName, leftSuffix, rightSuffix, origin]);
+				charSkipSearch.push(characterName + leftSuffix);
+				charSkipSearch.push(characterName + rightSuffix);
+
+				if (FileSystem.exists(Path.join([
+					charactersWeeks,
+					characterName + ".json"
+				]))) {
+					charactersWithWeeks.push(charactersList.length - 1);
+				}
+
+				if (isEquipped(charactersList.length - 1)) {
+					curCharacter = charactersList.length - 1;
+				}
+
+				return true;
+			}
+
+			//iterate over all characters/
+			for (file in FileSystem.readDirectory(characters)) {
+				var filePath = Path.join([characters, file]);
+				// strip .json from character filename to get charactername
+				var character:String = file.substr(0, file.length - 5);
+
+				//skip blacklisted or non-character files
+				if (charSkipSearch.contains(character) || sys.FileSystem.isDirectory(filePath) || !file.endsWith('.json')) {
+					continue;
+				}
+
+				//here are the 4 different formats that are accepted for skins and character mixes:
+				// character          -> character-player   @ PEO (<0.14)
+				// character-opponent -> character          @ PEO (>=0.14)
+				// character          -> character-playable @ V-SLICE AND GAMEBANANA STANDARD
+				// character-left     -> character-right    @ UMM-like
+				//they can be mixed together!
+
+				var hasAdded = false;
+
+				for (playableSuffix in RIGHT_SUFFIX) {
+					if (character.endsWith(playableSuffix)) {
+						final cutCharName = character.substr(0, character.length - playableSuffix.length);
+
+						var leftSuffix = '';
+						for (opponentSuffix in LEFT_SUFFIX) {
+							if (FileSystem.exists(Path.join([characters, '${cutCharName + opponentSuffix}.json']))) {
+								leftSuffix += opponentSuffix;
 							}
+						}
 
-							//characterList.set(character, new Character(0, 0, character, flipped));
-							charactersMod.set(character, name);
-							charactersName.push(character);
+						if (FileSystem.exists(Path.join([characters, '${cutCharName}.json']))) {
+							hasAdded = addCharacter(cutCharName, leftSuffix, playableSuffix, origin);
+							break;
+						}
+					}
+				}
 
-							//characterList.get(character).updateHitbox();
+				if (hasAdded)
+					continue;
 
-							if (curCharacter == -1 && isEquiped(name, !flipped ? character + "-player" : character.substring(0, character.length - "-player".length))) {
-								curCharacter = i;
+				for (opponentSuffix in LEFT_SUFFIX) {
+					if (character.endsWith(opponentSuffix)) {
+						final cutCharName = character.substr(0, character.length - opponentSuffix.length);
+						
+						var rightSuffix = '';
+						for (playableSuffix in RIGHT_SUFFIX) {
+							if (FileSystem.exists(Path.join([characters, '${cutCharName + playableSuffix}.json']))) {
+								rightSuffix += playableSuffix;
 							}
+						}
 
-							i++;
-                        }
-                    }
-                }
+						if (FileSystem.exists(Path.join([characters, '${cutCharName + rightSuffix}.json']))) {
+							hasAdded = addCharacter(cutCharName, opponentSuffix, rightSuffix, origin);
+							break;
+						}
+					}
+				}
             }
         }
-		charactersLength = i;
 
 		Mods.currentModDirectory = oldModDir;
 
@@ -380,8 +438,15 @@ class SkinsState extends MusicBeatState {
 		
 		CustomFadeTransition.nextCamera = hud; // wat
 
-		GameClient.send("status", "Selects their skin");
+		GameClient.send("status", "Selecting their skin");
     }
+
+	function getCharacterName(i:Int) {
+		final character = charactersList[i];
+		if (character == null)
+			return null;
+		return character[0] + character[flipped ? 2 : 1];
+	}
 
     var acceptSound:FlxSound;
 	var stopUpdates:Bool = false;
@@ -452,16 +517,21 @@ class SkinsState extends MusicBeatState {
 			if (selectTimer != null)
 				selectTimer.active = false;
 
-			var daCopy = charactersName.copy();
-			daCopy[0] = "Default";
-			openSubState(new online.substates.SoFunkinSubstate(daCopy, curCharacter, i -> {
+			// daCopy[0] = "Default";
+
+			var listOfCharacterNames = [];
+			for (character in charactersList) {
+				listOfCharacterNames.push(character[0]);
+			}
+
+			openSubState(new online.substates.SoFunkinSubstate(listOfCharacterNames, curCharacter, i -> {
 				if (selectTimer != null)
 					selectTimer.active = true;
 				setCharacter(i - curCharacter);
 				return true;
 			}, (i, leText) -> {
-				Mods.currentModDirectory = charactersMod.get(charactersName[i]);
-				var charaData:CharacterFile = Character.getCharacterFile(charactersName[i]);
+				Mods.currentModDirectory = charactersList[i][3];
+				var charaData:CharacterFile = Character.getCharacterFile(getCharacterName(i));
 				var iconName = charaData?.healthicon;
 				if (iconName != null) {
 					var icon = new HealthIcon(iconName, false);
@@ -480,20 +550,10 @@ class SkinsState extends MusicBeatState {
 				selectTimer.cancel();
 			}
 
-			var charName = charactersName[curCharacter];
-			if (charName.endsWith("-player"))
-				charName = charName.substring(0, charName.length - "-player".length);
-			
-			if (charName.endsWith("-pixel"))
-				charName = charName.substring(0, charName.length - "-pixel".length);
-
-			if (charName == "default")
-				ClientPrefs.data.modSkin = null;
-            else
-				ClientPrefs.data.modSkin = [charactersMod.get(charactersName[curCharacter]), charName];
+			ClientPrefs.data.currentSkin = charactersList[curCharacter];
             ClientPrefs.saveSettings();
             
-			if (isEquiped(charactersMod.get(charactersName[curCharacter]), charName)) {
+			if (isEquipped(curCharacter)) {
 				charSelect.text = 'Selected!';
 				charSelect.alpha = 1;
 			}
@@ -518,15 +578,17 @@ class SkinsState extends MusicBeatState {
 			});
 		}
 
-		if (FlxG.keys.justPressed.EIGHT) {
-			Mods.currentModDirectory = charactersMod.get(charactersName[curCharacter]);
-			switchState(() -> new CharacterEditorState(charactersName[curCharacter], false, true));
+		if (FlxG.keys.justPressed.EIGHT && curCharacter != -1) {
+			Mods.currentModDirectory = charactersList[curCharacter][3];
+			switchState(() -> new CharacterEditorState(getCharacterName(curCharacter), false, true));
 		}
 
 		if (FlxG.keys.justPressed.TAB) {
 			flipped = !flipped;
-			skipStaticDestroy = true;
-			LoadingState.loadAndSwitchState(new SkinsState());
+			prevCharacter = null;
+			setCharacter(0);
+			// skipStaticDestroy = true;
+			// LoadingState.loadAndSwitchState(new SkinsState());
 		}
 
 		if (FlxG.keys.justPressed.F1) {
@@ -542,6 +604,11 @@ class SkinsState extends MusicBeatState {
 
 		if (FlxG.keys.justPressed.F2) {
 			switchState(() -> new DownloaderState('collection:110039'));
+		}
+
+		if (controls.RESET) {
+			curCharacter = -2;
+			setCharacter(1);
 		}
 
 		if (character.members[0]?.animation?.curAnim != null) {
@@ -565,11 +632,10 @@ class SkinsState extends MusicBeatState {
 		characterCamera.follow(camFollow, LOCKON, 0.01);
 
 		if (GameClient.isConnected()) {
-			if (ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2) {
+			if (ClientPrefs.data.currentSkin != null) {
 				GameClient.send("setSkin", [
-					ClientPrefs.data.modSkin[0],
-					ClientPrefs.data.modSkin[1],
-					OnlineMods.getModURL(ClientPrefs.data.modSkin[0])
+					ClientPrefs.data.currentSkin,
+					OnlineMods.getModURL(ClientPrefs.data.currentSkin[3])
 				]);
 			}
 			else {
@@ -632,21 +698,21 @@ class SkinsState extends MusicBeatState {
 			music.stop();
 	}
 
+	var prevCharacter:Null<Int> = null;
     function setCharacter(difference:Int, ?beatHold:Bool = false) {
-		var prevCharacter = curCharacter;
-
 		curCharacter += difference;
 
-		if (curCharacter >= charactersLength) {
-			curCharacter = beatHold ? 0 : charactersLength - 1;
+		if (curCharacter >= charactersList.length) {
+			curCharacter = beatHold ? -1 : charactersList.length - 1;
 		}
-		else if (curCharacter < 0) {
-			curCharacter = beatHold ? charactersLength - 1 : 0;
+		else if (curCharacter < -1) {
+			curCharacter = beatHold ? charactersList.length - 1 : -1;
 		}
 
-		if (difference != 0 && curCharacter == prevCharacter) {
+		if (curCharacter == prevCharacter) {
 			return;
 		}
+		prevCharacter = curCharacter;
 
 		if (persistentUpdate) {
 			if (difference > 0) {
@@ -660,8 +726,8 @@ class SkinsState extends MusicBeatState {
 			}
 		}
 
-		arrowLeft.visible = curCharacter > 0;
-		arrowRight.visible = curCharacter < charactersLength - 1;
+		arrowLeft.visible = curCharacter > -1;
+		arrowRight.visible = curCharacter < charactersList.length - 1;
 
 		if (character.members[0] != null) {
 			character.members[0].destroy();
@@ -671,9 +737,12 @@ class SkinsState extends MusicBeatState {
 		staticSound.play(true);
 		staticMan.visible = true;
 
-		if (charactersName[curCharacter] != null) {
-			var curCharName = charactersName[curCharacter];
+		if (selectTimer != null)
+			selectTimer.cancel();
 
+		if (charactersList[curCharacter] != null) {
+			if (ClientPrefs.isDebug())
+				Sys.println(charactersList[curCharacter]);
 			// Mods.currentModDirectory = charactersMod.get(curCharName);
 			// var characterWeek = ShitUtil.getJson('characters_weeks/' + curSkin[1]);
 			// overChart.clear();
@@ -686,12 +755,7 @@ class SkinsState extends MusicBeatState {
 			// 	}
 			// }
 
-			if (selectTimer != null)
-				selectTimer.cancel();
-
 			selectTimer = new FlxTimer().start(0.8, t -> {
-				var curCharName = charactersName[curCharacter]; // re-define it lol
-
 				if (character.members[0] != null) {
 					character.members[0].destroy();
 				}
@@ -702,10 +766,10 @@ class SkinsState extends MusicBeatState {
 
 				// character.add(characterList.get(curCharName));
 
-				Mods.currentModDirectory = charactersMod.get(curCharName);
+				Mods.currentModDirectory = charactersList[curCharacter][3];
 
 				try {
-					var daCharacter = new Character(0, 0, curCharName, flipped);
+					var daCharacter = new Character(0, 0, getCharacterName(curCharacter), flipped);
 					daCharacter.scrollFactor.set(1.2, 1.2);
 					if (daCharacter?.graphic?.bitmap != null)
 						daCharacter.graphic.bitmap.disposeImage();
@@ -727,27 +791,29 @@ class SkinsState extends MusicBeatState {
 					Alert.alert('Failed to load the skin!', 'exc: ' + exc);
 				}
 			});
+		}
+		else {
+			staticSound.stop();
+			tweenColor(FlxColor.fromRGB(255, 255, 255));
+		}
 
-			curCharName = !flipped ? curCharName : curCharName.substring(0, curCharName.length - "-player".length);
+		title.text = curCharacter == -1 ? "(NONE)" : charactersList[curCharacter][0].replace('-', ' ');
+		title.x = FlxG.width / 2 - title.width / 2;
 
-			title.text = curCharName == "default" ? "BOYFRIEND" : curCharName.replace('-', ' ');
-			title.x = FlxG.width / 2 - title.width / 2;
+		if (isEquipped(curCharacter)) {
+			charSelect.text = 'Selected!';
+			charSelect.alpha = 1;
+		}
+		else {
+			charSelect.text = 'Press ACCEPT to select!';
+			charSelect.alpha = 0.8;
+		}
 
-			if (isEquiped(charactersMod.get(curCharName), curCharName)) {
-				charSelect.text = 'Selected!';
-				charSelect.alpha = 1;
-			}
-            else {
-				charSelect.text = 'Press ACCEPT to select!';
-				charSelect.alpha = 0.8;
-            }
-
-			charInfo.visible = false;
-			if (charactersWithWeeks.contains(curCharName + ' ' + charactersMod.get(curCharName))) {
-				charInfo.text = 'This character has custom MIXES!';
-				charInfo.visible = true;
-			}
-        }
+		charInfo.visible = false;
+		if (charactersWithWeeks.contains(curCharacter)) {
+			charInfo.text = 'This character has custom MIXES!';
+			charInfo.visible = true;
+		}
     }
 
 	var colorTweens:Array<FlxTween> = [];
@@ -770,19 +836,20 @@ class SkinsState extends MusicBeatState {
 		}
 	}
 
-    function isEquiped(mod:String, skin:String) {
-		if (skin.endsWith("-player"))
-			skin = skin.substring(0, skin.length - "-player".length);
+    function isEquipped(i:Int) {
+		if (ClientPrefs.data.currentSkin == null)
+			return charactersList[i] == null;
 
-		if (skin.endsWith("-pixel"))
-			skin = skin.substring(0, skin.length - "-pixel".length);
+		if (charactersList[i] == null)
+			return false;
 
-		if (skin == "default" && ClientPrefs.data.modSkin == null) {
-            return true;
-        }
+		for (index => item in charactersList[i]) {
+			if (item != ClientPrefs.data.currentSkin[index]) {
+				return false;
+			}
+		}
 
-		return ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin.length >= 2
-			&& mod == ClientPrefs.data.modSkin[0] && skin == ClientPrefs.data.modSkin[1];
+		return true;
     }
 
 	override function beatHit() {

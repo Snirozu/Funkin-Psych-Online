@@ -20,16 +20,18 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 	var disableSkins:Option;
 	var winCondition:Option;
 	var modifers:Option;
-	var mods:Option;
+	// var mods:Option;
 	var skinSelect:Option;
 	var gameOptions:Option;
 	var stageSelect:Option;
 	var publicRoom:Option;
+	var networkOnlyRoom:Option;
 	var anarchyMode:Option;
+	var allPlayersChoose:Option;
 	var swapSides:Option;
 	var teamMode:Option;
 	var royalMode:Option;
-	var royalModeBfSide:Option;
+	var royalModeDadSide:Option;
 
 	override function create() {
 		super.create();
@@ -67,6 +69,14 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			publicRoom.checked = !GameClient.room.state.isPrivate;
 		}, 0, 0, !GameClient.room.state.isPrivate));
 
+		items.add(networkOnlyRoom = new Option("Only Network Players", "If enabled, only registered players to the network can join.", () -> {
+			GameClient.send("toggleNetworkOnly");
+		}, (elapsed) -> {
+			networkOnlyRoom.alpha = GameClient.hasPerms() ? 1 : 0.8;
+
+			networkOnlyRoom.checked = GameClient.room.state.networkOnly;
+		}, 0, 0, GameClient.room.state.networkOnly));
+
 		items.add(anarchyMode = new Option("Anarchy Mode", "This option gives other players host permissions.", () -> {
 			GameClient.send("anarchyMode");
 		}, (elapsed) -> {
@@ -75,6 +85,14 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			anarchyMode.checked = GameClient.room.state.anarchyMode;
 		}, 0, 0, GameClient.room.state.anarchyMode));
 
+		items.add(allPlayersChoose = new Option("Let Players Choose", "This option gives other players permission to pick a song and stage.", () -> {
+			GameClient.send("togglePlayersCanChoose");
+		}, (elapsed) -> {
+			allPlayersChoose.alpha = GameClient.hasPerms() ? 1 : 0.8;
+
+			allPlayersChoose.checked = GameClient.room.state.allPlayersChoose;
+			
+		}, 0, 0, GameClient.room.state.allPlayersChoose));
 		items.add(swapSides = new Option("Boyfriend Side", "Play on Boyfriend's side.", () -> {
 			GameClient.send("swapSides");
 		}, (elapsed) -> {
@@ -91,7 +109,7 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			teamMode.checked = GameClient.room.state.teamMode;
 		}, 0, 0, GameClient.room.state.teamMode));
 
-		items.add(royalMode = new Option("Royal Mode", "Everybody plays on the same side!", () -> {
+		items.add(royalMode = new Option("One Lane Mode", "Everybody plays on the same side!", () -> {
 			GameClient.send("royalMode");
 		}, (elapsed) -> {
 			royalMode.alpha = GameClient.hasPerms() ? 1 : 0.8;
@@ -101,13 +119,13 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			updateItems();
 		}, 0, 0, GameClient.room.state.royalMode));
 		
-		items.add(royalModeBfSide = new Option("Royal Mode Opponent Side", "Everybody plays on opponent side when enabled.", () -> {
-			GameClient.send("royalModeBfSide");
+		items.add(royalModeDadSide = new Option("One Lane Mode Opponent Side", "Everybody plays on opponent side when enabled.", () -> {
+			GameClient.send("royalModeDadSide");
 		}, (elapsed) -> {
-			royalModeBfSide.alpha = GameClient.hasPerms() ? 1 : 0.8;
+			royalModeDadSide.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
-			royalModeBfSide.checked = !GameClient.room.state.royalModeBfSide;
-		}, 0, 0, !GameClient.room.state.royalModeBfSide));
+			royalModeDadSide.checked = !GameClient.room.state.royalModeDadSide;
+		}, 0, 0, !GameClient.room.state.royalModeDadSide));
 		
 		items.add(hideGF = new Option("Hide Girlfriend", "Hides GF from the stage.", () -> {
 			GameClient.send("toggleGF");
@@ -178,10 +196,10 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 			OptionsState.onOnlineRoom = true;
 		}, null, 0, 0, false, true));
 
-		items.add(mods = new Option("Mods", "Check your installed Mods here!", () -> {
-			LoadingState.loadAndSwitchState(new ModsMenuState());
-			ModsMenuState.onOnlineRoom = true;
-		}, null, 0, 0, false, true));
+		// items.add(mods = new Option("Mods", "Check your installed Mods here!", () -> {
+		// 	LoadingState.loadAndSwitchState(new ModsMenuState());
+		// 	ModsMenuState.onOnlineRoom = true;
+		// }, null, 0, 0, false, true));
 
 		updateItems();
 
@@ -199,13 +217,15 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		}
 
 		nextItem(publicRoom);
+		nextItem(networkOnlyRoom);
 		nextItem(anarchyMode);
+		nextItem(allPlayersChoose);
 		nextItem(swapSides);
 		nextItem(teamMode);
 		nextItem(royalMode);
-		royalModeBfSide.visible = GameClient.room.state.royalMode;
-		if (royalModeBfSide.visible) {
-			nextItem(royalModeBfSide);
+		royalModeDadSide.visible = GameClient.room.state.royalMode;
+		if (royalModeDadSide.visible) {
+			nextItem(royalModeDadSide);
 		}
 		nextItem(hideGF);
 		nextItem(disableSkins);
@@ -214,7 +234,7 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		nextItem(stageSelect);
 		nextItem(skinSelect);
 		nextItem(gameOptions);
-		nextItem(mods);
+		// nextItem(mods);
 		
 		var lastItem = items.members[items.length - 1];
 		coolCam.setScrollBounds(FlxG.width, FlxG.width, 0, lastItem.y + lastItem.height + 40 > FlxG.height ? lastItem.y + lastItem.height + 40 : FlxG.height);

@@ -47,11 +47,8 @@ class Player extends Person {
 	@:type("boolean")
 	public var isReady: Bool = false;
 
-	@:type("string")
-	public var skinMod: String = "";
-
-	@:type("string")
-	public var skinName: String = "";
+	@:type("array", "string")
+	public var skin: ArraySchema<String> = new ArraySchema<String>();
 
 	@:type("string")
 	public var skinURL: String = "";

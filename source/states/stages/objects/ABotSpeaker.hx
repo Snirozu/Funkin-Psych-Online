@@ -149,7 +149,7 @@ class ABotSpeaker extends FlxSpriteGroup {
 		super.update(elapsed);
 
 		var curBeat = Math.floor(Conductor.getBeat(Conductor.songPosition));
-		if (prevBeat != curBeat && curBeat % Math.round(PlayState.instance.gfSpeed * PlayState.instance.gf.danceEveryNumBeats) == 0) {
+		if (FlxG.state == PlayState.instance && prevBeat != curBeat && curBeat % Math.round(PlayState.instance.gfSpeed * PlayState.instance.gf.danceEveryNumBeats) == 0) {
 			actualBeatHit();
 			prevBeat = curBeat;
 		}
@@ -252,5 +252,14 @@ class ABotSpeaker extends FlxSpriteGroup {
 			return speakerPixel.animation.curAnim.curFrame;
 		}
 		return 0;
+	}
+
+	public function updateABotEye(aLookAt:Int, finishInstantly:Bool = false) {
+		if(aLookAt == 1)
+			lookRight();
+		else
+			lookLeft();
+
+		if(finishInstantly) finishEyes();
 	}
 }

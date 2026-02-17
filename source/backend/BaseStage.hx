@@ -1,5 +1,6 @@
 package backend;
 
+import objects.Note;
 import flixel.FlxBasic;
 import flixel.FlxObject;
 import flixel.FlxSubState;
@@ -20,7 +21,7 @@ enum Countdown
 class BaseStage extends FlxBasic
 {
 	private var game(default, set):Dynamic = PlayState.instance;
-	public var onPlayState:Bool = false;
+	public var onPlayState(get, never):Bool;
 
 	// some variables for convenience
 	public var paused(get, never):Bool;
@@ -37,6 +38,8 @@ class BaseStage extends FlxBasic
 	public var boyfriendGroup(get, never):FlxSpriteGroup;
 	public var dadGroup(get, never):FlxSpriteGroup;
 	public var gfGroup(get, never):FlxSpriteGroup;
+
+	public var unspawnNotes(get, never):Array<Note>;
 	
 	public var camGame(get, never):FlxCamera;
 	public var camHUD(get, never):FlxCamera;
@@ -66,6 +69,7 @@ class BaseStage extends FlxBasic
 	public function createPost() {}
 	//public function update(elapsed:Float) {}
 	public function countdownTick(count:Countdown, num:Int) {}
+	public function startSong() {}
 
 	// FNF steps, beats and sections
 	public var curBeat:Int = 0;
@@ -86,9 +90,15 @@ class BaseStage extends FlxBasic
 	public function eventPushed(event:EventNote) {}
 	public function eventPushedUnique(event:EventNote) {}
 
+	// Note Hit/Miss
+	public function goodNoteHit(note:Note) {}
+	public function opponentNoteHit(note:Note) {}
+	public function noteMiss(note:Note) {}
+	public function noteMissPress(direction:Int) {}
+
 	// Things to replace FlxGroup stuff and inject sprites directly into the state
 	function add(object:FlxBasic) game.add(object);
-	function remove(object:FlxBasic) game.remove(object);
+	function remove(object:FlxBasic, splice:Bool = false) game.remove(object, splice);
 	function insert(position:Int, object:FlxBasic) game.insert(position, object);
 	
 	public function addBehindGF(obj:FlxSprite, ?literally:Bool = false) { 
@@ -109,6 +119,9 @@ class BaseStage extends FlxBasic
 			PlayState.SONG.gfVersion = gfVersion;
 		}
 	}
+	
+	public function getStageObject(name:String) //Objects can only be accessed *after* create(), use createPost() if you want to mess with them on init
+		return game.variables.get(name);
 
 	//start/end callback functions
 	public function setStartCallback(myfn:Void->Void)
@@ -146,8 +159,8 @@ class BaseStage extends FlxBasic
 	// overrides
 	function startCountdown() if(onPlayState) return PlayState.instance.startCountdown(); else return false;
 	function endSong() if(onPlayState)return PlayState.instance.endSong(); else return false;
-	function moveCameraSection() if(onPlayState) moveCameraSection();
-	function moveCamera(isDad:Bool) if(onPlayState) moveCamera(isDad);
+	function moveCameraSection() if(onPlayState) PlayState.instance.moveCameraSection();
+	function moveCamera(isDad:Bool) if(onPlayState) PlayState.instance.moveCamera(isDad);
 	inline private function get_paused() return game.paused;
 	inline private function get_songName() return game.songName;
 	inline private function get_isStoryMode() return PlayState.isStoryMode;
@@ -167,10 +180,11 @@ class BaseStage extends FlxBasic
 	inline private function get_members() return game.members;
 	inline private function set_game(value:MusicBeatState)
 	{
-		onPlayState = (Std.isOfType(value, states.PlayState));
+		// onPlayState = (Std.isOfType(value, states.PlayState));
 		game = value;
 		return value;
 	}
+	inline private function get_onPlayState() return (Std.isOfType(FlxG.state, states.PlayState));
 
 	inline private function get_boyfriend():Character return game.boyfriend;
 	inline private function get_dad():Character return game.dad;
@@ -179,6 +193,11 @@ class BaseStage extends FlxBasic
 	inline private function get_boyfriendGroup():FlxSpriteGroup return game.boyfriendGroup;
 	inline private function get_dadGroup():FlxSpriteGroup return game.dadGroup;
 	inline private function get_gfGroup():FlxSpriteGroup return game.gfGroup;
+
+	inline private function get_unspawnNotes():Array<Note>
+	{
+		return cast game.unspawnNotes;
+	}
 	
 	inline private function get_camGame():FlxCamera return game.camGame;
 	inline private function get_camHUD():FlxCamera return game.camHUD;

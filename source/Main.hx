@@ -329,6 +329,8 @@ class Main extends Sprite
 		// clear messages before the current state gets destroyed and replaced with another
 		FlxG.signals.preStateSwitch.add(() -> {
 			GameClient.clearOnMessage();
+			Paths.clearStoredMemory();
+			Paths.clearUnusedMemory();
 		});
 
 		FlxG.signals.postGameReset.add(() -> {

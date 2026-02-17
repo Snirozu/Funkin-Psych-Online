@@ -515,7 +515,7 @@ class TitleState extends MusicBeatState
 				misses: FlxG.random.int(0, 50),
 				score: FlxG.random.int(5, 999999999),
 				accuracy: 1, //FlxG.random.float(0, 1),
-				character: (ClientPrefs.data.modSkin ?? [])[1],
+				character: (ClientPrefs.data.currentSkin ?? [])[0],
 				difficultyName: 'nightmare',
 				points: FlxG.random.int(0, 100)
 			}));

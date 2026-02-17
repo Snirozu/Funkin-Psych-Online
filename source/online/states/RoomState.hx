@@ -819,7 +819,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 						Clipboard.text = GameClient.getRoomSecret(true);
 						Alert.alert("Room code copied!");
 					case 4:
-						if (GameClient.hasPerms()) {
+						if (GameClient.hasPerms() || GameClient.room.state.allPlayersChoose) {
 							FlxG.switchState(() -> new FreeplayState());
 							FlxG.mouse.visible = false;
 						}
@@ -1224,12 +1224,9 @@ class LobbyCharacter extends FlxTypedGroup<FlxSprite> {
 			character = null;
 		}
 
-		if (FileSystem.exists(Paths.mods(player.skinMod))) {
-			if (player.skinMod != null)
-				Mods.currentModDirectory = player.skinMod;
-
-			if (player.skinName != null)
-				character = new Character(0, 0, player.skinName + (player.bfSide ? "-player" : ''), player.bfSide);
+		if (player.skin != null && FileSystem.exists(Paths.mods(player.skin[0] + player.skin[player.bfSide ? 2 : 1]))) {
+			Mods.currentModDirectory = player.skin[3];
+			character = new Character(0, 0, player.skin[0] + player.skin[player.bfSide ? 2 : 1], player.bfSide);
 		}
 		else if (enableDownload && player.skinURL != null) {
 			noSkin = true;

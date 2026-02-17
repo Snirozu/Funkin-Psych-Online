@@ -28,6 +28,7 @@ class GameOverSubstate extends MusicBeatSubstate
 	public static var deathSoundName:String = 'fnf_loss_sfx';
 	public static var loopSoundName:String = 'gameOver';
 	public static var endSoundName:String = 'gameOverEnd';
+	public static var deathDelay:Float = 0;
 
 	public static var instance:GameOverSubstate;
 
@@ -43,6 +44,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		deathSoundName = 'fnf_loss_sfx';
 		loopSoundName = 'gameOver';
 		endSoundName = 'gameOverEnd';
+		deathDelay = 0;
 
 		var _song = PlayState.SONG;
 		if(_song != null)
@@ -54,26 +56,11 @@ class GameOverSubstate extends MusicBeatSubstate
 		}
 	}
 
-	override function create()
-	{
-		instance = this;
-		Main.view3D.onDebug = (v) -> {
-			this.active = !v;
-		};
-		PlayState.instance.callOnScripts('onGameOverStart', []);
-
-		super.create();
-	}
-
 	public function new(x:Float, y:Float, camX:Float, camY:Float, ?overCharacter:Character)
 	{
 		super();
 
-		PlayState.instance.setOnScripts('inGameOver', true);
-
-		Conductor.songPosition = 0;
-
-		if (overCharacter == null) {
+		if (overCharacter == null || characterName != 'bf-dead') {
 			boyfriend = new Character(x, y, characterName, true, false);
 		}
 		else {
@@ -88,22 +75,33 @@ class GameOverSubstate extends MusicBeatSubstate
 			}
 		}
 
-		if (boyfriend.isAnimateAtlas) {
-			boyfriend.onAtlasAnimationComplete = animName -> {
-				if (animName == "confirm") {
-					boyfriend.atlas.anim.play("confirm", true, false);
-				}
-				else {
-					boyfriend.atlas.anim.play("loop", true, false);
-				}
-			};
-		}
+		// why is this here?
+		// if (boyfriend.isAnimateAtlas) {
+		// 	boyfriend.onAtlasAnimationComplete = animName -> {
+		// 		if (animName == "confirm") {
+		// 			boyfriend.atlas.anim.play("confirm", true, false);
+		// 		}
+		// 		else {
+		// 			boyfriend.atlas.anim.play("loop");
+		// 		}
+		// 	};
+		// }
 		boyfriend.x += boyfriend.positionArray[0];
 		boyfriend.y += boyfriend.positionArray[1];
 		add(boyfriend);
+	}
+
+	override function create() {
+		instance = this;
+
+		Conductor.songPosition = 0;
+
+		Main.view3D.onDebug = (v) -> {
+			this.active = !v;
+		};
 
 		var retryChar:String = null;
-		if (boyfriend.curCharacter.startsWith('pico')) {
+		if (boyfriend.curCharacter.startsWith('pico') && boyfriend.curCharacter != 'pico-explosion-dead' && boyfriend.curCharacter != 'pico-blazin') {
 			deathSoundName = 'fnf_loss_sfx-pico';
 			loopSoundName = 'gameOver-pico';
 			endSoundName = 'gameOverEnd-pico';
@@ -111,7 +109,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			if (!boyfriend.curCharacter.contains('-nene') && !boyfriend.curCharacter.contains('-pixel')) {
 				retryChar = 'pico-retry-button';
 	
-				var neneKill = new FlxSprite(x, y);
+				var neneKill = new FlxSprite(boyfriend.x - 450, boyfriend.y - 250);
 				if (boyfriend.curCharacter.startsWith('pico-christmas')) {
 					neneKill.frames = Paths.getSparrowAtlas('characters/neneChristmas/neneChristmasKnife');
 					neneKill.animation.addByPrefix('idle', 'knife toss xmas', 24, false);
@@ -136,7 +134,7 @@ class GameOverSubstate extends MusicBeatSubstate
 				loopSoundName = 'gameOver-pixel-pico';
 				endSoundName = 'gameOverEnd-pixel-pico';
 
-				var neneKill = new FlxSprite(x, y);
+				var neneKill = new FlxSprite(boyfriend.x - 450, boyfriend.y - 250);
 				neneKill.frames = Paths.getSparrowAtlas('characters/nenePixelKnifeToss');
 				neneKill.animation.addByPrefix('idle', 'knifetosscolor', 24, false);
 				neneKill.animation.finishCallback = _ -> {
@@ -155,8 +153,8 @@ class GameOverSubstate extends MusicBeatSubstate
 		}
 
 		if (retryChar != null) {
-			retryButton = new Character(x, y, retryChar, true);
-			retryButton.setPosition(x, y);
+			retryButton = new Character(boyfriend.x - 450, boyfriend.y - 250, retryChar, true);
+			retryButton.setPosition(boyfriend.x - 450, boyfriend.y - 250);
 			retryButton.x += retryButton.positionArray[0];
 			retryButton.y += retryButton.positionArray[1];
 			retryButton.visible = false;
@@ -166,14 +164,6 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		FlxG.camera.scroll.set();
 		FlxG.camera.target = null;
-		// why is it frame based lol
-		new FlxTimer().start(0.5, function(tmr:FlxTimer) {
-			if (!isFollowingAlready) {
-				FlxG.camera.follow(camFollow, LOCKON, 0.01);
-				updateCamera = true;
-				isFollowingAlready = true;
-			}
-		});
 
 		deathSound = Paths.sound(deathSoundName);
 		loopSound = Paths.music(loopSoundName);
@@ -192,22 +182,39 @@ class GameOverSubstate extends MusicBeatSubstate
 		}
 
 		if (PlayState.instance.dad.curCharacter.startsWith('tankman')) {
-			if (ClientPrefs.data.modSkin != null)
-				ShitUtil.tempSwitchMod(ClientPrefs.data.modSkin[0], () -> {
-					tankTalk = Paths.sound('jeffGameover-${ClientPrefs.data.modSkin[1]}/jeffGameover-' + FlxG.random.int(1, 10));
+			if (ClientPrefs.data.currentSkin != null)
+				ShitUtil.tempSwitchMod(ClientPrefs.data.currentSkin[3], () -> {
+					tankTalk = Paths.sound('jeffGameover-${ClientPrefs.data.currentSkin[0]}/jeffGameover-' + FlxG.random.int(1, 10));
 				});
 			tankTalk ??= Paths.sound('jeffGameover/jeffGameover-' + FlxG.random.int(1, 25));
 		}
 
 		camFollow = new FlxObject(0, 0, 1, 1);
-		if (boyfriend.curCharacter.contains('-dead'))
-			camFollow.setPosition(boyfriend.getMidpoint().x + boyfriend.cameraPosition[0], boyfriend.getMidpoint().y + boyfriend.cameraPosition[1]);
-		else
-			camFollow.setPosition(boyfriend.getMidpoint().x, boyfriend.getMidpoint().y);
+		// if (boyfriend.curCharacter.contains('-dead'))
+		// 	camFollow.setPosition(boyfriend.getMidpoint().x + boyfriend.cameraPosition[0], boyfriend.getMidpoint().y + boyfriend.cameraPosition[1]);
+		// else
+		// 	camFollow.setPosition(boyfriend.getMidpoint().x, boyfriend.getMidpoint().y);
+		// FlxG.camera.focusOn(new FlxPoint(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2)));
+		camFollow.setPosition(boyfriend.getGraphicMidpoint().x + boyfriend.cameraPosition[0], boyfriend.getGraphicMidpoint().y + boyfriend.cameraPosition[1]);
 		FlxG.camera.focusOn(new FlxPoint(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2)));
+		// FlxG.camera.follow(camFollow, LOCKON, 0.01);
 		add(camFollow);
 
+		// why is it frame based lol
+		new FlxTimer().start(0.5, function(tmr:FlxTimer) {
+			if (!isFollowingAlready) {
+				FlxG.camera.follow(camFollow, LOCKON, 0.01);
+				updateCamera = true;
+				isFollowingAlready = true;
+			}
+		});
+
+		PlayState.instance.setOnScripts('inGameOver', true);
+		PlayState.instance.callOnScripts('onGameOverStart', []);
+
 		add(new online.objects.DebugPosHelper());
+
+		super.create();
 	}
 
 	public var startedDeath:Bool = false;

@@ -377,11 +377,17 @@ class Note extends FlxSprite
 			var newRGB:RGBPalette = new RGBPalette();
 			globalRgbShaders[noteData] = newRGB;
 
-			var arr:Array<FlxColor> = 
-				(!PlayState.isPixelStage) ? 
-				ClientPrefs.getRGBColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData] : 
-				ClientPrefs.getRGBPixelColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData]
-			;
+			var arr:Array<FlxColor> = null;
+
+			try {
+				arr = (!PlayState.isPixelStage) ? 
+					ClientPrefs.getRGBColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData] : 
+					ClientPrefs.getRGBPixelColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData]
+				;
+			} catch (exc) {
+				trace(exc);
+			}
+			
 			if (noteData > -1 && arr != null && arr.length >= 3)
 			{
 				newRGB.r = arr[0];

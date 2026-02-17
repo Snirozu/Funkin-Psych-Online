@@ -71,10 +71,21 @@ class ResultsSoloState extends MusicBeatState {
 		Mods.loadTopMod();
 
 		data.character ??= 'bf';
-		var curSkin = ClientPrefs.data.modSkin ?? [null, null];
-		if (data.character.startsWith(curSkin[1])) {
-			data.character = curSkin[1];
-			Mods.currentModDirectory = curSkin[0];
+
+		final COMMON_CHAR_SUFFICES = ['-pixel', '-christmas', '-blazin', '-player', '-playable', '-opponent', '-left', '-right'];
+
+		for (suffix in COMMON_CHAR_SUFFICES) {
+			if (data.character.endsWith(suffix)) {
+				data.character = data.character.substring(0, data.character.length - suffix.length);
+				break;
+			}
+		}
+
+		if (ClientPrefs.data.currentSkin != null) {
+			if (data.character.startsWith(ClientPrefs.data.currentSkin[0])) {
+				data.character = ClientPrefs.data.currentSkin[0];
+				Mods.currentModDirectory = ClientPrefs.data.currentSkin[3];
+			}
 		}
 
 		var charData:Dynamic = ShitUtil.getJson('characters_results/${data.character}');

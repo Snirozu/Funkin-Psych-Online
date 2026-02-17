@@ -129,20 +129,20 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 		if(nextAccept <= 0)
 		{
-			var usesCheckbox = true;
-			if(curOption.type != 'bool')
-			{
-				usesCheckbox = false;
-			}
+			var clickable = curOption.type == 'bool' || curOption.type == 'button';
 
-			if(usesCheckbox)
+			if(clickable)
 			{
 				if(controls.ACCEPT /* || FlxG.mouse.justPressed*/)
 				{
 					FlxG.sound.play(Paths.sound('scrollMenu'));
-					curOption.setValue((curOption.getValue() == true) ? false : true);
+					if (curOption.type == 'bool') {
+						curOption.setValue((curOption.getValue() == true) ? false : true);
+					}
 					curOption.change();
-					reloadCheckboxes();
+					if (curOption.type == 'bool') {
+						reloadCheckboxes();
+					}
 				}
 			} else {
 				if(controls.UI_LEFT || controls.UI_RIGHT) {

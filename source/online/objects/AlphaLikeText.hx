@@ -4,7 +4,7 @@ import flixel.math.FlxPoint;
 
 class AlphaLikeText extends FlxText implements Scrollable {
 	public var targetY:Int = 0;
-	public var distancePerItem:FlxPoint = new FlxPoint(20, 120);
+	public var distancePerItem:FlxPoint = new FlxPoint(20, 100);
 	public var startPosition:FlxPoint = new FlxPoint(0, 0); // for the calculations
 	public var isMenuItem:Bool = true;
 	public var scaleX(default, set):Float = 1;

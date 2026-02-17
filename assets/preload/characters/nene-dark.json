@@ -71,7 +71,7 @@
 				17,
 				-5
 			],
-			"anim": "drop70",
+			"anim": "laughCutscene",
 			"fps": 24,
 			"name": "laughing nene",
 			"indices": [
@@ -179,8 +179,7 @@
 	"no_antialiasing": false,
 	"image": "characters/nene_dark",
 	"position": [
-		50,
-		0
+		60, 20
 	],
 	"healthicon": "face",
 	"flip_x": false,
@@ -190,9 +189,9 @@
 		161
 	],
 	"camera_position": [
-		40,
-		40
+		-150, 100
 	],
 	"sing_duration": 6.1,
+	"speaker": "abot",
 	"scale": 1
 }

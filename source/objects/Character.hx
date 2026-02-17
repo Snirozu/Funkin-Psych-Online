@@ -1,5 +1,8 @@
 package objects;
 
+import flixel.graphics.FlxGraphic;
+import flixel.graphics.frames.FlxTileFrames;
+import flixel.math.FlxRect;
 import online.away.AnimatedSprite3D;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.util.FlxSort;
@@ -31,6 +34,8 @@ typedef CharacterFile = {
 	var healthbar_colors:Array<Int>;
 	@:optional var vocals_file:String;
 	@:optional var dead_character:Null<String>;
+	@:optional var results_character:Null<String>;
+	@:optional var speaker:Null<String>;
 }
 
 typedef AnimArray = {
@@ -53,6 +58,10 @@ class Character extends FlxSprite {
 	public var isPlayer:Bool = false;
 	public var curCharacter:String = DEFAULT_CHARACTER;
 	public var isMissing:Bool = false;
+	public var resultsName:String = null;
+	public var speakerName:String = null;
+
+	public var speaker:FlxSprite = null;
 
 	public var colorTween:FlxTween;
 	// uh... check if opponent is holding
@@ -160,10 +169,33 @@ class Character extends FlxSprite {
 		return cast Json.parse(rawJson);
 	}
 
+	public function loadSpeaker() {
+		if (speakerName != null && speakerName.trim().length > 0) {
+			if (speakerName == 'abot') {
+				final json = Character.getCharacterFile(speakerName + (PlayState.isPixelStage ? '-pixel' : ''));
+				var abot = new states.stages.objects.ABotSpeaker(json.position[0], json.position[1], PlayState.curStage == 'spooky-erect', PlayState.isPixelStage);
+				abot.updateABotEye(0, true);
+				speaker = abot;
+			}
+			
+			if (speaker == null) {
+				speaker = new Character(0, 0, speakerName, false, false, 'gf');
+			}
+		}
+
+		return speaker;
+	}
+
 	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false, ?isSkin:Bool = false, ?charType:String) {
 		super(x, y);
 
 		modDir = Mods.currentModDirectory;
+
+		//switch names of characters
+		switch (character) {
+			case 'pico-playable':
+				character = 'pico-player';
+		}
 
 		animOffsets = new Map<String, Array<Dynamic>>();
 		curCharacter = character;
@@ -206,10 +238,15 @@ class Character extends FlxSprite {
 						FlxG.log.warn('Could not load atlas ${imageFile}: $e');
 						trace('Could not load atlas ${imageFile}: $e');
 					}
+
+					// load some graphic so we can use animation.add() at playAnim()
+					@:privateAccess
+					frames = new FlxTileFrames(FlxGraphic.fromRectangle(0, 0, FlxColor.TRANSPARENT, false, '0x0_transparent'));
+					frames.addEmptyFrame(new FlxRect(0, 0));
 				}
 				#end
 
-				if (frames != null) {
+				if (!isAnimateAtlas && frames != null) {
 					if (!loadFailed && graphic.bitmap != null && FlxG.state is PlayState && PlayState.instance.stage3D != null) {
 						sprite3D = PlayState.instance.stage3D.createSprite(charType, true, graphic.bitmap);
 					}
@@ -231,7 +268,8 @@ class Character extends FlxSprite {
 				}
 
 				// positioning
-				ogPositionArray = positionArray = json.position;
+				if (json.position != null)
+					ogPositionArray = positionArray = json.position;
 				cameraPosition = json.camera_position;
 
 				// data
@@ -245,6 +283,9 @@ class Character extends FlxSprite {
 				vocalsFile = json.vocals_file ?? curCharacter;
 				
 				deadName = json.dead_character;
+				//TODO add to character editor
+				resultsName = json.results_character;
+				speakerName = json.speaker;
 
 				// antialiasing
 				noAntialiasing = (json.no_antialiasing == true);
@@ -587,7 +628,16 @@ class Character extends FlxSprite {
 			atlas.anim.onComplete.add(() -> {
 				if (onAtlasAnimationComplete != null)
 					onAtlasAnimationComplete(AnimName);
+				animation.finish();
 			});
+
+			// funky way to fool the game this object has this animation
+			final symbol = atlas.anim?.curSymbol;
+			final element = atlas.anim?.curInstance;
+			if (symbol != null && element != null && element.symbol != null && !animation.exists(AnimName)) {
+				animation.add(AnimName, [for (_ in 0...symbol.length) 0], atlas.anim.framerate, element.symbol.loop == Loop);
+			}
+			animation.play(AnimName, Force, Reversed, Frame);
 		}
 
 		var daOffset = animOffsets.get(AnimName);

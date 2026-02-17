@@ -1,5 +1,6 @@
 package states;
 
+import options.OptionsState;
 import options.ModSettingsSubState;
 import online.gui.Alert;
 import online.gui.LoadingScreen;
@@ -597,13 +598,14 @@ class ModsMenuState extends MusicBeatState
 			}
 			else
 			{
-				if (!onOnlineRoom) {
-					FlxG.switchState(() -> new MainMenuState());
-				}
-				else {
-					onOnlineRoom = false;
-					FlxG.switchState(() -> new online.states.RoomState());
-				}
+				FlxG.switchState(() -> new OptionsState());
+				// if (!onOnlineRoom) {
+				// 	FlxG.switchState(() -> new MainMenuState());
+				// }
+				// else {
+				// 	onOnlineRoom = false;
+				// 	FlxG.switchState(() -> new online.states.RoomState());
+				// }
 			}
 		}
 

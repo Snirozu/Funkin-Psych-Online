@@ -8,6 +8,8 @@ import sys.io.File;
 import haxe.io.Path;
 
 class LuaModuleSwap {
+	static final DAY_IN_MS = 1000 * 60 * 60 * 24;
+
 	public static function doLua(lua:llua.State, originPath:String, ?stopFunc:Void->Void) {
 		originPath = Path.normalize(originPath);
 
@@ -31,8 +33,24 @@ class LuaModuleSwap {
 			clock: function() {
 				return haxe.Timer.stamp() - launchTime;
 			},
-			date: function(?format:String = "%a %b %d %H:%M:%S %Y", ?time:Float) {
+			date: function(?format:String = "%a %b %d %H:%M:%S %Y", ?time:Float):Dynamic {
 				var date = time == null ? Date.now() : Date.fromTime(time);
+
+				if (format == '*t') {
+					final startYearDate = new Date(date.getFullYear(), 0, 1, 0, 0, 0);
+
+					return {
+						sec: date.getSeconds(),
+						min: date.getMinutes(),
+						hour: date.getHours(),
+						day: date.getDate(),
+						month: date.getMonth() + 1,
+						year: date.getFullYear(),
+						wday: date.getDay() + 1,
+						yday: Math.floor((date.getTime() - startYearDate.getTime()) / DAY_IN_MS) + 1,
+						isdst: date.getTimezoneOffset() < stdTimezoneOffset(date)
+					};
+				}
 				return DateTools.format(date, format);
 			},
 			difftime: function(t2:Float, t1:Float) {
@@ -189,13 +207,13 @@ class LuaModuleSwap {
 				return files.get(filename);
 			},
 			popen: function(prog:String, ?mode:String) {
-				throw 'Not implemented yet.';
+				return null;
 			},
 			read: function(?filename:String, ?mode:Any = 'a') {
 				return files.get(filename).read(mode);
 			},
 			tmpfile: function(?filename:String) {
-				throw 'Not implemented yet.';
+				return filename;
 			},
 			type: function(obj:Any) {
 				if (obj == null) {
@@ -398,6 +416,12 @@ class LuaModuleSwap {
 
 	static function bytesToStr(byte:haxe.io.BytesData) {
 		return haxe.io.Bytes.ofData(byte).toString();
+	}
+
+	static function stdTimezoneOffset(date:Date) {
+		final jan = new Date(date.getFullYear(), 0, 1, 0, 0, 0);
+		final jul = new Date(date.getFullYear(), 6, 1, 0, 0, 0);
+		return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
 	}
 }
 

@@ -70,8 +70,8 @@
     "no_antialiasing": true,
     "image": "characters/nenePixel",
     "position": [
-        0,
-        0
+        -90,
+        -20
     ],
     "healthicon": "gf",
     "flip_x": false,
@@ -85,5 +85,6 @@
         80
     ],
     "sing_duration": 4,
+    "speaker": "abot",
     "scale": 5.99999999999999
 }

@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="menu_awards_icon.png">
+	<!-- Created with Adobe Animate version 23.0.2.103 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="awards idle0000" x="0" y="0" width="188" height="189"/>
+	<SubTexture name="awards idle0001" x="0" y="0" width="188" height="189"/>
+	<SubTexture name="awards idle0002" x="0" y="0" width="188" height="189"/>
+	<SubTexture name="awards idle0003" x="189" y="0" width="188" height="189"/>
+	<SubTexture name="awards idle0004" x="189" y="0" width="188" height="189"/>
+	<SubTexture name="awards idle0005" x="189" y="0" width="188" height="189"/>
+	<SubTexture name="awards idle0006" x="378" y="0" width="188" height="189"/>
+	<SubTexture name="awards idle0007" x="378" y="0" width="188" height="189"/>
+	<SubTexture name="awards idle0008" x="378" y="0" width="188" height="189"/>
+	<SubTexture name="awards selected0000" x="567" y="0" width="269" height="260"/>
+	<SubTexture name="awards selected0001" x="0" y="261" width="269" height="260"/>
+	<SubTexture name="awards selected0002" x="270" y="261" width="269" height="260"/>
+	<SubTexture name="awards selected0003" x="540" y="261" width="269" height="260"/>
+	<SubTexture name="awards selected0004" x="0" y="522" width="269" height="260"/>
+	<SubTexture name="awards selected0005" x="0" y="522" width="269" height="260"/>
+	<SubTexture name="awards selected0006" x="270" y="522" width="269" height="260"/>
+	<SubTexture name="awards selected0007" x="270" y="522" width="269" height="260"/>
+	<SubTexture name="awards selected0008" x="540" y="522" width="269" height="260"/>
+	<SubTexture name="awards selected0009" x="540" y="522" width="269" height="260"/>
+</TextureAtlas>

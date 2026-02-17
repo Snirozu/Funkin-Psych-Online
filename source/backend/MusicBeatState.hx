@@ -6,6 +6,7 @@ import flixel.FlxState;
 
 class MusicBeatState extends FlxUIState
 {
+	/** stops time **/
 	private var theWorld:Bool = false;
 
 	private var curSection:Int = 0;
