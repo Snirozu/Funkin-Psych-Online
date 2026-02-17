@@ -16,6 +16,12 @@
 			"name": "Macro",
 			"type": "haxe-eval",
 			"request": "launch"
-		}
+		},
+        {
+            "name": "HXCPP",
+            "type": "hxcpp",
+            "request": "launch",
+            "program": "${workspaceFolder}/export/release/windows/bin/PsychOnline.exe"
+        }
 	]
 }

@@ -120,6 +120,8 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		super();
 
 		instance = this;
+
+		trace(GameClient.room.state);
 	}
 
 	function registerMessages() {
@@ -165,7 +167,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 			listenUpdateTextOnField(player, 'ping');
 			listenUpdateTextOnField(player, 'status');
 			listenUpdateTextOnField(player, 'name');
-			player.listen("skinName", (value, prev) -> {
+			player.listen("skin", (value, prev) -> {
 				if (value == prev)
 					return;
 				Waiter.put(() -> {

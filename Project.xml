@@ -194,6 +194,9 @@
 	<haxeflag name="--macro" value="allowPackage('flash')" />
 	<haxeflag name="--macro" value="include('my.pack')" />
 
+	<haxeflag name="-D" value="HXCPP_DEBUGGER" if="debug"/>
+	<haxeflag name="-debug" if="debug"/>
+
 	<section if='debugmon'>
 		<haxeflag name="--macro" value="addGlobalMetadata('online', '@:build(online.backend.MonitorMacro.build())')" />
 		<haxeflag name="--macro" value="addGlobalMetadata('states', '@:build(online.backend.MonitorMacro.build())')" />

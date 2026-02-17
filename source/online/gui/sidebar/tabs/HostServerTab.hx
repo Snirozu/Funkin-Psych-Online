@@ -4,6 +4,9 @@ import haxe.io.Path;
 import sys.FileSystem;
 import haxe.io.Error;
 
+//TODO force kill server and node.exe
+//TODO stop freezing
+
 class HostServerTab extends TabSprite {
     public function new() {
         super('Host Server', 'server');
