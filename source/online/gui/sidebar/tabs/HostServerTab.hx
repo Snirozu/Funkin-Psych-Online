@@ -9,7 +9,7 @@ import haxe.io.Error;
 
 class HostServerTab extends TabSprite {
     public function new() {
-        super('Host Server', 'server');
+        super('Host Server (EXPERIMENTAL)', 'server');
 		tabWidth = 600;
     }
 

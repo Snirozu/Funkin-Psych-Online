@@ -122,6 +122,18 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
 		chatGroup = new FlxTypedSpriteGroup<ChatMessage>();
 		addMessage(initMessage, true);
+
+		var invalidCount:Float = 0;
+		for (mod in Mods.getModDirectories()) {
+			var url = OnlineMods.getModURL(mod);
+			if (url == null || !(url.startsWith('https://') || url.startsWith('http://')))
+				invalidCount++;
+		}
+
+		if (invalidCount > 0) {
+			addMessage('WARNING: ' + invalidCount + ' of your mods do not have a valid URL set!', true);
+		}
+
 		for (msg in savedMessages) {
 			addMessage(msg, true);
 		}

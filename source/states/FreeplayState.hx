@@ -1140,7 +1140,7 @@ class FreeplayState extends MusicBeatState
 							updateMod();
 							trace('Song mod directory: "${Mods.currentModDirectory}"');
 							try {
-								GameClient.send("setSong", [
+								final data:Array<Dynamic> = [
 									songLowercase,
 									poop,
 									curDifficulty,
@@ -1148,7 +1148,9 @@ class FreeplayState extends MusicBeatState
 									Mods.currentModDirectory,
 									online.mods.OnlineMods.getModURL(Mods.currentModDirectory),
 									Difficulty.list
-								]);
+								];
+								trace(data);
+								GameClient.send("setSong", data);
 							}
 							catch (e:Dynamic) {
 								trace('ERROR! $e');

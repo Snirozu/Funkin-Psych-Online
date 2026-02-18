@@ -375,17 +375,6 @@ class OnlineState extends MusicBeatState {
 						// FlxG.openURL(GameClient.serverAddress + "/rooms");
 						FlxG.switchState(() -> new FindRoomState());
 					case "host":
-						var count:Float = 0;
-						for (mod in Mods.getModDirectories()) {
-							var url = OnlineMods.getModURL(mod);
-							if (url == null || !(url.startsWith('https://') || url.startsWith('http://')))
-								count++;
-						}
-
-						if (count > 0) {
-							Alert.alert('WARNING', count + ' of your mods do not have a valid URL set!');
-						}
-
 						disableInput = true;
 						GameClient.createRoom(GameClient.serverAddress, onRoomJoin);
 					case "options":

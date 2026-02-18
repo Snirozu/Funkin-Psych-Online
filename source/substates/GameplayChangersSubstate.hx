@@ -178,11 +178,11 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		reloadCheckboxes();
 
 		if (GameClient.isConnected()) {
-			GameClient.callbacks.listen("gameplaySettings", receiveChange);
+			GameClient.callbacks.onChange(GameClient.room.state.gameplaySettings, receiveChange);
 		}
 	}
 
-	function receiveChange(_:Dynamic, __:Dynamic) {
+	function receiveChange() {
 		Waiter.put(() -> {
 			updateAll();
 		});
@@ -201,7 +201,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		
 		@:privateAccess
 		if (GameClient.isConnected())
-			GameClient.clearCallbacks(GameClient.room.state, 'gameplaySettings');
+			GameClient.clearCallbacks(GameClient.room.state.gameplaySettings);
 	}
 
 	var nextAccept:Int = 5;

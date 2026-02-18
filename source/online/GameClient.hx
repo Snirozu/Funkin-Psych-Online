@@ -128,8 +128,10 @@ class GameClient {
 		clearOnMessage();
 
 		GameClient.room.onError += (code:Int, e:String) -> {
-			Alert.alert("Room error!", "room.onError: " + ShitUtil.prettyStatus(code) + "\n" + ShitUtil.readableError(e));
 			Sys.println("Room.onError: " + code + " - " + e);
+			if (code == 524)
+				return;
+			Alert.alert("Room error!", "room.onError: " + ShitUtil.prettyStatus(code) + "\n" + ShitUtil.readableError(e));
 		}
 
 		GameClient.room.onLeave += (code) -> {

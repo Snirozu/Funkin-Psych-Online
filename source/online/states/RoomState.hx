@@ -269,7 +269,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 			});
 		});
 
-		GameClient.callbacks.listen("gameplaySettings", (v, prev) -> {
+		GameClient.callbacks.onChange(GameClient.room.state.gameplaySettings, () -> {
 			Waiter.putPersist(() -> {
 				FreeplayState.updateFreeplayMusicPitch();
 				//FlxG.animationTimeScale = ClientPrefs.getGameplaySetting('songspeed');
@@ -282,7 +282,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		super.destroy();
 		
 		try {
-			GameClient.clearCallbacks(GameClient.room.state, 'gameplaySettings');
+			GameClient.clearCallbacks(GameClient.room.state.gameplaySettings);
 		} catch (exc) {
 			trace(exc);
 		}
@@ -851,6 +851,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 	
 	function verifyDownloadMod(manual:Bool, ?ignoreAlert:Bool = false) {
 		try {
+			trace(GameClient.getPlayerSelf().hasSong, GameClient.room.state.song, GameClient.room.state.modDir);
 			if (GameClient.room.state.song == "") {
 				if (ignoreAlert)
 					return false;
@@ -882,14 +883,14 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 				return false;
 			}
 
-			if (Mods.getModDirectories().contains(GameClient.room.state.modDir) || GameClient.room.state.modDir == "") {
+			if (Mods.getModDirectories().contains(GameClient.room.state.modDir) || GameClient.room.state.modDir == null || GameClient.room.state.modDir == "") {
 				Mods.currentModDirectory = GameClient.room.state.modDir;
 				try {
 					GameClient.send("verifyChart", Md5.encode(Song.loadRawSong(GameClient.room.state.song, GameClient.room.state.folder)));
+					return false;
 				}
 				catch (exc) {
 				}
-				return false;
 			}
 
 			if (GameClient.room.state.modDir != null && GameClient.room.state.modURL != null && GameClient.room.state.modURL != "") {

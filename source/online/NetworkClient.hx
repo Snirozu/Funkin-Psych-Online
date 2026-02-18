@@ -116,10 +116,10 @@ class NetworkClient {
 
 		room.onError += (code:Int, e:String) -> {
 			Thread.safeCatch(() -> {
-				Waiter.putPersist(() -> {
-					Alert.alert("Network Room error!", "room.onError: " + ShitUtil.prettyStatus(code) + "\n" + ShitUtil.readableError(e));
-				});
 				Sys.println("NetworkRoom.onError: " + code + " - " + e);
+				if (code == 524)
+					return;
+				Alert.alert("Network Room error!", "room.onError: " + ShitUtil.prettyStatus(code) + "\n" + ShitUtil.readableError(e));
             }, e -> {
 				trace(ShitUtil.prettyError(e));
             });
