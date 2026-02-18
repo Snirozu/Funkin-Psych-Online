@@ -120,8 +120,6 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		super();
 
 		instance = this;
-
-		trace(GameClient.room.state);
 	}
 
 	function registerMessages() {
@@ -136,7 +134,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 			return;
 
 		playMusic(GameClient.getPlayerSelf().hasSong);
-		GameClient.getPlayerSelf().listen("hasSong", (value:Bool, prev) -> {
+		GameClient.callbacks.listen(GameClient.getPlayerSelf(), "hasSong", (value:Bool, prev) -> {
 			Waiter.putPersist(() -> {
 				playMusic(value);
 			});
@@ -155,7 +153,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		});
 
 		function listenUpdateTextOnField(player:Player, field:String) {
-			player.listen(field, (value, prev) -> {
+			GameClient.callbacks.listen(player, field, (value, prev) -> {
 				if (value == prev)
 					return;
 				Waiter.put(() -> {
@@ -167,7 +165,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 			listenUpdateTextOnField(player, 'ping');
 			listenUpdateTextOnField(player, 'status');
 			listenUpdateTextOnField(player, 'name');
-			player.listen("skin", (value, prev) -> {
+			GameClient.callbacks.listen(player, "skin", (value, prev) -> {
 				if (value == prev)
 					return;
 				Waiter.put(() -> {
@@ -175,7 +173,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 					updateCharacters();
 				});
 			});
-			player.listen("isReady", (value, prev) -> {
+			GameClient.callbacks.listen(player, "isReady", (value, prev) -> {
 				Waiter.put(() -> {
 					if (value) {
 						var sond = FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
@@ -187,14 +185,14 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 					}
 				});
 			});
-			player.listen("noteSkin", (value, prev) -> {
+			GameClient.callbacks.listen(player, "noteSkin", (value, prev) -> {
 				if (value == prev)
 					return;
 				Waiter.put(() -> {
 					checkNoteSkin(player);
 				});
 			});
-			player.listen("bfSide", (value, prev) -> {
+			GameClient.callbacks.listen(player, "bfSide", (value, prev) -> {
 				if (value == prev)
 					return;
 
@@ -202,7 +200,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 					updateCharacters();
 				});
 			});
-			player.listen("ox", (value, prev) -> {
+			GameClient.callbacks.listen(player, "ox", (value, prev) -> {
 				if (value == prev)
 					return;
 
@@ -232,13 +230,13 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		// 	trace('for: ' + sid + " " + player);
 		// 	initPlayer(sid, player);
 		// }
-		GameClient.room.state.players.onAdd((player, sid) -> {
+		GameClient.callbacks.onAdd("players", (player, sid) -> {
 			Waiter.put(() -> {
 				initPlayer(sid, player);
 			});
 		});
 
-		GameClient.room.state.players.onRemove((player, sid) -> {
+		GameClient.callbacks.onRemove("players", (player, sid) -> {
 			Waiter.put(() -> {
 				var character = characters.get(sid);
 				charactersLayer.remove(character, true);
@@ -271,7 +269,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 			});
 		});
 
-		GameClient.room.state.gameplaySettings.onChange((o, n) -> {
+		GameClient.callbacks.listen("gameplaySettings", (v, prev) -> {
 			Waiter.putPersist(() -> {
 				FreeplayState.updateFreeplayMusicPitch();
 				//FlxG.animationTimeScale = ClientPrefs.getGameplaySetting('songspeed');
@@ -284,9 +282,10 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		super.destroy();
 		
 		try {
-			@:privateAccess
-			GameClient.room.state.gameplaySettings._callbacks.clear();
-		} catch (exc) {}
+			GameClient.clearCallbacks(GameClient.room.state, 'gameplaySettings');
+		} catch (exc) {
+			trace(exc);
+		}
 	}
 
 	var lastSwapped = false;
@@ -1226,9 +1225,10 @@ class LobbyCharacter extends FlxTypedGroup<FlxSprite> {
 			character = null;
 		}
 
-		if (player.skin != null && FileSystem.exists(Paths.mods(player.skin[0] + player.skin[player.bfSide ? 2 : 1]))) {
-			Mods.currentModDirectory = player.skin[3];
-			character = new Character(0, 0, player.skin[0] + player.skin[player.bfSide ? 2 : 1], player.bfSide);
+		if (player.skin.length > 0) {
+			online.util.ShitUtil.tempSwitchMod(player.skin.items[3], () -> {
+				character = new Character(0, 0, player.skin.items[0] + player.skin.items[player.bfSide ? 2 : 1], player.bfSide);
+			});
 		}
 		else if (enableDownload && player.skinURL != null) {
 			noSkin = true;
@@ -1241,11 +1241,11 @@ class LobbyCharacter extends FlxTypedGroup<FlxSprite> {
 		}
 
 		// we loaded the skin ayyy
-		if (character != null) {
-			noSkin = false;
+		if (character == null || character.loadFailed) {
+			character = new Character(0, 0, "default" + (player.bfSide ? "-player" : ''), player.bfSide);
 		}
 		else {
-			character = new Character(0, 0, "default" + (player.bfSide ? "-player" : ''), player.bfSide);
+			noSkin = false;
 		}
 
 		character.noHoldBullshit = true;

@@ -67,12 +67,12 @@
     {
       "name": "colyseus",
       "type": "haxelib",
-      "version": "0.15.2"
+      "version": "0.17.3"
     },
     {
       "name": "colyseus-websocket",
       "type": "haxelib",
-      "version": "1.0.12"
+      "version": "1.0.15"
     },
     {
       "name": "HtmlParser",

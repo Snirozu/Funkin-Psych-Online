@@ -21,7 +21,7 @@
             "name": "HXCPP",
             "type": "hxcpp",
             "request": "launch",
-            "program": "${workspaceFolder}/export/release/windows/bin/PsychOnline.exe"
+            "program": "${workspaceFolder}/export/debug/windows/bin/PsychOnline.exe"
         }
 	]
 }

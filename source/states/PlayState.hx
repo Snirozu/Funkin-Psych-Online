@@ -258,13 +258,14 @@ class PlayState extends MusicBeatState
 			if (_prevOHealth != GameClient.room.state.health && gf != null)
 				gf.onHealth(_prevOHealth, GameClient.room.state.health);
 
-			return health = _prevOHealth = GameClient.room.state.health;
+			// without @:bypassAccessor it'll just loop between the getter and setter constantly (until it crashes)
+			return @:bypassAccessor health = _prevOHealth = GameClient.room.state.health;
 		}
 		return health;
 	}
 	function set_health(v) {
 		if (gf != null)
-			gf.onHealth(health, v);
+			gf.onHealth(@:bypassAccessor health, v);
 
 		if (GameClient.isConnected()) {
 			return health = GameClient.room.state.health;
@@ -569,6 +570,7 @@ class PlayState extends MusicBeatState
 			Lib.application.window.resizable = false;
 			swingMode = false;
 			isDuel = GameClient.room.state.players.length <= 2;
+			@:bypassAccessor waitReady = true;
 			if (isDuel) {
 				for (sid => player in GameClient.room.state.players) {
 					if (sid != GameClient.room.sessionId) {
@@ -961,9 +963,10 @@ class PlayState extends MusicBeatState
 
 			// if online player is defined
 			if (player != null) {
-				if (player.skin != null && FileSystem.exists(Paths.mods(player.skin[0] + skinsSuffix + player.skin[isRight ? 2 : 1])) && !(isRight ? SONG.player1 : SONG.player2).startsWith(player.skin[0])) {
-					Mods.currentModDirectory = player.skin[3];
-					char = new Character(0, 0, player.skin[0] + skinsSuffix + player.skin[isRight ? 2 : 1], playsAsBF() == isRight, true, isRight ? 'bf' : 'dad');
+				if (player.skin.length > 0 && !(isRight ? SONG.player1 : SONG.player2).startsWith(player.skin.items[0])) {
+					online.util.ShitUtil.tempSwitchMod(player.skin.items[3], () -> {
+						char = new Character(0, 0, player.skin.items[0] + skinsSuffix + player.skin.items[isRight ? 2 : 1], playsAsBF() == isRight, true, isRight ? 'bf' : 'dad');
+					});
 				}
 			}
 			// if skin is present for the playable character while offline
@@ -2113,10 +2116,8 @@ class PlayState extends MusicBeatState
 
 	public function startCountdown()
 	{
-		if (GameClient.isConnected())
-			waitReady = true;
-
-		// theWorld = false;
+		// if (waitReady)
+		// 	return false;
 
 		if(startedCountdown) {
 			callOnScripts('onStartCountdown');
@@ -6440,7 +6441,7 @@ class PlayState extends MusicBeatState
 			return;
 
 		for (sid => player in GameClient.room.state.players) {
-			player.listen("ping", (value, prev) -> {
+			GameClient.callbacks.listen(player, "ping", (value, prev) -> {
 				Waiter.put(() -> {
 					if (callOnScripts('onPlayerPing', [sid, player.ping], true) == FunkinLua.Function_Stop)
 						return;
@@ -6453,7 +6454,7 @@ class PlayState extends MusicBeatState
 				});
 			});
 
-			player.listen("botplay", (value, prev) -> {
+			GameClient.callbacks.listen(player, "botplay", (value, prev) -> {
 				Waiter.put(() -> {
 					if (callOnScripts('onPlayerBotplay', [sid, value], true) == FunkinLua.Function_Stop)
 						return;
@@ -6462,7 +6463,7 @@ class PlayState extends MusicBeatState
 				});
 			});
 
-			player.listen("noteHold", (value, prev) -> {
+			GameClient.callbacks.listen(player, "noteHold", (value, prev) -> {
 				Waiter.put(() -> {
 					if (callOnScripts('onPlayerNoteHold', [sid, value], true) == FunkinLua.Function_Stop)
 						return;

@@ -125,8 +125,10 @@ class NetworkClient {
             });
 		}
 
-		room.onLeave += () -> {
+		room.onLeave += (code) -> {
 			Thread.safeCatch(() -> {
+				trace(code);
+
 				Waiter.putPersist(() -> {
 					ChatTab.addMessage('Disconnected from the chatroom');
 				});
