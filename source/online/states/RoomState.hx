@@ -1232,7 +1232,6 @@ class LobbyCharacter extends FlxTypedGroup<FlxSprite> {
 			});
 
 			if (character?.loadFailed && enableDownload && player.skinURL != null) {
-				noSkin = true;
 				OnlineMods.downloadMod(player.skinURL, manualDownload, (_) -> {
 					if (RoomState.instance == null || RoomState.instance.destroyed)
 						return;
@@ -1240,11 +1239,13 @@ class LobbyCharacter extends FlxTypedGroup<FlxSprite> {
 					loadCharacter(false);
 				});
 			}
+			noSkin = character == null || character.loadFailed;
+		}
+		else {
+			noSkin = false;
 		}
 
-		noSkin = character == null || character.loadFailed;
-
-		if (noSkin) {
+		if (character == null || character.loadFailed) {
 			character = new Character(0, 0, "bf" + (player.bfSide ? "" : '-opponent'), player.bfSide);
 		}
 
