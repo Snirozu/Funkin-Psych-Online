@@ -169,7 +169,10 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 				if (value == prev)
 					return;
 				Waiter.put(() -> {
-					characters.get(sid).loadCharacter();
+					final lobbyChar = characters.get(sid);
+					if (lobbyChar == null)
+						return;
+					lobbyChar.loadCharacter();
 					updateCharacters();
 				});
 			});
