@@ -39,7 +39,7 @@ class SpookyErect extends BaseStage
 			lightList.push(dad);
 			if (gf != null)
 				lightList.push(gf);
-			if (gf.speaker != null && gf.speaker is ABotSpeaker) {
+			if (gf?.speaker != null && gf.speaker is ABotSpeaker) {
 				lightList.push(cast (gf.speaker, ABotSpeaker).speaker);
 			}
 

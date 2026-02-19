@@ -127,7 +127,7 @@ class PhillyBlazin extends BaseStage
 			character.color = 0xFF888888;
 		}
 
-		if (gf.speaker != null)
+		if (gf?.speaker != null)
 			gf.speaker.color = 0xFF888888;
 
 		var unspawnNotes:Array<Note> = cast game.unspawnNotes;
@@ -233,7 +233,7 @@ class PhillyBlazin extends BaseStage
 		FlxTween.color(boyfriend, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFFDEDEDE);
 		FlxTween.color(dad, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFFDEDEDE);
 		FlxTween.color(gf, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFF888888);
-		if (gf.speaker != null)
+		if (gf?.speaker != null)
 			FlxTween.color(gf.speaker, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFF888888);
 
 		// Sound

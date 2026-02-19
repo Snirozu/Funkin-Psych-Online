@@ -29,7 +29,8 @@ class ChatTab extends TabSprite {
 		input.multiline = false;
 		input.y = heightSpace - input.height;
 		input.addEventListener(Event.CHANGE, _ -> {
-			TextFormats.applyEmojis(input);
+			//TODO? emojis
+			// TextFormats.applyEmojis(input);
 			placeholderInput.visible = input.text.length <= 0;
 		});
 		placeholderInput.y = input.y;

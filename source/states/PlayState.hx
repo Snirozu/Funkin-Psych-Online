@@ -491,7 +491,7 @@ class PlayState extends MusicBeatState
 
 	public var stage3D:AwayStage3D;
 
-	function canInput() {
+	function checkCanInput() {
 		if (chatBox != null && chatBox.focused) {
 			return false;
 		}
@@ -959,14 +959,13 @@ class PlayState extends MusicBeatState
 		function initPlayCharacter(isRight:Bool, ?player:Player, ?sid:String) {
 			var char:Character = null;
 
-			Mods.currentModDirectory = "";
+			oldModDir = Mods.currentModDirectory;
 
 			// if online player is defined
 			if (player != null) {
 				if (player.skin.length > 0 && !(isRight ? SONG.player1 : SONG.player2).startsWith(player.skin.items[0])) {
-					online.util.ShitUtil.tempSwitchMod(player.skin.items[3], () -> {
-						char = new Character(0, 0, player.skin.items[0] + skinsSuffix + player.skin.items[isRight ? 2 : 1], playsAsBF() == isRight, true, isRight ? 'bf' : 'dad');
-					});
+					Mods.currentModDirectory = player.skin.items[3];
+					char = new Character(0, 0, player.skin.items[0] + skinsSuffix + player.skin.items[isRight ? 2 : 1], playsAsBF() == isRight, true, isRight ? 'bf' : 'dad');
 				}
 			}
 			// if skin is present for the playable character while offline
@@ -1094,7 +1093,7 @@ class PlayState extends MusicBeatState
 
 				gf = new Character(0, 0, gfName, false, false, 'gf');
 				gf.loadSpeaker();
-				if (gf.speaker != null) {
+				if (gf?.speaker != null) {
 					gfGroup.add(gf.speaker);
 
 					if (gf.speaker is Character)
@@ -2442,7 +2441,7 @@ class PlayState extends MusicBeatState
 		FlxTween.tween(timeBar, {alpha: 1}, 0.5, {ease: FlxEase.circOut});
 		FlxTween.tween(timeTxt, {alpha: 1}, 0.5, {ease: FlxEase.circOut});
 
-		if (gf.speaker is ABotSpeaker)
+		if (gf?.speaker is ABotSpeaker)
 			cast(gf.speaker, ABotSpeaker).snd = FlxG.sound.music;
 
 		#if DISCORD_ALLOWED
@@ -3104,6 +3103,8 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
+		final canInput = checkCanInput();
+
 		if (FlxG.keys.justPressed.F7) {
 			ClientPrefs.data.showFP = !ClientPrefs.data.showFP;
 			ClientPrefs.saveSettings();
@@ -3181,7 +3182,7 @@ class PlayState extends MusicBeatState
 			GameClient.reconnect(5); //delay the reconnection for 5 seconds (for testing)
 		}
 
-		if (controls.TAUNT && canInput() && (!canSpaceTaunt ? !FlxG.keys.justPressed.SPACE : true)) {
+		if (controls.TAUNT && canInput && (!canSpaceTaunt ? !FlxG.keys.justPressed.SPACE : true)) {
 			var altSuffix = FlxG.keys.pressed.ALT ? '-alt' : '';
 			self.playAnim('taunt' + altSuffix, true);
 			if (GameClient.isConnected())
@@ -3195,7 +3196,7 @@ class PlayState extends MusicBeatState
 			// 	endSong();
 			// }
 
-			if (!isReady && controls.ACCEPT && !inCutscene && canStart && canInput()) {
+			if (!isReady && controls.ACCEPT && !inCutscene && canStart && canInput) {
 				isReady = true;
 				FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
 				if (ClientPrefs.data.flashing)
@@ -3260,7 +3261,7 @@ class PlayState extends MusicBeatState
 		setOnScripts('curDecStep', curDecStep);
 		setOnScripts('curDecBeat', curDecBeat);
 
-		if (controls.PAUSE && startedCountdown && canPause && canInput())
+		if (controls.PAUSE && startedCountdown && canPause && canInput)
 		{
 			var ret:Dynamic = callOnScripts('onPause', null, true);
 			if(ret != FunkinLua.Function_Stop) {
@@ -3269,7 +3270,7 @@ class PlayState extends MusicBeatState
 		}
 
 		// "!inCutscene" it's called a DEBUG button for a reason
-		if (controls.justPressed('debug_1') && !endingSong && canInput())
+		if (controls.justPressed('debug_1') && !endingSong && canInput)
 			openChartEditor();
 
 		var iconOffset:Int = 30 + (iconP1s.length > 1 || iconP2s.length > 1 ? 10 : 0);
@@ -3308,7 +3309,7 @@ class PlayState extends MusicBeatState
 			addIconOffset(icon, false, i);
 		}
 
-		if (controls.justPressed('debug_2') && !endingSong && canInput())
+		if (controls.justPressed('debug_2') && !endingSong && canInput)
 			openCharacterEditor();
 		
 		if (startedCountdown && !paused)
@@ -3356,7 +3357,7 @@ class PlayState extends MusicBeatState
 		FlxG.watch.addQuick("stepShit", curStep);
 
 		// RESET = Quick Game Over Screen
-		if (!GameClient.isConnected() && !ClientPrefs.data.noReset && controls.RESET && canReset && !inCutscene && startedCountdown && !endingSong && canInput() && replayData == null && !cpuControlled)
+		if (!GameClient.isConnected() && !ClientPrefs.data.noReset && controls.RESET && canReset && !inCutscene && startedCountdown && !endingSong && canInput && replayData == null && !cpuControlled)
 		{
 			subsHealth(9999);
 			trace("RESET = True");
@@ -5101,7 +5102,7 @@ class PlayState extends MusicBeatState
 	@:unreflective
 	private function keyPressed(key:Int)
 	{
-		if (!canInput())
+		if (!checkCanInput())
 			return;
 
 		if (!cpuControlled && startedCountdown && !paused && key > -1)
@@ -5198,7 +5199,7 @@ class PlayState extends MusicBeatState
 	@:unreflective
 	private function keyReleased(key:Int)
 	{
-		if (!canInput())
+		if (!checkCanInput())
 			return;
 
 		if(!cpuControlled && startedCountdown && !paused)
@@ -5236,7 +5237,7 @@ class PlayState extends MusicBeatState
 	@:unreflective
 	private function keysCheck():Void
 	{
-		if (!canInput())
+		if (!checkCanInput())
 			return;
 
 		// HOLDING
@@ -5795,7 +5796,7 @@ class PlayState extends MusicBeatState
 			if (gf.danceEveryNumBeats != 0 && beat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && gf.animation.curAnim != null && !gf.animation.curAnim.name.startsWith("sing") && !gf.stunned)
 				gf.dance();
 
-			if (gf.speaker is Character) {
+			if (gf?.speaker is Character) {
 				final speaker:Character = cast gf.speaker;
 				if (speaker.danceEveryNumBeats != 0 && beat % Math.round(gfSpeed * speaker.danceEveryNumBeats) == 0)
 					speaker.dance();
@@ -5862,7 +5863,7 @@ class PlayState extends MusicBeatState
 		}
 		super.sectionHit();
 
-		if (gf.speaker is ABotSpeaker)
+		if (gf?.speaker is ABotSpeaker)
 			cast(gf.speaker, ABotSpeaker).updateABotEye(cameraLookAt);
 		
 		setOnScripts('curSection', curSection);

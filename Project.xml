@@ -2,7 +2,7 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin': Psych Online" file="PsychOnline" main="Main" packageName="boo.sniro.psychonline" package="boo.sniro.psychonline" company="Snirozu" version="0.14.0" />
+	<app title="Friday Night Funkin': Psych Online" file="PsychOnline" main="Main" packageName="boo.sniro.psychonline" package="boo.sniro.psychonline" company="Snirozu" version="0.14.1" />
 	<app if="mobile" title='Psych Online' />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->

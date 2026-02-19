@@ -195,7 +195,7 @@ class SchoolErect extends BaseStage
 		}
 
 
-		if(gf.speaker != null) {
+		if(gf?.speaker != null) {
 			var noRimShader:AdjustColor = new AdjustColor();
 			noRimShader.hue = -10;
 			noRimShader.saturation = -23;

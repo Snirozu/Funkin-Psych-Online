@@ -1231,7 +1231,8 @@ class LobbyCharacter extends FlxTypedGroup<FlxSprite> {
 				character = new Character(0, 0, player.skin.items[0] + player.skin.items[player.bfSide ? 2 : 1], player.bfSide);
 			});
 		}
-		else if (enableDownload && player.skinURL != null) {
+		
+		if (character.loadFailed && enableDownload && player.skinURL != null) {
 			noSkin = true;
 			OnlineMods.downloadMod(player.skinURL, manualDownload, (_) -> {
 				if (RoomState.instance == null || RoomState.instance.destroyed)
@@ -1241,12 +1242,10 @@ class LobbyCharacter extends FlxTypedGroup<FlxSprite> {
 			});
 		}
 
-		// we loaded the skin ayyy
-		if (character == null || character.loadFailed) {
+		noSkin = character == null || character.loadFailed;
+
+		if (noSkin) {
 			character = new Character(0, 0, "default" + (player.bfSide ? "-player" : ''), player.bfSide);
-		}
-		else {
-			noSkin = false;
 		}
 
 		character.noHoldBullshit = true;
