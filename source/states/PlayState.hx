@@ -1109,7 +1109,12 @@ class PlayState extends MusicBeatState
 			}
 
 			if (gf != null && GameClient.isConnected() && GameClient.room.state.hideGF) {
-				gf.visible = false;
+				for (item in gfGroup) {
+					if (item == null)
+						continue;
+
+					item.visible = false;
+				}
 			}
 		});
 
