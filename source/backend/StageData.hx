@@ -158,7 +158,7 @@ class StageData {
 		var addedObjects:Map<String, FlxSprite> = [];
 		for (num => data in objectList)
 		{
-			if (addedObjects.exists(data) || ignoreNames.contains(data.name)) continue;
+			if (addedObjects.exists(data) || (ignoreNames != null && ignoreNames.contains(data.name))) continue;
 
 			switch(data.type)
 			{

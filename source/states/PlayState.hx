@@ -1085,6 +1085,7 @@ class PlayState extends MusicBeatState
 				if (boyfriend.isSkin && boyfriend.speakerName != null 
 				&& !SONG.player1.startsWith(boyfriend.curCharacter) && !SONG.gfVersion.startsWith(boyfriend.speakerName)) {
 					gfName = boyfriend.speakerName;
+					Mods.currentModDirectory = boyfriend.modDir;
 				}
 
 				if (gfName == null || gfName.trim().length < 1) {
@@ -1116,6 +1117,8 @@ class PlayState extends MusicBeatState
 					item.visible = false;
 				}
 			}
+
+			Mods.currentModDirectory = oldModDir;
 		});
 
 		preloadTasks.push(() -> {
@@ -1531,7 +1534,7 @@ class PlayState extends MusicBeatState
 				if (replayPlayer == null && ClientPrefs.data.midSongCommentsOpacity > 0.0) {
 					nicomments.cameras = [camGame];
 					nicomments.alpha = ClientPrefs.data.midSongCommentsOpacity;
-					nicomments.offsetY = !ClientPrefs.data.downScroll ? 100 : 0;
+					nicomments.offsetY = !ClientPrefs.data.downScroll ? 150 : 0;
 				}
 				add(nicomments);
 			}

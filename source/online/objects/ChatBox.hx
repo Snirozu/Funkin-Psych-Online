@@ -94,6 +94,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 			});
 	}
 
+	var nextFocused:Null<Bool> = null;
 	public function new(?camera:FlxCamera, ?onCommand:(command:String, args:Array<String>) -> Bool, ?chatHeight:Int = 400) {
 		super();
 
@@ -151,7 +152,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 			
 			typeText.text = "";
 			if (FlxG.state is PlayState)
-				focused = false;
+				nextFocused = false;
 		});
 		typeText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 
@@ -181,6 +182,11 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 	}
 
     override function update(elapsed) {
+		if (nextFocused != null) {
+			focused = nextFocused;
+			nextFocused = null;
+		}
+		
 		if (focused || alpha > 0) {
 			if (FlxG.keys.justPressed.ESCAPE) {
 				focused = false;
