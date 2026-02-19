@@ -1079,7 +1079,7 @@ class PlayState extends MusicBeatState
 		preloadTasks.push(() -> {
 			oldModDir = Mods.currentModDirectory;
 
-			if (!stageData.hide_girlfriend && !(GameClient.isConnected() && GameClient.room.state.hideGF)) {
+			if (!stageData.hide_girlfriend) {
 				var gfName = SONG.gfVersion;
 
 				if (boyfriend.isSkin && boyfriend.speakerName != null 
@@ -1106,6 +1106,10 @@ class PlayState extends MusicBeatState
 				gfGroup.add(gf);
 
 				startCharacterScripts(gf.curCharacter);
+			}
+
+			if (gf != null && GameClient.isConnected() && GameClient.room.state.hideGF) {
+				gf.visible = false;
 			}
 		});
 
