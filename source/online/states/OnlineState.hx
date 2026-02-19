@@ -281,6 +281,7 @@ class OnlineState extends MusicBeatState {
 		frontMessage.x = FlxG.width - frontMessage.fieldWidth - 50;
 		add(frontMessage);
 
+		final theus = this;
 		Thread.run(() -> {
 			FunkinNetwork.ping();
 
@@ -288,7 +289,8 @@ class OnlineState extends MusicBeatState {
 				Waiter.put(() -> {
 					var profileBox = new ProfileBox(FunkinNetwork.nickname, true);
 					profileBox.setPosition(FlxG.width - profileBox.width - 20, 20);
-					add(profileBox);
+					if (FlxG.state == theus)
+						add(profileBox);
 				});
 		});
 

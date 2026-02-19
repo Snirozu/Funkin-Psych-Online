@@ -1230,22 +1230,22 @@ class LobbyCharacter extends FlxTypedGroup<FlxSprite> {
 			online.util.ShitUtil.tempSwitchMod(player.skin.items[3], () -> {
 				character = new Character(0, 0, player.skin.items[0] + player.skin.items[player.bfSide ? 2 : 1], player.bfSide);
 			});
-		}
-		
-		if (character.loadFailed && enableDownload && player.skinURL != null) {
-			noSkin = true;
-			OnlineMods.downloadMod(player.skinURL, manualDownload, (_) -> {
-				if (RoomState.instance == null || RoomState.instance.destroyed)
-					return;
 
-				loadCharacter(false);
-			});
+			if (character?.loadFailed && enableDownload && player.skinURL != null) {
+				noSkin = true;
+				OnlineMods.downloadMod(player.skinURL, manualDownload, (_) -> {
+					if (RoomState.instance == null || RoomState.instance.destroyed)
+						return;
+
+					loadCharacter(false);
+				});
+			}
 		}
 
 		noSkin = character == null || character.loadFailed;
 
 		if (noSkin) {
-			character = new Character(0, 0, "default" + (player.bfSide ? "-player" : ''), player.bfSide);
+			character = new Character(0, 0, "bf" + (player.bfSide ? "" : '-opponent'), player.bfSide);
 		}
 
 		character.noHoldBullshit = true;
