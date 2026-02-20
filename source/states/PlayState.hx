@@ -3201,29 +3201,6 @@ class PlayState extends MusicBeatState
 				GameClient.send("charPlay", ["taunt" + altSuffix]);
 		}
 
-		if (GameClient.isConnected()) {
-			//if player 2 left then go back to lobby // nvm, unreliable on reconnects
-			// if (!GameClient.reconnecting && GameClient.room.state.player2.name == "") {
-			// 	trace("No one is playing, leaving...");
-			// 	endSong();
-			// }
-
-			if (!isReady && controls.ACCEPT && !inCutscene && canStart && canInput) {
-				isReady = true;
-				FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
-				if (ClientPrefs.data.flashing)
-					freakyFlicker = FlxFlicker.flicker(waitReadySpr, 0.5, 0.05, true, false, _ -> waitReadySpr.text = "waiting for other player...");
-				GameClient.send("playerReady");
-			}
-
-			if (waitReady) {
-				paused = true;
-				FlxG.sound.music.pause();
-				vocals.pause();
-				opponentVocals.pause();
-			}
-		}
-
 		/*if (FlxG.keys.justPressed.NINE)
 		{
 			iconP1.swapOldIcon();
@@ -3273,11 +3250,34 @@ class PlayState extends MusicBeatState
 		setOnScripts('curDecStep', curDecStep);
 		setOnScripts('curDecBeat', curDecBeat);
 
-		if (controls.PAUSE && startedCountdown && canPause && canInput)
+		if (controls.PAUSE && (GameClient.isConnected() ? isReady : startedCountdown) && canPause && canInput)
 		{
 			var ret:Dynamic = callOnScripts('onPause', null, true);
 			if(ret != FunkinLua.Function_Stop) {
 				openPauseMenu();
+			}
+		}
+
+		if (GameClient.isConnected()) {
+			//if player 2 left then go back to lobby // nvm, unreliable on reconnects
+			// if (!GameClient.reconnecting && GameClient.room.state.player2.name == "") {
+			// 	trace("No one is playing, leaving...");
+			// 	endSong();
+			// }
+
+			if (!isReady && controls.ACCEPT && !inCutscene && canStart && canInput) {
+				isReady = true;
+				FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
+				if (ClientPrefs.data.flashing)
+					freakyFlicker = FlxFlicker.flicker(waitReadySpr, 0.5, 0.05, true, false, _ -> waitReadySpr.text = "waiting for other player...");
+				GameClient.send("playerReady");
+			}
+
+			if (waitReady) {
+				paused = true;
+				FlxG.sound.music.pause();
+				vocals.pause();
+				opponentVocals.pause();
 			}
 		}
 
