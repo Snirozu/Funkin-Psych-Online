@@ -124,8 +124,8 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		}, (elapsed) -> {
 			royalModeDadSide.alpha = GameClient.hasPerms() ? 1 : 0.8;
 
-			royalModeDadSide.checked = !GameClient.room.state.royalModeDadSide;
-		}, 0, 0, !GameClient.room.state.royalModeDadSide));
+			royalModeDadSide.checked = GameClient.room.state.royalModeDadSide;
+		}, 0, 0, GameClient.room.state.royalModeDadSide));
 		
 		items.add(hideGF = new Option("Hide Girlfriend", "Hides GF from the stage.", () -> {
 			GameClient.send("toggleGF");

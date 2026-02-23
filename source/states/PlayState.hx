@@ -1264,9 +1264,9 @@ class PlayState extends MusicBeatState
 			preloadTasks.push(() -> {
 				scoreTxt.visible = false;
 
-				function createText(isRight:Bool, ?ox:Int = 0) {
+				function createText(isRight:Bool, ?ox:Int = 0, ?isOnline:Bool = false) {
 					var scoreTxtPlayer = new FlxText(0, 0, FlxG.width, "", 20);
-					scoreTxtPlayer.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', !isPixelStage ? 18 : 16, FlxColor.WHITE, isRight ? RIGHT : LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+					scoreTxtPlayer.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', (!isPixelStage ? 18 : 16) - (isOnline ? -4 : 0), FlxColor.WHITE, isRight ? RIGHT : LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 					scoreTxtPlayer.scrollFactor.set();
 					scoreTxtPlayer.borderSize = 1.25;
 					scoreTxtPlayer.visible = !ClientPrefs.data.hideHud;
@@ -1297,7 +1297,7 @@ class PlayState extends MusicBeatState
 				}
 				else {
 					for (sid => player in GameClient.room.state.players) {
-						scoreTxtOthers.set(sid, createText(player.bfSide, player.ox));
+						scoreTxtOthers.set(sid, createText(player.bfSide, player.ox, true));
 					}
 
 					scoreTxtOthers.get(GameClient.room.sessionId).color = FlxColor.YELLOW;
