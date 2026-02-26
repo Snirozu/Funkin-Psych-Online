@@ -23,7 +23,7 @@ class SideUI extends WSprite {
 		ProfileTab,
 		FriendsTab,
 		ChatTab,
-		#if !mobile HostServerTab #end,
+		#if !mobile HostServerTab, #end
 		// TODO 
 		// DownloaderTab,
 		// ReportTab,
