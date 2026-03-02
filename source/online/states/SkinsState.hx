@@ -18,7 +18,7 @@ class SkinsState extends MusicBeatState {
 	static var BLACKLISTED_CHARACTERS = ['default'];
 	public static var LEFT_SUFFIX = ['-opponent', '-left'];
 	public static var RIGHT_SUFFIX = ['-player', '-playable', '-right'];
-	static var SKIP_SUFFICES = ['-pixel', '-christmas', '-blazin'];
+	static var SKIP_SUFFICES = ['-pixel', '-christmas', '-car', '-blazin'];
 
 	var charactersWithWeeks:Array<Int> = [];
 	// [x] = [character_name_or_dir, left_side_suffix, right_side_suffix, mod_name]

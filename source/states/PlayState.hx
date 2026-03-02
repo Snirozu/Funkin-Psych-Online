@@ -893,6 +893,10 @@ class PlayState extends MusicBeatState
 				skinsSuffix = '-christmas';
 			}
 
+			if (curStage.startsWith('limo')) {
+				skinsSuffix = '-car';
+			}
+
 			if(stageData.objects != null && stageData.objects.length > 0)
 			{
 				var list:Map<String, FlxSprite> = StageData.addObjectsToState(stageData.objects, !stageData.hide_girlfriend ? gfGroup : null, dadGroup, boyfriendGroup, this);

@@ -72,7 +72,7 @@ class ResultsSoloState extends MusicBeatState {
 
 		data.character ??= 'bf';
 
-		final COMMON_CHAR_SUFFICES = ['-pixel', '-christmas', '-blazin', '-player', '-playable', '-opponent', '-left', '-right'];
+		final COMMON_CHAR_SUFFICES = ['-pixel', '-christmas', '-car', '-blazin', '-player', '-playable', '-opponent', '-left', '-right'];
 
 		for (suffix in COMMON_CHAR_SUFFICES) {
 			if (data.character.endsWith(suffix)) {
