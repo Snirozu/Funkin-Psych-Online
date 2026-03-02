@@ -284,8 +284,8 @@ jobs:
 
     - name: Setup git config
       run: |
-        git config user.name "GitHub Actions Bot"
-        git config user.email "<>"
+        git config --global user.name "GitHub Actions Bot"
+        git config --global user.email "<>"
 
     # publish windows
 
