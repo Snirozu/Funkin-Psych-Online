@@ -993,14 +993,14 @@ class PlayState extends MusicBeatState
 			// when the character has failed to load
 			if (char == null || char.loadFailed) {
 				Mods.currentModDirectory = oldModDir;
-				char = new Character(0, 0, songPlayer, playsAsBF() == isRight, false, 'bf');
+				char = new Character(0, 0, songPlayer, playsAsBF() == isRight, false, isRight ? 'bf' : 'dad');
 
 				// another fallback, if SONG.player1/2 didn't specify the suffix then it is searched and appended
 				if (char.loadFailed) {
 					for (suffix in (isRight ? online.states.SkinsState.RIGHT_SUFFIX : online.states.SkinsState.LEFT_SUFFIX)) {
 						final charExists = Character.getCharacterFile(songPlayer + suffix, null, true) != null;
 						if (charExists)
-							char = new Character(0, 0, songPlayer + suffix, playsAsBF() == isRight, false, 'bf');
+							char = new Character(0, 0, songPlayer + suffix, playsAsBF() == isRight, false, isRight ? 'bf' : 'dad');
 					}
 				}
 			}
