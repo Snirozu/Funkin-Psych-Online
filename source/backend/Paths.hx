@@ -86,7 +86,12 @@ class Paths
 			if (obj != null && !currentTrackedAssets.exists(key) && !dumpExclusions.contains(key)) {
 				openfl.Assets.cache.removeBitmapData(key);
 				FlxG.bitmap._cache.remove(key);
-				obj.destroy();
+				// pointer not found?
+				try {
+					obj.destroy();
+				} catch (exc) {
+					trace(exc);
+				}
 			}
 		}
 

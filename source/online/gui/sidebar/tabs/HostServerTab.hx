@@ -29,7 +29,8 @@ class HostServerTab extends TabSprite {
 		addChild(startAndStop);
 
 		updateServer = new TabButton('update', () -> {
-			FileUtils.removeFiles('_server/');
+			if (FileSystem.exists('_server/'))
+				FileUtils.removeFiles('_server/');
 			prepareServer();
 		});
 		updateServer.x = startAndStop.x;

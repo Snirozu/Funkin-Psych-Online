@@ -16,8 +16,8 @@ import objects.Character;
 #end
 class SkinsState extends MusicBeatState {
 	static var BLACKLISTED_CHARACTERS = ['default'];
-	static var LEFT_SUFFIX = ['-opponent', '-left'];
-	static var RIGHT_SUFFIX = ['-player', '-playable', '-right'];
+	public static var LEFT_SUFFIX = ['-opponent', '-left'];
+	public static var RIGHT_SUFFIX = ['-player', '-playable', '-right'];
 	static var SKIP_SUFFICES = ['-pixel', '-christmas', '-blazin'];
 
 	var charactersWithWeeks:Array<Int> = [];

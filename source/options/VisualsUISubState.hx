@@ -300,6 +300,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		for (i in 0...Note.colArray.length)
 		{
 			var note:StrumNote = notes.members[i];
+			if (note == null) continue;
 			if(notesTween[i] != null) notesTween[i].cancel();
 			if(curSelected == noteOptionID)
 				notesTween[i] = FlxTween.tween(note, {y: noteY}, Math.abs(note.y / (200 + noteY)) / 3, {ease: FlxEase.quadInOut});

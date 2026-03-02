@@ -961,21 +961,27 @@ class PlayState extends MusicBeatState
 
 			oldModDir = Mods.currentModDirectory;
 
+			final songPlayer = (isRight ? SONG.player1 : SONG.player2) ?? '';
+
+			function songPlayerMatchesSkin(skin:String) {
+				return songPlayer.startsWith(skin);
+			}
+
 			// if online player is defined
 			if (player != null) {
-				if (player.skin.length > 0 && !(isRight ? SONG.player1 : SONG.player2).startsWith(player.skin.items[0])) {
+				if (player.skin.length > 0 && !songPlayerMatchesSkin(player.skin.items[0])) {
 					Mods.currentModDirectory = player.skin.items[3];
 					char = new Character(0, 0, player.skin.items[0] + skinsSuffix + player.skin.items[isRight ? 2 : 1], playsAsBF() == isRight, true, isRight ? 'bf' : 'dad');
 				}
 			}
 			// if skin is present for the playable character while offline
-			else if (playsAsBF() == isRight && ClientPrefs.data.currentSkin != null && !(isRight ? SONG.player1 : SONG.player2).startsWith(ClientPrefs.data.currentSkin[0])) {
+			else if (playsAsBF() == isRight && ClientPrefs.data.currentSkin != null && !songPlayerMatchesSkin(ClientPrefs.data.currentSkin[0])) {
 				Mods.currentModDirectory = ClientPrefs.data.currentSkin[3];
 				char = new Character(0, 0, ClientPrefs.data.currentSkin[0] + skinsSuffix + ClientPrefs.data.currentSkin[isRight ? 2 : 1], playsAsBF() == isRight, true, isRight ? 'bf' : 'dad');
 			}
 
 			// refuse non-blazin characters for blazin
-			if (char != null && ((isRight ? SONG.player1 : SONG.player2) ?? '').endsWith('-blazin') && !char.curCharacter.endsWith('-blazin')) {
+			if (char != null && songPlayer.endsWith('-blazin') && !char.curCharacter.endsWith('-blazin')) {
 				char.destroy();
 				char = null;
 			}
@@ -983,7 +989,16 @@ class PlayState extends MusicBeatState
 			// when the character has failed to load
 			if (char == null || char.loadFailed) {
 				Mods.currentModDirectory = oldModDir;
-				char = new Character(0, 0, (isRight ? SONG.player1 : SONG.player2), playsAsBF() == isRight, false, 'bf');
+				char = new Character(0, 0, songPlayer, playsAsBF() == isRight, false, 'bf');
+
+				// another fallback, if SONG.player1/2 didn't specify the suffix then it is searched and appended
+				if (char.loadFailed) {
+					for (suffix in (isRight ? online.states.SkinsState.RIGHT_SUFFIX : online.states.SkinsState.LEFT_SUFFIX)) {
+						final charExists = Character.getCharacterFile(songPlayer + suffix, null, true) != null;
+						if (charExists)
+							char = new Character(0, 0, songPlayer + suffix, playsAsBF() == isRight, false, 'bf');
+					}
+				}
 			}
 			
 			char.ox = player?.ox ?? 0;

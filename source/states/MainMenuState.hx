@@ -441,6 +441,9 @@ class MainMenuState extends MusicBeatState
 			}
 			spr.centerOffsets();
 
+			if (spr.animation.curAnim == null)
+				return;
+
 			final animationOffset = animationOffsets.get(optionShit[curSelected] + ':' + spr.animation.curAnim.name);
 			if (animationOffset != null) {
 				spr.offset.x += animationOffset[0]; 

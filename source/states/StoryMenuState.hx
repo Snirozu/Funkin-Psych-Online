@@ -399,9 +399,9 @@ class StoryMenuState extends MusicBeatState
 		txtWeekTitle.x = FlxG.width - (txtWeekTitle.width + 10);
 
 		var unlocked:Bool = !weekIsLocked(leWeek.fileName);
-		for (item in grpWeekText.members)
+		for (num => item in grpWeekText.members)
 		{
-			if (item.targetY == Std.int(0) && unlocked)
+			if (num == curWeek && unlocked)
 				item.alpha = 1;
 			else
 				item.alpha = 0.6;

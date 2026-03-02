@@ -184,7 +184,7 @@ class PhillyStreets extends BaseStage
 		add(spraycanPile);
 		darkenable.push(spraycanPile);
 
-		if(gf != null)
+		if(gf != null && gf.curCharacter.startsWith('nene'))
 		{
 			gf.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int)
 			{
@@ -343,9 +343,11 @@ class PhillyStreets extends BaseStage
 		// nene spits and laughs
 		cutsceneHandler.timer(cutsceneDelay + 6.2, function()
 		{
-			gf.animation.finishCallback = null;
-			gf.playAnim('laughCutscene', true);
-			neneLaugh.play(true);
+			if (gf.curCharacter.startsWith('nene')) {
+				gf.animation.finishCallback = null;
+				gf.playAnim('laughCutscene', true);
+				neneLaugh.play(true);
+			}
 		});
 
 		// cutscene ended, camera returns to normal, cutscene flags set and countdown starts.
@@ -384,7 +386,8 @@ class PhillyStreets extends BaseStage
 
 	override function startSong()
 	{
-		gf.animation.finishCallback = onNeneAnimationFinished;
+		if (gf.curCharacter.startsWith('nene'))
+			gf.animation.finishCallback = onNeneAnimationFinished;
 	}
 	
 	function onNeneAnimationFinished(name:String)
@@ -523,6 +526,9 @@ class PhillyStreets extends BaseStage
 
 	function transitionState()
 	{
+		if (!gf.curCharacter.startsWith('nene'))
+			return;
+
 		switch (currentNeneState)
 		{
 			case STATE_DEFAULT:
@@ -582,18 +588,19 @@ class PhillyStreets extends BaseStage
 	override function beatHit()
 	{
 		//if(curBeat % 2 == 0) abot.beatHit();
-		switch(currentNeneState) {
-			case STATE_READY:
-				if (blinkCountdown == 0)
-				{
-					gf.playAnim('idleKnife', false);
-					blinkCountdown = FlxG.random.int(MIN_BLINK_DELAY, MAX_BLINK_DELAY);
-				}
-				else blinkCountdown--;
+		if (gf.curCharacter.startsWith('nene'))
+			switch(currentNeneState) {
+				case STATE_READY:
+					if (blinkCountdown == 0)
+					{
+						gf.playAnim('idleKnife', false);
+						blinkCountdown = FlxG.random.int(MIN_BLINK_DELAY, MAX_BLINK_DELAY);
+					}
+					else blinkCountdown--;
 
-			default:
-				// In other states, don't interrupt the existing animation.
-		}
+				default:
+					// In other states, don't interrupt the existing animation.
+			}
 
 		if(ClientPrefs.data.lowQuality) return;
 

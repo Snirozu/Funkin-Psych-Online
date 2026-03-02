@@ -26,8 +26,8 @@
 	"no_antialiasing": false,
 	"image": "characters/Pico_Death_Retry",
 	"position": [
-		0,
-		300
+		450,
+		240
 	],
 	"healthicon": "pico",
 	"flip_x": true,

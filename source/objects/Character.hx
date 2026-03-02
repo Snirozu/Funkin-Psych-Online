@@ -140,7 +140,7 @@ class Character extends FlxSprite {
 	}
 	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
 
-	public static function getCharacterFile(character:String, ?instance:Character):CharacterFile {
+	public static function getCharacterFile(character:String, ?instance:Character, ?nullOnFail:Bool = false):CharacterFile {
 		var characterPath:String = 'characters/' + character + '.json';
 
 		#if MODS_ALLOWED
@@ -157,6 +157,8 @@ class Character extends FlxSprite {
 		{
 			if (instance != null)
 				instance.loadFailed = true;
+			if (nullOnFail)
+				return null;
 			path = Paths.getPreloadPath('characters/' + DEFAULT_CHARACTER + '.json'); // If a character couldn't be found, change him to BF just to prevent a crash
 		}
 
@@ -316,8 +318,10 @@ class Character extends FlxSprite {
 							// no flipX in flxanimate bcs not supported bye
 							if(animIndices != null && animIndices.length > 0)
 								atlas.anim.addBySymbolIndices(animAnim, animName, animIndices, animFps, animLoop);
-							else
+							else if (atlas.anim.symbolDictionary.exists(animName))
 								atlas.anim.addBySymbol(animAnim, animName, animFps, animLoop);
+							else
+								atlas.anim.addByFrameLabel(animAnim, animName, animFps, animLoop);
 						}
 						#end
 
@@ -733,8 +737,10 @@ class Character extends FlxSprite {
 		if(!isAnimateAtlas)
 			animation.addByPrefix(name, anim, 24, false);
 		#if flxanimate
-		else
+		else if (atlas.anim.symbolDictionary.exists(anim))
 			atlas.anim.addBySymbol(name, anim, 24, false);
+		else
+			atlas.anim.addByFrameLabel(name, anim, 24, false);
 		#end
 	}
 
