@@ -36,6 +36,36 @@ class GameBanana {
 		});
 	}
 
+	public static function listCategory(id:String, page:Int, response:(mods:Array<GBSub>, err:Dynamic) -> Void) {
+		Thread.run(() -> {
+			var http = new Http(
+			'https://gamebanana.com/apiv11/Mod/Index?_nPerpage=15&_aFilters[Generic_Category]=${id}&_nPage=${page}'
+			);
+
+			http.onData = function(data:String) {
+				Waiter.put(() -> {
+					var json:Dynamic;
+					try {
+						json = Json.parse(data);
+					}
+					catch (exc) {
+						response(null, exc);
+						return;
+					}
+					response(cast(json._aRecords), json._sErrorCode != null ? json._sErrorMessage : null);
+				});
+			}
+
+			http.onError = function(error) {
+				Waiter.put(() -> {
+					response(null, error);
+				});
+			}
+
+			http.request();
+		});
+	}
+
 	public static function listCollection(id:String, page:Int, response:(mods:Array<GBSub>, err:Dynamic) -> Void) {
 		Thread.run(() -> {
 			var http = new Http(

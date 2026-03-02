@@ -14,7 +14,7 @@ import flixel.group.FlxGroup;
 @:build(lumod.LuaScriptClass.build())
 #end
 class DownloaderState extends MusicBeatState {
-	var items:FlxTypedSpriteGroup<ModItem> = new FlxTypedSpriteGroup<ModItem>();
+	var items:FlxTypedSpriteGroup<ModItem>;
 	var itemsY:Int = FlxG.height - (3 * 190) - 50;
 	public static var curSelected:Int = 0;
 	var page:Int = 1;
@@ -71,6 +71,7 @@ class DownloaderState extends MusicBeatState {
 		lines.scrollFactor.set(0, 0);
 		add(lines);
 
+		items = new FlxTypedSpriteGroup<ModItem>();
 		add(items);
 
 		searchBg = new FlxSprite();
@@ -128,6 +129,7 @@ class DownloaderState extends MusicBeatState {
 		loadNextPage(true);
     }
 
+	var _newPage:Int = 0;
 	function loadNextPage(?value:Int = 0, ?newSearch:Bool = false) {
 		if (page + value < 1) {
 			return;
@@ -138,144 +140,53 @@ class DownloaderState extends MusicBeatState {
 		var query = "";
 		var order:String = null;
 		var collection:String = null;
+		var category:String = null;
 		for (word in searchInput.text.split(" ")) {
 			if (word.startsWith("sort:"))
 				order = word.substr("sort:".length);
 			else if (word.startsWith("collection:"))
 				collection = word.substr("collection:".length);
+			else if (word.startsWith("category:"))
+				category = word.substr("category:".length);
 			else
 				query += word + " ";
 		}
 		query = query.trim() == "" ? null : query.trim();
 		
-		var newPage = page + value;
+		_newPage = page + value;
 		if (query != null && newSearch) {
-			newPage = 1;
+			_newPage = 1;
 		}
 
 		if (collection != null) {
-			GameBanana.listCollection(collection, newPage, (mods, err) -> {
-				LoadingScreen.toggle(false);
-
-				if (destroyed)
-					return;
-
-				if (mods == null)
-					err = "Mods not found!";
-
-				if (err != null) {
-					pageInfo.text = "Error: " + err;
-					return;
-				}
-
-				page = newPage;
-				pageInfo.text = '< Page ${page} >';
-
-				loadMods(mods);
-			});
+			GameBanana.listCollection(collection, _newPage, onLoadMods);
 		}
-		// else if (collection == "verified") {
-		// 	items.clear();
-		// 	curSelected = 0;
-
-		// 	var i:Int = (newPage - 1) * 15;
-		// 	var maxI:Int = newPage * 15;
-
-		// 	function onMods(mods:Array<ModInfo>) {
-		// 		LoadingScreen.toggle(false);
-
-		// 		if (destroyed)
-		// 			return;
-
-		// 		for (i => mod in mods) {
-		// 			var item = new ModItem(mod);
-		// 			item.y = Math.floor(i / 5) * 190;
-		// 			item.x = Math.floor(i % 5) * 250;
-		// 			item.ID = i;
-		// 			items.add(item);
-		// 		}
-
-		// 		items.screenCenter(X);
-		// 		items.y = itemsY;
-
-		// 		page = newPage;
-		// 		pageInfo.text = '< Page ${page} >';
-		// 	}
-
-		// 	Thread.run(() -> {
-		// 		var mods:Array<ModInfo> = [];
-		// 		while (i <= maxI) {
-		// 			if (destroyed)
-		// 				return;
-
-		// 			if (i >= verified.length) {
-		// 				break;
-		// 			}
-
-		// 			var modID = verified[i] + "";
-
-		// 			GameBanana.getMod(modID, (mod, err) -> {
-		// 				if (err != null)
-		// 					return;
-
-		// 				var thumbnailsLength = mod.screenshots.length;
-		// 				var firstThumb = mod.screenshots.shift();
-
-		// 				var thumbnails:Array<Thumbnail> = [];
-		// 				for (image in mod.screenshots) {
-		// 					thumbnails.push({
-		// 						url: "https://images.gamebanana.com/img/ss/mods/" + image._sFile,
-		// 						width: 220,
-		// 						height: 125
-		// 					});
-		// 				}
-
-		// 				mods.push({
-		// 					url: "https://gamebanana.com/mods/" + mod._id,
-		// 					id: Std.parseFloat(mod._id),
-		// 					name: mod.name,
-		// 					likes: mod.likes,
-		// 					category: mod.rootCategory,
-		// 					categoryIconURL: null,
-		// 					thumbnail: {
-		// 						url: "https://images.gamebanana.com/img/ss/mods/" + firstThumb._sFile220,
-		// 						width: firstThumb._wFile220,
-		// 						height: firstThumb._hFile220
-		// 					},
-		// 					thumbnails: thumbnails,
-		// 					thumbnailsLength: thumbnailsLength
-		// 				});
-		// 			}, false);
-
-		// 			i++;
-		// 		}
-		// 		Waiter.put(() -> {
-		// 			onMods(mods);
-		// 		});
-		// 	});
-		// 	return;
-		// }
+		else if (category != null) {
+			GameBanana.listCategory(category, _newPage, onLoadMods);
+		}
 		else {
-			GameBanana.searchMods(query, newPage, order, (mods, err) -> {
-				LoadingScreen.toggle(false);
-
-				if (destroyed)
-					return;
-
-				if (mods == null)
-					err = "Mods not found!";
-
-				if (err != null) {
-					pageInfo.text = "Error: " + err;
-					return;
-				}
-
-				page = newPage;
-				pageInfo.text = '< Page ${page} >';
-
-				loadMods(mods);
-			});
+			GameBanana.searchMods(query, _newPage, order, onLoadMods);
 		}
+	}
+
+	function onLoadMods(mods:Array<GBSub>, err:Dynamic) {
+		LoadingScreen.toggle(false);
+
+		if (destroyed)
+			return;
+
+		if (mods == null)
+			err = "Mods not found!";
+
+		if (err != null) {
+			pageInfo.text = "Error: " + err;
+			return;
+		}
+
+		page = _newPage;
+		pageInfo.text = '< Page ${page} >';
+
+		loadMods(mods);
 	}
 
 	function changeSelection(value:Int) {

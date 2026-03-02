@@ -140,7 +140,7 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 			mapTexts.set(options[i], cast leText);
 			leText.snapToPosition();
 
-			if (iconCallback != null) {
+			if (iconCallback != null && !ClientPrefs.data.disableFreeplayIcons) {
 				var icon = iconCallback(i, cast(leText));
 				if (icon != null)
 					mapIcons.set(options[i], icon);

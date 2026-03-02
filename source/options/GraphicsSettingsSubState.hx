@@ -66,13 +66,13 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		#end
 
-		var option:Option = new Option('Disable Freeplay Icons', //Name
-			"If checked, freeplay menu song icons will not be loaded, greatly decreases loading times.", //Description
+		var option:Option = new Option('Disable Text Item Icons', //Name
+			"If checked, menu text item icons will not be loaded, greatly decreases loading times.", //Description
 			'disableFreeplayIcons',
 			'bool');
 		addOption(option);
 
-		var option:Option = new Option('Disable Freeplay Alphabet', //Name
+		var option:Option = new Option('Disable Text Item Alphabet', //Name
 			"If checked, various menu elements will be rendered using the pixel font.", //Description
 			'disableFreeplayAlphabet',
 			'bool');

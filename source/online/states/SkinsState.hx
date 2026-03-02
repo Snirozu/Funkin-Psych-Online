@@ -420,7 +420,7 @@ class SkinsState extends MusicBeatState {
 		tip1.cameras = [hud];
 		add(tip1);
 
-		var tip2 = new FlxText(-20, 0, FlxG.width, 'F1 for Help!\nF2 to Browse Verified Skins');
+		var tip2 = new FlxText(-20, 0, FlxG.width, 'F1 for Help!\nF2 to Browse Verified Skins\nF3 to Browse GB Skins Category');
 		tip2.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		tip2.y = tip1.y;
 		tip2.alpha = tip1.alpha;
@@ -604,6 +604,10 @@ class SkinsState extends MusicBeatState {
 
 		if (FlxG.keys.justPressed.F2) {
 			switchState(() -> new DownloaderState('collection:110039'));
+		}
+
+		if (FlxG.keys.justPressed.F3) {
+			switchState(() -> new DownloaderState('category:43788'));
 		}
 
 		if (controls.RESET) {

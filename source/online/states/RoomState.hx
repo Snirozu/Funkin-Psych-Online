@@ -520,6 +520,10 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 	var hasStage:Bool = false;
 	function checkStage() {
+		if (!GameClient.isConnected()) {
+			return;
+		}
+
 		if (GameClient.room.state.stageName == "") {
 			hasStage = true;
 			return;
@@ -1075,6 +1079,9 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 			return;
 		
 		var character = characters.get(sid ?? GameClient.room.sessionId);
+		if (character == null)
+			return;
+		
 		character.character.playAnim(anim, true);
 		if (anim.endsWith('miss'))
 			var sond = FlxG.sound.play(Paths.sound('missnote' + FlxG.random.int(1, 3)), 0.25);

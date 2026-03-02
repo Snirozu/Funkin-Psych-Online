@@ -2354,7 +2354,7 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
-		var str:String = ratingName;
+		var str:String = ratingName ?? '?';
 		if (totalPlayed != 0) {
 			var percent:Float = CoolUtil.floorDecimal(ratingPercent * 100, 2);
 			str += ' ($percent%) - $ratingFC';
@@ -6747,7 +6747,7 @@ class PlayState extends MusicBeatState
 			op.recalculateRating();
 		}
 
-		var str:String = op.ratingName;
+		var str:String = op.ratingName ?? '?';
 		var percent:Float = 0;
 		if (op.calcTotalPlayed() != 0) {
 			percent = CoolUtil.floorDecimal(op.ratingPercent * 100, 2);
