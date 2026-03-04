@@ -299,12 +299,11 @@ jobs:
         path: 'builds_repo'
         sparse-checkout: |
           .gitattributes
-        sparse-checkout-cone-mode: false
     
     - name: Publish windows build
       run: |
         cd builds_repo
-        rm -rf *
+        git sparse-checkout disable
         cp -rfu ../windowsBuild/* ./
         git add --all
         git commit -m "${{github.run_id}}"
@@ -322,12 +321,11 @@ jobs:
         path: 'builds_repo'
         sparse-checkout: |
           .gitattributes
-        sparse-checkout-cone-mode: false
     
     - name: Publish linux build
       run: |
         cd builds_repo
-        rm -rf *
+        git sparse-checkout disable
         cp -rfu ../linuxBuild/* ./
         git add --all
         git commit -m "${{github.run_id}}"
@@ -345,12 +343,11 @@ jobs:
         path: 'builds_repo'
         sparse-checkout: |
           .gitattributes
-        sparse-checkout-cone-mode: false
     
     - name: Publish macos build
       run: |
         cd builds_repo
-        rm -rf *
+        git sparse-checkout disable
         cp -rfu ../macBuild/* ./
         git add --all
         git commit -m "${{github.run_id}}"
