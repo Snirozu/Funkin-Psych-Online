@@ -292,7 +292,7 @@ jobs:
     - name: Checkout windows build
       uses: actions/checkout@v3
       with:
-        repository: Funkin-Psych-Online-Builds
+        repository: Snirozu/Funkin-Psych-Online-Builds
         ref: 'windows'
         token:  ${{ secrets.BUILDS_GITHUB_TOKEN }}
         lfs: true
@@ -314,7 +314,7 @@ jobs:
     - name: Checkout linux build
       uses: actions/checkout@v3
       with:
-        repository: Funkin-Psych-Online-Builds
+        repository: Snirozu/Funkin-Psych-Online-Builds
         ref: 'linux'
         token:  ${{ secrets.BUILDS_GITHUB_TOKEN }}
         lfs: true
@@ -336,7 +336,7 @@ jobs:
     - name: Checkout macos build
       uses: actions/checkout@v3
       with:
-        repository: Funkin-Psych-Online-Builds
+        repository: Snirozu/Funkin-Psych-Online-Builds
         ref: 'macos'
         token:  ${{ secrets.BUILDS_GITHUB_TOKEN }}
         lfs: true
