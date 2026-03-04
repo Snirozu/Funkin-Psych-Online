@@ -3247,21 +3247,23 @@ class PlayState extends MusicBeatState
 				camera.stopFlash();
 			if (!ClientPrefs.data.camShakes)
 				camera.stopShake();
-			if (!ClientPrefs.data.camZooms)
+			if (!ClientPrefs.data.camZooms) {
 				camera.zoom = 1.0;
+
+				if (camera == FlxG.camera)
+					FlxG.camera.zoom = defaultCamZoom;
+				if (camera == camHUD)
+					camHUD.zoom = defaultHUDCamZoom;
+			}
 			if (!ClientPrefs.data.camAngles) {
 				// flixel bug will allow 0.X angles for some reason
 				camera.angle = 0.0;
 			}
 			if (!ClientPrefs.data.camMovement) {
 				moveCamera(playsAsBF(), true);
-				FlxG.camera.snapToTarget();
+				camera.snapToTarget();
 			}
 			//FIXME some way to force update the variables???
-		}
-		if (!ClientPrefs.data.camZooms) {
-			FlxG.camera.zoom = defaultCamZoom;
-			camHUD.zoom = defaultHUDCamZoom;
 		}
 
 		super.update(elapsed);
