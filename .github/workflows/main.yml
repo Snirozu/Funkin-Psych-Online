@@ -306,6 +306,7 @@ jobs:
         cd builds_repo
         rm -rf *
         cp -rfu ../windowsBuild/* ./
+        git add --all
         git commit -m "${{github.run_id}}"
         git push origin windows --force
 
@@ -328,6 +329,7 @@ jobs:
         cd builds_repo
         rm -rf *
         cp -rfu ../linuxBuild/* ./
+        git add --all
         git commit -m "${{github.run_id}}"
         git push origin linux --force
 
@@ -350,5 +352,6 @@ jobs:
         cd builds_repo
         rm -rf *
         cp -rfu ../macBuild/* ./
+        git add --all
         git commit -m "${{github.run_id}}"
         git push origin macos --force
