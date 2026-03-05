@@ -297,6 +297,7 @@ jobs:
         token:  ${{ secrets.BUILDS_GITHUB_TOKEN }}
         lfs: true
         path: 'builds_repo'
+        sparse-checkout-cone-mode: false
         sparse-checkout: |
           .gitattributes
     
@@ -319,6 +320,7 @@ jobs:
         token:  ${{ secrets.BUILDS_GITHUB_TOKEN }}
         lfs: true
         path: 'builds_repo'
+        sparse-checkout-cone-mode: false
         sparse-checkout: |
           .gitattributes
     
@@ -341,6 +343,7 @@ jobs:
         token:  ${{ secrets.BUILDS_GITHUB_TOKEN }}
         lfs: true
         path: 'builds_repo'
+        sparse-checkout-cone-mode: false
         sparse-checkout: |
           .gitattributes
     
