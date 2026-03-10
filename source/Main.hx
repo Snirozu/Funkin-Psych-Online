@@ -390,7 +390,7 @@ class Main extends Sprite
 			daError += "\n" + cast(exc, Exception).stack.toString() + "\n";
 		alertMsg += daError;
 		alertMsg += "\n\nCommit: " + GIT_COMMIT + "\n";
-		alertMsg += "\n\nVersion: " + PSYCH_ONLINE_VERSION + (TitleState.mustUpdate ? ' (OUTDATED)' : '') + "\n";
+		alertMsg += "Version: " + PSYCH_ONLINE_VERSION + (TitleState.mustUpdate ? ' (OUTDATED)' : '') + "\n";
 
 		Sys.println(alertMsg);
 

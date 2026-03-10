@@ -97,12 +97,28 @@ class AwayStage3D extends ObjectContainer3D {
 
 	var _cameraFollow:Object3D;
 
+	var _cameraPointAlts:Map<String, Array<String>> = new Map();
+
 	public function setFollowCamera(char:String, ?object:Object3D) {
 		object ??= _cameraFollow;
 
 		var cameraPoint = cameraPoints.get(char);
 		if (cameraPoint == null)
 			return;
+
+		if (cameraPoint.alts != null) {
+			if (!_cameraPointAlts.exists(char)) {
+				_cameraPointAlts.set(char, [char].concat(cameraPoint.alts));
+			}
+
+			final altName = FlxG.random.getObject(_cameraPointAlts.get(char));
+			final newCameraPoint = cameraPoints.get(altName);
+			if (newCameraPoint != null)
+				cameraPoint = newCameraPoint;
+
+			if (ClientPrefs.isDebug())
+				trace("targeting alt point: " + altName);
+		}
 
 		setPositionFromArray(object, cameraPoint.position);
 		setRotationFromArray(object, cameraPoint.rotation);

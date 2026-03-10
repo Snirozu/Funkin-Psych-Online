@@ -29,7 +29,7 @@ class FunkinPoints {
 	public static function devFP(accuracy:Float, misses:Float, songDensity:Float, notesHit:Float, maxCombo:Float) {
 
 		// the current system works good for the most part, but there are three main issues with it
-		// - missing a note does a big damage to FP
+		// - (fixed) missing a note does a big damage to FP
 		// - bloat of FP on spammy songs leads to massive FP (1000+)
 		// - casuals aren't able to gain so much fp
 
@@ -38,13 +38,17 @@ class FunkinPoints {
 		// fp *= (Math.max(0, notesHit) - Math.pow(notesHit, 1.05)) / 1000;
 		// return fp;
 
-		// todo: maybe make notesHit be divided by a value based on songDensity?
-		var fp:Float = (1 + Math.pow(songDensity, 2)) * (notesHit / 200);
-		// depends on player's note streak (x2fp per 4000 combo)
+		// DP added to FP per 100 notes
+		var fp:Float = densityPower(songDensity) * (notesHit / 100);
+		// depends on player's note streak (x2fp per 3000 combo)
 		fp *= 1 + maxCombo / 4000;
 		// depends on player's note accuracy (weighted by power of 3; 95% = x0.85, 90% = x0.72, 80% = x0.512)
 		fp *= Math.pow(accuracy, 2) / (1 + misses * 0.1);
 		return fp;
+	}
+
+	public static function densityPower(density:Float) {
+		return (Math.pow(1 + density, 1.1)) / 2;
 	}
 
 	public static function save(accuracy:Float, misses:Float, songDensity:Float, notesHit:Float, maxCombo:Float) {

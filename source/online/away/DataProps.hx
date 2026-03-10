@@ -15,6 +15,8 @@ typedef StageObject3D = { >SpriteProps, >Object3DPose,
 typedef Object3DPose = {
 	var position:Array<Float>;
 	var rotation:Array<Float>;
+	//for camera alts
+	var ?alts:Array<String>;
 }
 
 typedef SpriteProps = {

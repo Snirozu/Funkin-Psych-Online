@@ -2789,7 +2789,8 @@ class PlayState extends MusicBeatState
 		// trace("note density score: " + songDensity + ' for total of ${playingNoteCount} notes');
 
 		songDensity = playingNoteCount == 0 ? 0 : playingNoteCount / (inst.length / playbackRate / 1000) / 2;
-		trace("note density score (w/ fp): " + (1 + songDensity) + ' for total of ${playingNoteCount} notes');
+		trace("note density score: " + songDensity + ' for total of ${playingNoteCount} notes');
+		trace("note density power: " + online.FunkinPoints.densityPower(songDensity) + 'DP');
 
 		var maxFP = online.FunkinPoints.calcFP(1, 0, songDensity, playingNoteCount, playingNoteCount);
 		trace("max points: ~" + maxFP + 'FP');

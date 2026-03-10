@@ -178,7 +178,8 @@ class OnlineOptionsState extends MusicBeatState {
 
 			var registerOption:InputOption;
 			items.add(registerOption = new InputOption("Register to the Network",
-					"Join the Psych Online Network and submit your song replays\nto the leaderboards!" + (Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a NOT OFFICIAL build)' : ''), ["Username", "Email"], (text, input) -> {
+			"Join the Psych Online Network and submit your song replays\nto the leaderboards!" + (Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a NOT OFFICIAL build)' : ''), ["Username", "Email"], (text, input) -> {
+				try {
 					if (input == 0) {
 						registerOption.inputs[0].hasFocus = false;
 						registerOption.inputs[1].hasFocus = true;
@@ -209,7 +210,11 @@ class OnlineOptionsState extends MusicBeatState {
 							}
 						}));
 					}
-				}));
+				}
+				catch (exc) {
+					Alert.alert("Couldn't register!", ShitUtil.prettyError(exc));
+				}
+			}));
 			registerOption.y = section.y + 70;
 			registerOption.screenCenter(X);
 			registerOption.ID = i++;
@@ -219,7 +224,8 @@ class OnlineOptionsState extends MusicBeatState {
 
 			var loginOption:InputOption;
 			items.add(loginOption = new InputOption("Login to the Network",
-				"Input your email address here and wait for your One-Time Login Code!" + (Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a NOT OFFICIAL build)' : ''), ["me@example.org"], (mail, _) -> {
+			"Input your email address here and wait for your One-Time Login Code!" + (Main.UNOFFICIAL_BUILD ? '\n(WARNING: You\'re running on a NOT OFFICIAL build)' : ''), ["me@example.org"], (mail, _) -> {
+				try {
 					if (FunkinNetwork.requestLogin(mail)) {
 						openSubState(new VerifyCodeSubstate(code -> {
 							if (FunkinNetwork.requestLogin(mail, code)) {
@@ -228,7 +234,11 @@ class OnlineOptionsState extends MusicBeatState {
 							}
 						}));
 					}
-				}));
+				}
+				catch (exc) {
+					Alert.alert("Couldn't login!", ShitUtil.prettyError(exc));
+				}
+			}));
 			loginOption.y = registerOption.y + registerOption.height + 50;
 			loginOption.screenCenter(X);
 			loginOption.ID = i++;
