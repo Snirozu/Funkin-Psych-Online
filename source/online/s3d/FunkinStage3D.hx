@@ -1,52 +1,58 @@
-package online.away;
+package online.s3d;
 
+import online.s3d.objects.PersonCameraController;
 import openfl.display.BitmapData;
 import backend.StageData;
 import away3d.cameras.lenses.PerspectiveLens;
-import online.away.StaticSprite3D;
+import online.s3d.objects.StaticSprite3D;
 import away3d.core.base.Object3D;
-import online.away.AnimatedSprite3D;
+import online.s3d.objects.AnimatedSprite3D;
 import openfl.Assets;
 import away3d.containers.*;
 import openfl.geom.Vector3D;
 import away3d.cameras.Camera3D;
+import flx3d.FlxGroup3D;
 
-class AwayStage3D extends ObjectContainer3D {
+class FunkinStage3D extends FlxGroup3D {
 	var stageData:StageFile;
 	
 	var cameraPoints:Map<String, Object3DPose> = new Map();
-
-	var camera(get, set):Camera3D;
-	function get_camera() return Main.view3D.camera;
-	function set_camera(v) return Main.view3D.camera = v;
-
 	var cameraLens:PerspectiveLens;
+
+	var debugMode:Bool = false;
+
+	var view2:View3DHandler;
 
 	// stage data @:optional var objects:Array<Dynamic>;
 	// but @:optional var objects3D:Array<Dynamic>;
 
-	public function new() {
+	public function new(?stageData:StageFile) {
+		//override existing view3d
+		view = view2 = new View3DHandler();
+
 		super();
-	}
 
-	public function setup(stageData:StageFile) {
 		this.stageData = stageData;
-		stageData.stage3D.objects = cast ShitUtil.objToMap(stageData.stage3D.objects);
-		stageData.stage3D.cameraPoints = cast ShitUtil.objToMap(stageData.stage3D.cameraPoints);
 
-		camera.x = 52;
-		camera.y = 109;
-		camera.z = -675;
+		view.camera.x = 52;
+		view.camera.y = 109;
+		view.camera.z = -675;
 
-		camera.lens = cameraLens = new PerspectiveLens(60);
+		view.camera.lens = cameraLens = new PerspectiveLens(60);
 		cameraLens.far = 100000; // why would you care about render distance on sprites with like 2 triangles
 
-		camera.lookAt(new Vector3D());
-		camera.rotationX = 1;
-		camera.rotationY = 0;
+		view.camera.lookAt(new Vector3D());
+		view.camera.rotationX = 1;
+		view.camera.rotationY = 0;
 
 		_cameraFollow = new Object3D();
 
+		if (stageData == null)
+			return;
+
+		stageData.stage3D.objects = cast ShitUtil.objToMap(stageData.stage3D.objects);
+		stageData.stage3D.cameraPoints = cast ShitUtil.objToMap(stageData.stage3D.cameraPoints);
+		
 		for (objectName => object in stageData.stage3D.objects) {
 			if (objectName == 'bf' || objectName == 'dad' || objectName == 'gf') {
 				continue;
@@ -68,8 +74,15 @@ class AwayStage3D extends ObjectContainer3D {
 			cameraPoints.set(name, cameraPoint);
 		}
 
-		setFollowCamera('gf', camera);
+		setFollowCamera('gf', view.camera);
 		setFollowCamera('gf');
+	}
+
+	public static function load(stageData:StageFile):FunkinStage3D {
+		if (stageData?.stage3D == null) {
+			return null;
+		}
+		return new FunkinStage3D(stageData);
 	}
 
 	public function createSprite(objectName:String, ?animated:Bool = false, ?bitmap:BitmapData):Any {
@@ -90,7 +103,7 @@ class AwayStage3D extends ObjectContainer3D {
 		}
 		setPositionFromArray(sprite, object.position);
 		setRotationFromArray(sprite, object.rotation);
-		addChild(sprite);
+		view.scene.addChild(sprite);
 
 		return sprite;
 	}
@@ -124,7 +137,7 @@ class AwayStage3D extends ObjectContainer3D {
 		setRotationFromArray(object, cameraPoint.rotation);
 	}
 
-	function setPositionFromArray(object:Object3D, pos:Array<Float>) {
+	public function setPositionFromArray(object:Object3D, pos:Array<Float>) {
 		if (pos == null)
 			return;
 
@@ -133,7 +146,7 @@ class AwayStage3D extends ObjectContainer3D {
 		object.z = pos[2];
 	}
 
-	function setRotationFromArray(object:Object3D, rot:Array<Float>) {
+	public function setRotationFromArray(object:Object3D, rot:Array<Float>) {
 		if (rot == null)
 			return;
 
@@ -148,21 +161,22 @@ class AwayStage3D extends ObjectContainer3D {
 	}
 
 	var elapsed:Float = 0;
-	public function update(elapsed:Float) {
+	override function update(elapsed:Float) {
+		super.update(elapsed);
 		this.elapsed = elapsed;
 
-		camera.x = lerpCameraVar(camera.x, _cameraFollow.x);
-		camera.y = lerpCameraVar(camera.y, _cameraFollow.y);
-		camera.z = lerpCameraVar(camera.z, _cameraFollow.z);
-		camera.rotationX = lerpCameraVar(camera.rotationX, _cameraFollow.rotationX);
-		camera.rotationY = lerpCameraVar(camera.rotationY, _cameraFollow.rotationY);
+		view.camera.x = lerpCameraVar(view.camera.x, _cameraFollow.x);
+		view.camera.y = lerpCameraVar(view.camera.y, _cameraFollow.y);
+		view.camera.z = lerpCameraVar(view.camera.z, _cameraFollow.z);
+		view.camera.rotationX = lerpCameraVar(view.camera.rotationX, _cameraFollow.rotationX);
+		view.camera.rotationY = lerpCameraVar(view.camera.rotationY, _cameraFollow.rotationY);
 
 		cameraLens.fieldOfView = 60 * FlxG.camera.zoom;
 	}
 
 	public function onDeath() {
-		for (_ in 0...numChildren) {
-			removeChildAt(0);
+		for (_ in 0...view.scene.numChildren) {
+			view.scene.removeChildAt(0);
 		}
 	}
 }

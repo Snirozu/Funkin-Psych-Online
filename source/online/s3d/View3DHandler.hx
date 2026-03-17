@@ -1,5 +1,6 @@
-package online.away;
+package online.s3d;
 
+import online.s3d.objects.PersonCameraController;
 import backend.StageData;
 import away3d.textures.BitmapCubeTexture;
 import openfl.Lib;
@@ -18,7 +19,6 @@ class View3DHandler extends View3D {
 	var skyboxTexture:BitmapCubeTexture;
 	var _skyBox:SkyBox;
 	static var debugText:TextField;
-	public static var stageScene:AwayStage3D;
 
 	public var onDebug:Bool->Void = null;
 
@@ -30,16 +30,13 @@ class View3DHandler extends View3D {
 			onDebug(debugMode);
 		return debugMode;
 	}
-	var freeCam:Bool = false; 
 	var debugSprite:Int = 0;
 	var _keysJustPressed:Array<Int> = [];
 
+	var personCam:PersonCameraController;
+
 	public function new() {
 		super();
-
-		width = FlxG.width;
-		height = FlxG.height;
-		backgroundAlpha = 0;
 
 		if (stage != null)
 			init();
@@ -48,9 +45,6 @@ class View3DHandler extends View3D {
 	}
 
 	private function init(?_:Event):Void {
-		stage.scaleMode = StageScaleMode.NO_SCALE;
-		stage.align = StageAlign.TOP;
-
 		debugText = new TextField();
 		debugText.selectable = false;
 		debugText.defaultTextFormat = new TextFormat(Assets.getFont('assets/fonts/vcr.ttf').fontName, 16, 0xFFFFFFFF);
@@ -85,41 +79,25 @@ class View3DHandler extends View3D {
 		_skyBox.id = 'skybox';
 		scene.addChild(_skyBox);
 
-		stage.addEventListener(Event.RESIZE, onResize);
-		stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-		stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-		// addEventListener(Event.REMOVED, (e) -> {
-		// 	stage.removeEventListener(Event.RESIZE, onResize);
-		// 	stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-		// 	stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-		// });
+		personCam = new PersonCameraController(camera);
+		addChild(personCam);
 
-		FlxG.signals.preStateSwitch.add(() -> {
-			removeScene();
+		// stage.addEventListener(Event.RESIZE, onResize); 
+		stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+		addEventListener(Event.REMOVED, (e) -> {
+			stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		});
 
-		onResize();
+		updateDebugMode();
+
+		// onResize();
 	}
 
 	function onKeyDown(e:KeyboardEvent) {
-		if (stageScene == null) {
-			return;
-		}
-
 		if (!_keysJustPressed.contains(e.keyCode))
 			_keysJustPressed.push(e.keyCode);
 	}
 
-	function onMouseMove(e:MouseEvent) {
-		if (!freeCam)
-			return;
-
-		camera.rotationY += (Lib.current.mouseX - Lib.application.window.width / 2) / 10;
-		camera.rotationX += (Lib.current.mouseY - Lib.application.window.height / 2) / 10;
-		//Lib.application.window.mouseLock = true;
-
-		Lib.application.window.warpMouse(Std.int(Lib.application.window.width / 2), Std.int(Lib.application.window.height / 2));
-	}
 
 	function updateDebugMode() {
 		debugText.visible = debugMode;
@@ -128,49 +106,24 @@ class View3DHandler extends View3D {
 		// }
 
 		if (!debugMode) {
-			freeCam = false;
+			personCam.enabled = false;
 		}
-	}
-
-	public function setupScene(stageData:StageFile) {
-		removeScene();
-		camera = new Camera3D();
-		scene.addChild(stageScene = new AwayStage3D());
-		stageScene.setup(stageData);
-		render();
-		return stageScene;
-	}
-
-	public function removeScene() {
-		if (stageScene == null)
-			return;
-		
-		scene.removeChild(stageScene);
-		stageScene.dispose();
-		stageScene = null;
-		onDebug = null;
-		debugSprite = 0;
-		render();
 	}
 
 	override function __enterFrame(_delta:Int) {
 		super.__enterFrame(_delta);
 
-		if (stageScene == null) {
-			return;
-		}
+		// if (!debugMode && !PlayState.instance?.paused) {
+		// 	stageScene.update(_delta / 1000);
+		// }
 
-		if (!debugMode && !PlayState.instance?.paused) {
-			stageScene.update(_delta / 1000);
-		}
-
-		camera.rotationX = FlxMath.bound(camera.rotationX, -90, 90);
-		camera.rotationY = wrapDegreesCloserToZero(camera.rotationY);
+		// camera.rotationX = FlxMath.bound(camera.rotationX, -90, 90);
+		// camera.rotationY = wrapDegreesCloserToZero(camera.rotationY);
 
 		if (debugMode) {
 			var moveSpeed = 0.02 * (FlxG.keys.pressed.CONTROL ? 10 : 1) * (FlxG.keys.pressed.ALT ? 100 : 1);
 
-			var targetObject = stageScene.getChildAt(debugSprite);
+			var targetObject = scene.getChildAt(debugSprite);
 			if (targetObject is Object3D && targetObject != null) {
 				debugText.text = 'SPRITE: ${targetObject.id}\nX: ${targetObject.x}\nY: ${targetObject.y}\nZ: ${targetObject.z}\nSX: ${targetObject.scaleX}\n\n';
 				debugText.width = debugText.textWidth;
@@ -205,29 +158,6 @@ class View3DHandler extends View3D {
 				if (FlxG.keys.pressed.P) {
 					targetObject.y += moveSpeed;
 				}
-
-				if (freeCam) {
-					if (FlxG.keys.pressed.SPACE) {
-						camera.y += 3;
-					}
-					if (FlxG.keys.pressed.SHIFT) {
-						camera.y -= 3;
-					}
-
-					if (FlxG.keys.pressed.W) {
-						move(camera.rotationY, false);
-					}
-					if (FlxG.keys.pressed.S) {
-						move(camera.rotationY, true);
-					}
-
-					if (FlxG.keys.pressed.D) {
-						move(camera.rotationY + 90, false);
-					}
-					if (FlxG.keys.pressed.A) {
-						move(camera.rotationY + 90, true);
-					}
-				}
 			}
 		}
 
@@ -238,10 +168,10 @@ class View3DHandler extends View3D {
 
 				case Keyboard.F4:
 					if (debugMode)
-						freeCam = !freeCam;
+						personCam.enabled = !personCam.enabled;
 
 				case Keyboard.F5:
-					var targetObject = stageScene.getChildAt(debugSprite);
+					var targetObject = scene.getChildAt(debugSprite);
 					if (targetObject is Object3D && targetObject != null) {
 						trace('SPRITE: \nX: ${targetObject.x}\nY: ${targetObject.y}\nZ: ${targetObject.z}\nSX: ${targetObject.scaleX}\n');
 					}
@@ -255,9 +185,9 @@ class View3DHandler extends View3D {
 						else
 							debugSprite++;
 						
-						if (debugSprite != 0 && debugSprite >= stageScene.numChildren)
+						if (debugSprite != 0 && debugSprite >= scene.numChildren)
 							debugSprite = 0;
-						var targetObject = stageScene.getChildAt(debugSprite);
+						var targetObject = scene.getChildAt(debugSprite);
 						if (targetObject is Object3D && targetObject != null) {
 							// calc the average vector between 3 different points
 
@@ -287,11 +217,6 @@ class View3DHandler extends View3D {
 		render();
 	}
 
-	public function move(angleDeg:Float, isNegative:Bool) {
-		camera.x += Math.sin(radians(angleDeg)) * (isNegative ? -3.0 : 3.0);
-		camera.z += Math.cos(radians(angleDeg)) * (isNegative ? -3.0 : 3.0);
-	}
-
 	public static function radians(value:Float) {
 		return value * Math.PI / 180;
 	}
@@ -304,13 +229,5 @@ class View3DHandler extends View3D {
 		if (v1 > 180)
 			return v1 - 360;
 		return v1;
-	}
-
-	/**
-	 * stage listener for resize events
-	 */
-	private function onResize(event:Event = null):Void {
-		width = stage.stageWidth;
-		height = stage.stageHeight;
 	}
 }

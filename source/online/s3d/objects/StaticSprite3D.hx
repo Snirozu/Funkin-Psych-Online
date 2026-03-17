@@ -1,4 +1,4 @@
-package online.away;
+package online.s3d.objects;
 
 import away3d.textfield.RectangleBitmapTexture;
 import away3d.textures.Anisotropy;

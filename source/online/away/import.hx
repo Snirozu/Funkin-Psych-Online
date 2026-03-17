@@ -1,2 +1,0 @@
-
-import online.away.DataProps;

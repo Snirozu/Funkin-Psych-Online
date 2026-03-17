@@ -129,6 +129,11 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 			var url = OnlineMods.getModURL(mod);
 			if (url == null || !(url.startsWith('https://') || url.startsWith('http://')))
 				invalidCount++;
+
+			if (StringTools.startsWith(url, "https://drive.google.com/drive/folders/")) {
+				addMessage("Mod Issue for: " + mod + ": Can't download GDrive folders!");
+				return;
+			}
 		}
 
 		if (invalidCount > 0) {

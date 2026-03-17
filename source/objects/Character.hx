@@ -1,9 +1,9 @@
 package objects;
 
+import flx3d.FlxSprite3D;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxTileFrames;
 import flixel.math.FlxRect;
-import online.away.AnimatedSprite3D;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.util.FlxSort;
 import flixel.util.FlxDestroyUtil;
@@ -50,8 +50,6 @@ typedef AnimArray = {
 }
 
 class Character extends FlxSprite {
-	public var sprite3D:AnimatedSprite3D;
-
 	public var animOffsets:Map<String, Array<Dynamic>>;
 	public var debugMode:Bool = false;
 
@@ -188,8 +186,12 @@ class Character extends FlxSprite {
 		return speaker;
 	}
 
+	var charType:String = null;
+
 	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false, ?isSkin:Bool = false, ?charType:String) {
 		super(x, y);
+
+		this.charType = charType;
 
 		modDir = Mods.currentModDirectory;
 
@@ -249,10 +251,6 @@ class Character extends FlxSprite {
 				#end
 
 				if (!isAnimateAtlas && frames != null) {
-					if (!loadFailed && graphic.bitmap != null && FlxG.state is PlayState && PlayState.instance.stage3D != null) {
-						sprite3D = PlayState.instance.stage3D.createSprite(charType, true, graphic.bitmap);
-					}
-
 					for (_imgFile in split) {
 						final imgFile = _imgFile.trim(); 
 						if (!imageFile.contains(imgFile))
@@ -341,8 +339,6 @@ class Character extends FlxSprite {
 					quickAnimAdd('idle', 'BF idle dance');
 				}
 
-				setup3D();
-
 				#if flxanimate
 				if(isAnimateAtlas) copyAtlasValues();
 				#end
@@ -384,27 +380,46 @@ class Character extends FlxSprite {
 		}
 	}
 
-	public function setup3D() {
-		if (sprite3D != null) {
-			sprite3D.addAnimationsFromFlxSprite(this);
-			for (name => offset in animOffsets) {
-				sprite3D.animations.get(name).setOffset(offset[0], offset[1]);
-			}
-			sprite3D.scaleX = jsonScale;
-			sprite3D.scaleY = jsonScale;
-			sprite3D.antialiasing = !noAntialiasing;
-			visible = false;
+	public var sprite3D:FlxSprite3D;
+
+	function init3D() {
+		if (loadFailed || !(FlxG.state is PlayState) || PlayState.instance.stage3D == null)
+			return;
+
+		final stageObjects = PlayState.instance?.stageData?.stage3D?.objects;
+		if (stageObjects == null || stageObjects.get(charType)?.position == null)
+			return;
+
+		visible = false;
+		sprite3D = PlayState.instance.stage3D.add(this);
+		sprite3D.followVisibility = false;
+		final originGroup = switch (charType) {
+			case 'gf': PlayState.instance.gfGroup;
+			case 'dad': PlayState.instance.dadGroup;
+			case 'bf': PlayState.instance.boyfriendGroup;
+			default: null;
 		}
+		if (originGroup != null)
+			sprite3D.z -= originGroup.members.indexOf(this) * 0.0001;
+		PlayState.instance.stage3D.setPositionFromArray(sprite3D, stageObjects.get(charType).position);
 	}
 
 	public var noAnimationBullshit:Bool = false;
 	public var noHoldBullshit:Bool = false;
 
+	public var isFirstUpdate:Bool = true;
+
 	override function update(elapsed:Float) {
-		if(isAnimateAtlas) atlas.update(elapsed);
-		if (sprite3D != null) {
-			sprite3D.play(animation.name, animation.curAnim.curFrame, true);
+		if (isFirstUpdate) {
+			isFirstUpdate =  false;
+
+			init3D();
 		}
+
+		if(isAnimateAtlas) atlas.update(elapsed);
+		// if (sprite3D != null) {
+		// 	sprite3D.play(animation.name, animation.curAnim.curFrame, true);
+		// }
 
 		if (noAnimationBullshit) {
 			super.update(elapsed);
@@ -801,6 +816,12 @@ class Character extends FlxSprite {
 		#if flxanimate
 		destroyAtlas();
 		#end
+
+		if (PlayState.instance?.stage3D != null && sprite3D != null) {
+			PlayState.instance.stage3D.remove(sprite3D);
+			sprite3D.dispose();
+			sprite3D = null;
+		}
 	}
 
 	public function onCombo(from:Int, to:Int) {}

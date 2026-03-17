@@ -452,22 +452,18 @@ class OnlineMods {
 				catch (exc) {}
 			});
 
-			FileUtils.readAndSave(Paths.mods(modName + "/weeks/auto_gen_week_" + modName + ".json"), text -> {
-				var data:WeekFile = WeekData.createWeekFile();
-				data.hideStoryMode = true;
-				data.difficulties = diffsToAdd.join(", ");
-				data.songs = [];
-
-				for (song in songsToAdd) {
-					data.songs.push([
-						song,
-						'bf',
-						[146, 113, 253]
-					]);
-				}
-
-				return Json.stringify(data);
-			});
+			var data:WeekFile = WeekData.createWeekFile();
+			data.hideStoryMode = true;
+			data.difficulties = diffsToAdd.join(", ");
+			data.songs = [];
+			for (song in songsToAdd) {
+				data.songs.push([
+					song,
+					'bf',
+					[146, 113, 253]
+				]);
+			}
+			File.saveContent(Paths.mods(modName + "/weeks/auto_gen_week_" + modName + ".json"), Json.stringify(data));
 		}
 
 		if (!FileSystem.exists(Paths.mods(modName + '/pack.json')))

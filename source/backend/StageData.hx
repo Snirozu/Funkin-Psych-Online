@@ -28,7 +28,7 @@ typedef StageFile = {
 	var camera_speed:Null<Float>;
 
 	@:optional var characterFeetPos:Bool; // vslice character positioning
-	@:optional var stage3D:online.away.DataProps.StageData3D;
+	@:optional var stage3D:online.s3d.util.DataProps.StageData3D;
 
 	// 1.0 stuffs
 	@:optional var preload:Dynamic;

@@ -814,7 +814,7 @@ class CharacterEditorState extends MusicBeatState {
 			
 			char.animationsArray.push(newAnim);
 
-			char.playAnim(newAnim.anim);
+			char.playAnim(newAnim.anim, true);
 
 			/*if (lastAnim == animationInputText.text) {
 				var leAnim:FlxAnimation = char.animation.getByName(lastAnim);
@@ -853,8 +853,11 @@ class CharacterEditorState extends MusicBeatState {
 						char.animationsArray.remove(anim);
 					}
 
-					if (resetAnim && char.animationsArray.length > 0) {
+					if (char.animationsArray.length > 0) {
 						char.playAnim(char.animationsArray[0].anim, true);
+					}
+					else {
+						char.active = false;
 					}
 					reloadAnimationDropDown();
 					genBoyOffsets();

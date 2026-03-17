@@ -1,15 +1,19 @@
-package online.away;
+package flx3d.util;
 
 import away3d.cameras.Camera3D;
+import flixel.FlxG;
+import flixel.math.FlxMath;
 import openfl.Lib;
-import openfl.events.MouseEvent;
-import openfl.events.KeyboardEvent;
-import openfl.events.Event;
 import openfl.display.Sprite;
+import openfl.events.Event;
+import openfl.events.KeyboardEvent;
+import openfl.events.MouseEvent;
 
 class PersonCameraController extends Sprite {
-    public var enabled(get, default):Bool = true;
+    @:isVar public var focused(get, set):Bool;
+    @:isVar public var enabled(default, set):Bool = true;
     public var camera:Camera3D;
+	var _lastCursorVisible:Bool = false;
 
 	public function new(camera:Camera3D) {
 		super();
@@ -24,22 +28,30 @@ class PersonCameraController extends Sprite {
 
 	private function init(?_:Event):Void {
 		stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+		stage.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 
 		addEventListener(Event.REMOVED_FROM_STAGE, _ -> {
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+			stage.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 		});
     }
 
+	function onMouseOut(e:MouseEvent) {
+		focused = false;
+	}
+
 	function onMouseMove(e:MouseEvent) {
-		if (!enabled)
+		if (!focused)
 			return;
 
 		camera.rotationY += (Lib.current.mouseX - Lib.application.window.width / 2) / 10;
 		camera.rotationX += (Lib.current.mouseY - Lib.application.window.height / 2) / 10;
-		// Lib.application.window.mouseLock = true;
 
 		wrapCameraRotation();
+		centerMouse();
+	}
 
+	function centerMouse() {
 		Lib.application.window.warpMouse(Std.int(Lib.application.window.width / 2), Std.int(Lib.application.window.height / 2));
 	}
 
@@ -48,7 +60,14 @@ class PersonCameraController extends Sprite {
 
 		wrapCameraRotation();
 
-		if (!enabled)
+		if (focused && FlxG.keys.pressed.ESCAPE) {
+			focused = false;
+		}
+		if (!focused && FlxG.mouse.justPressed) {
+			focused = true;
+		}
+
+		if (!focused)
 			return;
 
 		if (FlxG.keys.pressed.SPACE) {
@@ -97,9 +116,27 @@ class PersonCameraController extends Sprite {
 		camera.rotationY = wrapDegreesCloserToZero(camera.rotationY);
 	}
 
-	function get_enabled() {
-		if (online.gui.sidebar.SideUI.instance?.active || Lib.current.stage.focus != null)
+	function set_enabled(v) {
+		if (!v)
+			focused = false;
+		return enabled = v;
+	}
+
+	function get_focused() {
+		if (Lib.current.stage.focus != null)
 			return false;
-		return enabled;
+		return focused && enabled;
+	}
+
+	function set_focused(v) {
+		if (!enabled)
+			return focused = false;
+
+		if (v)
+			centerMouse();
+		_lastCursorVisible = FlxG.mouse.visible;
+		FlxG.mouse.visible = !_lastCursorVisible ? false : !v;
+		// Lib.application.window.mouseLock = v;
+		return focused = v;
 	}
 }

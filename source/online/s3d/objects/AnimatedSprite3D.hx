@@ -1,7 +1,7 @@
-package online.away;
+package online.s3d.objects;
 
 import flixel.graphics.frames.FlxFrame;
-import online.away.AnimationDataParser;
+import online.s3d.util.AnimationDataParser;
 import openfl.display.BitmapData;
 import away3d.animators.nodes.AnimationClipNodeBase;
 import openfl.Lib;

@@ -1,8 +1,13 @@
-package online.flx3d;
+package flx3d;
 
 import away3d.containers.View3D;
+import flixel.FlxG;
+import flixel.FlxSprite;
 import flixel.FlxState;
 
+/**
+	to be removed
+**/
 class FlxState3D extends FlxState {
 	var view3D:View3D;
 	var members3D:Array<FlxSprite3D> = [];
@@ -10,13 +15,16 @@ class FlxState3D extends FlxState {
     override function create() {
         super.create();
 
-		view3D = new View3D();
+		if (view3D == null)
+			view3D = new View3D();
 		view3D.width = FlxG.width;
 		view3D.height = FlxG.height;
+		view3D.backgroundAlpha = 0;
+		view3D.layeredView = true;
 		FlxG.stage.addChildAt(view3D, 0);
     }
 
-	public function addTo3D(sprite:FlxSprite, ?keep2D:Bool = false):FlxSprite3D {
+	public function add3D(sprite:FlxSprite, ?keep2D:Bool = false):FlxSprite3D {
 		if (keep2D) {
 			add(sprite);
 			//prevent updating two times
@@ -29,8 +37,6 @@ class FlxState3D extends FlxState {
 	}
 
 	@:noCompletion override function draw() {
-		super.draw();
-
         // game filters (shaders) are removed only for the 3d render because view3D does funky bugs when they are on
         var gameFilters = FlxG.game.filters;
         FlxG.game.filters = null;
@@ -38,6 +44,8 @@ class FlxState3D extends FlxState {
 		view3D.render();
 
 		FlxG.game.filters = gameFilters;
+
+		super.draw();
     }
 
 	override function update(elapsed:Float) {

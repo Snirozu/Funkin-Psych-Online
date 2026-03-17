@@ -651,7 +651,7 @@ class OnlineState extends MusicBeatState {
 						return;
 					}
 					else if (daCoomCode.toLowerCase() == "3d") {
-						FlxG.switchState(() -> new online.flx3d.FlxScriptedState3D());
+						FlxG.switchState(() -> new online.s3d.ScriptedState3D());
 						return;
 					}
 					GameClient.joinRoom(daCoomCode, onRoomJoin);

@@ -1053,21 +1053,26 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 	static function playMusic(value:Bool) {
 		FreeplayState.destroyFreeplayVocals();
 		if (value) {
-			Mods.currentModDirectory = GameClient.room.state.modDir;
-			Difficulty.list = CoolUtil.asta(GameClient.room.state.diffList);
-			PlayState.loadSong(GameClient.room.state.song, GameClient.room.state.folder);
+			try {
+				Mods.currentModDirectory = GameClient.room.state.modDir;
+				Difficulty.list = CoolUtil.asta(GameClient.room.state.diffList);
+				PlayState.loadSong(GameClient.room.state.song, GameClient.room.state.folder);
 
-			var diff = Difficulty.getString(GameClient.room.state.diff);
-			var trackSuffix = diff == "Erect" || diff == "Nightmare" ? "-erect" : "";
+				var diff = Difficulty.getString(GameClient.room.state.diff);
+				var trackSuffix = diff == "Erect" || diff == "Nightmare" ? "-erect" : "";
 
-			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song, trackSuffix), 0.5);
-			Conductor.mapBPMChanges(PlayState.SONG);
-			Conductor.bpm = PlayState.SONG.bpm;
+				FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song, trackSuffix), 0.5);
+				Conductor.mapBPMChanges(PlayState.SONG);
+				Conductor.bpm = PlayState.SONG.bpm;
+				return;
+			}
+			catch (exc) {
+				trace(exc);
+			}
 		}
-		else {
-			states.TitleState.playFreakyMusic(0.5);
-			Conductor.bpm = 102;
-		}
+		
+		states.TitleState.playFreakyMusic(0.5);
+		Conductor.bpm = 102;
 	}
 
 	public function getCharacterSelf() {

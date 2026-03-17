@@ -431,7 +431,7 @@ class PauseSubState extends MusicBeatSubstate
 					close();
 				case 'Stage 3D Debug': 
 					close();
-					Main.view3D.debugMode = !Main.view3D.debugMode;
+					// Main.view3D.debugMode = !Main.view3D.debugMode;
 				case 'Position Debug': 
 					PlayState.instance.debugPoser.editMode = !PlayState.instance.debugPoser.editMode;
 					close();

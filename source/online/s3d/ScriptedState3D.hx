@@ -1,11 +1,11 @@
-package online.flx3d;
+package online.s3d;
 
 import away3d.containers.View3D;
 import openfl.events.Event;
 import openfl.display.StageAlign;
 import openfl.display.StageScaleMode;
 import openfl.events.Event;
-import online.away.PersonCameraController;
+import online.s3d.objects.PersonCameraController;
 import openfl.Lib;
 import away3d.containers.ObjectContainer3D;
 import flixel.input.keyboard.FlxKey;
@@ -14,10 +14,11 @@ import tea.SScript;
 import sys.io.File;
 import sys.FileSystem;
 import away3d.cameras.lenses.PerspectiveLens;
+import flx3d.FlxState3D;
 
 // state for testing
 
-class FlxScriptedState3D extends FlxState3D {
+class ScriptedState3D extends FlxState3D {
 	public var camera3DController:PersonCameraController;
 	public var camera3DLens:PerspectiveLens;
 
@@ -45,7 +46,7 @@ class FlxScriptedState3D extends FlxState3D {
 			FlxG.switchState(() -> new states.MainMenuState());
 		}
 		if (FlxG.keys.justPressed.DELETE) {
-			FlxG.switchState(() -> new FlxScriptedState3D());
+			FlxG.switchState(() -> new ScriptedState3D());
 		}
 	}
 

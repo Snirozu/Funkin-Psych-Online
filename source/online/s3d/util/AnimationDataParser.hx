@@ -1,4 +1,4 @@
-package online.away;
+package online.s3d.util;
 
 using StringTools;
 

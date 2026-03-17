@@ -96,9 +96,9 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		Conductor.songPosition = 0;
 
-		Main.view3D.onDebug = (v) -> {
-			this.active = !v;
-		};
+		// Main.view3D.onDebug = (v) -> {
+		// 	this.active = !v;
+		// };
 
 		var retryChar:String = null;
 		if (boyfriend.curCharacter.startsWith('pico') && boyfriend.curCharacter != 'pico-explosion-dead' && boyfriend.curCharacter != 'pico-blazin') {

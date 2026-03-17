@@ -1,147 +1,18 @@
-package online.flx3d;
+package flx3d.animators;
 
-import openfl.geom.Vector3D;
-import openfl.geom.Matrix3D;
-import openfl.geom.Matrix;
-import flixel.math.FlxAngle;
-import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
-import flixel.graphics.frames.FlxFrame.FlxFrameType;
-import flixel.graphics.FlxGraphic;
-import flixel.graphics.frames.FlxAtlasFrames;
-import sys.FileSystem;
-import openfl.Assets;
-import away3d.containers.ObjectContainer3D;
-import openfl.Vector;
-import away3d.materials.passes.MaterialPassBase;
-import openfl.display3D.Context3DProgramType;
-import away3d.core.base.SubMesh;
-import away3d.materials.MaterialBase;
+import away3d.animators.*;
 import away3d.cameras.Camera3D;
 import away3d.core.base.IRenderable;
+import away3d.core.base.SubMesh;
 import away3d.core.managers.Stage3DProxy;
-import away3d.textfield.RectangleBitmapTexture;
-import away3d.primitives.PlaneGeometry;
-import away3d.entities.Mesh;
+import away3d.materials.MaterialBase;
 import away3d.materials.TextureMaterial;
-import openfl.display.BitmapData;
-import away3d.animators.*;
+import away3d.materials.passes.MaterialPassBase;
+import flixel.graphics.frames.FlxFrame.FlxFrameType;
+import flixel.math.FlxAngle;
 import flixel.math.FlxPoint;
-
-class FlxSprite3D extends ObjectContainer3D {
-    public var sprite:FlxSprite;
-
-    public var mesh:Mesh;
-	public var material:TextureMaterial;
-	public var texture:RectangleBitmapTexture;
-	public var planeGeom:PlaneGeometry;
-	public var animator:FlxSprite3DAnimator;
-
-	var _bitmapKey:String;
-
-	public var flipX(get, set):Bool;
-	public var flipY(get, set):Bool;
-
-    public function new(sprite:FlxSprite) {
-        super();
-
-        this.sprite = sprite;
-
-		_bitmapKey = sprite.graphic.key;
-
-		loadGraphic(sprite.graphic);
-		if (sprite.frames is FlxAtlasFrames) {
-			var frames:FlxAtlasFrames = cast sprite.frames;
-			for (graphic in @:privateAccess frames.usedGraphics) {
-				loadGraphic(graphic);
-			}
-		}
-
-		material = new TextureMaterial(texture = new RectangleBitmapTexture(usedBitmaps.get(_bitmapKey))); // the .png
-		material.mipmap = false; // otherwise the texture wont render
-		//material.alphaBlending = true; // supports images with alpha channel fully but the render messes up drawing order
-		material.alphaThreshold = 0.7; // WARNING this does not support sprites with colors that have alpha, they will either be empty or set to alpha 255!
-		material.smooth = sprite.antialiasing;
-
-		planeGeom = new PlaneGeometry(
-		    texture.bitmapData.width, texture.bitmapData.height, 1, 1, false, true
-		);
-
-		mesh = new Mesh(planeGeom, material);
-		mesh.animator = animator = new FlxSprite3DAnimator(this);
-		animator.updateOffset();
-        addChild(mesh);
-    }
-
-	function get_flipX() {
-		return mesh.rotationY == 180;
-	}
-	function get_flipY() {
-		return mesh.rotationX == 180;
-	}
-	function set_flipX(v) {
-		mesh.rotationY = v ? 180 : 0;
-		return get_flipX();
-	}
-	function set_flipY(v) {
-		mesh.rotationX = v ? 180 : 0;
-		return get_flipY();
-	}
-
-    public function update(elapsed:Float) {
-		sprite.update(elapsed);
-		updateTexture(sprite.frame?.parent);
-
-		flipX = (sprite.frame.flipX ? !sprite.flipX : sprite.flipX);
-		flipY = (sprite.frame.flipY ? !sprite.flipY : sprite.flipY);
-		mesh.rotationZ = -sprite.angle - Std.int(sprite.frame.angle) * (flipX ? -1 : 1);
-		material.alpha = !sprite.visible ? 0 : sprite.alpha;
-		scaleX = sprite.scale.x;
-		scaleY = sprite.scale.y;
-		animator.updateOffset();
-    }
-
-	override function dispose() {
-		super.dispose();
-
-		while (numChildren > 0)
-			getChildAt(0).dispose();
-		
-		sprite.destroy();
-		for (bitmap in usedBitmaps) {
-			bitmap.dispose();
-		}
-		usedBitmaps = null;
-	} 
-	
-	var usedBitmaps:Map<String, BitmapData> = new Map();
-
-	// fetch from storage instead from memory, if a bitmap gets disposed by flixel it will be blank in away3d
-	function loadGraphic(graphic:FlxGraphic) {
-		if (usedBitmaps.exists(graphic.key)) {
-			return usedBitmaps.get(graphic.key);
-		}
-
-		var bitmap:BitmapData = null;
-		try {
-			bitmap = Assets.getBitmapData(graphic.key, false);
-		}
-		catch (exc) {}
-		if (bitmap == null && FileSystem.exists(graphic.key)) {
-			bitmap = BitmapData.fromFile(graphic.key);
-		}
-		usedBitmaps.set(graphic.key, bitmap ?? sprite.pixels);
-		return bitmap;
-	}
-
-	function updateTexture(graphic:FlxGraphic) {
-		if (graphic == null || _bitmapKey == sprite.frame?.parent?.key) {
-			return;
-		}
-		_bitmapKey = graphic.key;
-		
-		texture.bitmapData = loadGraphic(graphic);
-	}
-}
+import openfl.Vector;
+import openfl.display3D.Context3DProgramType;
 
 @:access(flixel.FlxSprite)
 class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
@@ -176,8 +47,8 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 		if (spriteFlx.frame != null) {
 			final frame = spriteFlx.frame;
 
-			sprite3D.planeGeom.width = frame.frame.width;
-			sprite3D.planeGeom.height = frame.frame.height;
+			sprite3D.planeGeom.width = frame.frame.width * spriteFlx.scale.x;
+			sprite3D.planeGeom.height = frame.frame.height * spriteFlx.scale.y;
 
 			_vectorFrame[0] = frame.frame.x / sprite3D.texture.bitmapData.width;
 			_vectorFrame[1] = frame.frame.y / sprite3D.texture.bitmapData.height;
@@ -188,20 +59,15 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 		// haxeflixel crap there from FlxSprite.draw
 		spriteFlx.checkEmptyFrame();
 
-		if (spriteFlx.alpha == 0 || spriteFlx._frame.type == FlxFrameType.EMPTY)
-			return;
-
 		if (spriteFlx.dirty) // rarely
 			spriteFlx.calcFrame(spriteFlx.useFramePixels);
 
-		if (ClientPrefs.isDebug() && FlxScriptedState3D.dispatch("updateOffset", [this]) != null) {
-			return;
-		}
-
 		// code based mainly on FlxSprite.drawFrameComplex
-		// FIXME: doesn't work properly with spritesheets that have rotated frames
 		final frame = spriteFlx.frame;
 		if (frame != null) {
+			// if (DebugScript.self.call('updateOffset', [spriteFlx, sprite3D])?.returnValue == true)
+			// 	return;
+
 			final frame = spriteFlx.frame;
 			final matrix = spriteFlx._matrix;
 			final flipX = spriteFlx.checkFlipX();
@@ -209,18 +75,18 @@ class FlxSprite3DAnimator extends AnimatorBase implements IAnimator {
 
 			// calc new mesh width and height based on its rotation
 			final radians:Float = frame.angle * FlxAngle.TO_RAD;
-			final rotatedWidth = frame.frame.width * Math.abs(Math.cos(radians)) + frame.frame.height * Math.abs(Math.sin(radians));
-			final rotatedHeight = frame.frame.height * Math.abs(Math.cos(radians)) + frame.frame.width * Math.abs(Math.sin(radians));
+			final rotatedWidth = sprite3D.planeGeom.width * Math.abs(Math.cos(radians)) + sprite3D.planeGeom.height * Math.abs(Math.sin(radians));
+			final rotatedHeight = sprite3D.planeGeom.height * Math.abs(Math.cos(radians)) + sprite3D.planeGeom.width * Math.abs(Math.sin(radians));
 
 			// prepare the initial matrix for frame positioning from the spritesheet data
 			frame.prepareMatrix(matrix, 0, flipX, flipY);
 
 			// for rotated frames in spritesheets; true if sparrow atlas subtexture has rotated key set to true
 			if (frame.angle == -90)
-				matrix.translate(0, -frame.sourceSize.y);
-			// this line was not tested lol
+				matrix.translate(0, -rotatedHeight);
+			// this line was not tested, lmk if this line works (someone)
 			else if (frame.angle == 90)
-				matrix.translate(-frame.sourceSize.x, 0);
+				matrix.translate(-rotatedWidth, 0);
 
 			matrix.translate(-spriteFlx.origin.x, -spriteFlx.origin.y);
 			matrix.scale(spriteFlx.scale.x, spriteFlx.scale.y);

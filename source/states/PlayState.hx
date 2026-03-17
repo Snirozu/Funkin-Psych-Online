@@ -10,8 +10,8 @@ package states;
 // "function eventEarlyTrigger" - Used for making your event start a few MILLISECONDS earlier
 // "function triggerEvent" - Called when the song hits your event's timestamp, this is probably what you were looking for
 
+import online.s3d.FunkinStage3D;
 import haxe.ds.HashMap;
-import online.away.AwayStage3D;
 import online.substates.PostTextSubstate;
 import haxe.crypto.Md5;
 import online.network.FunkinNetwork;
@@ -185,7 +185,7 @@ class PlayState extends MusicBeatState
 		return SONG = Song.parseRawJSON('', RAW_SONG);
 	}
 	
-	public static var RAW_SONG:String = '';
+	public static var RAW_SONG:String = ''; 
 	public static var isStoryMode:Bool = false;
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
@@ -489,7 +489,7 @@ class PlayState extends MusicBeatState
 
 	static var swingMode:Bool = false;
 
-	public var stage3D:AwayStage3D;
+	public var stage3D:FunkinStage3D;
 
 	function checkCanInput() {
 		if (chatBox != null && chatBox.focused) {
@@ -520,7 +520,7 @@ class PlayState extends MusicBeatState
 
 	public var songDensity:Float = 0;
 
-	var stageData:StageFile;
+	public var stageData:StageFile;
 	var stageModDir:String;
 	var oldModDir:String;
 	var showTime:Bool;
@@ -832,20 +832,20 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
-			if (stage3D != null) {
-				Main.view3D.removeScene();
-				stage3D = null;
-			}
+			// if (stage3D != null) {
+			// 	Main.view3D.removeScene();
+			// 	stage3D = null;
+			// }
 
-			if (stageData.stage3D == null)
-				return;
+			stage3D = FunkinStage3D.load(stageData);
 
-			stage3D = Main.view3D.setupScene(stageData);
-
+			trace(stage3D);
 			if (stage3D == null)
 				return;
 
-			Main.view3D.onDebug = (v) -> {
+			add(stage3D);
+
+			@:privateAccess stage3D.view2.onDebug = (v) -> {
 				if (subState != null)
 					return;
 
@@ -3322,7 +3322,8 @@ class PlayState extends MusicBeatState
 
 			icon.x = healthBar.barCenter + (150 * icon.scale.x - 150) / 2 - iconOffset;
 			icon.y = healthBar.y - 75;
-			icon.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0;
+			if (icon.animation.curAnim != null)
+				icon.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0;
 
 			addIconOffset(icon, true, i);
 		}
@@ -3338,7 +3339,8 @@ class PlayState extends MusicBeatState
 
 			icon.x = healthBar.barCenter - (150 * icon.scale.x) / 2 - iconOffset * 2;
 			icon.y = healthBar.y - 75;
-			icon.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0;
+			if (icon.animation.curAnim != null)
+				icon.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0;
 
 			addIconOffset(icon, false, i);
 		}
