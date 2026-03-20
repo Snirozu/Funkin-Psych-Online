@@ -567,7 +567,9 @@ class PlayState extends MusicBeatState
 
 		var duoOpponentSID = null;
 		if (GameClient.isConnected()) {
+			#if windows
 			Lib.application.window.resizable = false;
+			#end
 			swingMode = false;
 			isDuel = GameClient.room.state.players.length <= 2;
 			@:bypassAccessor waitReady = true;

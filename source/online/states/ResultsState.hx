@@ -63,8 +63,10 @@ class ResultsState extends MusicBeatState {
 
 		CustomFadeTransition.nextCamera = camHUD;
 
+		#if windows
 		if (!Lib.application.window.resizable)
 			Lib.application.window.resizable = true;
+		#end
 
 		#if MODS_ALLOWED
 		Mods.pushGlobalMods();

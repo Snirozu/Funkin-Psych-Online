@@ -298,8 +298,10 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 	override function create() {
 		super.create();
 
+		#if windows
 		if (!Lib.application.window.resizable)
 			Lib.application.window.resizable = true;
+		#end
 
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("In the Lobby", null, null, false);
