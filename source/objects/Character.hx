@@ -313,13 +313,20 @@ class Character extends FlxSprite {
 						#if flxanimate
 						else
 						{
-							// no flipX in flxanimate bcs not supported bye
-							if(animIndices != null && animIndices.length > 0)
-								atlas.anim.addBySymbolIndices(animAnim, animName, animIndices, animFps, animLoop);
-							else if (atlas.anim.symbolDictionary.exists(animName))
-								atlas.anim.addBySymbol(animAnim, animName, animFps, animLoop);
-							else
-								atlas.anim.addByFrameLabel(animAnim, animName, animFps, animLoop);
+							// TODO replace flxanimate with flixel-animate
+							try {
+								// no flipX in flxanimate bcs not supported bye
+								if(animIndices != null && animIndices.length > 0)
+									atlas.anim.addBySymbolIndices(animAnim, animName, animIndices, animFps, animLoop);
+								else if (atlas.anim.symbolDictionary.exists(animName))
+									atlas.anim.addBySymbol(animAnim, animName, animFps, animLoop);
+								else
+									atlas.anim.addByFrameLabel(animAnim, animName, animFps, animLoop);
+							}
+							catch (exc) {
+								trace('couldnt add flxanimate animation');
+								trace(exc);
+							}
 						}
 						#end
 
@@ -703,7 +710,14 @@ class Character extends FlxSprite {
 	}
 
 	function loadMappedAnims():Bool {
-		var noteData:Array<SwagSection> = Song.loadFromJson('picospeaker', Paths.formatToSongPath(PlayState.SONG.song)).notes;
+		var noteData:Array<SwagSection> = null;
+		try {
+			noteData = Song.loadFromJson('picospeaker', Paths.formatToSongPath(PlayState.SONG.song)).notes;
+		}
+		catch (exc) {
+			trace("Failed to load picospeaker.json!");
+			trace(exc);
+		}
 		if (noteData == null)
 			return false;
 		for (section in noteData) {

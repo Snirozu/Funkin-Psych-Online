@@ -1209,21 +1209,23 @@ class FreeplayState extends MusicBeatState
 						openSubState(new ResetScoreSubState(getSongName(), curDifficulty, songs[curSelected].songCharacter));
 						FlxG.sound.play(Paths.sound('scrollMenu'));
 					case 4:
-						if (selectedScore == -1) {
-							FlxG.openURL(FunkinNetwork.client.getURL("/song/" + 
-								StringTools.urlEncode(filterCharacters(PlayState.SONG.song)
-								+ "-"
-								+ filterCharacters(Difficulty.getString(curDifficulty))
-								+ "-"
-								+ filterCharacters(Md5.encode(PlayState.RAW_SONG)))
-								+ "?strum="
-								+ (ClientPrefs.getGameplaySetting('opponentplay') ? 1 : 2)
-								+ (Leaderboard.categories[curCategory] != null ? "&category=" + Leaderboard.categories[curCategory] : '')
-							));
-						}
-						else if (!GameClient.isConnected()) {
-							if (top != null && top[selectedScore] != null)
-								playReplay(Leaderboard.fetchReplay(top[selectedScore].id), top[selectedScore].id);
+						if (PlayState.SONG != null) {
+							if (selectedScore == -1) {
+								FlxG.openURL(FunkinNetwork.client.getURL("/song/" + 
+									StringTools.urlEncode(filterCharacters(PlayState.SONG.song)
+									+ "-"
+									+ filterCharacters(Difficulty.getString(curDifficulty))
+									+ "-"
+									+ filterCharacters(Md5.encode(PlayState.RAW_SONG)))
+									+ "?strum="
+									+ (ClientPrefs.getGameplaySetting('opponentplay') ? 1 : 2)
+									+ (Leaderboard.categories[curCategory] != null ? "&category=" + Leaderboard.categories[curCategory] : '')
+								));
+							}
+							else if (!GameClient.isConnected()) {
+								if (top != null && top[selectedScore] != null)
+									playReplay(Leaderboard.fetchReplay(top[selectedScore].id), top[selectedScore].id);
+							}
 						}
 				}
 			}

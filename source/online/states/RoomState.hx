@@ -124,7 +124,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 	function registerMessages() {
 		if (GameClient.getPlayerSelf() == null) {
-			GameClient.leaveRoom('Self not in the room.');
+			GameClient.leaveRoom('Self not in the room (registerMessages).');
 			return;
 		}
 
@@ -583,6 +583,13 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 	var updateTimer = 1.0;
 
     override function update(elapsed:Float) {
+		if (GameClient.getPlayerSelf() == null) {
+			if (FlxG.keys.justPressed.ESCAPE) {
+				GameClient.leaveRoom('Self not in the room (update).');
+			}
+			return;
+		}
+
 		super.update(elapsed);
 
 		if (FlxG.keys.justPressed.F11) {
@@ -596,10 +603,6 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 			lmLoad();
 		}
 		#end
-		
-		if (GameClient.getPlayerSelf() == null) {
-			return;
-		}
 
 		if (lastFocused != (chatBox.focused && chatBox.typeText.text.length > 0)) {
 			if (!lastFocused) // is now typing

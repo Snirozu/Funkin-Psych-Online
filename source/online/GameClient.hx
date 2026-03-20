@@ -149,6 +149,19 @@ class GameClient {
 			}
 		}
 
+		var tries = 25;
+		// great stuff colyseus
+		while (getPlayerSelf() == null) {
+			if (tries-- < 0) {
+				Alert.alert("Couldn't connect!", "Client couldn't receive server's state data!");
+				onJoin(new Error(-1, 'no state data'));
+				leaveRoom();
+				LoadingScreen.toggle(false);
+				return;
+			}
+			Sys.sleep(0.2);
+		}
+
 		Waiter.putPersist(() -> {
 			trace("Joined!");
 

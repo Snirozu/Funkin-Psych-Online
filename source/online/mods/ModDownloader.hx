@@ -93,7 +93,7 @@ class ModDownloader {
 
 			client.close();
 
-			if (client.response.isFailed()) {
+			if (client.response?.isFailed()) {
 				if (client.cancelRequested) {
 					Waiter.putPersist(() -> {
 						Alert.alert('Download canceled!');

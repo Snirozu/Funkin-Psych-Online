@@ -2169,6 +2169,8 @@ class PlayState extends MusicBeatState
 				generateStrums();
 
 			startedCountdown = true;
+			canPause = true;
+
 			Conductor.songPosition = -Conductor.crochet * 5;
 			setOnScripts('startedCountdown', true);
 			callOnScripts('onCountdownStarted', null);
