@@ -581,6 +581,10 @@ class Character extends FlxSprite {
 		}
 
 		if (!animExists(AnimName)) {
+			if (AnimName == "ready" && !animExists(AnimName)) {
+				AnimName = "taunt";
+			}
+
 			if ((AnimName == "taunt" || AnimName == "taunt-alt") && !animExists(AnimName)) {
 				if (AnimName == "taunt-alt")
 					AnimName = "hey-alt";

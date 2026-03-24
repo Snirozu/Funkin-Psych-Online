@@ -91,7 +91,7 @@ class ModsMenuState extends MusicBeatState
 		noModsTxt.screenCenter();
 		visibleWhenNoMods.push(noModsTxt);
 
-		var list:ModsList = Mods.parseList();
+		var list:ModsList = Mods.parseList(true);
 		for (mod in list.all) modsList.push([mod, list.enabled.contains(mod)]);
 
 		selector = new AttachedSprite();
@@ -852,11 +852,11 @@ class ModMetadata
 		//Try loading json
 		var pack:Dynamic = Mods.getPack(folder);
 		if(pack != null) {
-			if(pack.name != null && pack.name.length > 0)
+			if((pack?.name ?? '').trim().length > 0)
 			{
 				if(pack.name != 'Name')
 					this.name = pack.name;
-				else
+				else if (pack.folder != null)
 					this.name = pack.folder;
 			}
 

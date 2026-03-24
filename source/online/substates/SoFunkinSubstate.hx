@@ -1,12 +1,18 @@
 package online.substates;
 
+import openfl.display.BitmapData;
+import objects.HealthIcon;
+import openfl.utils.Future;
 import openfl.events.KeyboardEvent;
 import lime.system.Clipboard;
 
+//TODO every update fetch an icon from the queue and wait for the promise relating to it to finish, then store it in icons
+
 class SoFunkinSubstate extends MusicBeatSubstate {
 	public var options:Array<String> = [];
+	public var optionsIcons:Map<Int, HealthIcon> = new Map();
 	public var callback:Int->Bool;
-	public var iconCallback:(Int, FlxSprite)->FlxSprite;
+	public var iconCallback:Int->PathInfo;
 
 	public var curGroup:Int = 0;
 	public var groups:Array<String> = [];
@@ -14,11 +20,9 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 
 	var groupTitle:Scrollable;
 
-	private var mapTexts:Map<String, FlxSprite> = new Map<String, FlxSprite>();
-	private var mapIcons:Map<String, FlxSprite> = new Map<String, FlxSprite>();
-
 	private var grpTexts:FlxTypedGroup<FlxSprite>;
-	private var grpIcons:FlxTypedGroup<FlxSprite>;
+	var centerOfRenders:Int;
+	private var grpIcons:FlxTypedGroup<HealthIcon>;
 
 	var lerpSelected:Float = 0;
 	private var curSelected:Int = 0;
@@ -28,7 +32,7 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 	var searchInputWait(default, set):Bool = false;
 	var searchString(default, set):String = '';
 
-	public function new(options:Array<String>, ?selected:Int = 0, callback:Int->Bool, ?iconCallback:(Int, FlxSprite)->FlxSprite) {
+	public function new(options:Array<String>, ?selected:Int = 0, callback:Int->Bool, ?iconCallback:Int->PathInfo) {
         super();
         
 		curSelected = selected;
@@ -49,10 +53,22 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 		grpTexts = new FlxTypedGroup<FlxSprite>();
 		add(grpTexts);
 
-		grpIcons = new FlxTypedGroup<FlxSprite>();
+		grpIcons = new FlxTypedGroup<HealthIcon>();
 		add(grpIcons);
 
-		createTexts();
+		for (i in 0...15) {
+			var leText:Scrollable;
+			if (!ClientPrefs.data.disableFreeplayAlphabet)
+				leText = new Alphabet(90, 320, '', true);
+			else
+				leText = new online.objects.AlphaLikeText(90, 320, '');
+			// leText.isMenuItem = true;
+			leText.targetY = i;
+			leText.ID = i;
+			leText.snapToPosition();
+			grpTexts.add(cast leText);
+		}
+		centerOfRenders = Std.int(grpTexts.members.length / 2);
 
 		searchUnderlay = new FlxSprite();
 		searchUnderlay.makeGraphic(1, 1, FlxColor.BLACK);
@@ -116,38 +132,6 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 		searchUnderlay.updateHitbox();
 	}
 
-	function createTexts() {
-		for (text in mapTexts) {
-			text.destroy();
-			remove(text);
-		}
-		for (icon in mapIcons) {
-			icon.destroy();
-			remove(icon);
-		}
-		mapTexts.clear();
-		mapIcons.clear();
-
-		for (i in 0...options.length) {
-			var leText:Scrollable;
-			if (!ClientPrefs.data.disableFreeplayAlphabet)
-				leText = new Alphabet(90, 320, options[i], true);
-			else
-				leText = new online.objects.AlphaLikeText(90, 320, options[i]);
-			leText.isMenuItem = true;
-			leText.targetY = i - curSelected;
-			leText.ID = i;
-			mapTexts.set(options[i], cast leText);
-			leText.snapToPosition();
-
-			if (iconCallback != null && !ClientPrefs.data.disableFreeplayIcons) {
-				var icon = iconCallback(i, cast(leText));
-				if (icon != null)
-					mapIcons.set(options[i], icon);
-			}
-		}
-	}
-
 	function updateGroup() {
 		groupTitle.visible = groups.length > 0;
 		if (groups.length > 0) {
@@ -167,27 +151,26 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 			groupTitle.scaleY = 0.7;
 			groupTitle.scaleX = 0.7;
 
-			if (groupCallback != null)
+			if (groupCallback != null) {
 				options = groupCallback(curGroup);
+				optionsIcons = [];
+			}
 
-			createTexts();
 			search();
 		}
 	}
 
+	var searchOptions:Array<Int> = [];
 	function search() {
-		grpTexts.clear();
-		grpIcons.clear();
+		searchOptions = [];
 
-		for (option in options) {
+		for (i => option in options) {
 			if (option.toLowerCase().contains(searchString.toLowerCase())) {
-				grpTexts.add(mapTexts.get(option));
-				if (mapIcons.exists(option))
-					grpIcons.add(mapIcons.get(option));
+				searchOptions.push(i);
 			}
 		}
 
-		if (grpTexts.length == 0 && searchString.length > 0) {
+		if (searchOptions.length == 0 && searchString.length > 0) {
 			searchString = '';
 			search();
 			searchInput.text = "NOT FOUND!";
@@ -199,8 +182,36 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 	}
 
 	var disableInputWaitNext = false;
+	var futureIcon:Future<BitmapData> = null;
+	var futureIndex:Int = -1;
+	var futureQueue:Array<Int> = [];
+	var futureIconPath:String = null;
 	override function update(elapsed:Float) {
 		super.update(elapsed);
+
+		if (futureIcon != null) {
+			if (futureIcon.isComplete || futureIcon.isError) {
+				if (!futureIcon.isError && futureIcon.value != null) {
+					var icon = new HealthIcon(null, false);
+					icon.loadIcon(Paths.bitmapToGraphic(futureIconPath, futureIcon.value));
+					icon.scrollFactor.set(1, 1);
+					optionsIcons.set(futureIndex, icon);
+					changeSelection();
+				}
+				futureIcon = null;
+			}
+		}
+		else if (futureQueue.length > 0) {
+			futureIndex = futureQueue.shift();
+
+			if (iconCallback != null && !ClientPrefs.data.disableFreeplayIcons) {
+				var icon = iconCallback(futureIndex);
+				if (icon != null) {
+					futureIcon = Paths.asyncBitmap(icon.path, null, icon.mod);
+					futureIconPath = icon.path;
+				}
+			}
+		}
 
 		lerpSelected = FlxMath.lerp(lerpSelected, curSelected, FlxMath.bound(elapsed * 9.6, 0, 1));
 
@@ -240,11 +251,11 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 		}
 
 		if (FlxG.keys.justPressed.HOME) {
-			curSelected = -1;
+			curSelected = 0;
 			changeSelection();
 		}
 		else if (FlxG.keys.justPressed.END) {
-			curSelected = grpTexts.length - 1;
+			curSelected = searchOptions.length - 1;
 			changeSelection();
 		}
 
@@ -253,22 +264,14 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 		}
 
 		if (controls.ACCEPT) {
-			if (callback(grpTexts.members[curSelected].ID))
+			if (selectedItem != null && callback(selectedItem.ID))
 				close();
 		}
 
-		var bullShit:Int = 0;
-		var item:Scrollable;
-		for (_item in grpTexts.members) {
-			item = cast _item;
-			item.targetY = bullShit - curSelected;
-			bullShit++;
-
-			item.alpha = 0.6;
-
-			if (item.targetY == 0) {
-				item.alpha = 1;
-			}
+		for (grpIndex => item in grpTexts.members) {
+			var item:Scrollable = cast(item, Scrollable);
+			item.x = ((item.targetY - lerpSelected) * item.distancePerItem.x) + item.startPosition.x;
+			item.y = ((item.targetY - lerpSelected) * 1.3 * item.distancePerItem.y) + item.startPosition.y;
 		}
 	}
 
@@ -279,15 +282,99 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 		obj.alpha = FlxMath.bound(obj.alpha + elapsed * 5, 0, 0.6);
 	}
 
+	var selectedItem:Scrollable = null;
 	function changeSelection(change:Int = 0) {
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		if (change != 0)
+			FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 
 		curSelected += change;
 
 		if (curSelected < 0)
-			curSelected = grpTexts.length - 1;
-		if (curSelected >= grpTexts.length)
+			curSelected = searchOptions.length - 1;
+		if (curSelected >= searchOptions.length)
 			curSelected = 0;
+
+		var foundTexts:Array<String> = [];
+
+		// 50 more loops here but it's way faster than just simply updating every text
+
+		for (i => item in grpTexts.members) {
+			final searchIndex = i + curSelected - centerOfRenders;
+			item.ID = searchOptions[searchIndex];
+			final option = options[item.ID];
+
+			if (option == null) {
+				foundTexts[i] = null;
+				continue;
+			}
+
+			foundTexts[i] = (grpTexts.members[0] is online.objects.AlphaLikeText ? ' ' : '') + option + (grpTexts.members[0] is online.objects.AlphaLikeText ? '\n ' : '');
+		}
+
+		var newMembs = [for (_ in grpTexts.members) null];
+		var missings = [];
+		for (obj in grpTexts.members) {
+			var txt:Scrollable = cast obj;
+			final newIndex = foundTexts.indexOf(txt.text);
+
+			if (newIndex != -1 && foundTexts[newIndex] != null)
+				newMembs[newIndex] = obj;
+			else
+				missings.push(obj);
+
+			foundTexts[newIndex] = null;
+		}
+
+		for (obj in missings) {
+			newMembs[newMembs.indexOf(null)] = obj;
+		}
+
+		grpTexts.clear();
+		grpIcons.clear();
+		futureQueue = [];
+
+		for (obj in newMembs) {
+			grpTexts.add(obj);
+		}
+
+		var item:Scrollable;
+		for (i => _item in grpTexts.members) {
+			item = cast _item;
+			final searchIndex = i + curSelected - centerOfRenders;
+			item.ID = searchOptions[searchIndex];
+			final option = options[item.ID];
+			if (option == null || searchIndex >= searchOptions.length || searchIndex < 0) {
+				item.visible = false;
+				continue;
+			}
+
+			item.visible = true;
+			final wantText = (item is online.objects.AlphaLikeText ? ' ' : '') + option + (item is online.objects.AlphaLikeText ? '\n ' : '');
+			if (item.text != wantText) {
+				item.text = wantText;
+				item.scaleX = Math.min(1, 980 / item.width);
+				if (item is online.objects.AlphaLikeText)
+					cast (item, online.objects.AlphaLikeText).updateHitbox();
+			}
+			item.targetY = i - centerOfRenders + curSelected;
+
+			final icon = optionsIcons.get(item.ID);
+			if (icon != null) {
+				icon.sprTracker = cast item;
+				icon.snapToTracker();
+				grpIcons.add(icon);
+			}
+			else if (!optionsIcons.exists(item.ID) && futureIndex != item.ID) {
+				futureQueue.push(item.ID);
+			}
+
+			if (item.targetY == curSelected) {
+				selectedItem = item;
+				item.alpha = 1;
+				continue;
+			}
+			item.alpha = 0.6;
+		}
 	}
 
 	function onKeyDown(e:KeyboardEvent) {
@@ -327,4 +414,9 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 			searchString += newText;
 		}
 	}
+}
+
+typedef PathInfo = {
+	var path:String;
+	@:optional var mod:String;
 }

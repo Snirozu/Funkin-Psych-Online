@@ -529,17 +529,23 @@ class SkinsState extends MusicBeatState {
 					selectTimer.active = true;
 				setCharacter(i - curCharacter);
 				return true;
-			}, (i, leText) -> {
+			}, (i) -> {
 				Mods.currentModDirectory = charactersList[i][3];
 				var charaData:CharacterFile = Character.getCharacterFile(getCharacterName(i));
 				var iconName = charaData?.healthicon;
 				if (iconName != null) {
-					var icon = new HealthIcon(iconName, false);
-					icon.sprTracker = leText;
-					icon.scrollFactor.set(1, 1);
+					final path = HealthIcon.findIconPath(iconName);
 					Mods.loadTopMod();
-					return icon;
+					return {
+						path: path,
+						mod: charactersList[i][3]
+					};
+					// var icon = new HealthIcon(iconName, false);
+					// // icon.sprTracker = leText;
+					// icon.scrollFactor.set(1, 1);
+					// return icon;
 				}
+				Mods.loadTopMod();
 				return null;
 			}));
 		}

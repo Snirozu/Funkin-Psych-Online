@@ -126,6 +126,7 @@ class GameClient {
 		GameClient.address = address;
 		GameClient.rpcClientRoomID = Md5.encode(FlxG.random.int(0, 1000000).hex());
 		clearOnMessage();
+		reconnecting = false;
 
 		GameClient.room.onError += (code:Int, e:String) -> {
 			Sys.println("Room.onError: " + code + " - " + e);
@@ -149,20 +150,21 @@ class GameClient {
 			}
 		}
 
-		var tries = 25;
-		// great stuff colyseus
-		while (getPlayerSelf() == null) {
-			if (tries-- < 0) {
-				Alert.alert("Couldn't connect!", "Client couldn't receive server's state data!");
-				onJoin(new Error(-1, 'no state data'));
-				leaveRoom();
-				LoadingScreen.toggle(false);
-				return;
-			}
-			Sys.sleep(0.2);
-		}
-
 		Waiter.putPersist(() -> {
+			var tries = 50;
+			// great stuff colyseus
+			while (getPlayerSelf() == null) {
+				trace(getPlayerSelf() == null);
+				if (tries-- < 0) {
+					Alert.alert("Couldn't connect!", "Client couldn't receive server's state data!");
+					onJoin(new Error(-1, 'no state data'));
+					leaveRoom();
+					LoadingScreen.toggle(false);
+					return;
+				}
+				Sys.sleep(0.2);
+			}
+
 			trace("Joined!");
 
 			FlxG.autoPause = false;
@@ -176,8 +178,6 @@ class GameClient {
 		//	trace("onrender server detected");
 		Waiter.pingServer = address;
 		//}
-
-		reconnecting = false;
 	}
 
 	public static function reconnect(?debugReconnectDelay:Float = 0) {

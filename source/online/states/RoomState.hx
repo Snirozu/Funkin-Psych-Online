@@ -181,8 +181,13 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 					if (value) {
 						var sond = FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
 						sond.pitch = 1.5;
+
+						final lobbyChar = characters.get(sid);
+						if (lobbyChar == null)
+							return;
+						lobbyChar.character.playAnim('ready', true);
 					}
-					else {
+					else if (!GameClient.room.state.isStarted) {
 						var sond = FlxG.sound.play(Paths.sound('cancelMenu'));
 						sond.pitch = 1.5;
 					}
@@ -591,6 +596,13 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		}
 
 		super.update(elapsed);
+
+		if (GameClient.getPlayerSelf() == null) {
+			if (FlxG.keys.justPressed.ESCAPE) {
+				GameClient.leaveRoom('Self not in the room (update).');
+			}
+			return;
+		}
 
 		if (FlxG.keys.justPressed.F11) {
 			GameClient.reconnect();
@@ -1223,6 +1235,9 @@ class LobbyCharacter extends FlxTypedGroup<FlxSprite> {
 	}
 
 	public function danceLogic(?curBeat:Null<Int>) {
+		if (player.isReady)
+			return;
+		
 		if (character != null && character.animation.curAnim != null) {
 			if (curBeat != null) {
 				if (curBeat % character.danceEveryNumBeats == 0 && !character.animation.curAnim.name.startsWith('sing'))

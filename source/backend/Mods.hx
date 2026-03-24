@@ -152,26 +152,92 @@ class Mods
 	}
 
 	public static var updatedOnState:Bool = false;
-	inline public static function parseList():ModsList {
+	inline public static function parseList(?sortByPriority:Bool = false):ModsList {
 		if(!updatedOnState) updateModList();
 		var list:ModsList = {enabled: [], disabled: [], all: []};
 
 		#if MODS_ALLOWED
 		try {
+			final toSortModList:Array<Dynamic> = sortByPriority ? [] : null;
+
 			for (mod in CoolUtil.coolTextFile('modsList.txt'))
 			{
 				//trace('Mod: $mod');
 				if(mod.trim().length < 1) continue;
 
 				var dat = mod.split("|");
+
+				if (sortByPriority) {
+					toSortModList.push([dat[0], dat[1] == "1"]);
+					continue;
+				}
+				
 				list.all.push(dat[0]);
 				if (dat[1] == "1")
 					list.enabled.push(dat[0]);
 				else
 					list.disabled.push(dat[0]);
 			}
+
+			if (sortByPriority) {
+				var packMap:Map<String, Dynamic> = new Map();
+				function getPackCached(mod:String) {
+					var v = packMap.get(mod);
+					if (v == null) {
+						final pack:Dynamic = getPack(mod);
+						if (pack == null)
+							return null;
+						v = pack;
+						packMap.set(mod, v);
+					}
+					return v;
+				}
+
+				function getModName(folder:String, pack:Dynamic):String {
+					if(pack != null) {
+						if((pack?.name ?? '').trim().length > 0)
+						{
+							if(pack.name != 'Name')
+								return pack.name;
+							else
+								return pack.folder;
+						}
+					}
+					return folder;
+				}
+
+				toSortModList.sort((a:Array<Dynamic>, b:Array<Dynamic>) -> {
+					final modA = getPackCached(a[0]);
+					final modB = getPackCached(b[0]);
+					
+					if (modA?.runsGlobally != modB?.runsGlobally) {
+						return (modB?.runsGlobally ? 1 : 0) - (modA?.runsGlobally ? 1 : 0);
+					}
+
+					if (a[1] != b[1]) {
+						return (b[1] == true ? 1 : 0) - (a[1] == true ? 1 : 0);
+					}
+
+					// final modACharCode = getModName(a[0], modA).trim().toLowerCase().charCodeAt(0);
+					// final modBCharCode = getModName(b[0], modB).trim().toLowerCase().charCodeAt(0);
+					// return modBCharCode < modACharCode ? 1 : -1;
+					return 0;
+				});
+
+				for (modArray in toSortModList) {
+					list.all.push(modArray[0]);
+					if (modArray[1])
+						list.enabled.push(modArray[0]);
+					else
+						list.disabled.push(modArray[0]);
+				}
+
+				packMap.clear();
+				packMap = null;
+			}
 		} catch(e) {
 			trace(e);
+			trace(e.details());
 		}
 		#end
 		return list;

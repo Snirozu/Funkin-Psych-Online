@@ -1,6 +1,7 @@
 package backend;
 
 
+import openfl.utils.Future;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flxanimate.data.SpriteMapData.FlxSpriteMap;
 import flxanimate.frames.FlxAnimateFrames;
@@ -116,12 +117,12 @@ class Paths
 		currentLevel = name.toLowerCase();
 	}
 
-	public static function getPath(file:String, ?type:AssetType = TEXT, ?library:Null<String> = null, ?modsAllowed:Bool = false):String
+	public static function getPath(file:String, ?type:AssetType = TEXT, ?library:Null<String> = null, ?modsAllowed:Bool = false, ?modDir:String):String
 	{
 		#if MODS_ALLOWED
 		if(modsAllowed)
 		{
-			var modded:String = modFolders(file);
+			var modded:String = modFolders(file, modDir);
 			if(FileSystem.exists(modded)) return modded;
 		}
 		#end
@@ -284,23 +285,8 @@ class Paths
 				bitmap = OpenFlAssets.getBitmapData(file);
 		}
 
-		if (bitmap != null)
-		{
-			localTrackedAssets.push(file);
-			// if (allowGPU /*&& ClientPrefs.data.cacheOnGPU*/)
-			// {
-			// 	var texture:RectangleTexture = FlxG.stage.context3D.createRectangleTexture(bitmap.width, bitmap.height, BGRA, true);
-			// 	texture.uploadFromBitmapData(bitmap);
-			// 	bitmap.image.data = null;
-			// 	bitmap.dispose();
-			// 	bitmap.disposeImage();
-			// 	bitmap = BitmapData.fromTexture(texture);
-			// }
-			var newGraphic:FlxGraphic = FlxGraphic.fromBitmapData(bitmap, false, file);
-			newGraphic.persist = true;
-			newGraphic.destroyOnNoUse = false;
-			currentTrackedAssets.set(file, newGraphic);
-			return newGraphic;
+		if (bitmap != null) {
+			return bitmapToGraphic(file, bitmap);
 		}
 
 		//STOP FUCKING USING TRACE ITS CPU HEAVY
@@ -309,6 +295,64 @@ class Paths
 			lastImageErrorFile = file;
 		}
 		return null;
+	}
+
+	/**
+		use if you know how threads work
+		note: flxgraphic is not possible to obtain asynchronically, use bitmapToGraphic() in the main thread after fetching the bitmap
+	**/
+	static public function asyncBitmap(key:String, ?library:String = null, ?modDir:String):Null<Future<BitmapData>> {
+		var file:String = null;
+
+		#if MODS_ALLOWED
+		file = modsImages(key, modDir);
+		// return cached
+		if (currentTrackedAssets.exists(file))
+		{
+			localTrackedAssets.push(file);
+			return Future.withValue(currentTrackedAssets.get(file).bitmap);
+		}
+		// found in the mods files
+		else if (FileSystem.exists(file))
+			return BitmapData.loadFromFile(file);
+		// load from assets
+		else
+		#end
+		{
+			file = getPath('images/$key.png', IMAGE, library);
+			if (currentTrackedAssets.exists(file))
+			{
+				localTrackedAssets.push(file);
+				return Future.withValue(currentTrackedAssets.get(file).bitmap);
+			}
+			else if (OpenFlAssets.exists(file, IMAGE))
+				return OpenFlAssets.loadBitmapData(file);
+		}
+
+		//STOP FUCKING USING TRACE ITS CPU HEAVY
+		if (lastImageErrorFile != file && ClientPrefs.isDebug()) {
+			Sys.println('Paths.asyncBitmap(): oh no its returning null NOOOO ($file)');
+			lastImageErrorFile = file;
+		}
+		return null;
+	}
+
+	static public function bitmapToGraphic(file:String, bitmap:BitmapData) {
+		localTrackedAssets.push(file);
+		// if (allowGPU /*&& ClientPrefs.data.cacheOnGPU*/)
+		// {
+		// 	var texture:RectangleTexture = FlxG.stage.context3D.createRectangleTexture(bitmap.width, bitmap.height, BGRA, true);
+		// 	texture.uploadFromBitmapData(bitmap);
+		// 	bitmap.image.data = null;
+		// 	bitmap.dispose();
+		// 	bitmap.disposeImage();
+		// 	bitmap = BitmapData.fromTexture(texture);
+		// }
+		var newGraphic:FlxGraphic = FlxGraphic.fromBitmapData(bitmap, false, file);
+		newGraphic.persist = true;
+		newGraphic.destroyOnNoUse = false;
+		currentTrackedAssets.set(file, newGraphic);
+		return newGraphic;
 	}
 
 	static public function getTextFromFile(key:String, ?ignoreMods:Bool = false):String
@@ -510,8 +554,8 @@ class Paths
 		return modFolders(path + '/' + key + '.' + SOUND_EXT);
 	}
 
-	inline static public function modsImages(key:String) {
-		return modFolders('images/' + key + '.png');
+	inline static public function modsImages(key:String, ?mod:String) {
+		return modFolders('images/' + key + '.png', mod);
 	}
 
 	inline static public function modsXml(key:String) {
@@ -536,9 +580,11 @@ class Paths
 		return modFolders('achievements/' + key + '.json');
 	}*/
 
-	static public function modFolders(key:String) {
-		if(Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0) {
-			var fileToCheck:String = mods(Mods.currentModDirectory + '/' + key);
+	static public function modFolders(key:String, ?modDirectory:String) {
+		modDirectory ??= Mods.currentModDirectory;
+
+		if(modDirectory != null && modDirectory.length > 0) {
+			var fileToCheck:String = mods(modDirectory + '/' + key);
 			if(FileSystem.exists(fileToCheck)) {
 				return fileToCheck;
 			}
