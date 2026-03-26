@@ -175,6 +175,8 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 		focused = false; // initial update
 
 		y = FlxG.height - height;
+		
+		update(0);
     }
 
 	override function destroy() {

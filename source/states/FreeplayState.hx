@@ -2003,6 +2003,12 @@ class FreeplayState extends MusicBeatState
 		}
 
 		updateSelectSelection();
+		
+		updateTexts(0);
+
+		for (heart in renderHearts) {
+			heart.update(0);
+		}
 	}
 
 	inline private function _updateSongLastDifficulty()
@@ -2403,7 +2409,6 @@ class FreeplayState extends MusicBeatState
 		}
 
 		changeSelection();
-		updateTexts();
 	}
 	
 	var searchInputWait:Bool = false;

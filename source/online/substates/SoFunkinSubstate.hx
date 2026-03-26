@@ -277,6 +277,10 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 			pressCallback(controls);
 		}
 
+		updateTextsPosition();
+	}
+
+	function updateTextsPosition() {
 		for (grpIndex => item in grpTexts.members) {
 			var item:Scrollable = cast(item, Scrollable);
 			item.x = ((item.targetY - lerpSelected) * item.distancePerItem.x) + item.startPosition.x;
@@ -377,7 +381,6 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 			final icon = optionsIcons.get(item.ID);
 			if (icon != null) {
 				icon.sprTracker = cast item;
-				icon.snapToTracker();
 				grpIcons.add(icon);
 			}
 			else if (!optionsIcons.exists(item.ID) && futureIndex != item.ID) {
@@ -394,6 +397,19 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 			}
 			item.alpha = 0.6;
 		}
+
+		updateTextsPosition();
+
+		for (icon in grpIcons) {
+			icon.snapToTracker();
+		}
+
+		for (icon in grpIconsOverlay) {
+			icon.update(0);
+		}
+
+		// if (postRenderCallback != null)
+		// 	postRenderCallback();
 	}
 
 	function onKeyDown(e:KeyboardEvent) {
