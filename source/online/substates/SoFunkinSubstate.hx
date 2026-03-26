@@ -17,28 +17,30 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 	public var curGroup:Int = 0;
 	public var groups:Array<String> = [];
 	public var groupCallback:Int->Array<String>;
+	public var pressCallback:Controls->Void;
+	public var renderCallback:(Int,Scrollable,Null<HealthIcon>)->Void;
 
 	var groupTitle:Scrollable;
 
 	private var grpTexts:FlxTypedGroup<FlxSprite>;
 	var centerOfRenders:Int;
 	private var grpIcons:FlxTypedGroup<HealthIcon>;
+	public var grpIconsOverlay:FlxTypedGroup<FlxSprite>;
 
 	var lerpSelected:Float = 0;
-	private var curSelected:Int = 0;
+	public var curSelected:Int = 0;
 
 	var searchInput:FlxText;
 	var searchUnderlay:FlxSprite;
 	var searchInputWait(default, set):Bool = false;
 	var searchString(default, set):String = '';
 
-	public function new(options:Array<String>, ?selected:Int = 0, callback:Int->Bool, ?iconCallback:Int->PathInfo) {
+	public function new(options:Array<String>, ?selected:Int = 0, ?callback:Int->Bool) {
         super();
         
 		curSelected = selected;
 		this.options = options;
 		this.callback = callback;
-		this.iconCallback = iconCallback;
     }
 
 	override function create() {
@@ -55,6 +57,9 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 
 		grpIcons = new FlxTypedGroup<HealthIcon>();
 		add(grpIcons);
+
+		grpIconsOverlay = new FlxTypedGroup<FlxSprite>();
+		add(grpIconsOverlay);
 
 		for (i in 0...15) {
 			var leText:Scrollable;
@@ -132,7 +137,7 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 		searchUnderlay.updateHitbox();
 	}
 
-	function updateGroup() {
+	public function updateGroup() {
 		groupTitle.visible = groups.length > 0;
 		if (groups.length > 0) {
 			if (curGroup < 0)
@@ -153,7 +158,7 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 
 			if (groupCallback != null) {
 				options = groupCallback(curGroup);
-				optionsIcons = [];
+				optionsIcons.clear();
 			}
 
 			search();
@@ -207,8 +212,8 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 			if (iconCallback != null && !ClientPrefs.data.disableFreeplayIcons) {
 				var icon = iconCallback(futureIndex);
 				if (icon != null) {
-					futureIcon = Paths.asyncBitmap(icon.path, null, icon.mod);
 					futureIconPath = icon.path;
+					futureIcon = Paths.asyncBitmap(icon.path, null, icon.mod);
 				}
 			}
 		}
@@ -268,6 +273,10 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 				close();
 		}
 
+		if (FlxG.keys.pressed.ANY && pressCallback != null) {
+			pressCallback(controls);
+		}
+
 		for (grpIndex => item in grpTexts.members) {
 			var item:Scrollable = cast(item, Scrollable);
 			item.x = ((item.targetY - lerpSelected) * item.distancePerItem.x) + item.startPosition.x;
@@ -282,8 +291,14 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 		obj.alpha = FlxMath.bound(obj.alpha + elapsed * 5, 0, 0.6);
 	}
 
-	var selectedItem:Scrollable = null;
-	function changeSelection(change:Int = 0) {
+	public function getSelectedOptionIndex() {
+		if (!searchOptions.contains(curSelected))
+			return -1;
+		return searchOptions[curSelected];
+	}
+
+	public var selectedItem:Scrollable = null;
+	public function changeSelection(change:Int = 0) {
 		if (change != 0)
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 
@@ -331,6 +346,7 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 
 		grpTexts.clear();
 		grpIcons.clear();
+		grpIconsOverlay.killMembers();
 		futureQueue = [];
 
 		for (obj in newMembs) {
@@ -367,6 +383,9 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 			else if (!optionsIcons.exists(item.ID) && futureIndex != item.ID) {
 				futureQueue.push(item.ID);
 			}
+
+			if (renderCallback != null)
+				renderCallback(item.ID, item, icon);
 
 			if (item.targetY == curSelected) {
 				selectedItem = item;

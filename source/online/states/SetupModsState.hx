@@ -159,7 +159,7 @@ class SetupModsState extends MusicBeatState {
 				item.alpha = 1;
 			}
 
-			if (modsInput[item.ID] == null || !(modsInput[item.ID].startsWith('https://') || modsInput[item.ID].startsWith('http://')))
+			if (OnlineMods.checkInvalidURL(modsInput[item.ID]))
 				item.color = FlxColor.RED;
 			else
 				item.color = FlxColor.LIME;

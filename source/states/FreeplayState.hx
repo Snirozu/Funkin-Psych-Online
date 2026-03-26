@@ -1,5 +1,7 @@
 package states;
 
+import online.mods.OnlineMods;
+import substates.PromptSubState;
 import online.network.FunkinNetwork;
 import objects.Note;
 import online.util.ShitUtil;
@@ -862,6 +864,8 @@ class FreeplayState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
+		super.update(elapsed);
+
 		Conductor.songPosition = FlxG.sound.music.time;
 
 		for (v in [vocals, opponentVocals]) {
@@ -908,7 +912,7 @@ class FreeplayState extends MusicBeatState
 
 		if ((chatBox != null && chatBox.focused) || searchInputWait || transToPlayState) {
 			updateTexts(elapsed);
-			super.update(elapsed);
+			// super.update(elapsed);
 			return;
 		}
 
@@ -1034,7 +1038,8 @@ class FreeplayState extends MusicBeatState
 						search();
 						updateGroupTitle();
 						return true;
-					}, (i) -> {
+					});
+					selState.iconCallback = (i) -> {
 						if (searchGroup == MIX) {
 							Mods.currentModDirectory = charsWeeksLoaded.get(searchGroupVList[i]);
 							var charaData:CharacterFile = Character.getCharacterFile(searchGroupVList[i]);
@@ -1050,7 +1055,7 @@ class FreeplayState extends MusicBeatState
 						}
 						Mods.loadTopMod();
 						return null;
-					});
+					};
 					selState.groups = FreeplayState.GROUPS;
 					selState.curGroup = FreeplayState.GROUPS.indexOf(ClientPrefs.data.groupSongsBy);
 					selState.groupCallback = i -> {
@@ -1145,36 +1150,53 @@ class FreeplayState extends MusicBeatState
 							var songLowercase:String = Paths.formatToSongPath(getSongName());
 							var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
 
-							persistentUpdate = false;
 							updateMod();
 							trace('Song mod directory: "${Mods.currentModDirectory}"');
-							try {
-								final data:Array<Dynamic> = [
-									songLowercase,
-									poop,
-									curDifficulty,
-									Md5.encode(Song.loadRawSong(poop, songLowercase)),
-									Mods.currentModDirectory,
-									online.mods.OnlineMods.getModURL(Mods.currentModDirectory),
-									Difficulty.list
-								];
-								trace(data);
-								GameClient.send("setSong", data);
-							}
-							catch (e:Dynamic) {
-								trace('ERROR! $e');
+							final modUrl:String = online.mods.OnlineMods.getModURL(Mods.currentModDirectory);
 
-								var errorStr:String = e.toString();
-								if (errorStr.startsWith('[file_contents,assets/data/'))
-									errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length - 1); // Missing chart
-								missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
-								missingText.screenCenter(Y);
-								missingText.visible = true;
-								missingTextBG.visible = true;
-								FlxG.sound.play(Paths.sound('cancelMenu'));
+							persistentUpdate = false;
 
-								updateTexts(elapsed);
+							function sendSong() {
+								try {
+									final data:Array<Dynamic> = [
+										songLowercase,
+										poop,
+										curDifficulty,
+										Md5.encode(Song.loadRawSong(poop, songLowercase)),
+										Mods.currentModDirectory,
+										modUrl,
+										Difficulty.list
+									];
+									trace(data);
+									GameClient.send("setSong", data);
+								}
+								catch (e:Dynamic) {
+									trace('ERROR! $e');
+
+									var errorStr:String = e.toString();
+									if (errorStr.startsWith('[file_contents,assets/data/'))
+										errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length - 1); // Missing chart
+									missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
+									missingText.screenCenter(Y);
+									missingText.visible = true;
+									missingTextBG.visible = true;
+									FlxG.sound.play(Paths.sound('cancelMenu'));
+
+									updateTexts(elapsed);
+								}
 							}
+
+							if (Mods.currentModDirectory.length > 0 && OnlineMods.checkInvalidURL(modUrl))
+								openSubState(new PromptSubState('This mod doesn\'t have a valid URL!', 'Do you want to proceed?', onYes -> {
+									if (!onYes) {
+										persistentUpdate = true;
+										return;
+									}
+
+									sendSong();
+								}));
+							else
+								sendSong();
 						}
 						else {
 							enterSong();
@@ -1368,7 +1390,6 @@ class FreeplayState extends MusicBeatState
 		itemsCamera.x = -itemsCameraScrollX;
 		if (selected)
 			leaderboardTimer += elapsed;
-		super.update(elapsed);
 	}
 
 	var itemsCameraZoom:Float = 1;

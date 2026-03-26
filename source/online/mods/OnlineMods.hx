@@ -49,6 +49,10 @@ class OnlineMods {
 		File.saveContent(Paths.mods(mod + "/mod_url.txt"), url);
 	}
 
+	public static function checkInvalidURL(url:Null<String>) {
+		return url == null || !(url.startsWith('https://') || url.startsWith('http://'));
+	}
+
 	public static function downloadMod(url:String, manual:Bool, ?onSuccess:String->Void) {
 		if (!manual && ClientPrefs.data.disableAutoDownloads)
 			return;

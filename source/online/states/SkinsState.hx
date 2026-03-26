@@ -10,6 +10,7 @@ import haxe.io.Path;
 import sys.FileSystem;
 import flixel.group.FlxGroup;
 import objects.Character;
+import states.FreeplayState.Heart;
 
 #if lumod
 @:build(lumod.LuaScriptClass.build())
@@ -61,7 +62,9 @@ class SkinsState extends MusicBeatState {
 
 	var blackRectangle:FlxSprite;
 
-	var staticSound:FlxSound;
+	static var staticSound:FlxSound;
+	static var favSound:FlxSound;
+	static var unfavSound:FlxSound;
 	public static var music:FlxSound;
 	// public static var musicIntro:FlxSound;
 	
@@ -79,6 +82,7 @@ class SkinsState extends MusicBeatState {
 	// static var introPlayed:Bool = false;
 
 	var stageObjects:Array<FlxSprite> = [];
+	var curSelGroup:Int = 0;
 
     override function create() {
 		Paths.clearUnusedMemory();
@@ -340,14 +344,27 @@ class SkinsState extends MusicBeatState {
 
 		Mods.currentModDirectory = oldModDir;
 
+		if (favSound == null) {
+			favSound = new FlxSound();
+			favSound.loadEmbedded(Paths.sound('fav'));
+			favSound.persist = true;
+		}
+		
+		if (unfavSound == null) {
+			unfavSound = new FlxSound();
+			unfavSound.loadEmbedded(Paths.sound('unfav'));
+			unfavSound.persist = true;
+		}
+
+		if (staticSound == null) {
+			staticSound = new FlxSound();
+			staticSound.loadEmbedded(Paths.sound('static loop'));
+			staticSound.persist = true;
+		}
+
         character = new FlxTypedGroup<Character>();
 		character.cameras = [characterCamera];
         add(character);
-
-		staticSound = FlxG.sound.play(Paths.sound('static loop'), 1, true, false);
-		staticSound.stop();
-		staticSound.persist = false;
-		FlxG.sound.list.add(staticSound);
 
 		staticMan = new FlxSprite();
 		staticMan.antialiasing = ClientPrefs.data.antialiasing;
@@ -519,26 +536,45 @@ class SkinsState extends MusicBeatState {
 
 			// daCopy[0] = "Default";
 
-			var listOfCharacterNames = [];
-			for (character in charactersList) {
-				listOfCharacterNames.push(character[0]);
-			}
+			var charList = [];
+			var charModList = [];
+			var indexesOfCharacters = [];
 
-			openSubState(new online.substates.SoFunkinSubstate(listOfCharacterNames, curCharacter, i -> {
+			function loadCharacterNames(?isFav:Bool = false) {
+				charList = [];
+				charModList = [];
+				indexesOfCharacters = [];
+
+				for (i => character in charactersList) {
+					if (isFav && !ClientPrefs.data.favSkins.contains(character[0] + ':' + character[3]))
+						continue;
+
+					charList.push(character[0]);
+					charModList.push(character[3]);
+					indexesOfCharacters.push(i);
+				}
+
+				return charList;
+			}
+			loadCharacterNames(curSelGroup == 1);
+
+			final selState = new online.substates.SoFunkinSubstate(charList, indexesOfCharacters.indexOf(curCharacter), i -> {
 				if (selectTimer != null)
 					selectTimer.active = true;
-				setCharacter(i - curCharacter);
+				curCharacter = indexesOfCharacters[i];
+				setCharacter(0);
 				return true;
-			}, (i) -> {
-				Mods.currentModDirectory = charactersList[i][3];
-				var charaData:CharacterFile = Character.getCharacterFile(getCharacterName(i));
+			});
+			selState.iconCallback = i -> {
+				Mods.currentModDirectory = charactersList[indexesOfCharacters[i]][3];
+				var charaData:CharacterFile = Character.getCharacterFile(getCharacterName(indexesOfCharacters[i]));
 				var iconName = charaData?.healthicon;
 				if (iconName != null) {
 					final path = HealthIcon.findIconPath(iconName);
 					Mods.loadTopMod();
 					return {
 						path: path,
-						mod: charactersList[i][3]
+						mod: charactersList[indexesOfCharacters[i]][3]
 					};
 					// var icon = new HealthIcon(iconName, false);
 					// // icon.sprTracker = leText;
@@ -547,7 +583,57 @@ class SkinsState extends MusicBeatState {
 				}
 				Mods.loadTopMod();
 				return null;
-			}));
+			};
+			selState.curGroup = curSelGroup;
+			selState.groups = ['All', 'Favorites'];
+			selState.groupCallback = i -> {
+				var curSelection = null;
+				if (selState.getSelectedOptionIndex() != -1) {
+					curSelection = indexesOfCharacters[selState.getSelectedOptionIndex()];
+				}
+				curSelGroup = i;
+				loadCharacterNames(i == 1);
+				if (curSelection != null) {
+					final newSelection = indexesOfCharacters.indexOf(curSelection);
+					if (newSelection != -1)
+						selState.curSelected = newSelection;
+				}
+				return charList;
+			};
+			selState.pressCallback = controls -> {
+				if (selState.selectedItem == null)
+					return;
+
+				if (controls.FAV) {
+					final charId = charList[selState.getSelectedOptionIndex()] + ':' + charModList[selState.getSelectedOptionIndex()];
+
+					if (ClientPrefs.data.favSkins.contains(charId)) {
+						ClientPrefs.data.favSkins.remove(charId);
+						unfavSound.volume = 1;
+						unfavSound.play(true);
+					}
+					else {
+						ClientPrefs.data.favSkins.push(charId);
+						favSound.volume = 1;
+						favSound.play(true);
+					}
+					ClientPrefs.saveSettings();
+
+					selState.updateGroup();
+				}
+			};
+			selState.renderCallback = (i, item, icon) -> {
+				final charId = charList[i] + ':' + charModList[i];
+
+				var isFavorited = ClientPrefs.data.favSkins.contains(charId);
+				if (isFavorited) {
+					final heart:Heart = cast selState.grpIconsOverlay.recycle(Heart);
+					heart.target = icon ?? cast item;
+					heart.copyScaling = icon != null;
+					heart.offset.x = icon != null ? 0 : -(cast (item, FlxSprite).width + 10);
+				}
+			};
+			openSubState(selState);
 		}
 
 		if (!FlxG.keys.pressed.SHIFT && controls.ACCEPT) {
