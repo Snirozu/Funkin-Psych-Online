@@ -132,7 +132,6 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
 			if (StringTools.startsWith(url, "https://drive.google.com/drive/folders/")) {
 				addMessage("Mod Issue for: " + mod + ": Can't download GDrive folders!");
-				return;
 			}
 		}
 
