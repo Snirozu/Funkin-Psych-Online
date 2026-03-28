@@ -24,6 +24,9 @@ import openfl.media.Sound;
 #if sys
 import sys.io.File;
 import sys.FileSystem;
+#if linux
+import haxe.io.Path;
+#end
 #end
 import tjson.TJSON as Json;
 
@@ -580,20 +583,59 @@ class Paths
 		return modFolders('achievements/' + key + '.json');
 	}*/
 
+	#if linux
+	// Function for fuzzy finding on Linux, fixes issues where modpack developers are stupid
+	// and are referring to files with the wrong case. Windows is lazy, but Unix is not so
+	// it causes issues.
+	// -GenieCMD
+	static public function getFileLinux(path : String) {
+		var fileName : String = Path.withoutDirectory(path);
+		var dirToSearch : String = Path.directory(path);
+		if (FileSystem.exists(dirToSearch)) {
+			for (file in FileSystem.readDirectory(dirToSearch)) {
+				var fullNewFilePath = Path.join([dirToSearch,file]);
+				if (FileSystem.isDirectory(fullNewFilePath))
+					continue;
+				trace("Current file: " + file + ", looking for " + fileName);
+				if (file.toLowerCase() == fileName.toLowerCase()) {
+					trace("Filename is real! It's " + file);
+					return fullNewFilePath;
+				}
+			}
+			return null;
+		} else {
+			return null;
+		}
+	}
+	#end
+
 	static public function modFolders(key:String, ?modDirectory:String) {
 		modDirectory ??= Mods.currentModDirectory;
 
 		if(modDirectory != null && modDirectory.length > 0) {
 			var fileToCheck:String = mods(modDirectory + '/' + key);
+			#if linux
+			var actualFile = getFileLinux(fileToCheck);
+			if (actualFile != null && FileSystem.exists(actualFile))
+				return actualFile;
+			#else
 			if(FileSystem.exists(fileToCheck)) {
 				return fileToCheck;
 			}
+			#end
 		}
 
 		for(mod in Mods.getGlobalMods()){
 			var fileToCheck:String = mods(mod + '/' + key);
-			if(FileSystem.exists(fileToCheck))
+			#if linux
+			var actualFile = getFileLinux(fileToCheck);
+			if (actualFile != null && FileSystem.exists(actualFile))
+				return actualFile;
+			#else
+			if(FileSystem.exists(fileToCheck)) {
 				return fileToCheck;
+			}
+			#end
 		}
 		return 'mods/' + key;
 	}
