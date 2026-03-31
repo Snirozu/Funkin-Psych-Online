@@ -35,6 +35,9 @@ class ABotSpeaker extends FlxSpriteGroup {
 	public function new(x:Float = 0, y:Float = 0, ?addDarkSprite:Bool = false, ?isPixel:Bool = false) {
 		super(x, y);
 
+		var oldLevel = Paths.currentLevel;
+		Paths.setCurrentLevel('weekend1');
+
 		var antialias = ClientPrefs.data.antialiasing && !isPixel;
 
 		bg = new FlxSprite(90, 20).loadGraphic(Paths.image(
@@ -138,6 +141,8 @@ class ABotSpeaker extends FlxSpriteGroup {
 			speakerPixel.updateHitbox();
 			add(speakerPixel);
 		}
+
+		Paths.setCurrentLevel(oldLevel);
 	}
 
 	#if funkin.vis

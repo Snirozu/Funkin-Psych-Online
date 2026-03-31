@@ -7,7 +7,7 @@ class NicommentsView extends FlxTypedGroup<Nicomment> {
 
 	public var alpha:Float = 1.0;
 	public var offsetY:Float = 0;
-	var rows:Array<Int> = [for (i in 0...10) i];
+	var rows:Array<Int> = [for (i in 0...15) i];
 
     public function new(songId:String) {
 		super();

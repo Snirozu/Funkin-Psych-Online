@@ -43,7 +43,7 @@ class FunkinPoints {
 		// depends on player's note streak (x2fp per 5000 combo)
 		fp *= 1 + maxCombo / 5000;
 		// depends on player's note accuracy (weighted by power of 3; 95% = x0.85, 90% = x0.72, 80% = x0.512)
-		fp *= Math.pow(accuracy, 2) / (1 + misses * 0.1);
+		fp *= Math.pow(accuracy, 3) / (1 + misses * 0.05);
 		return fp;
 	}
 
