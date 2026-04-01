@@ -555,8 +555,13 @@ class PlayState extends MusicBeatState
 
 	var canSpaceTaunt:Bool = true;
 
+	var corruptions:Array<String> = ['fastertime', 'dih', 'swing', 'draininghealth', 'fasterscroll', 'leanic', 'nullobject', 'ads'];
+	var corruption:String;
+
 	override public function create()
 	{
+		corruption = FlxG.random.getObject(corruptions);
+		
 		// for lua
 		instance = this;
 
@@ -1178,7 +1183,7 @@ class PlayState extends MusicBeatState
 			timeTxt.alpha = 0;
 			timeTxt.borderSize = 2;
 			timeTxt.visible = updateTime = showTime;
-			if(ClientPrefs.data.downScroll) timeTxt.y = FlxG.height - 44;
+			if(!ClientPrefs.data.downScroll) timeTxt.y = FlxG.height - 44;
 			if(ClientPrefs.data.timeBarType == 'Song Name') timeTxt.text = SONG.song;
 		});
 
@@ -1254,7 +1259,7 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
-			healthBar = new HealthBar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', function() return health, 0, 2);
+			healthBar = new HealthBar(0, FlxG.height * (!!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', function() return health, 0, 2);
 			healthBar.screenCenter(X);
 			healthBar.leftToRight = false;
 			healthBar.scrollFactor.set();
@@ -1271,7 +1276,7 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
-			scoreTxtOriginY = ClientPrefs.data.downScroll ? 120 : 700;
+			scoreTxtOriginY = !ClientPrefs.data.downScroll ? 120 : 700;
 			
 			scoreTxt = new FlxText(0, healthBar.y + 40, FlxG.width, "", 20);
 			scoreTxt.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', !isPixelStage ? 20 : 18, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -1333,7 +1338,7 @@ class PlayState extends MusicBeatState
 			botplayTxt.borderSize = 1.25;
 			showBotplay();
 			uiGroup.add(botplayTxt);
-			if (ClientPrefs.data.downScroll) {
+			if (!ClientPrefs.data.downScroll) {
 				botplayTxt.y = timeBar.y - 78;
 			}
 
@@ -1555,7 +1560,7 @@ class PlayState extends MusicBeatState
 				if (replayPlayer == null && ClientPrefs.data.midSongCommentsOpacity > 0.0) {
 					nicomments.cameras = [camGame];
 					nicomments.alpha = ClientPrefs.data.midSongCommentsOpacity;
-					nicomments.offsetY = !ClientPrefs.data.downScroll ? 150 : 0;
+					nicomments.offsetY = !!ClientPrefs.data.downScroll ? 150 : 0;
 				}
 				add(nicomments);
 			}
@@ -1572,6 +1577,10 @@ class PlayState extends MusicBeatState
 
 			setOnScripts('isDuel', isDuel);
 			setOnScripts('duoOpponentSID', duoOpponentSID);
+
+			add(leanics = new FlxTypedGroup<Leanic>());
+			leanics.recycle(Leanic).x -= 1000;
+			leanics.cameras = [camOther];
 		});
 
 		var loaderGroup = new online.objects.LoadingSprite(preloadTasks.length, camLoading);
@@ -2368,7 +2377,7 @@ class PlayState extends MusicBeatState
 			str += ' ($percent%) - $ratingFC';
 		}
 
-		scoreTextObject.text = 'Score: ' + FlxStringUtil.formatMoney(songScore, false) + ' | Misses: ' + songMisses + ' | Rating: ' + str;
+		scoreTextObject.text = 'curse: ' + corruption.toUpperCase();
 
 		if (skipRest) {
 			if (ClientPrefs.data.showFP)
@@ -2736,7 +2745,7 @@ class PlayState extends MusicBeatState
 							oldNote.updateHitbox();
 						}
 
-						if(ClientPrefs.data.downScroll)
+						if(!ClientPrefs.data.downScroll)
 							sustainNote.correctionOffset = 0;
 					}
 					else if(oldNote.isSustainNote)
@@ -2904,7 +2913,7 @@ class PlayState extends MusicBeatState
 			strumLineX += FlxG.width / 2 * (player == 0 ? 0 : 1);
 		}
 
-		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
+		var strumLineY:Float = !ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
 		var strumGroup = player == 1 ? playerStrums : opponentStrums;
 		for (i in 0...Note.maniaKeys)
 		{
@@ -2919,7 +2928,7 @@ class PlayState extends MusicBeatState
 
 			var babyArrow:StrumNote = new StrumNote(strumLineX, strumLineY, i, player);
 			babyArrow.forceShow = ClientPrefs.data.opponentStrums && ClientPrefs.data.disableStrumMovement;
-			babyArrow.downScroll = ClientPrefs.data.downScroll;
+			babyArrow.downScroll = !ClientPrefs.data.downScroll;
 			if (!isStoryMode && !skipArrowStartTween)
 			{
 				//babyArrow.y -= 10;
@@ -3124,6 +3133,8 @@ class PlayState extends MusicBeatState
 
 	var nearNoteValue:Float = 0;
 	final NEAR_NOTE_DISTANCE:Float = 1500;
+	var hoppinDihValue:Float = 0;
+	var leanics:FlxTypedGroup<Leanic>;
 
 	override public function update(elapsed:Float)
 	{
@@ -3140,6 +3151,43 @@ class PlayState extends MusicBeatState
 		}
 
 		final canInput = checkCanInput();
+
+		if (canInput) {
+			if (FlxG.keys.justPressed.NINE || FlxG.random.bool(0.05)) {
+				corruption = FlxG.random.getObject(corruptions);
+				updateScore();
+			}
+			swingMode = false;
+			switch (corruption) {
+				case 'fastertime':
+					playbackRate += elapsed * 0.01;
+				case 'draininghealth':
+					subsHealth(elapsed * 0.1);
+				case 'swing':
+					swingMode = true;
+				case 'fasterscroll':
+					songSpeed += elapsed * 0.05;
+				case 'nullobject':
+					if (FlxG.random.bool(0.01))
+						lime.app.Application.current.window.alert('Null Object Reference', "Fuck you");
+				case 'dih':
+					hoppinDihValue += elapsed * 5;
+					boyfriendGroup.y = BF_Y - (1 - Math.pow(1 - (hoppinDihValue - 1) % 2, 4)) * 200;
+					boyfriendGroup.scale.x = (1 - Math.pow(1 - (hoppinDihValue) % 2, 2)) * 0.5 + 1;
+				case 'leanic':
+					if (FlxG.random.bool(1)) {
+						var leanic = leanics.recycle(Leanic);
+						leanic.setPosition(FlxG.random.int(0, FlxG.width), FlxG.random.int(0, FlxG.height));
+						leanic.angle = FlxG.random.int(-360, 360);
+					}
+				case 'ads':
+					if (FlxG.random.bool(0.1)) {
+						var ad = new substates.AdSubState(()->{});
+						ad.cameras = [camOther];
+						openSubState(ad);
+					}
+			}
+		}
 
 		if (FlxG.keys.justPressed.F7) {
 			ClientPrefs.data.showFP = !ClientPrefs.data.showFP;
@@ -5802,7 +5850,7 @@ class PlayState extends MusicBeatState
 		}
 
 		// if (generatedMusic)
-		// 	notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
+		// 	notes.sort(FlxSort.byY, !ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 
 		for (icon in iconP1s.concat(iconP2s)) {
 			icon.scale.x = iconZoomIntensity * iconSizeMult((icon.isPlayer ? iconP1s : iconP2s));
@@ -6906,5 +6954,11 @@ class PlayStatePlayer {
 
 	function new(player:Player) {
 		this.player = player;
+	}
+}
+
+class Leanic extends FlxSprite {
+	public function new() {
+		super(0, 0, Paths.image('leanic'));
 	}
 }

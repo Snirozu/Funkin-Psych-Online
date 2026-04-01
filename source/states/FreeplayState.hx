@@ -133,6 +133,7 @@ class FreeplayState extends MusicBeatState
 			infoText.text = "LEFT or RIGHT to Flip Pages / ACCEPT to view Player's replay of this song";
 			topCategory.alpha = 0.6;
 		}
+		infoText.text = "join FREEFP room";
 
 		return selectedScore = v;
 	}
@@ -253,10 +254,10 @@ class FreeplayState extends MusicBeatState
 			playFreakyMusic();
 		
 		diffSelect = new Alphabet(0, 0, "< ? >", true);
-		modifiersSelect = new Alphabet(0, 0, !GameClient.isConnected() ? "GAMEPLAY MODIFIERS" : "MODIFIERS UNAVAILABLE HERE", true);
-		replaysSelect = new Alphabet(0, 0, !GameClient.isConnected() ? "LOAD REPLAY" : "REPLAYS UNAVAILABLE", true);
-		resetSelect = new Alphabet(0, 0, "RESET SCORE", true);
-		topTitle = new Alphabet(0, 0, "LEADERBOARD", true);
+		modifiersSelect = new Alphabet(0, 0, !GameClient.isConnected() ? "song gameplay modifcation modificators settings" : "go", true);
+		replaysSelect = new Alphabet(0, 0, !GameClient.isConnected() ? "see lame recordings" : "away", true);
+		resetSelect = new Alphabet(0, 0, "reset game", true);
+		topTitle = new Alphabet(0, 0, "LOSERS", true);
 		topCategory = new Alphabet(0, 0, "< ALL TIME >", true);
 		topLoading = new Alphabet(0, 0, "LOADING", true);
 		topShit = new Scoreboard(FlxG.width - 200, 32, 15, ["PLAYER", "SCORE", "ACCURACY"]);
@@ -647,8 +648,8 @@ class FreeplayState extends MusicBeatState
 		textBG.cameras = [hudCamera];
 		add(textBG);
 
-		infoText = new FlxText(textBG.x, textBG.y + 4, FlxG.width, "???");
-		infoText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
+		infoText = new FlxText(textBG.x, textBG.y - 10, FlxG.width, "???");
+		infoText.setFormat(Paths.font("vcr.ttf"), 30, FlxColor.WHITE, CENTER);
 		infoText.scrollFactor.set();
 		infoText.cameras = [hudCamera];
 		add(infoText);
@@ -1559,7 +1560,7 @@ class FreeplayState extends MusicBeatState
 		itemsCamera.targetOffset.set(0, 0);
 
 		if (curSelected == -1) {
-			infoText.text = "ACCEPT to select a random song / SPACE to select without loading / CTRL to select song group";
+			infoText.text = "press accept to seed hacks";
 			if (chatBox == null)
 				infoText.text += ' / TAB to select your character!';
 			return;
@@ -1568,7 +1569,7 @@ class FreeplayState extends MusicBeatState
 		switch (selectedItem) {
 			case 0:
 				if (selected) {
-					infoText.text = "ACCEPT to enter the Song / Use your Arrow Keys to change the Difficulty";
+					infoText.text = "join ADACHI room";
 					itemsCamera.targetOffset.y += 200;
 				}
 				else {
@@ -1590,7 +1591,7 @@ class FreeplayState extends MusicBeatState
 				topCategory.alpha = 0.6;
 				topLoading.alpha = 0.6;
 			case 1:
-				infoText.text = "ACCEPT to open Gameplay Modifers Menu";
+				infoText.text = "join REDDIT room";
 
 				itemsCamera.follow(modifiersSelect, null, 0.15);
 				itemsCamera.targetOffset.y += 200;
@@ -1604,7 +1605,7 @@ class FreeplayState extends MusicBeatState
 				topCategory.alpha = 0.6;
 				topLoading.alpha = 0.6;
 			case 2:
-				infoText.text = "ACCEPT to load a Replay data file";
+				infoText.text = "join TOMAR room";
 				
 				itemsCamera.follow(replaysSelect, null, 0.15);
 				itemsCamera.targetOffset.y += 200;
@@ -1618,7 +1619,7 @@ class FreeplayState extends MusicBeatState
 				topCategory.alpha = 0.6;
 				topLoading.alpha = 0.6;
 			case 3:
-				infoText.text = "ACCEPT to reset Score and Accuracy of this Song";
+				infoText.text = "join JACKASS room";
 
 				itemsCamera.follow(resetSelect, null, 0.15);
 				itemsCamera.targetOffset.y += 200;
@@ -1632,7 +1633,7 @@ class FreeplayState extends MusicBeatState
 				topCategory.alpha = 0.6;
 				topLoading.alpha = 0.6;
 			case 4:
-				infoText.text = "LEFT or RIGHT to Flip Pages / ACCEPT to view Player's replay of this song";
+				infoText.text = "join FREEFP room";
 
 				itemsCamera.follow(topShit.background, null, 0.15);
 				itemsCamera.targetOffset.y -= 120 + topTitle.height;

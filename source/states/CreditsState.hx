@@ -45,7 +45,7 @@ class CreditsState extends MusicBeatState
 
 		var defaultList:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
 			['Psych Online'],
-			['Snirozu', 'snirozu', 'helo i made this mod :)', 'https://sniro.boo', 'FFCC33'],
+			['Snirozu', 'snirozu', 'found dead', 'https://sniro.boo', 'FFCC33'],
 			['Til', 'til', 'Code Contributor with over 30 commits!\nDeveloper of the upcoming Mobile Port', 'https://techniktil.tilnotdrip.org', 'FFFF00'],
 			[''],
 			['Contributors'],
