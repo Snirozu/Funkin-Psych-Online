@@ -44,8 +44,6 @@ class MainMenuState extends MusicBeatState
 	// var camFollow:FlxObject;
 	var updatEBg:FlxSprite;
 
-	var coolitem:FlxSprite;
-
 	public function new() {
 		super();
 	}
@@ -154,24 +152,6 @@ class MainMenuState extends MusicBeatState
 			menuIcons.push(menuItem);
 		}
 
-		var offset:Float = 108 - (Math.max(optionShit.length, 4) - 4) * 80;
-		coolitem = new FlxSprite(0, (0 * 140) + offset - 40);
-		coolitem.antialiasing = ClientPrefs.data.antialiasing;
-		coolitem.scale.x = scale;
-		coolitem.scale.y = scale;
-		coolitem.frames = Paths.getSparrowAtlas('mainmenu/upgrade');
-		coolitem.animation.addByPrefix('idle', "upgrade idle", 24);
-		coolitem.animation.addByPrefix('selected', "upgrade selected", 24);
-		coolitem.animation.play('idle');
-		coolitem.ID = 0;
-		coolitem.screenCenter(X);
-		add(coolitem);
-		var scr:Float = (optionShit.length - 4) * 0.135;
-		if(optionShit.length < 6) scr = 0;
-		coolitem.scrollFactor.set(0, scr);
-		//menuItem.setGraphicSize(Std.int(menuItem.width * 0.58));
-		coolitem.updateHitbox();
-
 		final addX = FlxG.width / 2 - (menuIcons[menuIcons.length - 1].x + menuIcons[menuIcons.length - 1].width) / 2;
 		for (icon in menuIcons) {
 			icon.x += addX;
@@ -179,7 +159,7 @@ class MainMenuState extends MusicBeatState
 
 		// FlxG.camera.follow(camFollow, null, 0.15);
 
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 64, 0, "ps-lice onliner v" + Main.PSYCH_ONLINE_VERSION, 12);
+		var versionShit:FlxText = new FlxText(12, FlxG.height - 64, 0, "Psych Online v" + Main.PSYCH_ONLINE_VERSION, 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
@@ -189,7 +169,7 @@ class MainMenuState extends MusicBeatState
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 24, 0, "sike engine v" + psychEngineVersion + "*", 12);
+		var versionShit:FlxText = new FlxText(12, FlxG.height - 24, 0, "Psych Engine v" + psychEngineVersion + "*", 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
@@ -362,36 +342,34 @@ class MainMenuState extends MusicBeatState
 						{
 							FlxFlicker.flicker(spr, 0.5, 0.06, false, false, function(flick:FlxFlicker)
 							{
-								openSubState(new substates.AdSubState(() -> {
-									var daChoice:String = optionShit[curSelected];
+								var daChoice:String = optionShit[curSelected];
 
-									switch (daChoice)
-									{
-										case 'story_mode':
-											FlxG.switchState(() -> new StoryMenuState());
-										case 'freeplay':
-											FlxG.switchState(() -> new FreeplayState());
-										#if MODS_ALLOWED
-										case 'mods':
-											FlxG.switchState(() -> new ModsMenuState());
-										#end
-										case 'awards':
-											FlxG.switchState(() -> new AchievementsMenuState());
-										case 'credits':
-											FlxG.switchState(() -> new CreditsState());
-										case 'options':
-											LoadingState.loadAndSwitchState(new OptionsState());
-											OptionsState.onPlayState = false;
-											OptionsState.onOnlineRoom = false;
-											if (PlayState.SONG != null)
-											{
-												PlayState.SONG.arrowSkin = null;
-												PlayState.SONG.splashSkin = null;
-											}
-										case 'online':
-											FlxG.switchState(() -> new OnlineState());
-									}
-								}));
+								switch (daChoice)
+								{
+									case 'story_mode':
+										FlxG.switchState(() -> new StoryMenuState());
+									case 'freeplay':
+										FlxG.switchState(() -> new FreeplayState());
+									#if MODS_ALLOWED
+									case 'mods':
+										FlxG.switchState(() -> new ModsMenuState());
+									#end
+									case 'awards':
+										FlxG.switchState(() -> new AchievementsMenuState());
+									case 'credits':
+										FlxG.switchState(() -> new CreditsState());
+									case 'options':
+										LoadingState.loadAndSwitchState(new OptionsState());
+										OptionsState.onPlayState = false;
+										OptionsState.onOnlineRoom = false;
+										if (PlayState.SONG != null)
+										{
+											PlayState.SONG.arrowSkin = null;
+											PlayState.SONG.splashSkin = null;
+										}
+									case 'online':
+										FlxG.switchState(() -> new OnlineState());
+								}
 							});
 						}
 					});
@@ -458,7 +436,6 @@ class MainMenuState extends MusicBeatState
 				if(menuItems.length > 4) {
 					add = menuItems.length * 8;
 				}
-				coolitem.setPosition(spr.x, spr.y);
 				// camFollow.setPosition(spr.getGraphicMidpoint().x, spr.getGraphicMidpoint().y - add);
 				
 			}

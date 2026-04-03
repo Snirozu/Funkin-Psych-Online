@@ -20,12 +20,12 @@ class OnlineState extends MusicBeatState {
 	var items:FlxTypedSpriteGroup<FlxText>;
 
 	var itms:Array<String> = [
-        "dolacz",
-        "i don't ha ve a joke for this one",
-        "find bitches",
-		"not options",
-		"see unemployed losers",
-		"look at stupid mods"
+        "JOIN",
+        "HOST",
+        "FIND",
+		"OPTIONS",
+		"LEADERBOARD",
+		"MOD DOWNLOADER"
     ];
 
 	// var networkPlayer:FlxText;
@@ -303,8 +303,8 @@ class OnlineState extends MusicBeatState {
 					// networkBg.visible = false;
 				}
 				else {
-					playersOnline.text = 'Rats Online: ' + data.online;
-					availableRooms.text = 'Filled Rooms: ' + data.rooms;
+					playersOnline.text = 'Players Online: ' + data.online;
+					availableRooms.text = 'Available Rooms: ' + data.rooms;
 					frontMessage.text = data.sez;
 					frontMessage.y = FlxG.height - frontMessage.height - 20;
 				}
@@ -369,22 +369,22 @@ class OnlineState extends MusicBeatState {
 				changeSelection(1);
 
 			if (controls.ACCEPT || (FlxG.mouse.justPressed && mouseInItems)) {
-				switch (curSelected) {
-					case 0:
+				switch (itms[curSelected].toLowerCase()) {
+					case "join":
 						inputWait = true;
-					case 2:
+					case "find":
 						disableInput = true;
 						// FlxG.openURL(GameClient.serverAddress + "/rooms");
 						FlxG.switchState(() -> new FindRoomState());
-					case 1:
+					case "host":
 						disableInput = true;
 						GameClient.createRoom(GameClient.serverAddress, onRoomJoin);
-					case 3:
+					case "options":
 						disableInput = true;
 						FlxG.switchState(() -> new OnlineOptionsState());
-					case 4:
+					case "leaderboard":
 						openSubState(new TopPlayerSubstate());
-					case 5:
+					case "mod downloader":
 						disableInput = true;
 						FlxG.switchState(() -> new DownloaderState());
 				}
@@ -499,7 +499,7 @@ class OnlineState extends MusicBeatState {
 
 		switch (curSelected) {
 			case 0:
-				itemDesc.text = "";
+				itemDesc.text = "Join a room using a room code";
 			case 1:
 				itemDesc.text = "Creates a room";
 			case 2:
@@ -511,7 +511,6 @@ class OnlineState extends MusicBeatState {
 			case 5:
 				itemDesc.text = "Download mods from Gamebanana here!";
 		}
-		itemDesc.text = "please leave";
 		itemDesc.screenCenter(X);
 
 		descBox.scale.set(FlxG.width - 500, (itemDesc.text.split("\n").length + 2) * (itemDesc.size));
@@ -582,8 +581,8 @@ class OnlineState extends MusicBeatState {
 		inputWait = false;
 
 		if (inputString.length >= 0) {
-			switch (curSelected) {
-				case 0:
+			switch (itms[curSelected].toLowerCase()) {
+				case "join":
 					disableInput = true;
 					if (daCoomCode.toLowerCase() == "adachi") {
 						FlxG.sound.playMusic(Paths.sound('cabbage'));
