@@ -446,8 +446,10 @@ class Note extends FlxSprite
 			var graphic = null;
 			if(isSustainNote) {
 				graphic = Paths.image('pixelUI/' + skinPixel + 'ENDS' + skinPostfix);
-				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 2));
-				originalHeight = graphic.height / 2;
+				if (graphic != null){
+					loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 2));
+					originalHeight = graphic.height / 2;
+				}
 			}
 			else if (colArray[noteData] == 'odd') {
 				graphic = Paths.image('pixelUI/' + skinPixel + skinPostfix + '_ODD');
