@@ -162,7 +162,7 @@ class DiscordClient
 				presence.state = "In a Private Room";
 			}
 			presence.partySize = GameClient.getPlayerCount();
-			presence.partyMax = 4;
+			presence.partyMax = 6;
 		}
 		else
 		{

@@ -4,7 +4,7 @@
 
 ## Features
 * Online Multiplayer (Public and LAN)
-* 2v2 PvP
+* 3v3 PvP
 * Built-In Mod Downloader
 * No Port Forwarding needed
 * Game Modifiers
