@@ -76,6 +76,11 @@ class PauseSubState extends MusicBeatSubstate
 				oof++;
 			}
 
+			if (online.network.FunkinNetwork.hasAccess('/api/admin/song/submit') && PlayState.instance.netSong != null) {
+				menuItemsOG.insert(3, 'Verify Song');
+				oof++;
+			}
+
 			if (PlayState.replayData != null) {
 				menuItemsOG.remove('Change Difficulty');
 				menuItemsOG.insert(2 + oof, 'Skip Time');
@@ -457,6 +462,8 @@ class PauseSubState extends MusicBeatSubstate
 						var hs = new psychlua.HScript(null, text);
 						Alert.alert(hs.returnValue);
 					}));
+				case 'Verify Song':
+					online.network.Leaderboard.submitSong(PlayState.instance.netSong);
 				case 'Back':
 					menuItems = menuItemsOG;
 					regenMenu();

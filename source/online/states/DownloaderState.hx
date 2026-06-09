@@ -304,6 +304,9 @@ class DownloaderState extends MusicBeatState {
 		items.clear();
 		curSelected = 0;
 
+		final SPACING_X:Int = 250;
+		final ROWS = 5;
+
 		var i:Int = 0;
 		for (mod in mods) {
 			if (mod._sModelName != "Mod" || (mod._aGame != null && mod._aGame._idRow != 8694)) {
@@ -344,8 +347,8 @@ class DownloaderState extends MusicBeatState {
 				thumbnails: thumbnails
 			});
 
-			item.y = Math.floor(i / 5) * 190;
-			item.x = Math.floor(i % 5) * 250;
+			item.x = Math.floor(i % ROWS) * SPACING_X;
+			item.y = Math.floor(i / ROWS) * 190;
 			item.ID = i;
 			items.add(item);
 
@@ -356,7 +359,10 @@ class DownloaderState extends MusicBeatState {
 			pageInfo.text = "No mods found!";
 		}
 
-		items.screenCenter(X);
+		// buggy mess for some reaosn
+		// items.screenCenter(X);
+
+		items.x = (FlxG.width - SPACING_X * (ROWS - 1) - ModItem.FRAME_WIDTH) / 2;
 		items.y = itemsY;
 	}
 }
@@ -373,18 +379,20 @@ class ModItem extends FlxSpriteGroup {
 
 	public var selected = false;
 
+	public static var FRAME_WIDTH:Int = 220;
+
 	public function new(mod:ModInfo) {
 		this.mod = mod;
 		super();
 
 		bg = new FlxSprite();
-		bg.makeGraphic(220, 170, FlxColor.BLACK);
+		bg.makeGraphic(FRAME_WIDTH, 170, FlxColor.BLACK);
 		bg.alpha = 0.5;
 		add(bg);
 
 		thumb = new FlxSprite();
-		thumb.clipRect = new FlxRect(0, 0, 220, 125);
-		thumb.makeGraphic(220, 125, FlxColor.BLACK);
+		thumb.clipRect = new FlxRect(0, 0, FRAME_WIDTH, 125);
+		thumb.makeGraphic(FRAME_WIDTH, 125, FlxColor.BLACK);
 		add(thumb);
 
 		loadScreenshot(0);
@@ -559,7 +567,7 @@ class ModItem extends FlxSpriteGroup {
 						return;
 					}
 
-					thumb.clipRect = new FlxRect(0, 0, 220, 125);
+					thumb.clipRect = new FlxRect(0, 0, FRAME_WIDTH, 125);
 
 					thumb.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes), false, null, false));
 					thumb.antialiasing = ClientPrefs.data.antialiasing;
@@ -587,7 +595,7 @@ class ModItem extends FlxSpriteGroup {
 
 					thumb.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes), false, null, false));
 					thumb.antialiasing = ClientPrefs.data.antialiasing;
-					thumb.setGraphicSize(220, 125);
+					thumb.setGraphicSize(FRAME_WIDTH, 125);
 					thumb.updateHitbox();
 
 					loadingScreenshot = false;

@@ -67,9 +67,9 @@ class CallbackHandler
 				//if(Lua_helper.sendErrorsToLua) {LuaL.error(l, 'CALLBACK ERROR! ${if(e.message != null) e.message else e}');return 0;}
 				// throw(e);
 			}
-			else {
-				Sys.println(fname + ' - luaErr: ' + e);
-			}
+			// else {
+			// 	Sys.println(fname + ' - luaErr: ' + e);
+			// }
 		}
 		return returnNil(l);
 	}

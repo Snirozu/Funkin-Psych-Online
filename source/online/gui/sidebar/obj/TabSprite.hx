@@ -17,6 +17,11 @@ class TabSprite extends Sprite {
 
 	public var tabBg:Bitmap;
 
+	@:isVar public var locked(get, default):Bool = false;
+	function get_locked():Bool {
+		return locked;
+	}
+
 	public function new(title:String, icon:String, ?tabWidth:Null<Int> = null) {
 		super();
 

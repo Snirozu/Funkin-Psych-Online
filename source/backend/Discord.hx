@@ -116,6 +116,13 @@ class DiscordClient
 						Discord.RunCallbacks();
 					}
 
+					// causes rpc corruption wow!!!!
+					// if (haxe.Timer.stamp() - lastUpdate > 10) {
+					// 	Waiter.putPersist(() -> {
+					// 		updatePresence();
+					// 	});
+					// }
+
 					// Wait 1 second until the next loop...
 					Sys.sleep(1.0);
 				}
@@ -162,7 +169,7 @@ class DiscordClient
 				presence.state = "In a Private Room";
 			}
 			presence.partySize = GameClient.getPlayerCount();
-			presence.partyMax = 4;
+			presence.partyMax = 6;
 		}
 		else
 		{
@@ -175,12 +182,14 @@ class DiscordClient
 		updatePresence();
 	}
 
+	static var lastUpdate = 0.0;
 	public static function updatePresence()
 	{
 		if (!ClientPrefs.data.discordRPC)
 			return;
 
 		Discord.UpdatePresence(cpp.RawConstPointer.addressOf(presence.__presence));
+		lastUpdate = haxe.Timer.stamp();
 	}
 	
 	inline public static function resetClientID()

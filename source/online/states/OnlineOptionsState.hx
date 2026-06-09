@@ -205,7 +205,7 @@ class OnlineOptionsState extends MusicBeatState {
 					if (FunkinNetwork.requestRegister(registerOption.inputs[0].text, registerOption.inputs[1].text)) {
 						openSubState(new VerifyCodeSubstate(code -> {
 							if (FunkinNetwork.requestRegister(registerOption.inputs[0].text, registerOption.inputs[1].text, code)) {
-								Alert.alert("Successfully registered!");
+								Alert.alert("Successfully registered!", "New features have appeared in the sidebar!\nPress " + InputFormatter.getKeyName(cast(ClientPrefs.keyBinds.get('sidebar')[0], FlxKey)) + " to open it!");
 								FlxG.resetState();
 							}
 						}));
@@ -229,7 +229,7 @@ class OnlineOptionsState extends MusicBeatState {
 					if (FunkinNetwork.requestLogin(mail)) {
 						openSubState(new VerifyCodeSubstate(code -> {
 							if (FunkinNetwork.requestLogin(mail, code)) {
-								Alert.alert("Successfully logged in!");
+								Alert.alert("Successfully logged in!", "New features have appeared in the sidebar!\nPress " + InputFormatter.getKeyName(cast(ClientPrefs.keyBinds.get('sidebar')[0], FlxKey)) + " to open it!");
 								FlxG.resetState();
 							}
 						}));
@@ -611,7 +611,10 @@ class InputOption extends FlxSpriteGroup {
 			}
 		}
 
-		box.makeGraphic(Std.int(width) + 10, Std.int(height) + 20, 0x81000000);
+		// try to reuse existing bitmaps
+		box.makeGraphic(1, 1, 0x81000000);
+		box.scale.set(Std.int(width) + 10, Std.int(height) + 20);
+		box.updateHitbox();
 
 		borderline = new FlxSprite(box.x, box.y);
 		borderline.makeGraphic(Std.int(box.width), Std.int(box.height), FlxColor.TRANSPARENT);

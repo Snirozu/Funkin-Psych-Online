@@ -216,6 +216,7 @@ class FreeplayState extends MusicBeatState
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
+		DiscordClient.resetClientID();
 		DiscordClient.changePresence("In the Menus", "Freeplay");
 		#end
 
@@ -965,7 +966,7 @@ class FreeplayState extends MusicBeatState
 						favSound.play(true);
 					}
 					ClientPrefs.saveSettings();
-					search();
+					changeSelection();
 				}
 
 				if (controls.RESET && curSelected != -1 && !FlxG.keys.pressed.ALT) {
@@ -1370,8 +1371,8 @@ class FreeplayState extends MusicBeatState
 					var iconPath = 'icons/icon-face';
 					online.util.ShitUtil.tempSwitchMod(songs[futureIndex].folder, () -> {
 						iconPath = HealthIcon.findIconPath(songs[futureIndex].songCharacter);
+						futureIcon = Paths.asyncBitmap(iconPath, null, songs[futureIndex].folder);
 					});
-					futureIcon = Paths.asyncBitmap(iconPath, null, songs[futureIndex].folder);
 					futureIconPath = iconPath;
 				}
 			}

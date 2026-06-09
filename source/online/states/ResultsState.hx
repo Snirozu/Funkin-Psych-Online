@@ -653,7 +653,7 @@ class ResultsState extends MusicBeatState {
 		#if lumod
 		if (FlxG.keys.justPressed.F12) {
 			trace('reloading lumod');
-			Lumod.cache.scripts.clear();
+			// Lumod.storage.scripts.clear();
 			lmLoad();
 		}
 

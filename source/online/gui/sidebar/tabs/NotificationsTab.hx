@@ -70,6 +70,14 @@ class NotificationsTab extends TabSprite {
 	}
 
     function loadData() {
+		if (!online.network.FunkinNetwork.loggedIn) {
+			Waiter.putPersist(() -> {
+				loadingTxt.setText('None!');
+				loadingTxt.visible = true;
+			});
+			return;
+		}
+
         loading = true;
 		Thread.run(() -> {
 			var response = FunkinNetwork.requestAPI('/api/account/notifications', false);

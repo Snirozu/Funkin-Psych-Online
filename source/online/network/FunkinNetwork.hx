@@ -23,6 +23,7 @@ class FunkinNetwork {
 	public static var avgAccuracy(default, null):Float = 0;
 	public static var profileHue(default, null):Float = 0;
 	public static var loggedIn:Bool = false;
+	public static var access:Array<String> = [];
 
 	public static function requestLogin(email:String, ?code:String) {
 		var response = requestAPI({
@@ -98,6 +99,7 @@ class FunkinNetwork {
 		points = json.points;
 		avgAccuracy = json.avgAccuracy;
 		profileHue = json.profileHue;
+		access = json.access;
 		loggedIn = true;
 		NetworkClient.connect();
 		return loggedIn;
@@ -318,5 +320,19 @@ class FunkinNetwork {
 		}
 
 		return response;
+	}
+
+	public static function hasAccess(to:String) {
+		for (perm in access)
+			if (matchWildcard(perm, to))
+				return true;
+		return false;
+	}
+
+	private static function matchWildcard(wildString:String, to:String) {
+		final wildIndex = wildString.indexOf('*');
+		if (wildIndex == -1)
+			return wildString == to;
+		return wildString.substr(0, wildIndex) == to.substr(0, wildIndex);
 	}
 }

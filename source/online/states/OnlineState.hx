@@ -28,7 +28,7 @@ class OnlineState extends MusicBeatState {
 		"MOD DOWNLOADER"
     ];
 
-	// var networkPlayer:FlxText;
+	var presenceInfo:FlxText;
 	// var networkBg:FlxSprite;
 	var itemDesc:FlxText;
 	var playersOnline:FlxText;
@@ -113,6 +113,7 @@ class OnlineState extends MusicBeatState {
 		OnlineMods.checkMods();
 
 		#if DISCORD_ALLOWED
+		DiscordClient.resetClientID();
 		DiscordClient.changePresence("In the Menus", "Online Menu");
 		#end
 
@@ -259,14 +260,15 @@ class OnlineState extends MusicBeatState {
 		// networkBg.alpha = 0.6;
 		// add(networkBg);
 
-		// networkPlayer = new FlxText(30, 30);
-		// networkPlayer.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		// networkPlayer.alpha = 0.5;
-		// networkPlayer.text = FunkinNetwork.loggedIn ? "Logged in as " + FunkinNetwork.nickname : "Not logged in";
-		// if (FunkinNetwork.loggedIn) {
-		// 	networkPlayer.text += "\nPoints:" + FunkinNetwork.points;
-		// }
-		// add(networkPlayer);
+		if (!FunkinNetwork.loggedIn) {
+			presenceInfo = new FlxText(0, 30);
+			presenceInfo.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			presenceInfo.alpha = 0.1;
+			presenceInfo.text = "Not logged in!\n\nCheck OPTIONS to login!";
+			presenceInfo.x = FlxG.width - presenceInfo.width - 30;
+			add(presenceInfo);
+			FlxTween.tween(presenceInfo, {alpha: 0.7}, 1, {ease: FlxEase.quadInOut, type: PINGPONG});
+		}
 
 		// networkBg.scale.set(networkPlayer.width + 20, networkPlayer.height + 20);
 		// networkBg.updateHitbox();
@@ -299,7 +301,7 @@ class OnlineState extends MusicBeatState {
 			Waiter.put(() -> {
 				if (data == null) {
 					playersOnline.text = "NETWORK OFFLINE";
-					// networkPlayer.visible = false;
+					presenceInfo.visible = false;
 					// networkBg.visible = false;
 				}
 				else {

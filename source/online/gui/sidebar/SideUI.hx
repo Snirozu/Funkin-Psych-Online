@@ -189,10 +189,16 @@ class SideUI extends WSprite {
 
 			if (active) {
 				for (i => button in tabButtons) {
-					if (tabButtonsUnderlay[i].overlapsMouse()) {
-						curTabIndex = i;
+					if (!tabButtonsUnderlay[i].overlapsMouse())
+						continue;
+
+					if (tabs[i].locked) {
+						Alert.alert('This tab is inaccessible!');
 						break;
 					}
+
+					curTabIndex = i;
+					break;
 				}
 				curTab.mouseDown(e);
 			}
@@ -247,6 +253,10 @@ class SideUI extends WSprite {
 			tip.y = welcome.y;
 
 			curTab.onShowOnline();
+
+			for (i => button in tabButtons) {
+				button.alpha = tabs[i].locked ? 0.5 : 1;
+			}
 		}
 
 		function onOffline() {
@@ -260,6 +270,10 @@ class SideUI extends WSprite {
 			tip.y = welcome.y;
 
 			curTab.onShowOffline();
+
+			for (i => button in tabButtons) {
+				button.alpha = tabs[i].locked ? 0.5 : 1;
+			}
 		}
 
 		if (active) {

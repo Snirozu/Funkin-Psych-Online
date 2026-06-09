@@ -43,6 +43,10 @@ class ProfileTab extends TabSprite {
         super('Profile', 'profile');
     }
 
+	override function get_locked():Bool {
+		return !online.network.FunkinNetwork.loggedIn;
+	}
+
     public static function view(username:String) {
 		SideUI.instance.active = true;
 		cast(SideUI.instance.tabs[SideUI.instance.initTabs.indexOf(ProfileTab)], ProfileTab).nextUsername = username;
@@ -151,8 +155,17 @@ class ProfileTab extends TabSprite {
 
 	function set_username(v:String) {
 		username = v;
-
+		
 		loading = true;
+
+		if (username == null || username.trim().length <= 0) {
+			Waiter.putPersist(() -> {
+				loadingTxt.setText('Nobody here but us chickens!');
+				loadingTxt.visible = true;
+			});
+			return username;
+		}
+
 		Thread.run(() -> {
 			var response = FunkinNetwork.requestAPI('/api/user/details?name=' + StringTools.urlEncode(username), false);
 

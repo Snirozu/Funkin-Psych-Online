@@ -1,5 +1,6 @@
 package online.network;
 
+import backend.Song.SwagSong;
 import haxe.Json;
 import haxe.Http;
 
@@ -80,7 +81,41 @@ class Leaderboard {
 
 		return response.getString();
 	}
+
+	public static function submitSong(data:NetSong) {
+		var response = FunkinNetwork.requestAPI({
+			path: "/api/admin/song/submit",
+			headers: ["content-type" => "application/json"],
+			body: Json.stringify(data),
+			post: true
+		});
+
+		if (response == null || response.isFailed())
+			return null;
+
+		return response.getString();
+	}
 }
+
+typedef NetSong = {
+	var id:String;
+	var name:String;
+	var keys:Int;
+	var length:Float;
+	var notes:Array<Array<Dynamic>>; // [[time, noteData, sustainLength]]
+	var noteTypes:Array<NetNoteType>;
+	var speed:Float;
+	var bpm:Float;
+}
+
+typedef NetNoteType = {
+	var name:String;
+	var ignoreNote:Bool;
+	var blockHit:Bool;
+	var hitCausesMiss:Bool;
+	var lowPriority:Bool;
+	var ratingDisabled:Bool;
+};
 
 typedef TopScore = {
 	var score:Float;

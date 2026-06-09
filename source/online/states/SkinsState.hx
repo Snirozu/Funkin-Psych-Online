@@ -1,5 +1,7 @@
 package online.states;
 
+import flixel.input.keyboard.FlxKey;
+import backend.InputFormatter;
 import objects.HealthIcon;
 import flixel.FlxSubState;
 import flixel.FlxObject;
@@ -415,7 +417,7 @@ class SkinsState extends MusicBeatState {
 		add(charSelect);
 
 		charInfo = new FlxText(0, 0, FlxG.width);
-		charInfo.text = 'Sample';
+		charInfo.text = '';
 		charInfo.setFormat("VCR OSD Mono", 19, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		charInfo.y = barDown.y + (charSelect.y - barDown.y) / 2 - charInfo.height / 2;
 		charInfo.alpha = 0.6;
@@ -437,7 +439,7 @@ class SkinsState extends MusicBeatState {
 		tip1.cameras = [hud];
 		add(tip1);
 
-		var tip2 = new FlxText(-20, 0, FlxG.width, 'F1 for Help!\nF2 to Browse Verified Skins\nF3 to Browse GB Skins Category');
+		var tip2 = new FlxText(-20, 0, FlxG.width, InputFormatter.getKeyName(cast(ClientPrefs.keyBinds.get('fav')[0], FlxKey)) + ' - Favorite skin\nF2 to Browse GB Skins Category\nF1 for Help!');
 		tip2.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		tip2.y = tip1.y;
 		tip2.alpha = tip1.alpha;
@@ -694,12 +696,35 @@ class SkinsState extends MusicBeatState {
 			}
 		}
 
-		if (FlxG.keys.justPressed.F2) {
+		if (FlxG.keys.pressed.ALT && FlxG.keys.justPressed.F2) {
 			switchState(() -> new DownloaderState('collection:110039'));
 		}
 
-		if (FlxG.keys.justPressed.F3) {
+		if (!FlxG.keys.pressed.ALT && FlxG.keys.justPressed.F2) {
 			switchState(() -> new DownloaderState('category:43788'));
+		}
+
+		if (controls.FAV && curCharacter >= 0) {
+			final charId = charactersList[curCharacter][0] + ':' + charactersList[curCharacter][3];
+
+			if (ClientPrefs.data.favSkins.contains(charId)) {
+				ClientPrefs.data.favSkins.remove(charId);
+				unfavSound.volume = 1;
+				unfavSound.play(true);
+
+				if (character.members[0] != null)
+					character.members[0].playAnim("hurt", true);
+			}
+			else {
+				ClientPrefs.data.favSkins.push(charId);
+				favSound.volume = 1;
+				favSound.play(true);
+
+				if (character.members[0] != null)
+					character.members[0].playAnim("hey", true);
+			}
+			updateTexts();
+			ClientPrefs.saveSettings();
 		}
 
 		if (controls.RESET) {
@@ -893,6 +918,10 @@ class SkinsState extends MusicBeatState {
 			tweenColor(FlxColor.fromRGB(255, 255, 255));
 		}
 
+		updateTexts();
+    }
+
+	function updateTexts() {
 		title.text = curCharacter == -1 ? "(NONE)" : charactersList[curCharacter][0].replace('-', ' ');
 		title.x = FlxG.width / 2 - title.width / 2;
 
@@ -906,11 +935,21 @@ class SkinsState extends MusicBeatState {
 		}
 
 		charInfo.visible = false;
+		charInfo.text = '';
+
 		if (charactersWithWeeks.contains(curCharacter)) {
-			charInfo.text = 'This character has custom MIXES!';
+			charInfo.text = 'This Character has custom MIXES!';
 			charInfo.visible = true;
 		}
-    }
+
+		if (charactersList[curCharacter] != null) {
+			final charId = charactersList[curCharacter][0] + ':' + charactersList[curCharacter][3];
+			if (ClientPrefs.data.favSkins.contains(charId)) {
+				charInfo.text += (charInfo.text.length > 0 ? ' ' : '') + '(Favorite Character)';
+				charInfo.visible = true;
+			}
+		}
+	}
 
 	var colorTweens:Array<FlxTween> = [];
 	function tweenColor(hueColor:FlxColor) {

@@ -84,6 +84,12 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
+		var option:Option = new Option('Filter Script Functions',
+			"If checked, only create-like functions will be run for scripts, preventing more frequent code to not be run.",
+			'filterScriptFunctions',
+			'bool');
+		addOption(option);
+
 		super();
 		insert(1, boyfriend);
 	}

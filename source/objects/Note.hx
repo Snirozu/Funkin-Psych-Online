@@ -122,10 +122,14 @@ class Note extends FlxSprite
 	public var multAlpha(default, set):Float = 1;
 	public var multSpeed(default, set):Float = 1;
 
-	public var copyX:Bool = true;
-	public var copyY:Bool = true;
+	public var copyX(get, default):Bool = true;
+	public var copyY(get, default):Bool = true;
 	public var copyAngle:Bool = true;
-	public var copyAlpha:Bool = true;
+	public var copyAlpha(get, default):Bool = true;
+
+	function get_copyX():Bool { return isForceShowed() ? true : copyX; }
+	function get_copyY():Bool { return isForceShowed() ? true : copyY; }
+	function get_copyAlpha():Bool { return isForceShowed() ? true : copyAlpha; }
 
 	public var hitHealth:Float = 0.02;
 	public var missHealth:Float = 0.1;
@@ -524,6 +528,12 @@ class Note extends FlxSprite
 
 	override function update(elapsed:Float)
 	{
+		if (isForceShowed()) {
+			@:bypassAccessor x = followX; 
+			@:bypassAccessor y = followY; 
+			@:bypassAccessor alpha = noteAlpha; 
+		}
+
 		super.update(elapsed);
 
 		if (PlayState.isPlayerNote(this))
@@ -627,51 +637,64 @@ class Note extends FlxSprite
 	}
 
 	override function set_visible(value:Bool):Bool {
-		if (following != null && following.forceShow) {
+		if (following != null && isForceShowed()) {
 			return super.set_visible(following.visible);
 		}
 		return super.set_visible(value);
 	}
 
 	override function set_alpha(value:Float):Float {
-		if (following != null && following.forceShow) {
+		if (following != null && isForceShowed()) {
 			return super.set_alpha(following.alpha);
 		}
 		return super.set_alpha(value);
 	}
 
 	override function set_x(value:Float):Float {
-		if (following != null && following.forceShow) {
+		if (following != null && isForceShowed()) {
 			return x;
 		}
 		return super.set_x(value);
 	}
 
 	override function set_y(value:Float):Float {
-		if (following != null && following.forceShow) {
+		if (following != null && isForceShowed()) {
 			return y;
 		}
 		return super.set_y(value);
 	}
 
 	function set_multAlpha(value:Float):Float {
-		if (following != null && following.forceShow) {
+		if (following != null && isForceShowed()) {
 			return multAlpha;
 		}
 		return multAlpha = value;
 	}
 
-	@:unreflective public var followX(get, set):Float;
-	@:unreflective function get_followX():Float { return x; }
-	@:unreflective function set_followX(value:Float):Float { return super.set_x(value); }
+	@:unreflective @:isVar public var followX(get, set):Float;
+	@:unreflective function get_followX():Float { return isForceShowed() ? followX : x; }
+	@:unreflective function set_followX(value:Float):Float {
+		@:bypassAccessor x = value;
+		return followX = value;
+	}
 
-	@:unreflective public var followY(get, set):Float;
-	@:unreflective function get_followY():Float { return y; }
-	@:unreflective function set_followY(value:Float):Float { return super.set_y(value); }
+	@:unreflective @:isVar public var followY(get, set):Float;
+	@:unreflective function get_followY():Float { return isForceShowed() ? followY : y; }
+	@:unreflective function set_followY(value:Float):Float {
+		@:bypassAccessor y = value;
+		return followY = value;
+	}
 
-	@:unreflective public var noteAlpha(get, set):Float;
-	@:unreflective function get_noteAlpha():Float { return alpha; }
-	@:unreflective function set_noteAlpha(value:Float):Float { return super.set_alpha(value); }
+	@:unreflective @:isVar public var noteAlpha(get, set):Float;
+	@:unreflective function get_noteAlpha():Float { return isForceShowed() ? noteAlpha : alpha; }
+	@:unreflective function set_noteAlpha(value:Float):Float {
+		@:bypassAccessor alpha = value;
+		return noteAlpha = value;
+	}
+
+	function isForceShowed() {
+		return following?.forceShow ?? false;
+	}
 
 	var lastTexture:String = '';
 	var lastPostfix:String = '';

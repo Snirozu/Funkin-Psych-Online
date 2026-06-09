@@ -71,6 +71,7 @@ class Main extends Sprite
 
 	public static function main():Void
 	{
+		// cpp.vm.Profiler.start("profiler.txt");
 		if (Path.normalize(Sys.getCwd()) != Path.normalize(lime.system.System.applicationDirectory)) {
 			Sys.setCwd(lime.system.System.applicationDirectory);
 
@@ -85,13 +86,14 @@ class Main extends Sprite
 		}
 		
 		// Lib.current.addChild(view3D = new online.away.View3DHandler());
-		Lib.current.addChild(new online.gui.Alert());
+		var alertSprite = new online.gui.Alert();
 		Lib.current.addChild(new online.gui.LoadingScreen());
 		
 		var daMain = new Main();
 		Lib.current.addChild(daMain);
 		Lib.current.setChildIndex(daMain, 0);
 		Lib.current.addChild(new online.gui.sidebar.SideUI());
+		Lib.current.addChild(alertSprite);
 	}
 
 	public function new()
@@ -386,8 +388,14 @@ class Main extends Sprite
 
 		alertMsg += exc + "\n";
 		daError += CallStack.toString(callStack) + "\n";
-		if (exc is Exception)
-			daError += "\n" + cast(exc, Exception).stack.toString() + "\n";
+		if (exc is Exception) {
+			final excStackStr = cast(exc, Exception).stack.toString();
+			if (excStackStr.trim().length > 0)
+				daError += "\n" + excStackStr + '\n';
+		}
+		if (online.backend.Waiter.waiterReports.length > 0){
+			daError += "\n" + online.backend.Waiter.waiterReports.trim();
+		}
 		alertMsg += daError;
 		alertMsg += "\n\nCommit: " + GIT_COMMIT + "\n";
 		alertMsg += "Version: " + PSYCH_ONLINE_VERSION + (TitleState.mustUpdate ? ' (OUTDATED)' : '') + "\n";
@@ -430,17 +438,17 @@ class Main extends Sprite
 			switch (Main.repoHost) {
 				case 'github':
 					alertMsg += "\nDo you wish to report this error on GitHub?";
-					alertMsg += "\nPress Yes to draft a new GitHub issue";
+					alertMsg += "\nPress Yes to draft a new GitHub bug report";
 					alertMsg += "\nPress No to jump into the origin error point (on GitHub)";
 					WinAPI.ask("Uncaught Exception!", alertMsg, () -> { // yes
 						daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';
-						FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${exc}')}&body=${StringTools.urlEncode(daError)}');
+						FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?template=bugs.yml&title=${StringTools.urlEncode('Exception: ${exc}')}&terminal=${StringTools.urlEncode(daError)}');
 					}, () -> { // no
 						FlxG.openURL(cookUrl);
 					});
 				case 'codeberg':
 					alertMsg += "\nDo you wish to report this error on Codeberg?";
-					alertMsg += "\nPress Yes to draft a new Codeberg issue";
+					alertMsg += "\nPress Yes to draft a new Codeberg bug report";
 					alertMsg += "\nPress No to jump into the origin error point (on Codeberg)";
 					WinAPI.ask("Uncaught Exception!", alertMsg, () -> { // yes
 						daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';

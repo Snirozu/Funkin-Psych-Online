@@ -1,5 +1,6 @@
 package backend;
 
+import haxe.Timer;
 import io.colyseus.serializer.schema.types.*;
 import externs.WinAPI;
 import flixel.util.FlxSave;
@@ -14,6 +15,23 @@ import sys.FileSystem;
 
 class CoolUtil
 {
+	static var _teleTime:Float = 0;
+	public static function teleStamp(reset:Bool = false, ?pos:haxe.PosInfos) {
+		#if !SDEBUG
+		return false;
+		#end
+
+		if (reset) _teleTime = Timer.stamp();
+
+		final stamp = Timer.stamp() - _teleTime;
+		_teleTime = Timer.stamp();
+		if (Math.abs(stamp) < 0.01)
+			return false;
+
+		Sys.println('[' + pos.className + '::' + pos.lineNumber + '] ' + Math.abs(stamp));
+		return true;
+	}
+
 	inline public static function quantize(f:Float, snap:Float){
 		// changed so this actually works lol
 		var m:Float = Math.fround(f * snap);

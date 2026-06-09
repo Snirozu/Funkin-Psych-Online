@@ -309,6 +309,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		#end
 
 		#if DISCORD_ALLOWED
+		DiscordClient.resetClientID();
 		DiscordClient.changePresence("In the Lobby", null, null, false);
 		#end
 
@@ -611,7 +612,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		#if lumod
 		if (FlxG.keys.justPressed.F12) {
 			trace('reloading lumod');
-			Lumod.cache.scripts.clear();
+			// Lumod.storage.scripts.clear();
 			lmLoad();
 		}
 		#end

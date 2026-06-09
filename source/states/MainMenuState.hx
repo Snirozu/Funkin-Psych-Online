@@ -61,6 +61,7 @@ class MainMenuState extends MusicBeatState
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
+		DiscordClient.resetClientID();
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 

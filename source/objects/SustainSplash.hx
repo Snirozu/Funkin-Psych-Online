@@ -112,6 +112,9 @@ class SustainSplash extends FlxSprite {
 				}
 				kill();
 			});
+
+		//update pos before render
+		update(0);
 	}
 
 	public static function getSplashSkinPostfix() {

@@ -23,24 +23,28 @@ class URLScraper {
 
 				var doc:HtmlDocument = new HtmlDocument(response.getString(), true);
 
-				var scrambledURL:Null<String> = null;
-				for(node in doc.find('#downloadButton'))
-				{
-					if(node.hasAttribute('data-scrambled-url'))
-						scrambledURL = node.getAttribute('data-scrambled-url');
+				var daURL:Null<String> = null;
+				for (node in doc.find('#downloadButton')) {
+					if (node.hasAttribute('data-scrambled-url')) {
+						daURL = haxe.crypto.Base64.decode(node.getAttribute('data-scrambled-url')).toString();
+						break;
+					}
+
+					if (node.hasAttribute('href')) {
+						daURL = node.getAttribute('href');
+						break;
+					}
 				}
 
-				if (scrambledURL == null) {
+				if (daURL == null) {
 					Waiter.putPersist(() -> {
-						Alert.alert("MediaFire Download failed!", "Can't get the download link for this MediaFire file!");
+						Alert.alert("MediaFire Download failed!", "Couldn't fetch the download link for this MediaFire file!");
 					});
 					return;
 				}
 
-				var unscrambledURL:String = haxe.crypto.Base64.decode(scrambledURL).toString();
-
 				Waiter.putPersist(() -> {
-					OnlineMods.startDownloadMod(url, unscrambledURL, null, onSuccess, [], url);
+					OnlineMods.startDownloadMod(url, daURL, null, onSuccess, [], url);
 				});
 			}
 			catch (exc) {

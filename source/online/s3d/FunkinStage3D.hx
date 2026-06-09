@@ -112,8 +112,14 @@ class FunkinStage3D extends FlxGroup3D {
 
 	var _cameraPointAlts:Map<String, Array<String>> = new Map();
 
+	var _cameraLastChar:String = null;
 	public function setFollowCamera(char:String, ?object:Object3D) {
 		object ??= _cameraFollow;
+
+		if (_cameraLastChar == char) {
+			return;
+		}
+		_cameraLastChar = char;
 
 		var cameraPoint = cameraPoints.get(char);
 		if (cameraPoint == null)
@@ -156,6 +162,9 @@ class FunkinStage3D extends FlxGroup3D {
 	}
 
 	function lerpCameraVar(a:Float, b:Float) {
+		if (!ClientPrefs.data.camMovement) {
+			return b;
+		}
 		// uses the camera lerp calc from psych engine v0.5
 		return FlxMath.lerp(a, b, elapsed * 2.4 * PlayState.instance.cameraSpeed * PlayState.instance.playbackRate);
 	}

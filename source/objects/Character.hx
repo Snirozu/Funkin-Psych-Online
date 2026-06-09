@@ -335,7 +335,7 @@ class Character extends FlxSprite {
 						else
 							addOffset(anim.anim, 0, 0);
 
-						if (anim.sound != null) {
+						if (anim.sound != null && !ClientPrefs.data.disableAnimAudio) {
 							var sound = Paths.sound(anim.sound);
 							if (sound != null)
 								animSounds.set(animAnim, sound);

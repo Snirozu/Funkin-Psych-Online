@@ -68,6 +68,7 @@ class FunkinLua {
 	public function new(scriptName:String, ?skipPsychStuff:Bool = false) {
 		#if LUA_ALLOWED
 		lua = LuaL.newstate();
+		// LuaJIT.setmode(lua, 0, LuaJIT.LUAJIT_MODE_OFF);
 
 		Convert.enableUnsupportedTraces = true;
 
@@ -199,6 +200,7 @@ class FunkinLua {
 		// try {
 		// 	Lua.error(lua);
 		// } catch (exc) {}
+		LuaJIT.setmode(lua, 0, LuaJIT.LUAJIT_MODE_FLUSH); // does this do anything?
 		Lua.close(lua);
 		lua = null;
 		#if HSCRIPT_ALLOWED

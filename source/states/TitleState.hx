@@ -340,8 +340,8 @@ class TitleState extends MusicBeatState
 	var titleTimer:Float = 0;
 
 	override function update(elapsed:Float)
-	{
-		if (FlxG.keys.justPressed.P) {
+	{		
+		if (FlxG.keys.pressed.ALT && FlxG.keys.justPressed.P) {
 			online.gui.Alert.alert(
 				'A Very Long Title So I Can Test How Much Can It Fit On The Screen Oh Yeaaaah!!!1!', //44
 				'Do you believe in god? Because I think that this is a complicated question, it depends on which mean by god. ' + //233
@@ -352,7 +352,7 @@ class TitleState extends MusicBeatState
 
 		#if lumod
 		if (FlxG.keys.justPressed.DELETE) {
-			lumod.Lumod.cache.scripts.clear();
+			// lumod.Lumod.storage.scripts.clear();
 			trace("cleared lumod cache");
 		}
 		#end

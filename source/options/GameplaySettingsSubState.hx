@@ -185,6 +185,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		};
 		addOption(option);
 
+		var option:Option = new Option('Disable Character Sounds',
+			'Disables the sounds of character animations',
+			'disableAnimAudio',
+			'bool');
+		addOption(option);
+
 		var option:Option = new Option('Debug Mode',
 			"If checked, enables debug warnings etc.",
 			'debugMode',

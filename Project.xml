@@ -2,7 +2,7 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin': Psych Online" file="PsychOnline" main="Main" packageName="boo.sniro.psychonline" package="boo.sniro.psychonline" company="Snirozu" version="0.14.6" />
+	<app title="Friday Night Funkin': Psych Online" file="PsychOnline" main="Main" packageName="boo.sniro.psychonline" package="boo.sniro.psychonline" company="Snirozu" version="0.14.7" />
 	<app if="mobile" title='Psych Online' />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
@@ -197,6 +197,7 @@
 	<haxeflag name="-D" value="HXCPP_DEBUGGER" if="debug"/>
 	<haxeflag name="-debug" if="debug"/>
 
+	<!-- USE telemetry INSTEAD -->
 	<section if='debugmon'>
 		<haxeflag name="--macro" value="addGlobalMetadata('online', '@:build(online.backend.MonitorMacro.build())')" />
 		<haxeflag name="--macro" value="addGlobalMetadata('states', '@:build(online.backend.MonitorMacro.build())')" />
@@ -208,6 +209,16 @@
 		<haxeflag name="--macro" value="addGlobalMetadata('llua', '@:build(online.backend.MonitorMacro.build())')" />
 	</section>
 
+	<!-- DEBUG PERFORMANCE ANALYZER FOR HXSCOUT!!!!! -->
+	<section if='telemetry'>
+		<haxelib name="hxtelemetry" />
+	</section>
+	<!-- <haxeflag name="-D" value="telemetry" /> -->
+
+	<!-- hmm maybe use this to debug lua better -->
+	<!-- <haxedef name="HXCPP_PROFILER" /> -->
+	<haxedef name="HXCPP_GC_CHECK_LEAKS" /> 
+
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
@@ -218,4 +229,6 @@
 	<icon path="art/icon32.png" size='32'/>
 	<icon path="art/icon64.png" size='64'/>
 	<icon path="art/iconOG.png" />
+
+	<assets path='art/README_LINUX.txt' rename='README_PLEASE.txt' if="linux" />
 </project>

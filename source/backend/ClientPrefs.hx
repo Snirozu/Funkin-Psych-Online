@@ -116,6 +116,8 @@ class SaveVariables {
 	public var camAngles:Bool = true;
 	public var camMovement:Bool = true;
 	public var favSkins:Array<String> = []; //format: 'charactername-originfolder'
+	public var filterScriptFunctions:Bool = false;
+	public var disableAnimAudio:Bool = false;
 
 	public function new()
 	{

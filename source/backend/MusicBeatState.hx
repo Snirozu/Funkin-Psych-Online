@@ -37,6 +37,7 @@ class MusicBeatState extends FlxUIState
 		}
 		FlxTransitionableState.skipNextTransOut = false;
 		timePassedOnState = 0;
+		if(FlxG.save.data != null) FlxG.save.data.fullscreen = FlxG.fullscreen;
 	}
 
 	public static var timePassedOnState:Float = 0;
@@ -65,8 +66,6 @@ class MusicBeatState extends FlxUIState
 					rollbackSection();
 			}
 		}
-
-		if(FlxG.save.data != null) FlxG.save.data.fullscreen = FlxG.fullscreen;
 		
 		stagesFunc(function(stage:BaseStage) {
 			stage.update(elapsed);
@@ -126,7 +125,7 @@ class MusicBeatState extends FlxUIState
 	// credit to https://github.com/DetectiveBaldi/FNF-PsychEngine/blob/36e982e2e3e78b9b7939ecfff06f5ffdbcd9cca6/source/backend/MusicBeatState.hx
 	override function startOutro(onOutroComplete:() -> Void):Void {
 		if (!FlxTransitionableState.skipNextTransIn) {
-			FlxG.state.openSubState(new CustomFadeTransition(0.6, false));
+			FlxG.state.openSubState(new CustomFadeTransition(0.5, false));
 
 			CustomFadeTransition.finishCallback = onOutroComplete;
 

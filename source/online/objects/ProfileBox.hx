@@ -27,6 +27,8 @@ class ProfileBox extends FlxSpriteGroup {
 	public function new(leUser:String, leVerified:Bool, ?leCardHeight:Int = 100, ?sizeAdd:Int = 0) {
         super();
 
+		_ste = FlxG.state;
+
 		this.sizeAdd = sizeAdd;
 
         bg = new FlxSprite();
@@ -51,6 +53,8 @@ class ProfileBox extends FlxSpriteGroup {
 		updateData(leUser, leVerified);
     }
 
+	var _ste:Dynamic;
+
 	public function updateData(leUser:String, leVerified:Bool) {
 		if (destroyed)
 			return;
@@ -68,6 +72,8 @@ class ProfileBox extends FlxSpriteGroup {
 			desc.text = "";
 		}
 
+		#if SDEBUG trace(FlxG.state == _ste); #end
+		
 		Thread.run(() -> {
 			isSelf = verified && user == FunkinNetwork.nickname;
 
@@ -76,11 +82,15 @@ class ProfileBox extends FlxSpriteGroup {
 			else
 				profileData = null;
 
+			#if SDEBUG trace(FlxG.state == _ste); #end
+
 			Waiter.put(creativo);
 		});
 	}
 
     public function creativo() {
+		#if SDEBUG trace(FlxG.state == _ste); #end
+
 		if (destroyed)
 			return;
 
@@ -229,7 +239,7 @@ class ProfileBox extends FlxSpriteGroup {
 
 		bg.alpha = FlxG.mouse.overlaps(this, camera) ? 1 : 0.8;
 		if (FlxG.mouse.overlaps(this, camera) && FlxG.mouse.justPressed) {
-			if (user != null)
+			if (user != null && verified)
 				online.gui.sidebar.tabs.ProfileTab.view(user);
 			else if (isSelf && !FunkinNetwork.loggedIn)
 				FlxG.switchState(() -> new OnlineOptionsState(true));
@@ -239,6 +249,9 @@ class ProfileBox extends FlxSpriteGroup {
     var destroyed:Bool = false;
     override function destroy() {
 		destroyed = true;
+		#if SDEBUG
+		trace(destroyed);
+		#end
         super.destroy();
     }
 }

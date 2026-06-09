@@ -10,6 +10,7 @@ package states;
 // "function eventEarlyTrigger" - Used for making your event start a few MILLISECONDS earlier
 // "function triggerEvent" - Called when the song hits your event's timestamp, this is probably what you were looking for
 
+import haxe.Timer;
 import online.s3d.FunkinStage3D;
 import haxe.ds.HashMap;
 import online.substates.PostTextSubstate;
@@ -342,8 +343,12 @@ class PlayState extends MusicBeatState
 	public var songScore(default, set):Int = 0;
 	function set_songScore(v) {
 		_tempDiff = v - songScore;
+
+		//TODO REMOVE THESE FOR FPV5 
 		_tempDiff *= Math.min(1, playbackRate);
 		_tempDiff *= 1 + Math.max(0, combo - 1) * 0.001;
+		//END
+
 		return songScore += Math.floor(_tempDiff);
 	}
 	public var songHits(default, set):Int = 0;
@@ -677,6 +682,8 @@ class PlayState extends MusicBeatState
 			#end
 
 			#if DISCORD_ALLOWED
+			//UNUSED
+
 			// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
 			if (GameClient.isConnected()) {
 				if (!GameClient.room.state.isPrivate)
@@ -1287,7 +1294,7 @@ class PlayState extends MusicBeatState
 
 				function createText(isRight:Bool, ?ox:Int = 0, ?isOnline:Bool = false) {
 					var scoreTxtPlayer = new FlxText(0, 0, FlxG.width, "", 20);
-					scoreTxtPlayer.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', (!isPixelStage ? 18 : 16) - (isOnline ? -4 : 0), FlxColor.WHITE, isRight ? RIGHT : LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+					scoreTxtPlayer.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', (!isPixelStage ? 18 : 16) - (isOnline ? 2 : 0), FlxColor.WHITE, isRight ? RIGHT : LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 					scoreTxtPlayer.scrollFactor.set();
 					scoreTxtPlayer.borderSize = 1.25;
 					scoreTxtPlayer.visible = !ClientPrefs.data.hideHud;
@@ -2444,7 +2451,7 @@ class PlayState extends MusicBeatState
 			aasss.insert(1, ' ');
 			return ' - ${aasss.join('')}FP';
 		}
-		
+
 		return ' - ${songPoints}FP';
 	}
 
@@ -2481,10 +2488,24 @@ class PlayState extends MusicBeatState
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence (with Time Left)
-		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")" + ' [${Note.maniaKeys}k]' + getPresencePoints(), iconP2.getCharacter(), true, songLength);
+		resetRPC(true);
 		#end
 		setOnScripts('songLength', songLength);
 		callOnScripts('onSongStart');
+	}
+
+	public static function getMustPressFromRaw(section:SwagSection, rawNote:Array<Dynamic>):Bool {
+		var isPsychRelease = (PlayState.SONG.format ?? '').startsWith('psych_v1');
+		var gottaHitNote:Bool = section.mustHitSection;
+		if (!isPsychRelease) {
+			if (rawNote[1] > Note.maniaKeys - 1) {
+				gottaHitNote = !section.mustHitSection;
+			}
+		}
+		else {
+			gottaHitNote = rawNote[1] < Note.maniaKeys;
+		}
+		return gottaHitNote;
 	}
 
 	var debugNum:Int = 0;
@@ -2551,8 +2572,6 @@ class PlayState extends MusicBeatState
 		// var playingTime:Float = 0;
 		var lastStrumTime:Float = 0;
 
-		var isPsychRelease = (songData.format ?? '').startsWith('psych_v1');
-
 		Song.updateManiaKeys(SONG);
 
 		if (maniaModifier == Note.maniaKeys) {
@@ -2576,19 +2595,6 @@ class PlayState extends MusicBeatState
 
 			return Std.int(a[0] - b[0]);
 		});
-
-		function getMustPressFromRaw(section:SwagSection, rawNote:Array<Dynamic>):Bool {
-			var gottaHitNote:Bool = section.mustHitSection;
-			if (!isPsychRelease) {
-				if (rawNote[1] > Note.maniaKeys - 1) {
-					gottaHitNote = !section.mustHitSection;
-				}
-			}
-			else {
-				gottaHitNote = rawNote[1] < Note.maniaKeys;
-			}
-			return gottaHitNote;
-		}
 		
 		// MULTIKEY NOTES CONVERSION ALGO!!!
 		// also shoutouts to bromaster
@@ -2675,6 +2681,11 @@ class PlayState extends MusicBeatState
 				songSpeed = ClientPrefs.getGameplaySetting('scrollspeed');
 		}
 
+		var notesPerHalf:Float = 0;
+		// var notesPerHalfCount:Float = 0;
+		var lastHalfTime:Float = 0;
+		var halfNotes:Float = 0;
+
 		for (i => songNotes in dataNotes) {
 			var section = noteData[dataNotesSection[i]];
 			var daStrumTime:Float = songNotes[0];
@@ -2760,6 +2771,15 @@ class PlayState extends MusicBeatState
 			if (isPlayerNote(swagNote)) {
 				if (daStrumTime - lastStrumTime > 10)
 					playingNoteCount++;
+				
+				if (daStrumTime - lastHalfTime >= 500) {
+					if (halfNotes > 0) {
+						notesPerHalf += halfNotes / 0.5;
+					}
+					halfNotes = 0;
+					lastHalfTime = daStrumTime;
+				}
+				halfNotes++;
 
 				// var noteDiff = (daStrumTime - lastStrumTime) / playbackRate / 1000;
 				// if (noteDiff < 1)
@@ -2803,12 +2823,70 @@ class PlayState extends MusicBeatState
 			trace("max points: ~" + maxFP + 'FP');
 		}
 
+		//TODO
+		trace('NPH: ' + notesPerHalf);
+		// Alert.alert('NPH: ' + notesPerHalf);
+
 		for (event in songData.events) //Event Notes
 			for (i in 0...event[1].length)
 				makeEvent(event, i);
 
 		unspawnNotes.sort(sortByTime);
 		generatedMusic = true;
+ 
+		prepareNetSong();
+	}
+
+	public var netSong:online.network.Leaderboard.NetSong = null;
+	function prepareNetSong() {
+		netSong = null;
+
+		if (!online.network.FunkinNetwork.hasAccess('/api/admin/song/submit')) {
+			return;
+		}
+
+		if (maniaModifier != null) {
+			// Alert.alert("Can't verify!", 'Mania modificator is currently used!');
+			return;
+		}
+
+		var song:online.network.Leaderboard.NetSong = {
+			id: PlayState.instance.songId,
+			name: SONG.song,
+			length: inst.length,
+			keys: Note.maniaKeys,
+			notes: [],
+			noteTypes: [],
+			speed: PlayState.SONG.speed,
+			bpm: PlayState.SONG.bpm
+		};
+
+		var foundNoteTypes = [];
+
+		for (note in unspawnNotes) {
+			song.notes[note.mustPress ? 1 : 0] ??= [];
+
+			song.notes[note.mustPress ? 1 : 0].push([
+				note.strumTime,
+				note.noteData,
+				note.isSustainNote ? -1 : note.sustainLength,
+				note.noteType
+			]);
+
+			if (note.noteType != null && note.noteType.trim().length != 0 && !foundNoteTypes.contains(note.noteType)) {
+				foundNoteTypes.push(note.noteType);
+				song.noteTypes.push({
+					name: note.noteType,
+					ignoreNote: note.ignoreNote,
+					blockHit: note.blockHit,
+					hitCausesMiss: note.hitCausesMiss,
+					lowPriority: note.lowPriority,
+					ratingDisabled: note.ratingDisabled
+				});
+			}
+		}
+
+		netSong = song;
 	}
 
 	// called only once per different event (Used for precaching)
@@ -3028,20 +3106,28 @@ class PlayState extends MusicBeatState
 	override public function onFocusLost():Void
 	{
 		#if DISCORD_ALLOWED
-		if (isCreated && health > 0 && !paused) DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")" + ' [${Note.maniaKeys}k]' + getPresencePoints(), iconP2.getCharacter());
+		if (isCreated && health > 0 && !paused) resetRPC(false, true);
 		#end
 
 		super.onFocusLost();
 	}
 
 	// Updating Discord Rich Presence.
-	function resetRPC(?cond:Bool = false)
-	{
+	function resetRPC(?cond:Bool = false, ?paused:Null<Bool>) {
+		paused ??= this.paused;
+
+		final upperText = (paused ? '[Pause] ' : '') + SONG.song + " (" + storyDifficultyText.toUpperCase() + ")" + ' [${Note.maniaKeys}k]';
+		final downText = '${FlxStringUtil.formatMoney(songScore, false)} [${ratingFC}] - ${CoolUtil.floorDecimal(ratingPercent * 100, 1)}%${getPresencePoints()}';
+
 		#if DISCORD_ALLOWED
-		if (cond)
-			DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")" + ' [${Note.maniaKeys}k]' + getPresencePoints(), iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.data.noteOffset);
+		if (cond) {
+			if (Conductor.songPosition < 0.0)
+				DiscordClient.changePresence(upperText, downText, iconP2.getCharacter(), true, songLength);
+			else
+				DiscordClient.changePresence(upperText, downText, iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.data.noteOffset);
+		}
 		else
-			DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")" + ' [${Note.maniaKeys}k]' + getPresencePoints(), iconP2.getCharacter());
+			DiscordClient.changePresence(upperText, downText, iconP2.getCharacter());
 		#end
 	}
 
@@ -3266,7 +3352,8 @@ class PlayState extends MusicBeatState
 			}
 			if (!ClientPrefs.data.camMovement) {
 				moveCamera(playsAsBF(), true);
-				camera.snapToTarget();
+				if (camera.target != null)
+					camera.snapToTarget();
 			}
 			//FIXME some way to force update the variables???
 		}
@@ -3699,7 +3786,7 @@ class PlayState extends MusicBeatState
 		//}
 
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")" + ' [${Note.maniaKeys}k]' + getPresencePoints(), iconP2.getCharacter());
+		resetRPC(false, true);
 		#end
 	}
 
@@ -5999,8 +6086,21 @@ class PlayState extends MusicBeatState
 	}
 	#end
 
+	static var ESSENTIAL_SCRIPT_FUNCTIONS:Array<String> = [
+		'onCreatePost',
+		'onStartCountdown',
+		'onCountdownStarted',
+		'onNextDialogue',
+		'onSkipDialogue',
+		'onSongStart'
+	];
+
 	public function callOnScripts(funcToCall:String, args:Array<Dynamic> = null, ignoreStops = false, exclusions:Array<String> = null, excludeValues:Array<Dynamic> = null):Dynamic {
 		var returnVal:Dynamic = psychlua.FunkinLua.Function_Continue;
+
+		if (ClientPrefs.data.filterScriptFunctions && !ESSENTIAL_SCRIPT_FUNCTIONS.contains(funcToCall))
+			return returnVal;
+
 		if(args == null) args = [];
 		if(exclusions == null) exclusions = [];
 		if(excludeValues == null) excludeValues = [psychlua.FunkinLua.Function_Continue];
