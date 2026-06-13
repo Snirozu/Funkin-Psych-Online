@@ -127,6 +127,8 @@ class DownloaderState extends MusicBeatState {
 		FlxG.sound.music.fadeIn(1, 1, 0.5);
 
 		loadNextPage(true);
+
+		addControl(null, "DOWNLOADER");
     }
 
 	var _newPage:Int = 0;
@@ -210,10 +212,10 @@ class DownloaderState extends MusicBeatState {
 			}
 
 			if (!LoadingScreen.loading) {
-				if (FlxG.mouse.wheel == 1 || FlxG.keys.justPressed.Q) {
+				if (FlxG.mouse.wheel == 1 || FlxG.keys.justPressed.Q || checkControl("ui_left", "justPressed")) {
 					loadNextPage(-1);
 				}
-				if (FlxG.mouse.wheel == -1 || FlxG.keys.justPressed.E) {
+				if (FlxG.mouse.wheel == -1 || FlxG.keys.justPressed.E || checkControl("ui_right", "justPressed")) {
 					loadNextPage(1);
 				}
 				

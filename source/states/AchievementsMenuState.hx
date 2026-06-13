@@ -124,6 +124,8 @@ class AchievementsMenuState extends MusicBeatState
 		
 		FlxG.camera.follow(camFollow, null, 0.15);
 		FlxG.camera.scroll.y = -FlxG.height;
+
+		addControl("FULL", "ACCEPT_BACK_RESET");
 	}
 
 	function makeAchievement(achievement:String, data:Achievement, unlocked:Bool, mod:String = null)
@@ -290,6 +292,8 @@ class ResetAchievementSubstate extends MusicBeatSubstate
 		noText.scrollFactor.set();
 		add(noText);
 		updateOptions();
+
+		addControl(null, "RESET");
 	}
 
 	override function update(elapsed:Float)

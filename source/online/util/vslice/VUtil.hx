@@ -4,7 +4,6 @@ import haxe.io.Path;
 import json2object.JsonParser;
 import backend.Song.SwagSong;
 import lime.ui.FileDialog;
-import sys.io.File;
 import haxe.Json;
 import online.util.vslice.VConstDu;
 

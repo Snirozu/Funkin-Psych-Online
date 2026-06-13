@@ -302,6 +302,15 @@ class FlxInputText extends FlxText
 	{
 		super.update(elapsed);
 
+		#if android
+		if (FlxG.android.justReleased.BACK && hasFocus) {
+			FlxG.stage.window.textInputEnabled = false;
+			hasFocus = false;
+			if (focusLost != null)
+				focusLost();
+		}
+		#end
+
 		#if FLX_MOUSE
 		// Set focus and caretIndex as a response to mouse press
 		if (FlxG.mouse.justPressed)
@@ -310,7 +319,7 @@ class FlxInputText extends FlxText
 			if (mouseOverlapping())
 			{
 				caretIndex = getCaretIndex();
-				hasFocus = true;
+				hasFocus = FlxG.stage.window.textInputEnabled = true;
 				if (!hadFocus && focusGained != null)
 					focusGained();
 			}
@@ -456,6 +465,7 @@ class FlxInputText extends FlxText
 			// Enter
 			else if (key == 13)
 			{
+				FlxG.stage.window.textInputEnabled = false;
 				onChange(ENTER_ACTION);
 			}
 			// Actually add some text

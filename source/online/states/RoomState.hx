@@ -6,7 +6,6 @@ import flixel.util.FlxStringUtil;
 import states.stages.Spooky;
 import flixel.util.FlxAxes;
 import flixel.addons.display.FlxPieDial;
-import sys.FileSystem;
 import states.stages.Philly;
 import flixel.FlxSubState;
 import flixel.group.FlxGroup;
@@ -118,6 +117,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 	public function new() {
 		super();
+		addControl("ONLINE_FULL", "ONLINE_ROOM");
 
 		instance = this;
 	}
@@ -742,8 +742,8 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 			// trace('playerHold = ' + playerHold + ', oppHold = ' + oppHold);
 
-			if (FlxG.keys.pressed.ALT) { // useless, but why not?
-				var suffix = FlxG.keys.pressed.CONTROL ? 'miss' : '';
+			if (FlxG.keys.pressed.ALT || checkControl("alt", "pressed")) { // useless, but why not?
+				var suffix = (FlxG.keys.pressed.CONTROL || checkControl("control", "pressed")) ? 'miss' : '';
 				if (controls.NOTE_LEFT_P) {
 					playerAnim('singLEFT' + suffix);
 				}
@@ -783,7 +783,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 				}
 			}
 			
-			if ((!FlxG.keys.pressed.ALT && controls.ACCEPT) || FlxG.mouse.justPressed) {
+			if (((!FlxG.keys.pressed.ALT && !checkControl("alt", "pressed")) && controls.ACCEPT) || FlxG.mouse.justPressed) {
 				switch (curSelected) {
 					case 0:
 						openSubState(new RoomSettingsSubstate());
@@ -1168,6 +1168,8 @@ class LobbyCharacter extends FlxTypedGroup<FlxSprite> {
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
+
+		//getFromName('dpad1').visible = mobileManager.mobilePad.getButton('buttonT').visible = mobileManager.mobilePad.getButton('buttonM').visible = mobileButtonPressed('Y');
 
 		_changedNoSkin = _prevNoSkin != noSkin;
 		_prevNoSkin = noSkin;

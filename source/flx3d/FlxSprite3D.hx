@@ -11,7 +11,6 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flx3d.animators.FlxSprite3DAnimator;
 import openfl.Assets;
 import openfl.display.BitmapData;
-import sys.FileSystem;
 
 class FlxSprite3D extends ObjectContainer3D {
     public var sprite:FlxSprite;

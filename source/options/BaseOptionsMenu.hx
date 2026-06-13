@@ -25,6 +25,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	public function new()
 	{
 		super();
+		addControl("FULL", "ACCEPT_BACK_RESET");
 
 		FlxG.mouse.visible = false;
 

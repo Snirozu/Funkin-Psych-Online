@@ -4,8 +4,6 @@ import haxe.io.Bytes;
 import haxe.crypto.Base64;
 import haxe.io.Path;
 import haxe.Json;
-import sys.FileSystem;
-import sys.io.File;
 
 @:unreflective
 class Auth {

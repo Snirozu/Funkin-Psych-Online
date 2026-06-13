@@ -25,6 +25,60 @@ class MusicBeatState extends FlxUIState
 
 	public static var camBeat:FlxCamera;
 
+	#if FEATURE_TOUCH_CONTROLS
+	private var lastDPad:String;
+	private var lastButton:String;
+	private var lastHitbox:String;
+	#end
+	public function addControl(DPad:String, Button:String) {
+		#if FEATURE_TOUCH_CONTROLS
+		if (DPad != null && DPad != "") Main.mobileControls.addDPad(DPad);
+		if (Button != null && Button != "") Main.mobileControls.addButton(Button);
+		lastDPad = DPad;
+		lastButton = Button;
+		#end
+	}
+
+	public function addHitbox(Hitbox:String) {
+		#if FEATURE_TOUCH_CONTROLS
+		if (Hitbox != null && Hitbox != "") Main.mobileControls.addHitbox(Hitbox);
+		lastHitbox = Hitbox;
+		#end
+	}
+
+	public function checkControl(key:String, type:String) {
+		#if FEATURE_TOUCH_CONTROLS
+		return Main.mobileControls.checkState(key, type) == true;
+		#else
+		return false;
+		#end
+	}
+
+	public function getFromName(name:String) {
+		#if FEATURE_TOUCH_CONTROLS
+		return Main.mobileControls.getFromName(name);
+		#else
+		return "";
+		#end
+	}
+
+	override public function closeSubState() {
+		super.closeSubState();
+		#if FEATURE_TOUCH_CONTROLS
+		Main.mobileControls.clearControls();
+		if (lastDPad != null && lastDPad != "") Main.mobileControls.addDPad(lastDPad);
+		if (lastButton != null && lastButton != "") Main.mobileControls.addButton(lastButton);
+		if (lastHitbox != null && lastHitbox != "") Main.mobileControls.addHitbox(lastHitbox);
+		#end
+	}
+
+	public function new() {
+		super();
+		#if FEATURE_TOUCH_CONTROLS
+		Main.mobileControls.clearControls();
+		#end
+	}
+
 	override function create() {
 		camBeat = FlxG.camera;
 		var skip:Bool = FlxTransitionableState.skipNextTransOut;
@@ -72,6 +126,7 @@ class MusicBeatState extends FlxUIState
 		});
 
 		super.update(elapsed);
+		FlxG.mouse.useSystemCursor = true;
 	}
 
 	private function updateSection():Void

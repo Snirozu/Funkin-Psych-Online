@@ -4,7 +4,6 @@ import online.states.RoomState.LobbyCharacter;
 import flixel.util.FlxStringUtil;
 import backend.WeekData;
 import flixel.effects.FlxFlicker;
-import sys.FileSystem;
 import objects.Character;
 import openfl.Lib;
 
@@ -581,6 +580,8 @@ class ResultsState extends MusicBeatState {
 		var debugPoser = new online.objects.DebugPosHelper();
 		debugPoser.cameras = [camHUD];
 		add(debugPoser);
+
+		addControl(null, "BACK_CHAT_TAUNT");
     }
 
 	function registerMessages() {

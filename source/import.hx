@@ -59,6 +59,9 @@ import flixel.group.FlxSpriteGroup;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import online.backend.Deflection;
 
+import mobile.io.File;
+import mobile.io.FileSystem;
+
 using StringTools;
 using ArrayTools;
 #end

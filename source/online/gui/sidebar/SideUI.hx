@@ -2,7 +2,6 @@ package online.gui.sidebar;
 
 import backend.InputFormatter;
 import flixel.input.keyboard.FlxKey;
-import sys.FileSystem;
 import online.gui.sidebar.tabs.*;
 import online.gui.sidebar.obj.*;
 import online.network.FunkinNetwork;

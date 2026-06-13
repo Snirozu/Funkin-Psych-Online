@@ -14,8 +14,6 @@ import backend.Song;
 import backend.Rating;
 import online.backend.schema.Player;
 import haxe.Http;
-import sys.io.File;
-import sys.FileSystem;
 import online.states.OnlineState;
 import lime.app.Application;
 import io.colyseus.events.EventHandler;

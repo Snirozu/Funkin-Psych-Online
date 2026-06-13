@@ -669,6 +669,15 @@ class NoteOffsetState extends MusicBeatState
 		else
 			str2 = '(Press Start to Switch)';
 
+		#if FEATURE_TOUCH_CONTROLS
+		Main.mobileControls.resetAllInputs();
+		#end
+		if(onComboMenu) {
+			addControl('NONE', 'ACCEPT_BACK_RESET');
+		} else {
+			addControl("FULL", "ACCEPT_BACK_RESET");
+		}
+
 		changeModeText.text = '< ${str.toUpperCase()} ${str2.toUpperCase()} >';
 	}
 }

@@ -1,0 +1,38 @@
+{
+  "buttons": [
+    {
+      "name": "back",
+      "id": "back",
+      "graphic": "button_circle",
+      "subgraphic": "icon_button_b",
+      "position": [1153, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "refresh",
+      "id": "refresh",
+      "graphic": "button_circle",
+      "subgraphic": "icon_arrow_rotate",
+      "position": [1033, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "ui_down",
+      "id": "ui_down",
+      "graphic": "dpad_down",
+      "position": [0, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "ui_up",
+      "id": "ui_up",
+      "graphic": "dpad_up",
+      "position": [0, 453],
+      "scale": 1.0,
+      "color": null
+    }
+  ]
+}

@@ -183,6 +183,7 @@ class StoryMenuState extends MusicBeatState
 		changeDifficulty();
 
 		super.create();
+		addControl("FULL", "STORYMODE");
 	}
 
 	override function closeSubState() {
@@ -241,7 +242,7 @@ class StoryMenuState extends MusicBeatState
 			else if (upP || downP)
 				changeDifficulty();
 
-			if(FlxG.keys.justPressed.CONTROL)
+			if(FlxG.keys.justPressed.CONTROL || checkControl("control", "justPressed"))
 			{
 				persistentUpdate = false;
 				openSubState(new GameplayChangersSubstate());

@@ -4,9 +4,26 @@ import flixel.FlxSubState;
 
 class MusicBeatSubstate extends FlxSubState
 {
-	public function new()
-	{
-		super();
+	public function new(bgColor:FlxColor = FlxColor.TRANSPARENT) {
+		super(bgColor);
+		#if FEATURE_TOUCH_CONTROLS
+		Main.mobileControls.clearControls();
+		#end
+	}
+
+	public function addControl(DPad:String, Button:String) {
+		#if FEATURE_TOUCH_CONTROLS
+		if (DPad != null && DPad != "") Main.mobileControls.addDPad(DPad);
+		if (Button != null && Button != "") Main.mobileControls.addButton(Button);
+		#end
+	}
+
+	public function checkControl(key:String, type:String) {
+		#if FEATURE_TOUCH_CONTROLS
+		return Main.mobileControls.checkState(key, type) == true;
+		#else
+		return false;
+		#end
 	}
 
 	private var curSection:Int = 0;
@@ -49,6 +66,7 @@ class MusicBeatSubstate extends FlxSubState
 		}
 
 		super.update(elapsed);
+		FlxG.mouse.useSystemCursor = true;
 	}
 
 	private function updateSection():Void

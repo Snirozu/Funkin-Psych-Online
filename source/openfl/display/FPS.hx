@@ -15,11 +15,21 @@ import openfl.Lib;
 #if openfl
 import openfl.system.System;
 #end
+import lime.system.System as LimeSystem;
 
 /**
 	The FPS class provides an easy-to-use monitor to display
 	the current frame rate of an OpenFL project
 **/
+#if cpp
+#if windows
+@:cppFileCode('#include <windows.h>')
+#elseif (ios || mac)
+@:cppFileCode('#include <mach-o/arch.h>')
+#else
+@:headerInclude('sys/utsname.h')
+#end
+#end
 #if !openfl_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -35,12 +45,18 @@ class FPS extends TextField
 	@:noCompletion private var currentTime:Float;
 	@:noCompletion private var times:Array<Float>;
 
+	public var os:String = '';
+
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
 		super();
 
-		this.x = x;
-		this.y = y;
+		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
+			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end;
+		else
+			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end + ' - ${LimeSystem.platformVersion}';
+
+		positionFPS(x, y);
 
 		currentFPS = 0;
 		selectable = false;
@@ -87,27 +103,29 @@ class FPS extends TextField
 		if (currentCount != cacheCount /*&& visible*/)
 		{
 			text = "FPS: " + currentFPS;
-			var memoryMegas:Float = 0;
 			
-			#if openfl
-			memoryMegas = Math.abs(FlxMath.roundDecimal(System.totalMemory / 1000000, 1));
-			text += "\nRAM: " + memoryMegas + " MB";
+			#if cpp
+			text += '\nRAM: ${flixel.util.FlxStringUtil.formatBytes(cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_USAGE))}';
+			text += '\nPsych Online ' + Main.PSYCH_ONLINE_VERSION;
+			#end
+
+			#if !HACKER
+			text += os;
 			#end
 
 			#if HACKER
 			text = "";
 			text += "Frames Per Second: " + currentFPS + "\n";
-			text += "Computer Memory: " + memoryMegas + "MB\n";
 			@:privateAccess
 			text += "Graphics Card: " + Std.string(flixel.FlxG.stage.context3D.gl.getParameter(flixel.FlxG.stage.context3D.gl.RENDERER)).split("/")[0].trim() + "\n";
-			text += "Operating System: " + lime.system.System.platformLabel + " " + lime.system.System.platformName + " " + lime.system.System.platformVersion + "\n";
-			text += "Device Model: " + lime.system.System.deviceModel + " " + lime.system.System.deviceVendor + "\n";
-			text += "Number of Connected Monitors: " + lime.system.System.numDisplays + "\n";
-			text += "Game Location: " + lime.system.System.applicationDirectory + "\n";
+			//text += "Operating System: " + LimeSystem.platformLabel + " " + LimeSystem.platformName + " " + LimeSystem.platformVersion + "\n";
+			text += "Device Model: " + LimeSystem.deviceModel + " " + LimeSystem.deviceVendor + "\n";
+			text += "Number of Connected Monitors: " + LimeSystem.numDisplays + "\n";
+			text += "Game Location: " + LimeSystem.applicationDirectory + "\n";
 			#end
 
 			textColor = 0xFFFFFFFF;
-			if (memoryMegas > 3000 || currentFPS <= optionFramerate / 2)
+			if (currentFPS <= optionFramerate / 2)
 			{
 				textColor = 0xFFFF0000;
 			}
@@ -126,4 +144,52 @@ class FPS extends TextField
 
 		cacheCount = currentCount;
 	}
+
+	public inline function positionFPS(X:Float, Y:Float, ?scale:Float = 1){
+		scaleX = scaleY = #if android (scale > 1 ? scale : 1) #else (scale < 1 ? scale : 1) #end;
+		x = FlxG.game.x + X;
+		y = FlxG.game.y + Y;
+	}
+
+	#if cpp
+	#if windows
+	@:functionCode('
+		SYSTEM_INFO osInfo;
+
+		GetSystemInfo(&osInfo);
+
+		switch(osInfo.wProcessorArchitecture)
+		{
+			case 9:
+				return ::String("x86_64");
+			case 5:
+				return ::String("ARM");
+			case 12:
+				return ::String("ARM64");
+			case 6:
+				return ::String("IA-64");
+			case 0:
+				return ::String("x86");
+			default:
+				return ::String("Unknown");
+		}
+	')
+	#elseif (ios || mac)
+	@:functionCode('
+		const NXArchInfo *archInfo = NXGetLocalArchInfo();
+		return ::String(archInfo == NULL ? "Unknown" : archInfo->name);
+	')
+	#else
+	@:functionCode('
+		struct utsname osInfo{};
+		uname(&osInfo);
+		return ::String(osInfo.machine);
+	')
+	#end
+	@:noCompletion
+	private function getArch():String
+	{
+		return "Unknown";
+	}
+	#end
 }

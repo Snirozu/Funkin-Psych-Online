@@ -3,7 +3,6 @@ package substates;
 import online.GameClient;
 import online.util.ShitUtil;
 import online.substates.PostTextSubstate;
-import sys.io.File;
 import online.network.Leaderboard;
 import haxe.Json;
 import backend.WeekData;
@@ -44,6 +43,7 @@ class PauseSubState extends MusicBeatSubstate
 	public function new(x:Float, y:Float)
 	{
 		super();
+		addControl("FULL", "ACCEPT_BACK");
 
 		if (!GameClient.isConnected()) {
 			menuItemsOG = ['Resume', 'Restart Song', 'Change Difficulty', 'Options', 'Exit to menu'];

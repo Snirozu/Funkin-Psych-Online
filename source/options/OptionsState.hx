@@ -167,6 +167,7 @@ class OptionsState extends MusicBeatState
 		super.create();
 
 		online.GameClient.send("status", "In the Game Options");
+		addControl(null, "OPTIONS");
 	}
 
 	override function closeSubState() {
@@ -186,6 +187,7 @@ class OptionsState extends MusicBeatState
 			changeSelection(1);
 		}
 		
+		#if desktop
 		if (FlxG.mouse.deltaScreenY != 0 || forceUpdateNext) {
 			for (i => spr in grpOptions) {
 				if (FlxG.mouse.overlaps(spr, spr.camera) && i - curSelected != 0) {
@@ -194,6 +196,7 @@ class OptionsState extends MusicBeatState
 			}
 			forceUpdateNext = false;
 		}
+		#end
 
 		if (FlxG.mouse.wheel != 0) {
 			changeSelection(-FlxG.mouse.wheel);
@@ -222,7 +225,7 @@ class OptionsState extends MusicBeatState
 				optionsCategory = 'main';
 			}
 		}
-		else if (controls.ACCEPT || FlxG.mouse.justPressed) openSelectedSubstate(options[curSelected]);
+		else if (controls.ACCEPT #if desktop || FlxG.mouse.justPressed #end) openSelectedSubstate(options[curSelected]);
 	}
 	
 	function changeSelection(change:Int = 0) {

@@ -7,7 +7,6 @@ import states.stages.objects.TankmenBG;
 import flixel.math.FlxPoint;
 import objects.Character;
 import openfl.media.Sound;
-import hxvlc.flixel.FlxVideoSprite;
 
 class FranksSpiritsBowling extends BaseStage {
     var dancers:Array<BGSprite> = [];

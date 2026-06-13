@@ -71,6 +71,8 @@ class FindRoomState extends MusicBeatState {
 		emptyMessage.screenCenter();
 		emptyMessage.visible = false;
 		add(emptyMessage);
+
+		addControl(null, "FIND_ROOM");
     }
 
     override function update(elapsed) {
@@ -79,7 +81,7 @@ class FindRoomState extends MusicBeatState {
 		else if (controls.UI_DOWN_P)
 			selected++;
 
-        if (FlxG.keys.justPressed.R) {
+        if (FlxG.keys.justPressed.R || checkControl("refresh", "justPressed")) {
 			@:privateAccess refreshTimer._timeCounter = 0;
 			refreshRooms();
         }

@@ -1,0 +1,85 @@
+{
+  "buttons": [
+    {
+      "name": "accept",
+      "id": "accept",
+      "graphic": "button_circle",
+      "subgraphic": "icon_button_a",
+      "position": [1153, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "back",
+      "id": "back",
+      "graphic": "button_circle",
+      "subgraphic": "icon_button_b",
+      "position": [1033, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "space",
+      "id": "space",
+      "graphic": "button_circle",
+      "subgraphic": "icon_music",
+      "position": [913, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "fav",
+      "id": "fav",
+      "graphic": "button_circle",
+      "subgraphic": "icon_star",
+      "position": [793, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "shift",
+      "id": "shift",
+      "graphic": "button_circle",
+      "subgraphic": "icon_sprint",
+      "position": [1153, 473],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "tab",
+      "id": "tab",
+      "graphic": "button_circle",
+      "subgraphic": "icon_skull",
+      "position": [1033, 473],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "control",
+      "id": "control",
+      "graphic": "button_circle",
+      "subgraphic": "icon_menu",
+      "position": [913, 473],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "reset",
+      "id": "reset",
+      "graphic": "button_circle",
+      "subgraphic": "icon_fire",
+      "position": [793, 473],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "f",
+      "id": "f",
+      "graphic": "button_circle",
+      "subgraphic": "icon_search",
+      "position": [1153, 353],
+      "scale": 1.0,
+      "color": null
+    }
+  ]
+}

@@ -4,9 +4,7 @@ import states.stages.objects.*;
 import substates.GameOverSubstate;
 import cutscenes.DialogueBox;
 
-#if MODS_ALLOWED
-import sys.FileSystem;
-#else
+#if !MODS_ALLOWED
 import openfl.utils.Assets as OpenFlAssets;
 #end
 

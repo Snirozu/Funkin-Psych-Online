@@ -43,8 +43,8 @@
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false" />
 
 	<!--Mobile-specific-->
-	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0"
-		resizable="false" />
+	<window if="mobile" orientation="landscape" fullscreen="true" resizable="false" allow-shaders="true"
+		require-shaders="true" allow-high-dpi="true" />
 
 	<!--Switch-specific-->
 	<window if="switch" orientation="landscape" fullscreen="true" width="0" height="0"
@@ -59,6 +59,8 @@
 	<classpath name="source" />
 
 	<!-- __________________________ Game Assets & Etc. __________________________ -->
+
+	<assets path="mobile" />
 
 	<!-- Preload Assets -->
 	<define name="PRELOAD_ALL" unless="web" />
@@ -130,6 +132,7 @@
 	<haxelib name="tink_await" />
 	<!-- <haxelib name="interpret" /> -->
 
+	<define name="FEATURE_TOUCH_CONTROLS" />
 	<haxedef name="interpretable" />
 	<haxedef name="interpret_watch" />
 
@@ -224,6 +227,14 @@
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 
 	<assets path='art/iconOG.png' rename='icon.png' if="linux" />
+
+	<!-- Do whatever you want I'm tired uninstall and install everytime -->
+	<certificate path="key.keystore" password="psychengine" alias="psychport" alias-password="psychengine" if="android" unless="debug" />
+
+	<haxedef name="lime_disable_motion_sensors" />
+	<haxedef name="lime_use_old_deltatime" />
+
+	<haxedef name="DISABLE_AUDIO_FOCUS" if="android" /> <!-- Disable the fucking audio focus -->>
 	
 	<icon path="art/icon16.png" size='16'/>
 	<icon path="art/icon32.png" size='32'/>

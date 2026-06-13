@@ -1,0 +1,15 @@
+{
+  "dpads": [
+    {
+      "name": "dpad1",
+      "id": ["note_up", "note_down", "note_left", "note_right"],
+      "graphic": "dpad_separate",
+      "clickposition": [[0, -83], [0, 83], [-83, 0], [83, 0]],
+      "clickbound": [[100, 100], [100, 100], [100, 100], [100, 100]],
+      "showbounds": false,
+      "position": [0, 467],
+      "scale": 1.0,
+      "color": null
+    }
+  ]
+}

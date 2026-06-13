@@ -5,6 +5,7 @@ import flixel.util.FlxAxes;
 import openfl.display.BitmapData;
 import cpp.UInt32;
 import haxe.Int64;
+#if VIDEOS_ALLOWED
 import hxvlc.flixel.FlxVideo;
 import lime.app.Event;
 
@@ -145,3 +146,4 @@ class FlxVideoWrapper extends DisplayObject { // as DisplayObject so scripts thi
 		// _video.stop();
 	}
 }
+#end

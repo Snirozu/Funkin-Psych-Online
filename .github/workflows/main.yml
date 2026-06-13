@@ -1,357 +1,51 @@
-# This is a basic workflow to help you get started with Actions
+name: Build Psych Extended Online
 
-name: Build
+on: workflow_dispatch
 
-
-# Controls when the action will run.
-on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ main, experimental ]
-    tags: [ "*" ]
-  pull_request:
-    branches: [ main, experimental ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  buildLinux:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+  Build:
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Android-NORMAL
+            os: ubuntu-latest
+            setupCommand: sh ./setup/unix-alter.sh
+            buildArgs: "android -ONLY_ARM64"
+            artifactName: androidBuild
+            artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
+            doCache: "YES"
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - uses: krdlab/setup-haxe@master
-        with:
-          haxe-version: 4.3.7
-
-      - name: Retrieve Cache
-        id: cache-linux
-        uses: actions/cache@v4
-        with:
-          path: |
-            export/release/linux/**
-            !export/release/linux/bin/**
-          key: ${{ runner.os }}-build-cache
-
-      # Runs a set of commands using the runners shell
-      - name: Install Haxelib
-        run: |
-          sudo apt-get install libvlc-dev
-          sudo apt-get install libvlccore-dev
-          haxelib setup ~/haxelib
-          haxelib install hxcpp > /dev/null --quiet
-          haxelib install hmm --quiet
-          haxelib run hmm install
-      - name: Create Version Tag
-        run: echo "${{github.run_id}}" > VERSION
-      - name: Compile
-        run: haxelib run lime build Project.xml linux
-      - name: Publish Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: linuxBuild
-          path: 'export/release/linux/bin'
-  buildWindows:
-    runs-on: windows-latest
-
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2.3.0
-
-      - uses: krdlab/setup-haxe@master
-        with:
-          haxe-version: 4.3.7
-
-      - name: Retrieve Cache
-        id: cache-windows
-        uses: actions/cache@v4
-        with:
-          path: |
-            export/release/windows/**
-            !export/release/windows/bin/**
-          key: ${{ runner.os }}-build-cache
-
-      # Runs a set of commands using the runners shell
-      - name: Install Haxelib
-        run: |
-          haxelib setup C:/haxelib
-          haxelib install hxcpp > /dev/null --quiet
-          haxelib install hmm --quiet
-          haxelib run hmm install
-        shell: cmd
-      - name: Create Version Tag
-        run: echo "${{github.run_id}}" > VERSION
-      - name: Compile
-        run: haxelib run lime build windows
-      - name: Publish Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: windowsBuild
-          path: export/release/windows/bin
-  buildMac:
-    runs-on: macos-14
-
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - uses: krdlab/setup-haxe@master
-        with:
-          haxe-version: 4.3.7
-
-      - name: Retrieve Cache
-        id: cache-macos
-        uses: actions/cache@v4
-        with:
-          path: |
-            export/release/macos/**
-            !export/release/macos/bin/**
-          key: ${{ runner.os }}-build-cache
-
-      # Runs a set of commands using the runners shell
-      - name: Install Haxelib
-        run: |
-          haxelib setup ~/haxelib
-          haxelib install hxcpp > /dev/null --quiet
-          haxelib install hmm --quiet
-          haxelib run hmm install
-      - name: Create Version Tag
-        run: echo "${{github.run_id}}" > VERSION
-      - name: Compile
-        run: arch -x86_64 haxelib run lime build mac
-      - name: Publish Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: macBuild
-          path: export/release/macos/bin
-  # buildAndroid:
-  #   # The type of runner that the job will run on
-  #   runs-on: ubuntu-latest
-
-  #   # Steps represent a sequence of tasks that will be executed as part of the job
-  #   steps:
-  #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-  #     - uses: actions/checkout@v2
-      
-  #     - name: Retrieve Cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: |
-  #           export/release/android/haxe
-  #           export/release/android/obj
-  #         key: ${{ runner.os }}-cache
-
-  #     - uses: krdlab/setup-haxe@master
-  #       with:
-  #         haxe-version: 4.3.2
-      
-  #     - name: Setup Java JDK
-  #       uses: actions/setup-java@v2
-  #       with:
-  #         distribution: 'temurin'
-  #         java-version: '11'
-
-  #     - name: Setup Android NDK
-  #       uses: nttld/setup-ndk@v1
-  #       id: setup-ndk
-  #       with:
-  #         ndk-version: r21e
-      
-  #     # Runs a set of commands using the runners shell
-  #     - name: Install Haxelib
-  #       run: |
-  #         sudo apt-get install libvlc-dev
-  #         sudo apt-get install libvlccore-dev
-  #         haxelib setup ~/haxelib
-  #         haxelib install hxcpp > /dev/null --quiet
-  #         haxelib install hmm --quiet
-  #         haxelib run hmm install
-  #         haxelib run lime config ANDROID_SDK $ANDROID_HOME
-  #         haxelib run lime config ANDROID_NDK_ROOT ${{steps.setup-ndk.outputs.ndk-path}}
-  #         haxelib run lime config JAVA_HOME $JAVA_HOME
-  #         haxelib run lime config ANDROID_SETUP true
-
-  #     - name: Create Version Tag
-  #       run: echo "${{github.run_id}}" > VERSION
-  #     - name: Compile
-  #       run: haxelib run lime build Project.xml android -D HXCPP_M64 --app-version="4.0.0-${{ github.run_id}}"
-  #     - name: Publish Artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: androidBuild (experimental)
-  #         path: 'export/release/android/bin/app/build/outputs/apk'
-  # smh: code signing shit
-  # buildiOS:
-  #   runs-on: macos-latest
-
-  #   steps:
-  #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-  #     - uses: actions/checkout@v2
-
-  #     - name: Retrieve Cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: |
-  #           export/release/ios/haxe
-  #           export/release/ios/obj
-  #         key: ${{ runner.os }}-cache
-
-  #     - uses: krdlab/setup-haxe@master
-  #       with:
-  #         haxe-version: 4.3.2
-  #     # Runs a set of commands using the runners shell
-  #     - name: Install Haxelib
-  #       run: |
-  #         haxelib setup ~/haxelib
-  #         haxelib install hxcpp > /dev/null --quiet
-  #         haxelib install hmm --quiet
-  #         haxelib run hmm install
-  #     - name: Create Version Tag
-  #       run: echo "${{github.run_id}}" > VERSION
-  #     - name: Compile
-  #       run: haxelib run lime build ios --app-version="4.0.0-${{ github.run_id}}"
-  #     - name: Publish Artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: iOSBuild (experimental)
-  #         path: export/release/ios/build/
-  release:
-    if: github.ref_type == 'tag'
-    needs:
-      - buildLinux
-      - buildMac
-      - buildWindows
-    
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Create Draft Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref_name }}
-        release_name: v${{ github.ref_name }}
-        draft: true
-        prerelease: false
-
-    - name: Download all workflow run artifacts
-      uses: actions/download-artifact@v4
-
-    - name: Zip artifacts
-      run: |
-        zip -r windowsBuild.zip windowsBuild/
-        zip -r linuxBuild.zip linuxBuild/
-        zip -r macBuild.zip macBuild/
-
-    - name: Upload Windows build to the release
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: windowsBuild.zip
-        asset_name: windowsBuild.zip
-        asset_content_type: application/zip
-
-    - name: Upload Linux build to the release
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: linuxBuild.zip
-        asset_name: linuxBuild.zip
-        asset_content_type: application/zip
-
-    - name: Upload MacOS build to the release
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: macBuild.zip
-        asset_name: macBuild.zip
-        asset_content_type: application/zip
-
-    - name: Setup git config
-      run: |
-        git config --global user.name "GitHub Actions Bot"
-        git config --global user.email "<>"
-
-    # publish windows
-
-    - name: Checkout windows build
-      uses: actions/checkout@v3
-      with:
-        repository: Snirozu/Funkin-Psych-Online-Builds
-        ref: 'windows'
-        token:  ${{ secrets.BUILDS_GITHUB_TOKEN }}
-        lfs: true
-        path: 'builds_repo'
-        sparse-checkout-cone-mode: false
-        sparse-checkout: |
-          .gitattributes
-    
-    - name: Publish windows build
-      run: |
-        cd builds_repo
-        git sparse-checkout disable
-        cp -rf ../windowsBuild/* ./
-        git add --all
-        git commit -m "${{github.run_id}}"
-        git push origin windows --force
-
-    # publish linux
-    
-    - name: Checkout linux build
-      uses: actions/checkout@v3
-      with:
-        repository: Snirozu/Funkin-Psych-Online-Builds
-        ref: 'linux'
-        token:  ${{ secrets.BUILDS_GITHUB_TOKEN }}
-        lfs: true
-        path: 'builds_repo'
-        sparse-checkout-cone-mode: false
-        sparse-checkout: |
-          .gitattributes
-    
-    - name: Publish linux build
-      run: |
-        cd builds_repo
-        git sparse-checkout disable
-        cp -rf ../linuxBuild/* ./
-        git add --all
-        git commit -m "${{github.run_id}}"
-        git push origin linux --force
-
-    # publish macos
-    
-    - name: Checkout macos build
-      uses: actions/checkout@v3
-      with:
-        repository: Snirozu/Funkin-Psych-Online-Builds
-        ref: 'macos'
-        token:  ${{ secrets.BUILDS_GITHUB_TOKEN }}
-        lfs: true
-        path: 'builds_repo'
-        sparse-checkout-cone-mode: false
-        sparse-checkout: |
-          .gitattributes
-    
-    - name: Publish macos build
-      run: |
-        cd builds_repo
-        git sparse-checkout disable
-        cp -rf ../macBuild/* ./
-        git add --all
-        git commit -m "${{github.run_id}}"
-        git push origin macos --force
+          - name: Android-(ARMV7)-NORMAL
+            os: ubuntu-latest
+            setupCommand: sh ./setup/unix-alter.sh
+            buildArgs: "android -ONLY_ARMV7"
+            artifactName: androidBuild-Armv7
+            artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
+            doCache: "NO"
+            
+          - name: Windows-NORMAL
+            os: windows-latest
+            setupCommand: .\"setup/windows.bat"
+            buildArgs: "windows -D officialBuild -final"
+            artifactName: windowsBuild-x86_64
+            artifactPath: export\release\windows\bin\*
+            doCache: "YES"
+            
+          - name: iOS-NORMAL
+            os: macos-15
+            setupCommand: sh ./setup/unix.sh
+            buildArgs: "ios -final -nosign -D officialBuild"
+            artifactName: iOSBuild
+            artifactPath: "export/release/ios/build/Release-iphoneos/*.ipa"
+            doCache: "YES"
+    uses: ./.github/workflows/build.yml
+    with:
+        name: ${{ matrix.name }}
+        os: ${{ matrix.os }}
+        setupCommand: ${{ matrix.setupCommand }}
+        buildArgs: ${{ matrix.buildArgs }}
+        artifactName: ${{ matrix.artifactName }}
+        artifactPath: ${{ matrix.artifactPath }}
+        doCache: ${{ matrix.doCache }}

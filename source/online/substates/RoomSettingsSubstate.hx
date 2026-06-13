@@ -206,6 +206,8 @@ class RoomSettingsSubstate extends MusicBeatSubstate {
 		add(items);
 
 		GameClient.send("status", "In the Room Settings");
+
+		addControl(null, "BACK");
 	}
 
 	function updateItems() {

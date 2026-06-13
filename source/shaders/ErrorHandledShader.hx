@@ -1,7 +1,5 @@
 package shaders;
 
-import sys.io.File;
-import sys.FileSystem;
 import flixel.system.FlxAssets.FlxShader;
 import flixel.addons.display.FlxRuntimeShader;
 import lime.graphics.opengl.GLProgram;

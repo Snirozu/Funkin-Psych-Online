@@ -170,6 +170,8 @@ class NotesSubState extends MusicBeatSubstate
 		FlxG.mouse.visible = !controls.controllerMode;
 		controllerPointer.visible = controls.controllerMode;
 		_lastControllerMode = controls.controllerMode;
+
+		addControl(null, 'BACK_RESET');
 	}
 
 	function updateTip()

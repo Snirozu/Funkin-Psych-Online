@@ -52,10 +52,6 @@ import states.editors.ChartingState;
 import substates.GameplayChangersSubstate;
 import substates.ResetScoreSubState;
 
-#if MODS_ALLOWED
-import sys.FileSystem;
-#end
-
 class FreeplayState extends MusicBeatState
 {
 	public static var instance:FreeplayState;
@@ -669,6 +665,7 @@ class FreeplayState extends MusicBeatState
 		CustomFadeTransition.nextCamera = hudCamera;
 
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+		addControl("FULL", "FREEPLAY");
 	}
 
 	var modList:Array<String> = [];
@@ -755,7 +752,7 @@ class FreeplayState extends MusicBeatState
 			if (FileSystem.exists(directory)) {
 				for (file in FileSystem.readDirectory(directory)) {
 					var path = haxe.io.Path.join([directory, file]);
-					if (!sys.FileSystem.isDirectory(path) && file.endsWith('.json')) {
+					if (!FileSystem.isDirectory(path) && file.endsWith('.json')) {
 						var charToCheck:String = file.substr(0, file.length - 5);
 						if (!charsWeeksLoaded.exists(charToCheck)) {
 							charsWeeksLoaded.set(charToCheck, directoryMods[i]);
@@ -917,24 +914,31 @@ class FreeplayState extends MusicBeatState
 			return;
 		}
 
-		if (!searchInputWait && FlxG.keys.justPressed.F) {
+		if (!searchInputWait && (FlxG.keys.justPressed.F || checkControl("f", "justPressed"))) {
 			searchInputWait = true;
+			FlxG.stage.window.textInputEnabled = true;
 			searchString = searchString;
 		}
 
+		#if android
+		if (searchInputWait && FlxG.android.justPressed.BACK) {
+			tempDisableInput();
+		}
+		#end
+
 		var shiftMult:Int = 1;
-		if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
+		if(FlxG.keys.pressed.SHIFT || checkControl("shift", "pressed")) shiftMult = 3;
 
 		if (!selected) {
 			if(songs.length > 0)
 			{
-				if(FlxG.keys.justPressed.HOME)
+				if(FlxG.keys.justPressed.HOME || checkControl("home", "justPressed"))
 				{
 					curSelected = -1;
 					changeSelection();
 					holdTime = 0;	
 				}
-				else if(FlxG.keys.justPressed.END)
+				else if(FlxG.keys.justPressed.END || checkControl("end", "justPressed"))
 				{
 					curSelected = songs.length - 1;
 					changeSelection();
@@ -969,7 +973,7 @@ class FreeplayState extends MusicBeatState
 					changeSelection();
 				}
 
-				if (controls.RESET && curSelected != -1 && !FlxG.keys.pressed.ALT) {
+				if (controls.RESET && curSelected != -1 && (!FlxG.keys.pressed.ALT && !checkControl("alt", "pressed"))) {
 					var songId = songs[curSelected].songName + '-' + songs[curSelected].folder;
 					if (ClientPrefs.data.hiddenSongs.contains(songId)) {
 						ClientPrefs.data.hiddenSongs.remove(songId);
@@ -1010,7 +1014,7 @@ class FreeplayState extends MusicBeatState
 				}
 			}
 
-			if (controls.RESET && FlxG.keys.pressed.ALT) {
+			if (controls.RESET && (FlxG.keys.pressed.ALT || checkControl("alt", "pressed"))) {
 				ClientPrefs.data.hiddenSongs = [];
 				ClientPrefs.saveSettings();
 				search();
@@ -1028,7 +1032,7 @@ class FreeplayState extends MusicBeatState
 					updateGroupTitle();
 				}
 
-				if (FlxG.keys.justPressed.CONTROL) {
+				if (FlxG.keys.justPressed.CONTROL || checkControl("control", "justPressed")) {
 					persistentUpdate = false;
 					var daCopy = searchGroupVList.copy();
 					for (i => item in daCopy)
@@ -1098,7 +1102,7 @@ class FreeplayState extends MusicBeatState
 				}
 			}
 
-			if(FlxG.keys.justPressed.SPACE)
+			if(FlxG.keys.justPressed.SPACE || checkControl("space", "justPressed"))
 			{
 				if (curSelected == -1) {
 					var newSel = FlxG.random.int(0, songs.length - 1);
@@ -1131,7 +1135,7 @@ class FreeplayState extends MusicBeatState
 				leaderboardTimer = 0;
 			}
 
-			if (chatBox == null && FlxG.keys.justPressed.TAB) {
+			if (chatBox == null && (FlxG.keys.justPressed.TAB || checkControl("tab", "justPressed"))) {
 				persistentUpdate = false;
 				FlxG.switchState(() -> new online.states.SkinsState());
 			}
@@ -1378,7 +1382,7 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 
-		if (FlxG.keys.pressed.SHIFT && !selected) {
+		if ((FlxG.keys.pressed.SHIFT || checkControl("shift", "pressed")) && !selected) {
 			itemsCameraZoom = FlxMath.lerp(itemsCameraZoom, 0.65, elapsed * 10);
 			itemsCameraScrollX = FlxMath.lerp(itemsCameraScrollX, 150, elapsed * 10);
 		}

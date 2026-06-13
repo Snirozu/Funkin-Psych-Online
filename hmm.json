@@ -7,8 +7,9 @@
     },
     {
       "name": "lime",
-      "type": "haxelib",
-      "version": "8.1.3"
+      "type": "git",
+      "ref": "adbdbf23dd5a0ecd6c6b06a6f6704b6db9b6ef94",
+      "url": "https://github.com/ArkoseLabsOfficial/lime"
     },
     {
       "name": "openfl",
@@ -17,8 +18,9 @@
     },
     {
       "name": "flixel",
-      "type": "haxelib",
-      "version": "5.8.0"
+      "type": "git",
+      "ref": "main",
+      "url": "https://github.com/Prohack101010/flixel-5.8.0-fixed"
     },
     {
       "name": "flixel-addons",
@@ -37,8 +39,10 @@
     },
     {
       "name": "hxcpp",
-      "type": "haxelib",
-      "version": "4.3.2"
+      "type": "git",
+      "dir": null,
+      "ref": null,
+      "url": "https://github.com/AlafandyPorting/hxcpp-0.7.3"
     },
     {
       "name": "tjson",
@@ -61,8 +65,8 @@
       "name": "linc_luajit",
       "type": "git",
       "dir": null,
-      "ref": "master",
-      "url": "https://github.com/Snirozu/linc_luajit"
+      "ref": "main",
+      "url": "https://github.com/th2l-devs/linc_luajit"
     },
     {
       "name": "colyseus",

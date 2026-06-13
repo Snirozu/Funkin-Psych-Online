@@ -1,0 +1,40 @@
+{
+  "buttons": [
+    {
+      "name": "accept",
+      "id": "accept",
+      "graphic": "button_circle",
+      "subgraphic": "icon_button_a",
+      "position": [1153, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "back",
+      "id": "back",
+      "graphic": "button_circle",
+      "subgraphic": "icon_button_b",
+      "position": [1033, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "control",
+      "id": "control",
+      "graphic": "button_circle",
+      "subgraphic": "icon_menu",
+      "position": [913, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "reset",
+      "id": "reset",
+      "graphic": "button_circle",
+      "subgraphic": "icon_arrow_rotate",
+      "position": [793, 593],
+      "scale": 1.0,
+      "color": null
+    }
+  ]
+}

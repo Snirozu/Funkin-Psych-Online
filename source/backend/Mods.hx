@@ -1,9 +1,6 @@
 package backend;
 
-#if sys
-import sys.FileSystem;
-import sys.io.File;
-#else
+#if !sys
 import lime.utils.Assets;
 #end
 import tjson.TJSON as Json;
@@ -61,7 +58,7 @@ class Mods
 			for (folder in FileSystem.readDirectory(modsFolder))
 			{
 				var path = haxe.io.Path.join([modsFolder, folder]);
-				if (sys.FileSystem.isDirectory(path) && !ignoreModFolders.contains(folder.toLowerCase()) && !list.contains(folder))
+				if (FileSystem.isDirectory(path) && !ignoreModFolders.contains(folder.toLowerCase()) && !list.contains(folder))
 					list.push(folder);
 			}
 		}

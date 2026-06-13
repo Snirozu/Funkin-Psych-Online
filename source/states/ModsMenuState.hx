@@ -17,11 +17,6 @@ import openfl.geom.Rectangle;
 import lime.utils.Assets;
 import tjson.TJSON as Json;
 
-#if sys
-import sys.io.File;
-import sys.FileSystem;
-#end
-
 import objects.AttachedSprite;
 
 /*import haxe.zip.Reader;
@@ -467,6 +462,8 @@ class ModsMenuState extends MusicBeatState
 		FlxG.mouse.visible = true;
 
 		super.create();
+
+		addControl(null, "MODS_MENU");
 	}
 
 	/*function getIntArray(max:Int):Array<Int>{

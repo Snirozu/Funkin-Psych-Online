@@ -1,0 +1,40 @@
+{
+  "buttons": [
+    {
+      "name": "MENU",
+      "id": "MENU",
+      "graphic": "button_circle",
+      "subgraphic": "icon_menu",
+      "position": [1730, 0],
+      "scale": 1.5,
+      "color": null
+    },
+    {
+      "name": "ACCEPT",
+      "id": "ACCEPT",
+      "graphic": "button_circle",
+      "subgraphic": "icon_button_a",
+      "position": [1730, 890],
+      "scale": 1.5,
+      "color": null
+    },
+    {
+      "name": "CANCEL",
+      "id": "CANCEL",
+      "graphic": "button_circle",
+      "subgraphic": "icon_button_b",
+      "position": [1550, 890],
+      "scale": 1.5,
+      "color": null
+    },
+    {
+      "name": "RUN",
+      "id": "RUN",
+      "graphic": "button_circle",
+      "subgraphic": "icon_sprint",
+      "position": [1370, 890],
+      "scale": 1.5,
+      "color": null
+    }
+  ]
+}

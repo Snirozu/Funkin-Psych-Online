@@ -1,10 +1,5 @@
 package states;
 
-#if MODS_ALLOWED
-import sys.FileSystem;
-import sys.io.File;
-#end
-
 import objects.AttachedSprite;
 
 class CreditsState extends MusicBeatState
@@ -145,6 +140,8 @@ class CreditsState extends MusicBeatState
 		intendedColor = bg.color;
 		changeSelection();
 		super.create();
+
+		addControl(null, "OPTIONS");
 	}
 
 	var quitting:Bool = false;

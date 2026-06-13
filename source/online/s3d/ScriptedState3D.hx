@@ -11,8 +11,6 @@ import away3d.containers.ObjectContainer3D;
 import flixel.input.keyboard.FlxKey;
 import flixel.FlxState;
 import tea.SScript;
-import sys.io.File;
-import sys.FileSystem;
 import away3d.cameras.lenses.PerspectiveLens;
 import flx3d.FlxState3D;
 

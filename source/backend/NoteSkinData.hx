@@ -2,11 +2,6 @@ package backend;
 
 import openfl.utils.Assets;
 
-#if sys
-import sys.io.File;
-import sys.FileSystem;
-#end
-
 class NoteSkinData {
 	public static var noteSkins:Array<NoteSkinStructure> = [];
 	public static var noteSkinArray:Array<String> = [];

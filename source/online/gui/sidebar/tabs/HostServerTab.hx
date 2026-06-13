@@ -1,7 +1,6 @@
 package online.gui.sidebar.tabs;
 
 import haxe.io.Path;
-import sys.FileSystem;
 import haxe.io.Error;
 
 //TODO force kill server and node.exe

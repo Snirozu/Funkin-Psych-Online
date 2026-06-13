@@ -21,17 +21,22 @@ import states.TitleState;
 import lime.graphics.Image;
 #end
 
-import sys.FileSystem;
-
 //crash handler stuff
 import openfl.events.UncaughtErrorEvent;
 import haxe.CallStack;
 import haxe.io.Path;
-import sys.io.File;
 import sys.io.Process;
+
+#if FEATURE_TOUCH_CONTROLS
+import mobile.openfl.controls.MobileControls;
+#end
 
 class Main extends Sprite
 {
+	#if FEATURE_TOUCH_CONTROLS
+	public static var mobileControls:MobileControls;
+	#end
+
 	var game = {
 		width: 1280, // WINDOW width
 		height: 720, // WINDOW height
@@ -55,6 +60,7 @@ class Main extends Sprite
 	 * 
 	 * ANY TRY TO CIRCUMVENT THE PROPER WORKING OF THIS VARIABLE
 	 * WILL RESULT IN THE SOURCE/BUILD TO BE REPORTED
+	 * FUCK YOU, I FOUND THE MACRO -KralOyuncu
 	 * 
 	 * ! ! ! ! ! !
 	 */
@@ -72,6 +78,7 @@ class Main extends Sprite
 	public static function main():Void
 	{
 		// cpp.vm.Profiler.start("profiler.txt");
+		#if !mobile
 		if (Path.normalize(Sys.getCwd()) != Path.normalize(lime.system.System.applicationDirectory)) {
 			Sys.setCwd(lime.system.System.applicationDirectory);
 
@@ -84,6 +91,7 @@ class Main extends Sprite
 				Sys.exit(1);
 			}
 		}
+		#end
 		
 		// Lib.current.addChild(view3D = new online.away.View3DHandler());
 		var alertSprite = new online.gui.Alert();
@@ -99,6 +107,11 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
+		#if android
+        Sys.setCwd(haxe.io.Path.addTrailingSlash(android.content.Context.getExternalFilesDir()));
+        #elseif ios
+        Sys.setCwd(lime.system.System.documentsDirectory);
+        #end
 
 		if (stage != null)
 		{
@@ -122,6 +135,7 @@ class Main extends Sprite
 
 	private function setupGame():Void
 	{
+		#if (openfl <= "9.2.0")
 		var stageWidth:Int = Lib.current.stage.stageWidth;
 		var stageHeight:Int = Lib.current.stage.stageHeight;
 
@@ -133,6 +147,11 @@ class Main extends Sprite
 			game.width = Math.ceil(stageWidth / game.zoom);
 			game.height = Math.ceil(stageHeight / game.zoom);
 		}
+		#end
+
+		#if VIDEOS_ALLOWED
+		hxvlc.util.Handle.init(#if (hxvlc >= "1.8.0")  ['--no-lua'] #end);
+		#end
 
 		CoolUtil.setDarkMode(true);
 
@@ -159,9 +178,15 @@ class Main extends Sprite
 		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
 		Controls.instance = new Controls();
 		ClientPrefs.loadDefaultKeys();
+		#if FEATURE_TOUCH_CONTROLS
+		mobileControls = new MobileControls(1280, 720);
+		#end
 		addChild(new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
+		#if FEATURE_TOUCH_CONTROLS
+		addChild(mobileControls);
+		FlxG.mouse.useSystemCursor = true;
+		#end
 
-		#if !mobile
 		fpsVar = new FPS(10, 3, 0xFFFFFF);
 		addChild(fpsVar);
 		Lib.current.stage.align = "tl";
@@ -169,7 +194,6 @@ class Main extends Sprite
 		if(fpsVar != null) {
 			fpsVar.visible = ClientPrefs.data.showFPS;
 		}
-		#end
 
 		#if linux
 		Lib.current.stage.window.setIcon(Image.fromFile("icon.png"));
@@ -179,6 +203,16 @@ class Main extends Sprite
 		FlxG.autoPause = false;
 		FlxG.mouse.visible = false;
 		#end
+
+		FlxG.fixedTimestep = false;
+		FlxG.game.focusLostFramerate = #if mobile 30 #else 60 #end;
+		#if web
+		FlxG.keys.preventDefaultKeys.push(TAB);
+		#else
+		FlxG.keys.preventDefaultKeys = [TAB];
+		#end
+
+		#if android FlxG.android.preventDefaultKeys = [BACK]; #end
 		
 		//haxe errors caught by openfl
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, (e) -> {
@@ -193,7 +227,9 @@ class Main extends Sprite
 
 		// shader coords fix
 		FlxG.signals.gameResized.add(function (w, h) {
-		     if (FlxG.cameras != null) {
+		     if(fpsVar != null)
+				fpsVar.positionFPS(10, 3, Math.min(w / FlxG.width, h / FlxG.height));
+			 if (FlxG.cameras != null) {
 			   for (cam in FlxG.cameras.list) {
 				@:privateAccess
 				if (cam != null && cam.filters != null)
@@ -476,7 +512,7 @@ class Main extends Sprite
 			GameClient.leaveRoom();
 		} catch (exc) {}
 		online.network.Auth.saveClose();
-		Sys.exit(1);
+		//Sys.exit(1);
 	}
 
 	public static function getTime():Float {

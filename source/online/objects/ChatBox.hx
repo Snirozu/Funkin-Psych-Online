@@ -194,7 +194,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 		}
 		
 		if (focused || alpha > 0) {
-			if (FlxG.keys.justPressed.ESCAPE) {
+			if (FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end) {
 				focused = false;
 			}
 
@@ -263,7 +263,7 @@ class ChatBox extends FlxTypedSpriteGroup<FlxSprite> {
 
         super.update(elapsed);
 
-		if (FlxG.keys.justPressed.TAB) {
+		if (FlxG.keys.justPressed.TAB #if FEATURE_TOUCH_CONTROLS || Main.mobileControls.checkState("chat", "justPressed") #end) {
 			focused = !focused;
 		}
 

@@ -9,7 +9,6 @@ import states.FreeplayState;
 import states.editors.CharacterEditorState;
 import backend.WeekData;
 import haxe.io.Path;
-import sys.FileSystem;
 import flixel.group.FlxGroup;
 import objects.Character;
 import states.FreeplayState.Heart;
@@ -290,7 +289,7 @@ class SkinsState extends MusicBeatState {
 				var character:String = file.substr(0, file.length - 5);
 
 				//skip blacklisted or non-character files
-				if (charSkipSearch.contains(character) || sys.FileSystem.isDirectory(filePath) || !file.endsWith('.json')) {
+				if (charSkipSearch.contains(character) || FileSystem.isDirectory(filePath) || !file.endsWith('.json')) {
 					continue;
 				}
 

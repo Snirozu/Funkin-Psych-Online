@@ -7,10 +7,6 @@ import flixel.math.FlxRect;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.util.FlxSort;
 import flixel.util.FlxDestroyUtil;
-#if MODS_ALLOWED
-import sys.io.File;
-import sys.FileSystem;
-#end
 import openfl.utils.AssetType;
 import openfl.utils.Assets;
 import tjson.TJSON as Json;

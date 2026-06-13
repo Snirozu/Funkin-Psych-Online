@@ -167,7 +167,7 @@ class MonitorMacro {
 		Sys.println(o);
 		if (logOutput == null) {
 			// sys.io.File.saveContent('monitor_output.txt', '');
-			logOutput = sys.io.File.append('monitor_output.txt', false);
+			logOutput = File.append('monitor_output.txt', false);
 		}
 		logOutput.writeString(Std.string(o) + '\n');
 		logOutput.flush();

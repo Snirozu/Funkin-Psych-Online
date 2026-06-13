@@ -27,6 +27,7 @@ class ResetScoreSubState extends MusicBeatSubstate
 		this.week = week;
 
 		super();
+		addControl(null, "RESET");
 
 		var name:String = song;
 		if(week > -1) {

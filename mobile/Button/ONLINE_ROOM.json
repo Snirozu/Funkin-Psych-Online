@@ -1,0 +1,49 @@
+{
+  "buttons": [
+    {
+      "name": "chat",
+      "id": "chat",
+      "graphic": "button_circle",
+      "subgraphic": "icon_talk",
+      "position": [1032, 296],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "back",
+      "id": "back",
+      "graphic": "button_circle",
+      "subgraphic": "icon_button_b",
+      "position": [1156, 296],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "control",
+      "id": "control",
+      "graphic": "button_circle",
+      "subgraphic": "icon_skull",
+      "position": [908, 172],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "taunt",
+      "id": "taunt",
+      "graphic": "button_circle",
+      "subgraphic": "icon_sprint",
+      "position": [1032, 172],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "alt",
+      "id": "alt",
+      "graphic": "button_circle",
+      "subgraphic": "icon_music",
+      "position": [1156, 172],
+      "scale": 1.0,
+      "color": null
+    }
+  ]
+}

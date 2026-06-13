@@ -20,11 +20,6 @@ import shaders.ColorSwap;
 import states.StoryMenuState;
 import states.MainMenuState;
 
-#if MODS_ALLOWED
-import sys.FileSystem;
-import sys.io.File;
-#end
-
 typedef TitleData =
 {
 
@@ -96,6 +91,10 @@ class TitleState extends MusicBeatState
 
 		ClientPrefs.loadPrefs();
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
+
+		#if VIDEOS_ALLOWED
+		hxvlc.util.Handle.init(#if (hxvlc >= "1.8.0")  ['--no-lua'] #end);
+		#end
 
 		backend.NoteSkinData.reloadNoteSkins();
 

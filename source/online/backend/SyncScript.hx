@@ -2,8 +2,6 @@ package online.backend;
 
 #if HSCRIPT_ALLOWED
 import tea.SScript;
-import sys.io.File;
-import sys.FileSystem;
 
 class SyncScript extends SScript {
 	public static var syncScript:SyncScript;

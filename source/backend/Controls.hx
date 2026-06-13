@@ -102,7 +102,7 @@ class Controls
 		var result:Bool = (FlxG.keys.anyJustPressed(keyboardBinds[key]) == true);
 		if(result) controllerMode = false;
 
-		return result || _myGamepadJustPressed(gamepadBinds[key]) == true;
+		return result || _myGamepadJustPressed(gamepadBinds[key]) == true #if FEATURE_TOUCH_CONTROLS || Main.mobileControls.checkState(key.toLowerCase(), "justPressed") == true #end;
 	}
 
 	public function pressed(key:String)
@@ -115,7 +115,7 @@ class Controls
 		var result:Bool = (FlxG.keys.anyPressed(keyboardBinds[key]) == true);
 		if(result) controllerMode = false;
 
-		return result || _myGamepadPressed(gamepadBinds[key]) == true;
+		return result || _myGamepadPressed(gamepadBinds[key]) == true #if FEATURE_TOUCH_CONTROLS || Main.mobileControls.checkState(key.toLowerCase(), "pressed") == true #end;
 	}
 
 	public function justReleased(key:String)
@@ -128,7 +128,7 @@ class Controls
 		var result:Bool = (FlxG.keys.anyJustReleased(keyboardBinds[key]) == true);
 		if(result) controllerMode = false;
 
-		return result || _myGamepadJustReleased(gamepadBinds[key]) == true;
+		return result || _myGamepadJustReleased(gamepadBinds[key]) == true #if FEATURE_TOUCH_CONTROLS || Main.mobileControls.checkState(key.toLowerCase(), "justReleased") == true #end;
 	}
 
 	public var controllerMode:Bool = false;

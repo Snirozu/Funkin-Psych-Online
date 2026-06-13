@@ -37,6 +37,7 @@ class SoFunkinSubstate extends MusicBeatSubstate {
 
 	public function new(options:Array<String>, ?selected:Int = 0, ?callback:Int->Bool) {
         super();
+		addControl("FULL", "ACCEPT_BACK");
         
 		curSelected = selected;
 		this.options = options;

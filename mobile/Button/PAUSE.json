@@ -1,0 +1,13 @@
+{
+  "buttons": [
+    {
+      "name": "pause",
+      "id": "pause",
+      "graphic": "button_circle",
+      "subgraphic": "icon_menu",
+      "position": [1153, 0],
+      "scale": 1.0,
+      "color": null
+    }
+  ]
+}

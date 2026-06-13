@@ -59,6 +59,7 @@ class GameOverSubstate extends MusicBeatSubstate
 	public function new(x:Float, y:Float, camX:Float, camY:Float, ?overCharacter:Character)
 	{
 		super();
+		addControl(null, "ACCEPT_BACK");
 
 		if (overCharacter == null || characterName != 'bf-dead') {
 			boyfriend = new Character(x, y, characterName, true, false);

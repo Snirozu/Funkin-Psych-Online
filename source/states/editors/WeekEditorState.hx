@@ -19,11 +19,6 @@ import openfl.net.FileFilter;
 import lime.system.Clipboard;
 import tjson.TJSON as Json;
 
-#if sys
-import sys.io.File;
-import sys.FileSystem;
-#end
-
 import objects.HealthIcon;
 import objects.MenuCharacter;
 import objects.MenuItem;

@@ -321,6 +321,8 @@ class OnlineState extends MusicBeatState {
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 
 		FlxG.mouse.visible = true;
+
+		addControl(null, "BACK");
     }
 
 	override function destroy() {
@@ -373,6 +375,7 @@ class OnlineState extends MusicBeatState {
 			if (controls.ACCEPT || (FlxG.mouse.justPressed && mouseInItems)) {
 				switch (itms[curSelected].toLowerCase()) {
 					case "join":
+						FlxG.stage.window.textInputEnabled = true;
 						inputWait = true;
 					case "find":
 						disableInput = true;

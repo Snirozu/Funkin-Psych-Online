@@ -22,8 +22,6 @@ import lime.utils.Assets;
 import openfl.media.Sound;
 
 #if sys
-import sys.io.File;
-import sys.FileSystem;
 #if linux
 import haxe.io.Path;
 #end
@@ -538,7 +536,7 @@ class Paths
 
 	#if MODS_ALLOWED
 	inline static public function mods(key:String = '') {
-		return 'mods/' + key;
+		return #if mobile Sys.getCwd() + #end 'mods/' + key;
 	}
 
 	inline static public function modsFont(key:String) {
@@ -637,7 +635,7 @@ class Paths
 			}
 			#end
 		}
-		return 'mods/' + key;
+		return #if mobile Sys.getCwd() + #end 'mods/' + key;
 	}
 	#end
 

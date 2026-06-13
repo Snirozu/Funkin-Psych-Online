@@ -8,11 +8,6 @@ import Type.ValueType;
 
 import substates.GameOverSubstate;
 
-#if sys
-import sys.FileSystem;
-import sys.io.File;
-#end
-
 typedef LuaTweenOptions = {
 	type:FlxTweenType,
 	startDelay:Float,

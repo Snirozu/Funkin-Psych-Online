@@ -49,6 +49,8 @@ class TopPlayerSubstate extends MusicBeatSubstate {
 		keysTxt = new FlxText(0, 50);
 		keysTxt.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(keysTxt);
+
+		addControl("FULL", "ACCEPT_BACK");
     }
 
     var top:Array<Dynamic> = [];
@@ -175,7 +177,7 @@ class TopPlayerSubstate extends MusicBeatSubstate {
 			LoadingScreen.toggle(false);
             close();
         }
-        else if (controls.ACCEPT || FlxG.mouse.justPressed) {
+        else if (controls.ACCEPT #if desktop || FlxG.mouse.justPressed #end) {
 			if (top[curSelected] != null)
 				online.gui.sidebar.tabs.ProfileTab.view(top[curSelected].player);
         }

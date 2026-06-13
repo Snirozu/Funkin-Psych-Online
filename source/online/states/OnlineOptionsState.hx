@@ -21,6 +21,7 @@ class OnlineOptionsState extends MusicBeatState {
 	
 	public function new(?scrollToRegister:Bool = false) {
 		super();
+		addControl(null, "OPTIONS");
 
 		this.scrollToRegister = scrollToRegister;
 	}
@@ -403,6 +404,7 @@ class OnlineOptionsState extends MusicBeatState {
 				mouseMoveTimeout = 0.6;
 				changeSelection(1);
 			}
+			#if desktop
 			else if ((mouseMoveTimeout <= 0 && (FlxG.mouse.deltaX != 0 || FlxG.mouse.deltaY != 0)) || FlxG.mouse.justPressed) {
 				if (FlxG.mouse.justPressed)
                 	curSelected = -1;
@@ -416,17 +418,20 @@ class OnlineOptionsState extends MusicBeatState {
                 }
                 updateOptions();
             }
+			#end
         }
 
 		super.update(elapsed);
 
 		if (!inputWait) {
-			if ((controls.ACCEPT || FlxG.mouse.justPressed) && curOption != null) {
+			if ((controls.ACCEPT #if desktop || FlxG.mouse.justPressed #end) && curOption != null) {
 				if (curOption.isInput) {
+					#if desktop
 					if (FlxG.mouse.justPressed)
 						for (i => input in curOption.inputs)
 							input.hasFocus = FlxG.mouse.overlaps(curOption.inputBgs[i], camera);
 					else
+					#end
 						for (i => input in curOption.inputs)
 							input.hasFocus = i == 0;
 				}

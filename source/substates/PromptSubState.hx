@@ -13,6 +13,7 @@ class PromptSubState extends MusicBeatSubstate
 	public function new(title:String, posttext:String, callback:Bool->Void)
 	{
 		super();
+		addControl("FULL", "ACCEPT_BACK");
 
         this.callback = callback;
 

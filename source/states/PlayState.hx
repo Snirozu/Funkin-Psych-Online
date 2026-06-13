@@ -74,11 +74,6 @@ import flixel.addons.display.FlxRuntimeShader;
 import openfl.filters.ShaderFilter;
 #end
 
-#if sys
-import sys.FileSystem;
-import sys.io.File;
-#end
-
 #if VIDEOS_ALLOWED 
 #if hxCodec
 #if (hxCodec >= "3.0.0") import hxcodec.flixel.FlxVideo as VideoHandler;
@@ -1400,7 +1395,7 @@ class PlayState extends MusicBeatState
 
 		if (GameClient.isConnected()) {
 			preloadTasks.push(() -> {
-				waitReadySpr = new Alphabet(0, 0, "PRESS ACCEPT TO START", true);
+				waitReadySpr = new Alphabet(0, 0, #if mobile 'TOUCH YOUR SCREEN' #else 'PRESS ACCEPT' #end + ' TO START', true);
 				waitReadySpr.cameras = [camOther];
 				waitReadySpr.alignment = CENTERED;
 				waitReadySpr.x = FlxG.width / 2;
@@ -2157,6 +2152,15 @@ class PlayState extends MusicBeatState
 	{
 		// if (waitReady)
 		// 	return false;
+
+		#if FEATURE_TOUCH_CONTROLS
+		addHitbox("Test");
+		addControl(null, "PAUSE");
+		for (hitbox in Main.mobileControls.hitboxes) {
+			hitbox.onButtonDown.add(onButtonPress);
+			hitbox.onButtonUp.add(onButtonRelease);
+		}
+		#end
 
 		if(startedCountdown) {
 			callOnScripts('onStartCountdown');
@@ -3091,6 +3095,14 @@ class PlayState extends MusicBeatState
 		}
 
 		super.closeSubState();
+		#if FEATURE_TOUCH_CONTROLS
+		for (hitbox in Main.mobileControls.hitboxes) {
+			if (hitbox != null) {
+				hitbox.onButtonDown.add(onButtonPress);
+				hitbox.onButtonUp.add(onButtonRelease);
+			}
+		}
+		#end
 
 		effectMusic(FlxG.sound.music, true);
 		effectMusic(vocals, true);
@@ -3114,12 +3126,12 @@ class PlayState extends MusicBeatState
 
 	// Updating Discord Rich Presence.
 	function resetRPC(?cond:Bool = false, ?paused:Null<Bool>) {
+		#if DISCORD_ALLOWED
 		paused ??= this.paused;
 
 		final upperText = (paused ? '[Pause] ' : '') + SONG.song + " (" + storyDifficultyText.toUpperCase() + ")" + ' [${Note.maniaKeys}k]';
 		final downText = '${FlxStringUtil.formatMoney(songScore, false)} [${ratingFC}] - ${CoolUtil.floorDecimal(ratingPercent * 100, 1)}%${getPresencePoints()}';
 
-		#if DISCORD_ALLOWED
 		if (cond) {
 			if (Conductor.songPosition < 0.0)
 				DiscordClient.changePresence(upperText, downText, iconP2.getCharacter(), true, songLength);
@@ -3378,7 +3390,7 @@ class PlayState extends MusicBeatState
 			// 	endSong();
 			// }
 
-			if (!isReady && controls.ACCEPT && !inCutscene && canStart && canInput) {
+			if (!isReady && (controls.ACCEPT || FlxG.mouse.justPressed) && !inCutscene && canStart && canInput) {
 				isReady = true;
 				FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
 				if (ClientPrefs.data.flashing)
@@ -5359,6 +5371,71 @@ class PlayState extends MusicBeatState
 		}
 		return -1;
 	}
+
+	#if FEATURE_TOUCH_CONTROLS
+	private function onButtonPress(control:mobile.openfl.controls.InputHandler, id:String):Void
+	{
+		var noteID:String = id.toLowerCase();
+		trace(noteID);
+		if (noteID != null)
+		{
+			var buttonCode:Int = 0;
+
+			if (noteID.startsWith("note_"))
+			{
+				switch (noteID)
+				{
+					case "note_left":  buttonCode = 0;
+					case "note_down":  buttonCode = 1;
+					case "note_up":    buttonCode = 2;
+					case "note_right": buttonCode = 3;
+				}
+			}
+			else if (noteID.contains("note_"))
+			{
+				var regex = ~/_([0-9]+)$/;
+				if (regex.match(noteID))
+				{
+					buttonCode = Std.parseInt(regex.matched(1)) - 1;
+				}
+			}
+
+			callOnScripts('onButtonPressPre', [buttonCode]);
+			if (Main.mobileControls.checkState(noteID, "justPressed")) keyPressed(buttonCode);
+			callOnScripts('onButtonPress', [buttonCode]);
+		}
+	}
+
+	private function onButtonRelease(control:mobile.openfl.controls.InputHandler, id:String):Void
+	{
+		var noteID:String = id.toLowerCase();
+		if (noteID != null)
+		{
+			var buttonCode:Int = 0;
+			if (noteID.startsWith("note_")) 
+			{
+				switch (noteID) {
+					case "note_left":  buttonCode = 0;
+					case "note_down":  buttonCode = 1;
+					case "note_up":    buttonCode = 2;
+					case "note_right": buttonCode = 3;
+				}
+			}
+			else if (noteID.contains("note_")) 
+			{
+				var regex = ~/_([0-9]+)$/;
+				if (regex.match(noteID)) {
+					var extractedNum = Std.parseInt(regex.matched(1));
+					buttonCode = extractedNum - 1;
+				}
+			}
+
+			callOnScripts('onButtonReleasePre', [buttonCode]);
+			if(buttonCode > -1) keyReleased(buttonCode);
+			callOnScripts('onButtonRelease', [buttonCode]);
+		}
+	}
+	#end
 
 	// Hold notes
 	@:unreflective

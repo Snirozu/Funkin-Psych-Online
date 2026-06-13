@@ -84,6 +84,7 @@ class ControlsSubState extends MusicBeatSubstate
 		add(text);
 
 		createTexts();
+		addControl(null, "BACK");
 	}
 
 	var lastID:Int = 0;
@@ -302,7 +303,7 @@ class ControlsSubState extends MusicBeatSubstate
 
 		if(!binding)
 		{
-			if(FlxG.keys.justPressed.ESCAPE || FlxG.gamepads.anyJustPressed(B))
+			if(FlxG.keys.justPressed.ESCAPE || FlxG.gamepads.anyJustPressed(B) || checkControl("back", "justPressed"))
 			{
 				close();
 				return;

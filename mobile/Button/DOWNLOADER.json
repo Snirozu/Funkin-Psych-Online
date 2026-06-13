@@ -1,0 +1,29 @@
+{
+  "buttons": [
+    {
+      "name": "back",
+      "id": "back",
+      "graphic": "button_circle",
+      "subgraphic": "icon_button_b",
+      "position": [1153, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "ui_left",
+      "id": "ui_left",
+      "graphic": "dpad_left",
+      "position": [0, 593],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "ui_right",
+      "id": "ui_right",
+      "graphic": "dpad_right",
+      "position": [140, 593],
+      "scale": 1.0,
+      "color": null
+    }
+  ]
+}
