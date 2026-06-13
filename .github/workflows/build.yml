@@ -27,7 +27,7 @@ on:
 
 env:
   HAXE_VERSION: 4.3.6
-  PROJECT_NAME: PsychExtendedOnline
+  PROJECT_NAME: PsychOnline
 
 jobs:
   build:
