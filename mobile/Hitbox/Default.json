@@ -3,28 +3,28 @@
     {
       "name": "buttonNote1",
       "id": "note_left",
-      "position": [-100, 0],
+      "position": [0, 0],
       "scale": [320, 720],
       "color": "0xFFC24B99"
     },
     {
       "name": "buttonNote2",
       "id": "note_down",
-      "position": [220, 0],
+      "position": [320, 0],
       "scale": [320, 720],
       "color": "0xFF00FFFF"
     },
     {
       "name": "buttonNote3",
       "id": "note_up",
-      "position": [740, 0],
+      "position": [640, 0],
       "scale": [320, 720],
       "color": "0xFF12FA05"
     },
     {
       "name": "buttonNote4",
       "id": "note_right",
-      "position": [1060, 0],
+      "position": [960, 0],
       "scale": [320, 720],
       "color": "0xFFF9393F"
     }

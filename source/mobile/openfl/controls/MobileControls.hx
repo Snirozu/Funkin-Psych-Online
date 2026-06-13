@@ -17,7 +17,7 @@ class MobileControls extends Sprite {
 
     public var activePointers:Map<Int, Pointer> = new Map();
 
-    private var controls:Array<InputHandler> = [];
+    public var controls:Array<InputHandler> = [];
 
     public var buttons:Array<Button> = [];
     public var dpads:Array<DPad> = [];

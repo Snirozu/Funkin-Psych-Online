@@ -15,6 +15,10 @@ import objects.Note;
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
 
+#if FEATURE_TOUCH_CONTROLS
+import mobile.openfl.screen.ScreenUtil;
+#end
+
 class NotesSubState extends MusicBeatSubstate
 {
 	public static var isOpened:Bool = false;
@@ -509,6 +513,13 @@ class NotesSubState extends MusicBeatSubstate
 
 	function pointerOverlaps(obj:Dynamic)
 	{
+		#if FEATURE_TOUCH_CONTROLS
+		for (control in Main.mobileControls.controls) {
+			if (ScreenUtil.touch.overlaps(Main.mobileControls))
+				return false;
+		}
+		#end
+
 		if (!controls.controllerMode) return FlxG.mouse.overlaps(obj);
 		return FlxG.overlap(controllerPointer, obj);
 	}

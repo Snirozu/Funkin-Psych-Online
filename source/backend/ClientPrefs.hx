@@ -27,7 +27,7 @@ class SaveVariables {
 	public var holdSplashAlpha:Float = 0.6;
 	public var holdAlpha:Float = 0.6;
 	public var lowQuality:Bool = false;
-	public var shaders:Bool = #if mobile false #else true #end;
+	public var shaders:Bool = true;
 	// public var cacheOnGPU:Bool = #if !switch false #else true #end;
 	public var framerate:Int = #if mobile 60 #else 120 #end;
 	public var camZooms:Bool = true;

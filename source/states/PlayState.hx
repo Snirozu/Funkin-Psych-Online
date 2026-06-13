@@ -2154,8 +2154,8 @@ class PlayState extends MusicBeatState
 		// 	return false;
 
 		#if FEATURE_TOUCH_CONTROLS
-		addHitbox("Test");
-		addControl(null, "PAUSE");
+		addHitbox("Default");
+		addControl(null, (GameClient.isConnected() ? "PAUSE_CHAT_TAUNT" : "PAUSE_TAUNT"));
 		for (hitbox in Main.mobileControls.hitboxes) {
 			hitbox.onButtonDown.add(onButtonPress);
 			hitbox.onButtonUp.add(onButtonRelease);

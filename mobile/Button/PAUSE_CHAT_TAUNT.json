@@ -1,0 +1,31 @@
+{
+  "buttons": [
+    {
+      "name": "pause",
+      "id": "pause",
+      "graphic": "button_circle",
+      "subgraphic": "icon_pause",
+      "position": [1153, 0],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "chat",
+      "id": "chat",
+      "graphic": "button_circle",
+      "subgraphic": "icon_talk",
+      "position": [1033, 0],
+      "scale": 1.0,
+      "color": null
+    },
+    {
+      "name": "taunt",
+      "id": "taunt",
+      "graphic": "button_circle",
+      "subgraphic": "icon_sprint",
+      "position": [913, 0],
+      "scale": 1.0,
+      "color": null
+    }
+  ]
+}

@@ -457,6 +457,8 @@ class SkinsState extends MusicBeatState {
 		CustomFadeTransition.nextCamera = hud; // wat
 
 		GameClient.send("status", "Selecting their skin");
+
+		addControl("FULL", "SKINS");
     }
 
 	function getCharacterName(i:Int) {
@@ -502,18 +504,18 @@ class SkinsState extends MusicBeatState {
 			Conductor.songPosition = music.time;
 		}
 
-        if (FlxG.keys.pressed.SHIFT) {
+        if (FlxG.keys.pressed.SHIFT || checkControl("shift", "pressed")) {
 			if (character.members[0] != null) {
-				if (controls.NOTE_UP) {
+				if (controls.NOTE_UP || checkControl("ui_up", "pressed")) {
 					character.members[0].playAnim("singUP");
 				}
-				if (controls.NOTE_DOWN) {
+				if (controls.NOTE_DOWN || checkControl("ui_down", "pressed")) {
 					character.members[0].playAnim("singDOWN");
 				}
-				if (controls.NOTE_LEFT) {
+				if (controls.NOTE_LEFT || checkControl("ui_left", "pressed")) {
 					character.members[0].playAnim("singLEFT");
 				}
-				if (controls.NOTE_RIGHT) {
+				if (controls.NOTE_RIGHT || checkControl("ui_right", "pressed")) {
 					character.members[0].playAnim("singRIGHT");
 				}
 				if (controls.TAUNT) {
@@ -531,7 +533,7 @@ class SkinsState extends MusicBeatState {
 			}
         }
 
-		if (FlxG.keys.justPressed.CONTROL) {
+		if (FlxG.keys.justPressed.CONTROL || checkControl("control", "justPressed")) {
 			if (selectTimer != null)
 				selectTimer.active = false;
 
@@ -637,7 +639,7 @@ class SkinsState extends MusicBeatState {
 			openSubState(selState);
 		}
 
-		if (!FlxG.keys.pressed.SHIFT && controls.ACCEPT) {
+		if ((!FlxG.keys.pressed.SHIFT && !checkControl("shift", "pressed")) && controls.ACCEPT) {
 			if (selectTimer != null && !selectTimer.finished) {
 				selectTimer.onComplete(selectTimer);
 				selectTimer.cancel();
@@ -664,19 +666,19 @@ class SkinsState extends MusicBeatState {
 				character.members[0].playAnim("hey", true);
         }
 
-		if (controls.BACK || (!FlxG.keys.pressed.SHIFT && controls.ACCEPT)) {
+		if (controls.BACK || (!FlxG.keys.pressed.SHIFT && !checkControl("shift", "pressed") && controls.ACCEPT)) {
 			stopUpdates = true;
 			FlxTimer.wait(1, () -> {
 				switchState(() -> Type.createInstance(backClass, []));
 			});
 		}
 
-		if (FlxG.keys.justPressed.EIGHT && curCharacter != -1) {
+		if ((FlxG.keys.justPressed.EIGHT || checkControl("eight", "justPressed")) && curCharacter != -1) {
 			Mods.currentModDirectory = charactersList[curCharacter][3];
 			switchState(() -> new CharacterEditorState(getCharacterName(curCharacter), false, true));
 		}
 
-		if (FlxG.keys.justPressed.TAB) {
+		if (FlxG.keys.justPressed.TAB || checkControl("tab", "justPressed")) {
 			flipped = !flipped;
 			prevCharacter = null;
 			setCharacter(0);
@@ -684,7 +686,7 @@ class SkinsState extends MusicBeatState {
 			// LoadingState.loadAndSwitchState(new SkinsState());
 		}
 
-		if (FlxG.keys.justPressed.F1) {
+		if (FlxG.keys.justPressed.F1 || checkControl("f1", "justPressed")) {
 			switch (Main.repoHost) {
 				case 'github':
 					RequestSubstate.requestURL("https://github.com/Snirozu/Funkin-Psych-Online/wiki#skins", true);
@@ -699,7 +701,7 @@ class SkinsState extends MusicBeatState {
 			switchState(() -> new DownloaderState('collection:110039'));
 		}
 
-		if (!FlxG.keys.pressed.ALT && FlxG.keys.justPressed.F2) {
+		if (!FlxG.keys.pressed.ALT && FlxG.keys.justPressed.F2 || checkControl("f2", "justPressed")) {
 			switchState(() -> new DownloaderState('category:43788'));
 		}
 
@@ -1006,7 +1008,7 @@ class SkinsState extends MusicBeatState {
 		super.stepHit();
 
 		// thats how you do it ninjamuffin duh
-		if (!FlxG.keys.pressed.SHIFT)
+		if (!FlxG.keys.pressed.SHIFT && !checkControl("shift", "pressed"))
 			if (leftHoldTime > 0.5) {
 				setCharacter(-1, true);
 			}

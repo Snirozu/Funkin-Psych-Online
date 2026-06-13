@@ -29,6 +29,7 @@ import sys.io.Process;
 
 #if FEATURE_TOUCH_CONTROLS
 import mobile.openfl.controls.MobileControls;
+import mobile.openfl.screen.ScreenUtil;
 #end
 
 class Main extends Sprite
@@ -60,7 +61,7 @@ class Main extends Sprite
 	 * 
 	 * ANY TRY TO CIRCUMVENT THE PROPER WORKING OF THIS VARIABLE
 	 * WILL RESULT IN THE SOURCE/BUILD TO BE REPORTED
-	 * FUCK YOU, I FOUND THE MACRO -KralOyuncu
+	 * FUCK YOU, I FOUND THE MACRO AND MODIFIED IT -KralOyuncu
 	 * 
 	 * ! ! ! ! ! !
 	 */
@@ -112,6 +113,7 @@ class Main extends Sprite
         #elseif ios
         Sys.setCwd(lime.system.System.documentsDirectory);
         #end
+		backend.CrashHandler.init();
 
 		if (stage != null)
 		{
@@ -148,10 +150,7 @@ class Main extends Sprite
 			game.height = Math.ceil(stageHeight / game.zoom);
 		}
 		#end
-
-		#if VIDEOS_ALLOWED
-		hxvlc.util.Handle.init(#if (hxvlc >= "1.8.0")  ['--no-lua'] #end);
-		#end
+		hxvlc.util.Handle.init(['--no-lua']);
 
 		CoolUtil.setDarkMode(true);
 
@@ -184,6 +183,7 @@ class Main extends Sprite
 		addChild(new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
 		#if FEATURE_TOUCH_CONTROLS
 		addChild(mobileControls);
+		ScreenUtil.init(stage);
 		FlxG.mouse.useSystemCursor = true;
 		#end
 
@@ -213,13 +213,6 @@ class Main extends Sprite
 		#end
 
 		#if android FlxG.android.preventDefaultKeys = [BACK]; #end
-		
-		//haxe errors caught by openfl
-		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, (e) -> {
-			onCrash(e.error);
-		});
-		//internal c++ exceptions
-		untyped __global__.__hxcpp_set_critical_error_handler(onCrash);
 
 		#if DISCORD_ALLOWED
 		DiscordClient.initialize();
@@ -402,117 +395,6 @@ class Main extends Sprite
 		        sprite.__cacheBitmap = null;
 			sprite.__cacheBitmapData = null;
 		}
-	}
-
-	static function onCrash(exc:Dynamic):Void
-	{
-		trace(" . CRASHED . ");
-
-		if (exc == null)
-			exc = new Exception("Empty Uncaught Exception");
-
-		var alertMsg:String = "";
-		var daError:String = "";
-		var path:String;
-		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
-		var dateNow:String = Date.now().toString();
-
-		dateNow = dateNow.replace(" ", "_");
-		dateNow = dateNow.replace(":", "'");
-
-		path = "./crash/" + "PsychEngine_" + dateNow + ".txt";
-
-		alertMsg += exc + "\n";
-		daError += CallStack.toString(callStack) + "\n";
-		if (exc is Exception) {
-			final excStackStr = cast(exc, Exception).stack.toString();
-			if (excStackStr.trim().length > 0)
-				daError += "\n" + excStackStr + '\n';
-		}
-		if (online.backend.Waiter.waiterReports.length > 0){
-			daError += "\n" + online.backend.Waiter.waiterReports.trim();
-		}
-		alertMsg += daError;
-		alertMsg += "\n\nCommit: " + GIT_COMMIT + "\n";
-		alertMsg += "Version: " + PSYCH_ONLINE_VERSION + (TitleState.mustUpdate ? ' (OUTDATED)' : '') + "\n";
-
-		Sys.println(alertMsg);
-
-		if (!FileSystem.exists("./crash/"))
-			FileSystem.createDirectory("./crash/");
-		File.saveContent(path, alertMsg);
-		Sys.println("Crash dump saved in " + Path.normalize(path));
-		
-		var daLine:Int = 0;
-		var daFile:String = '';
-
-		if (callStack.length > 0)
-			switch (callStack[0]) {
-				case FilePos(s, file, line, col):
-					daLine = line;
-					daFile = file;
-					if (s != null && daFile != null && daFile.startsWith('lumod/LuaScriptClass'))
-						switch (s) {
-							case Method(cname, meth): // haxe has meth confirm?
-								if (cname != null)
-									daFile = cname.replace('.', '/') + ".hx";
-							default:
-						}
-				default:
-			}
-
-		var cookUrl:String = null;
-		switch (Main.repoHost) {
-			case 'github':
-				cookUrl = 'https://github.com/Snirozu/Funkin-Psych-Online/blob/$GIT_COMMIT/source/$daFile#L$daLine';
-			case 'codeberg':
-				cookUrl = 'https://codeberg.org/Snirozu/Funkin-Psych-Online/src/commit/$GIT_COMMIT/source/$daFile#L$daLine';
-		}
-
-		#if (windows && cpp)
-		if (!Main.UNOFFICIAL_BUILD) {
-			switch (Main.repoHost) {
-				case 'github':
-					alertMsg += "\nDo you wish to report this error on GitHub?";
-					alertMsg += "\nPress Yes to draft a new GitHub bug report";
-					alertMsg += "\nPress No to jump into the origin error point (on GitHub)";
-					WinAPI.ask("Uncaught Exception!", alertMsg, () -> { // yes
-						daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';
-						FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?template=bugs.yml&title=${StringTools.urlEncode('Exception: ${exc}')}&terminal=${StringTools.urlEncode(daError)}');
-					}, () -> { // no
-						FlxG.openURL(cookUrl);
-					});
-				case 'codeberg':
-					alertMsg += "\nDo you wish to report this error on Codeberg?";
-					alertMsg += "\nPress Yes to draft a new Codeberg bug report";
-					alertMsg += "\nPress No to jump into the origin error point (on Codeberg)";
-					WinAPI.ask("Uncaught Exception!", alertMsg, () -> { // yes
-						daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';
-						FlxG.openURL('https://codeberg.org/Snirozu/Funkin-Psych-Online/issues/new?title=${StringTools.urlEncode('Exception: ${exc}')}&body=${StringTools.urlEncode(daError)}');
-					}, () -> { // no
-						FlxG.openURL(cookUrl);
-					});
-				default:
-					alertMsg += "\nDo you wish to view the logs of this crash?";
-					alertMsg += "\nPress Yes to open the logs in your default text editor";
-					WinAPI.ask("Uncaught Exception!", alertMsg, () -> { // yes
-						Sys.command('start ' + path);
-					}, () -> { // no
-
-					});
-			}
-		}
-		else {
-			Application.current.window.alert(alertMsg, "Uncaught Exception!");
-		}
-		#else
-		Application.current.window.alert(alertMsg, "Uncaught Exception!");
-		#end
-		try {
-			GameClient.leaveRoom();
-		} catch (exc) {}
-		online.network.Auth.saveClose();
-		//Sys.exit(1);
 	}
 
 	public static function getTime():Float {

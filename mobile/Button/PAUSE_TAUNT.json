@@ -8,6 +8,15 @@
       "position": [1153, 0],
       "scale": 1.0,
       "color": null
+    },
+    {
+      "name": "taunt",
+      "id": "taunt",
+      "graphic": "button_circle",
+      "subgraphic": "icon_sprint",
+      "position": [1033, 0],
+      "scale": 1.0,
+      "color": null
     }
   ]
 }

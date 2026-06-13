@@ -73,6 +73,7 @@ class MasterEditorMenu extends MusicBeatState
 
 		FlxG.mouse.visible = false;
 		super.create();
+		addControl("FULL", "ACCEPT_BACK");
 	}
 
 	override function update(elapsed:Float)

@@ -219,6 +219,8 @@ class MainMenuState extends MusicBeatState
 		add(debugPoser);
 
 		super.create();
+
+		addControl(null, "MAIN_MENU");
 	}
 
 	var selectedSomethin:Bool = false;
@@ -376,13 +378,11 @@ class MainMenuState extends MusicBeatState
 					});
 				}
 			}
-			#if desktop
 			else if (controls.justPressed('debug_1'))
 			{
 				selectedSomethin = true;
 				FlxG.switchState(() -> new MasterEditorMenu());
 			}
-			#end
 
 			if (FlxG.mouse.justPressed && updatEBg != null && FlxG.mouse.overlaps(updatEBg)) {
 				if (TitleState.mustUpdate)

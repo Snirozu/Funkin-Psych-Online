@@ -4,6 +4,11 @@ import flixel.FlxSubState;
 
 class MusicBeatSubstate extends FlxSubState
 {
+	#if FEATURE_TOUCH_CONTROLS
+	private var lastDPad:String;
+	private var lastButton:String;
+	private var lastHitbox:String;
+	#end
 	public function new(bgColor:FlxColor = FlxColor.TRANSPARENT) {
 		super(bgColor);
 		#if FEATURE_TOUCH_CONTROLS
@@ -15,6 +20,15 @@ class MusicBeatSubstate extends FlxSubState
 		#if FEATURE_TOUCH_CONTROLS
 		if (DPad != null && DPad != "") Main.mobileControls.addDPad(DPad);
 		if (Button != null && Button != "") Main.mobileControls.addButton(Button);
+		lastDPad = DPad;
+		lastButton = Button;
+		#end
+	}
+
+	public function addHitbox(Hitbox:String) {
+		#if FEATURE_TOUCH_CONTROLS
+		if (Hitbox != null && Hitbox != "") Main.mobileControls.addHitbox(Hitbox);
+		lastHitbox = Hitbox;
 		#end
 	}
 
@@ -23,6 +37,16 @@ class MusicBeatSubstate extends FlxSubState
 		return Main.mobileControls.checkState(key, type) == true;
 		#else
 		return false;
+		#end
+	}
+
+	override public function closeSubState() {
+		super.closeSubState();
+		#if FEATURE_TOUCH_CONTROLS
+		Main.mobileControls.clearControls();
+		if (lastDPad != null && lastDPad != "") Main.mobileControls.addDPad(lastDPad);
+		if (lastButton != null && lastButton != "") Main.mobileControls.addButton(lastButton);
+		if (lastHitbox != null && lastHitbox != "") Main.mobileControls.addHitbox(lastHitbox);
 		#end
 	}
 
