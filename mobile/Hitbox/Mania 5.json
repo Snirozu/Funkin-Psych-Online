@@ -1,0 +1,39 @@
+{
+  "hitboxes": [
+    {
+      "name": "buttonNote1",
+      "id": "5k_note_1",
+      "position": [0, 0],
+      "scale": [256, 720],
+      "color": "0xFFC24B99"
+    },
+    {
+      "name": "buttonNote2",
+      "id": "5k_note_2",
+      "position": [256, 0],
+      "scale": [256, 720],
+      "color": "0xFF00FFFF"
+    },
+    {
+      "name": "buttonNote3",
+      "id": "5k_note_3",
+      "position": [512, 0],
+      "scale": [256, 720],
+      "color": "0xFFFFE600"
+    },
+    {
+      "name": "buttonNote4",
+      "id": "5k_note_4",
+      "position": [768, 0],
+      "scale": [256, 720],
+      "color": "0xFF12FA05"
+    },
+    {
+      "name": "buttonNote5",
+      "id": "5k_note_5",
+      "position": [1024, 0],
+      "scale": [256, 720],
+      "color": "0xFFF9393F"
+    }
+  ]
+}

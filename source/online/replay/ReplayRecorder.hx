@@ -142,6 +142,24 @@ class ReplayRecorder extends FlxBasic {
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 	}
 
+	public function recordKeyMobileC(time:Float, id:String, move:Int) {
+		//trace(time + ' | ' + id + ' | ' + move);
+		if (id != null) {
+			if (state.paused)
+				return;
+
+			var fixedID:String = id.toLowerCase();
+			if(!REGISTER_BINDS.contains(fixedID))
+			{
+				data.inputs.push([time, 'KEY:' + fixedID.toUpperCase(), move]);
+				return;
+			}
+
+			var idName:String = fixedID.toLowerCase();
+			data.inputs.push([time, idName, move]);
+		}
+	}
+
 	function onKeyDown(e:KeyboardEvent) {
 		recordKey(Conductor.songPosition, keyboardIds.get(e.keyCode), e.keyCode, 0, true);
     }

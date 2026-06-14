@@ -109,11 +109,18 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
+		#if mobile
 		#if android
-        Sys.setCwd(haxe.io.Path.addTrailingSlash(android.content.Context.getExternalFilesDir()));
-        #elseif ios
-        Sys.setCwd(lime.system.System.documentsDirectory);
-        #end
+		StorageUtil.initExternalStorageDirectory(); //do not make this jobs everytime
+		StorageUtil.requestPermissions();
+		#end
+        Sys.setCwd(StorageUtil.getStorageDirectory());
+
+		var modsPath:String = Path.join([#if android StorageUtil.getExternalStorageDirectory() #elseif mobile Sys.getCwd() #end, "mods"]);
+		if (!FileSystem.exists(modsPath))
+            FileSystem.createDirectory(modsPath);
+		#end
+
 		backend.CrashHandler.init();
 
 		if (stage != null)

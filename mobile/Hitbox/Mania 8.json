@@ -1,0 +1,60 @@
+{
+  "hitboxes": [
+    {
+      "name": "buttonNote1",
+      "id": "8k_note_1",
+      "position": [0, 0],
+      "scale": [160, 720],
+      "color": "0xFFC24B99"
+    },
+    {
+      "name": "buttonNote2",
+      "id": "8k_note_2",
+      "position": [160, 0],
+      "scale": [160, 720],
+      "color": "0xFF00FFFF"
+    },
+    {
+      "name": "buttonNote3",
+      "id": "8k_note_3",
+      "position": [320, 0],
+      "scale": [160, 720],
+      "color": "0xFF12FA05"
+    },
+    {
+      "name": "buttonNote4",
+      "id": "8k_note_4",
+      "position": [480, 0],
+      "scale": [160, 720],
+      "color": "0xFFF9393F"
+    },
+    {
+      "name": "buttonNote5",
+      "id": "8k_note_5",
+      "position": [640, 0],
+      "scale": [160, 720],
+      "color": "0xFFC24B99"
+    },
+    {
+      "name": "buttonNote6",
+      "id": "8k_note_6",
+      "position": [800, 0],
+      "scale": [160, 720],
+      "color": "0xFF00FFFF"
+    },
+    {
+      "name": "buttonNote7",
+      "id": "8k_note_7",
+      "position": [960, 0],
+      "scale": [160, 720],
+      "color": "0xFF12FA05"
+    },
+    {
+      "name": "buttonNote8",
+      "id": "8k_note_8",
+      "position": [1120, 0],
+      "scale": [160, 720],
+      "color": "0xFFF9393F"
+    }
+  ]
+}

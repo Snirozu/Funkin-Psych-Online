@@ -25,6 +25,21 @@ import flxanimate.FlxAnimate;
 import lumod.Lumod;
 #end
 
+#if android
+import android.callback.CallBack as AndroidCallBack;
+import android.content.Context as AndroidContext;
+import android.widget.Toast as AndroidToast;
+import android.os.Environment as AndroidEnvironment;
+import android.Permissions as AndroidPermissions;
+import android.Settings as AndroidSettings;
+import android.Tools as AndroidTools;
+import android.os.Build.VERSION as AndroidVersion;
+import android.os.Build.VERSION_CODES as AndroidVersionCode;
+#end
+#if mobile
+import backend.StorageUtil;
+#end
+
 import backend.Paths;
 import backend.Controls;
 import backend.CoolUtil;

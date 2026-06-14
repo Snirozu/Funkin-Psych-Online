@@ -2154,11 +2154,26 @@ class PlayState extends MusicBeatState
 		// 	return false;
 
 		#if FEATURE_TOUCH_CONTROLS
-		addHitbox("Default");
+		var extraKeyString = "";
+		if (ClientPrefs.data.extraControl > 0)
+			extraKeyString = " EK " + ClientPrefs.data.extraControl;
+
+		var mode = ((Note.maniaKeys == 4) ? "Default" : "Mania " + Note.maniaKeys);
+
+		if (replayData == null && !cpuControlled)
+			addHitbox(mode + extraKeyString);
+
 		addControl(null, (GameClient.isConnected() ? "PAUSE_CHAT_TAUNT" : "PAUSE_TAUNT"));
-		for (hitbox in Main.mobileControls.hitboxes) {
-			hitbox.onButtonDown.add(onButtonPress);
-			hitbox.onButtonUp.add(onButtonRelease);
+		if (replayData == null && !cpuControlled) {
+			for (hitbox in Main.mobileControls.hitboxes) {
+				for (button in Main.mobileControls.buttons) {
+					hitbox.deadzones.push(button);
+				}
+				hitbox.onButtonDown.add(onButtonPress);
+				hitbox.onButtonUp.add(onButtonRelease);
+				hitbox.onButtonDown.add((control:mobile.openfl.controls.InputHandler, id:String) -> replayRecorder?.recordKeyMobileC(Conductor?.songPosition, id, 0));
+				hitbox.onButtonUp.add((control:mobile.openfl.controls.InputHandler, id:String) -> replayRecorder?.recordKeyMobileC(Conductor?.songPosition, id, 1));
+			}
 		}
 		#end
 
@@ -3096,10 +3111,17 @@ class PlayState extends MusicBeatState
 
 		super.closeSubState();
 		#if FEATURE_TOUCH_CONTROLS
-		for (hitbox in Main.mobileControls.hitboxes) {
-			if (hitbox != null) {
-				hitbox.onButtonDown.add(onButtonPress);
-				hitbox.onButtonUp.add(onButtonRelease);
+		if (replayData == null && !cpuControlled) {
+			for (hitbox in Main.mobileControls.hitboxes) {
+				if (hitbox != null) {
+					for (button in Main.mobileControls.buttons) {
+						hitbox.deadzones.push(button);
+					}
+					hitbox.onButtonDown.add(onButtonPress);
+					hitbox.onButtonUp.add(onButtonRelease);
+					hitbox.onButtonDown.add((control:mobile.openfl.controls.InputHandler, id:String) -> replayRecorder?.recordKeyMobileC(Conductor?.songPosition, id, 0));
+					hitbox.onButtonUp.add((control:mobile.openfl.controls.InputHandler, id:String) -> replayRecorder?.recordKeyMobileC(Conductor?.songPosition, id, 1));
+				}
 			}
 		}
 		#end
@@ -5376,7 +5398,7 @@ class PlayState extends MusicBeatState
 	private function onButtonPress(control:mobile.openfl.controls.InputHandler, id:String):Void
 	{
 		var noteID:String = id.toLowerCase();
-		trace(noteID);
+		//trace(noteID);
 		if (noteID != null)
 		{
 			var buttonCode:Int = 0;
@@ -5390,19 +5412,24 @@ class PlayState extends MusicBeatState
 					case "note_up":    buttonCode = 2;
 					case "note_right": buttonCode = 3;
 				}
+
+				callOnScripts('onButtonPressPre', [buttonCode]);
+				if (Main.mobileControls.checkState(noteID, "justPressed")) keyPressed(buttonCode);
+				callOnScripts('onButtonPress', [buttonCode]);
+
 			}
 			else if (noteID.contains("note_"))
 			{
-				var regex = ~/_([0-9]+)$/;
+				var regex = ~/note_([0-9]+)$/;
 				if (regex.match(noteID))
 				{
 					buttonCode = Std.parseInt(regex.matched(1)) - 1;
 				}
-			}
 
-			callOnScripts('onButtonPressPre', [buttonCode]);
-			if (Main.mobileControls.checkState(noteID, "justPressed")) keyPressed(buttonCode);
-			callOnScripts('onButtonPress', [buttonCode]);
+				callOnScripts('onButtonPressPre', [buttonCode]);
+				if (Main.mobileControls.checkState(noteID, "justPressed")) keyPressed(buttonCode);
+				callOnScripts('onButtonPress', [buttonCode]);
+			}
 		}
 	}
 
@@ -5420,19 +5447,23 @@ class PlayState extends MusicBeatState
 					case "note_up":    buttonCode = 2;
 					case "note_right": buttonCode = 3;
 				}
+
+				callOnScripts('onButtonReleasePre', [buttonCode]);
+				if(buttonCode > -1) keyReleased(buttonCode);
+				callOnScripts('onButtonRelease', [buttonCode]);
 			}
 			else if (noteID.contains("note_")) 
 			{
-				var regex = ~/_([0-9]+)$/;
+				var regex = ~/note_([0-9]+)$/;
 				if (regex.match(noteID)) {
 					var extractedNum = Std.parseInt(regex.matched(1));
 					buttonCode = extractedNum - 1;
 				}
-			}
 
-			callOnScripts('onButtonReleasePre', [buttonCode]);
-			if(buttonCode > -1) keyReleased(buttonCode);
-			callOnScripts('onButtonRelease', [buttonCode]);
+				callOnScripts('onButtonReleasePre', [buttonCode]);
+				if(buttonCode > -1) keyReleased(buttonCode);
+				callOnScripts('onButtonRelease', [buttonCode]);
+			}
 		}
 	}
 	#end

@@ -23,6 +23,8 @@ class InputHandler extends Sprite {
     public var disableBright:Bool = false;
     public var showBounds:Bool = false;
 
+    public var deadzones:Array<Sprite> = [];
+
     public var baseGraphic:Bitmap;
     public var subGraphic:Bitmap;
     public var hitboxes:Array<Sprite> = [];
@@ -33,6 +35,7 @@ class InputHandler extends Sprite {
 
     private var baseColor:ColorTransform;
 
+    public var currentPointerID:Int = -1;
     public var onButtonDown:ControlSignal = new ControlSignal();
     public var onButtonUp:ControlSignal = new ControlSignal();
 
@@ -144,7 +147,21 @@ class InputHandler extends Sprite {
 
     public function checkOverlap(rect:Sprite, pointers:Map<Int, MobileControls.Pointer>):Bool {
         for (p in pointers) {
-            if (p.isDown && rect.hitTestPoint(p.x, p.y, true)) return true;
+            if (p.isDown) {
+                // 1. Verify the pointer is NOT inside any exclusion zone
+                var inDeadzone = false;
+                for (dz in deadzones) {
+                    if (dz != null && dz.hitTestPoint(p.x, p.y, true)) {
+                        inDeadzone = true;
+                        break;
+                    }
+                }
+
+                if (!inDeadzone && rect.hitTestPoint(p.x, p.y, true)) {
+                    currentPointerID = p.id;
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -171,6 +188,7 @@ class InputHandler extends Sprite {
     public function resetInputs() {
         activeIDs = [];
         lastActiveIDs = [];
+        currentPointerID = -1;
         centerSubGraphic();
         applyBrightness(false);
         for (box in hitboxes) updateBoundBrightness(box, false);

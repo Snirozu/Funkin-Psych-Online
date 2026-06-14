@@ -59,9 +59,36 @@ class MobileControls extends Sprite {
         resetAllInputs();
     }
 
-    public function getFromName(buttonName:String):InputHandler {
-        for (btn in controls) {
-            if (btn != null && btn.jsonName == buttonName) {
+    public function getHitboxFromName(name:String) {
+        for (btn in hitboxes) {
+            if (btn != null && btn.jsonName == name) {
+                return btn;
+            }
+        }
+        return null;
+    }
+
+    public function getDPadFromName(name:String) {
+        for (btn in dpads) {
+            if (btn != null && btn.jsonName == name) {
+                return btn;
+            }
+        }
+        return null;
+    }
+
+    public function getJoyStickFromName(name:String) {
+        for (btn in hitboxes) {
+            if (btn != null && btn.jsonName == name) {
+                return btn;
+            }
+        }
+        return null;
+    }
+
+    public function getButtonFromName(name:String) {
+        for (btn in hitboxes) {
+            if (btn != null && btn.jsonName == name) {
                 return btn;
             }
         }

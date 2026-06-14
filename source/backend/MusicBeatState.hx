@@ -54,14 +54,6 @@ class MusicBeatState extends FlxUIState
 		#end
 	}
 
-	public function getFromName(name:String) {
-		#if FEATURE_TOUCH_CONTROLS
-		return Main.mobileControls.getFromName(name);
-		#else
-		return "";
-		#end
-	}
-
 	override public function closeSubState() {
 		super.closeSubState();
 		#if FEATURE_TOUCH_CONTROLS

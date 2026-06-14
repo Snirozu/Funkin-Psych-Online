@@ -24,6 +24,10 @@ class ExtraFunctions
 			if (Controls.instance?.moodyBlues != null && Controls.instance.moodyBlues.pressedKeys.get('KEY:' + name) == JUST_PRESSED) {
 				return true;
 			}
+
+			var check:Bool = specialKeyCheck(name, "justPressed");
+			if (check) return check;
+
 			return Reflect.getProperty(FlxG.keys.justPressed, name);
 		});
 		funk.set("keyboardPressed", luaPressed = function(name:String)
@@ -33,6 +37,10 @@ class ExtraFunctions
 				if (status == PRESSED || status == JUST_PRESSED)
 					return true;
 			}
+
+			var check:Bool = specialKeyCheck(name, "Pressed");
+			if (check) return check;
+
 			return Reflect.getProperty(FlxG.keys.pressed, name);
 		});
 		funk.set("keyboardReleased", luaJustReleased = function(name:String)
@@ -42,6 +50,10 @@ class ExtraFunctions
 				if (status == JUST_RELEASED)
 					return true;
 			}
+
+			var check:Bool = specialKeyCheck(name, "Released");
+			if (check) return check;
+
 			return Reflect.getProperty(FlxG.keys.justReleased, name);
 		});
 
@@ -106,6 +118,10 @@ class ExtraFunctions
 
 		funk.set("keyJustPressed", function(name:String = '') {
 			name = name.toLowerCase();
+
+			var check:Bool = specialKeyCheck(name, "justPressed");
+			if (check) return check;
+
 			switch(name) {
 				case 'left': return PlayState.instance.controls.NOTE_LEFT_P;
 				case 'down': return PlayState.instance.controls.NOTE_DOWN_P;
@@ -118,6 +134,10 @@ class ExtraFunctions
 		});
 		funk.set("keyPressed", function(name:String = '') {
 			name = name.toLowerCase();
+
+			var check:Bool = specialKeyCheck(name, "pressed");
+			if (check) return check;
+
 			switch(name) {
 				case 'left': return PlayState.instance.controls.NOTE_LEFT;
 				case 'down': return PlayState.instance.controls.NOTE_DOWN;
@@ -130,6 +150,10 @@ class ExtraFunctions
 		});
 		funk.set("keyReleased", function(name:String = '') {
 			name = name.toLowerCase();
+
+			var check:Bool = specialKeyCheck(name, "Released");
+			if (check) return check;
+
 			switch(name) {
 				case 'left': return PlayState.instance.controls.NOTE_LEFT_R;
 				case 'down': return PlayState.instance.controls.NOTE_DOWN_R;
@@ -299,5 +323,21 @@ class ExtraFunctions
 		funk.set("getRandomBool", function(chance:Float = 50) {
 			return FlxG.random.bool(chance);
 		});
+	}
+
+	public static function specialKeyCheck(key:String, ?type:String, ?alter:Bool):Dynamic
+	{
+		var textfix:Array<String> = key.trim().split('.');
+		var extraControl:Dynamic = null;
+		if (alter)
+		{
+			type = textfix[1].trim();
+			key = textfix[2].trim();
+		}
+
+		#if FEATURE_TOUCH_CONTROLS
+		if (Main.mobileControls != null) return Main.mobileControls.checkState(key.toLowerCase(), type);
+		#end
+		return false;
 	}
 }

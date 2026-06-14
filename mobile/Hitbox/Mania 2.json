@@ -1,0 +1,18 @@
+{
+  "hitboxes": [
+    {
+      "name": "buttonNote1",
+      "id": "2k_note_1",
+      "position": [0, 0],
+      "scale": [640, 720],
+      "color": "0xFFC24B99"
+    },
+    {
+      "name": "buttonNote2",
+      "id": "2k_note_2",
+      "position": [640, 0],
+      "scale": [640, 720],
+      "color": "0xFFF9393F"
+    }
+  ]
+}

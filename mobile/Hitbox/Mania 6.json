@@ -1,0 +1,46 @@
+{
+  "hitboxes": [
+    {
+      "name": "buttonNote1",
+      "id": "6k_note_1",
+      "position": [0, 0],
+      "scale": [213, 720],
+      "color": "0xFFC24B99"
+    },
+    {
+      "name": "buttonNote2",
+      "id": "6k_note_2",
+      "position": [213, 0],
+      "scale": [213, 720],
+      "color": "0xFF00FFFF"
+    },
+    {
+      "name": "buttonNote3",
+      "id": "6k_note_3",
+      "position": [426, 0],
+      "scale": [213, 720],
+      "color": "0xFFF9393F"
+    },
+    {
+      "name": "buttonNote4",
+      "id": "6k_note_4",
+      "position": [639, 0],
+      "scale": [213, 720],
+      "color": "0xFFC24B99"
+    },
+    {
+      "name": "buttonNote5",
+      "id": "6k_note_5",
+      "position": [852, 0],
+      "scale": [213, 720],
+      "color": "0xFF12FA05"
+    },
+    {
+      "name": "buttonNote6",
+      "id": "6k_note_6",
+      "position": [1065, 0],
+      "scale": [215, 720],
+      "color": "0xFFF9393F"
+    }
+  ]
+}

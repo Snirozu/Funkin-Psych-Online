@@ -20,6 +20,9 @@ import options.OptionsState;
 #end
 class MainMenuState extends MusicBeatState
 {
+	var editorWarning:FlxText;
+	var editorTryCount:Int = 0;
+
 	public static var psychEngineVersion:String = '0.7.1h'; // This is also used for Discord RPC
 	public static var curSelected:Int = 0;
 
@@ -221,6 +224,12 @@ class MainMenuState extends MusicBeatState
 		super.create();
 
 		addControl(null, "MAIN_MENU");
+
+		editorWarning = new FlxText(0, FlxG.height - 100, 1280, "Editor not finished yet\nPlease be patient or use keyboard and mouse!", 24);
+		editorWarning.alignment = CENTER;
+		add(editorWarning);
+		editorWarning.scrollFactor.set();
+		editorWarning.alpha = 0;
 	}
 
 	var selectedSomethin:Bool = false;
@@ -377,6 +386,18 @@ class MainMenuState extends MusicBeatState
 						}
 					});
 				}
+			}
+			else if (checkControl("debug_1", "justPressed")) {
+				FlxG.sound.play(Paths.sound("warning"));
+				if (editorTryCount++ == 2) {
+					FlxTween.tween(editorWarning, {alpha: 1}, 0.4);
+				}
+				FlxTween.completeTweensOf(editorWarning);
+				FlxTween.color(editorWarning, 0.2, 0xFFFF0000, 0xFFFFFFFF);
+				FlxTween.shake(editorWarning, 0.005, 0.3);
+				editorWarning.y = FlxG.height - 125;
+				FlxTween.tween(editorWarning, {y: FlxG.height - 100}, 0.4);
+				FlxTween.tween(editorWarning, {alpha: 0}, 1.5);
 			}
 			else if (controls.justPressed('debug_1'))
 			{

@@ -1,0 +1,11 @@
+{
+  "hitboxes": [
+    {
+      "name": "buttonNote1",
+      "id": "1k_note_1",
+      "position": [0, 0],
+      "scale": [1280, 720],
+      "color": "0xFFFF00"
+    }
+  ]
+}

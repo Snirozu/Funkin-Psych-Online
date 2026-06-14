@@ -1,0 +1,186 @@
+{
+  "hitboxes": [
+    {
+      "name": "buttonNote1",
+      "id": "26k_note_1",
+      "position": [0, 0],
+      "scale": [49, 720],
+      "color": "0xFFC24B99"
+    },
+    {
+      "name": "buttonNote2",
+      "id": "26k_note_2",
+      "position": [49, 0],
+      "scale": [49, 720],
+      "color": "0xFF00FFFF"
+    },
+    {
+      "name": "buttonNote3",
+      "id": "26k_note_3",
+      "position": [98, 0],
+      "scale": [49, 720],
+      "color": "0xFF12FA05"
+    },
+    {
+      "name": "buttonNote4",
+      "id": "26k_note_4",
+      "position": [147, 0],
+      "scale": [49, 720],
+      "color": "0xFFF9393F"
+    },
+    {
+      "name": "buttonNote5",
+      "id": "26k_note_5",
+      "position": [196, 0],
+      "scale": [49, 720],
+      "color": "0xFFFFE600"
+    },
+    {
+      "name": "buttonNote6",
+      "id": "26k_note_6",
+      "position": [245, 0],
+      "scale": [49, 720],
+      "color": "0xFFC24B99"
+    },
+    {
+      "name": "buttonNote7",
+      "id": "26k_note_7",
+      "position": [294, 0],
+      "scale": [49, 720],
+      "color": "0xFF00FFFF"
+    },
+    {
+      "name": "buttonNote8",
+      "id": "26k_note_8",
+      "position": [343, 0],
+      "scale": [49, 720],
+      "color": "0xFF12FA05"
+    },
+    {
+      "name": "buttonNote9",
+      "id": "26k_note_9",
+      "position": [392, 0],
+      "scale": [49, 720],
+      "color": "0xFFF9393F"
+    },
+    {
+      "name": "buttonNote10",
+      "id": "26k_note_10",
+      "position": [441, 0],
+      "scale": [49, 720],
+      "color": "0xFFFFE600"
+    },
+    {
+      "name": "buttonNote11",
+      "id": "26k_note_11",
+      "position": [490, 0],
+      "scale": [49, 720],
+      "color": "0xFFC24B99"
+    },
+    {
+      "name": "buttonNote12",
+      "id": "26k_note_12",
+      "position": [539, 0],
+      "scale": [49, 720],
+      "color": "0xFF00FFFF"
+    },
+    {
+      "name": "buttonNote13",
+      "id": "26k_note_13",
+      "position": [588, 0],
+      "scale": [49, 720],
+      "color": "0xFF12FA05"
+    },
+    {
+      "name": "buttonNote14",
+      "id": "26k_note_14",
+      "position": [637, 0],
+      "scale": [49, 720],
+      "color": "0xFFF9393F"
+    },
+    {
+      "name": "buttonNote15",
+      "id": "26k_note_15",
+      "position": [686, 0],
+      "scale": [49, 720],
+      "color": "0xFFFFE600"
+    },
+    {
+      "name": "buttonNote16",
+      "id": "26k_note_16",
+      "position": [735, 0],
+      "scale": [49, 720],
+      "color": "0xFFC24B99"
+    },
+    {
+      "name": "buttonNote17",
+      "id": "26k_note_17",
+      "position": [784, 0],
+      "scale": [49, 720],
+      "color": "0xFF00FFFF"
+    },
+    {
+      "name": "buttonNote18",
+      "id": "26k_note_18",
+      "position": [833, 0],
+      "scale": [49, 720],
+      "color": "0xFF12FA05"
+    },
+    {
+      "name": "buttonNote19",
+      "id": "26k_note_19",
+      "position": [882, 0],
+      "scale": [49, 720],
+      "color": "0xFFF9393F"
+    },
+    {
+      "name": "buttonNote20",
+      "id": "26k_note_20",
+      "position": [931, 0],
+      "scale": [49, 720],
+      "color": "0xFFFFE600"
+    },
+    {
+      "name": "buttonNote21",
+      "id": "26k_note_21",
+      "position": [980, 0],
+      "scale": [49, 720],
+      "color": "0xFFC24B99"
+    },
+    {
+      "name": "buttonNote22",
+      "id": "26k_note_22",
+      "position": [1029, 0],
+      "scale": [49, 720],
+      "color": "0xFF00FFFF"
+    },
+    {
+      "name": "buttonNote23",
+      "id": "26k_note_23",
+      "position": [1078, 0],
+      "scale": [49, 720],
+      "color": "0xFF12FA05"
+    },
+    {
+      "name": "buttonNote24",
+      "id": "26k_note_24",
+      "position": [1127, 0],
+      "scale": [49, 720],
+      "color": "0xFFF9393F"
+    },
+    {
+      "name": "buttonNote25",
+      "id": "26k_note_25",
+      "position": [1176, 0],
+      "scale": [49, 720],
+      "color": "0xFFFFE600"
+    },
+    {
+      "name": "buttonNote26",
+      "id": "26k_note_26",
+      "position": [1225, 0],
+      "scale": [55, 720],
+      "color": "0xFFC24B99"
+    }
+  ]
+}

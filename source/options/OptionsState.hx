@@ -87,6 +87,8 @@ class OptionsState extends MusicBeatState
 				optionsCategory = 'visuals';
 			case 'Game':
 				optionsCategory = 'game';
+			case 'Mobile':
+				openSubState(new options.MobileSettingsSubState());
 			case 'Mods':
 				FlxG.switchState(() -> new ModsMenuState());
 		}
@@ -142,6 +144,7 @@ class OptionsState extends MusicBeatState
 		if (!onPlayState)
 			optionsMap.get('main').push('Mods');
 		#end
+		optionsMap.get('main').push('Mobile');
 
 		for (category => items in optionsMap) {
 			var group = new FlxTypedGroup<Alphabet>();

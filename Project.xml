@@ -133,6 +133,7 @@
 	<!-- <haxelib name="interpret" /> -->
 
 	<define name="FEATURE_TOUCH_CONTROLS" />
+	<define name="FEATURE_STORAGE_TYPES" if="android"/>
 	<haxedef name="interpretable" />
 	<haxedef name="interpret_watch" />
 

@@ -14,6 +14,12 @@ import states.TitleState;
 
 // Add a variable here and it will get automatically saved
 class SaveVariables {
+	#if android
+	public var storageType:String = "EXTERNAL_DATA";
+	#end
+	public var controlAlpha:Float = 0.8;
+	public var extraControl:Int = 2;
+
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
 	public var opponentStrums:Bool = true;
