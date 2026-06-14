@@ -136,12 +136,12 @@ class Paths
 			var levelPath:String = '';
 			if(currentLevel != 'shared') {
 				levelPath = getLibraryPathForce(file, 'week_assets', currentLevel);
-				if (OpenFlAssets.exists(levelPath, type))
+				if (FileSystem.exists(levelPath))
 					return levelPath;
 			}
 
 			levelPath = getLibraryPathForce(file, "shared");
-			if (OpenFlAssets.exists(levelPath, type))
+			if (FileSystem.exists(levelPath))
 				return levelPath;
 		}
 
@@ -494,44 +494,44 @@ class Paths
 	public static var currentTrackedSounds:Map<String, Sound> = [];
 	public static function returnSound(path:String, key:String, ?library:String) {
 		#if MODS_ALLOWED
-		var file:String = modsSounds(path, key);
-		if(FileSystem.exists(file)) {
-			try {
-				if(!currentTrackedSounds.exists(file)) {
-					currentTrackedSounds.set(file, Sound.fromFile(file));
-				}
-			} catch (e:Dynamic) {
-				if (ClientPrefs.isDebug())
-					Sys.println('Paths.returnSound(): SOUND NOT FOUND: $key');
-				return null;
-			}
-			localTrackedAssets.push(key);
+		var modLibPath:String = '';
+		if (library != null)
+			modLibPath = '$library/';
+		if (path != null)
+			modLibPath += '$path';
+
+		var file:String = modsSounds(modLibPath, key);
+		if (FileSystem.exists(file))
+		{
+			if (!currentTrackedSounds.exists(file))
+				currentTrackedSounds.set(file, Sound.fromFile(file));
+			if (!localTrackedAssets.contains(file))
+				localTrackedAssets.push(file);
 			return currentTrackedSounds.get(file);
 		}
 		#end
-		// I hate this so god damn much
-		var gottenPath:String = getPath('$path/$key.$SOUND_EXT', SOUND, library);
+		var gottenPath:String = '$key.$SOUND_EXT';
+		if (path != null)
+			gottenPath = '$path/$gottenPath';
+		gottenPath = getPath(gottenPath, SOUND, library);
 		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
-		// trace(gottenPath);
-		try {
-			if(!currentTrackedSounds.exists(gottenPath))
-			#if MODS_ALLOWED
-				currentTrackedSounds.set(gottenPath, Sound.fromFile(#if !mobile './' + #end gottenPath));
-			#else
-			{
-				var folder:String = '';
-				if(path == 'songs') folder = 'songs:';
-		
-				currentTrackedSounds.set(gottenPath, OpenFlAssets.getSound(folder + getPath('$path/$key.$SOUND_EXT', SOUND, library)));
-			}
-			#end
-		} catch (e:Dynamic) {
-			if (ClientPrefs.isDebug())
-				Sys.println('Paths.returnSound(): SOUND NOT FOUND: $key');
-			return null;
+
+		if (!currentTrackedSounds.exists(gottenPath))
+		{
+			var retKey:String = (path != null) ? '$path/$key' : key;
+			retKey = getPath('$retKey.$SOUND_EXT', SOUND, library);
+			if (FileSystem.exists(retKey))
+				currentTrackedSounds.set(gottenPath, #if html5 openfl.Assets.getSound(retKey) #else Sound.fromBytes(File.getBytes(retKey)) #end);
 		}
-		localTrackedAssets.push(gottenPath);
-		return currentTrackedSounds.get(gottenPath);
+
+		if (currentTrackedSounds.exists(gottenPath))
+		{
+			if (!localTrackedAssets.contains(gottenPath))
+				localTrackedAssets.push(gottenPath);
+			return currentTrackedSounds.get(gottenPath);
+		}
+
+		return null;
 	}
 
 	#if MODS_ALLOWED
@@ -635,7 +635,7 @@ class Paths
 			}
 			#end
 		}
-		return #if mobile Sys.getCwd() + #end 'mods/' + key;
+		return #if mobile Sys.getCwd() + #end  'mods/' + key;
 	}
 	#end
 

@@ -6,39 +6,39 @@ class OnlineScriptFunctions {
 	public static function implement(funk:FunkinLua) {
 		var lua:State = funk.lua;
 
-		Lua_helper.add_callback(lua, "sendMessage", function(type:String, message:Dynamic) {
+		funk.set("sendMessage", function(type:String, message:Dynamic) {
 			online.GameClient.send("custom", [type, message]);
 		});
 
-		Lua_helper.add_callback(lua, "sendMessageTo", function(toSID:String, type:String, message:Dynamic) {
+		funk.set("sendMessageTo", function(toSID:String, type:String, message:Dynamic) {
 			online.GameClient.send("customTo", [toSID, type, message]);
 		});
 
-		Lua_helper.add_callback(lua, "playsAsBF", function() {
+		funk.set("playsAsBF", function() {
 			return PlayState.playsAsBF();
 		});
 
-		Lua_helper.add_callback(lua, "isRoomOwner", function() {
+		funk.set("isRoomOwner", function() {
 			return GameClient.isOwner;
 		});
 
-		Lua_helper.add_callback(lua, "hasRoomPerms", function() {
+		funk.set("hasRoomPerms", function() {
 			return GameClient.hasPerms();
 		});
 
-		Lua_helper.add_callback(lua, "isRoomConnected", function() {
+		funk.set("isRoomConnected", function() {
 			return GameClient.isConnected();
 		});
 
-		Lua_helper.add_callback(lua, "getRoomState", function() {
+		funk.set("getRoomState", function() {
 			return GameClient.room.state;
 		});
 
-		Lua_helper.add_callback(lua, "listPlayers", function() {
+		funk.set("listPlayers", function() {
 			return [for (sid => player in GameClient.room.state.players) sid];
 		});
 
-		Lua_helper.add_callback(lua, "listPlayersBySide", function(isBf:Bool) {
+		funk.set("listPlayersBySide", function(isBf:Bool) {
 			var arr = [];
 			for (sid => player in GameClient.room.state.players) {
 				if (player.bfSide == isBf) {
@@ -48,23 +48,23 @@ class OnlineScriptFunctions {
 			return arr;
 		});
 
-		Lua_helper.add_callback(lua, "getPlayerSelf", function() {
+		funk.set("getPlayerSelf", function() {
 			return GameClient.room.state.players.get(GameClient.room.sessionId);
 		});
 
-		Lua_helper.add_callback(lua, "getPlayerSelfSID", function() {
+		funk.set("getPlayerSelfSID", function() {
 			return GameClient.room.sessionId;
 		});
 
-		Lua_helper.add_callback(lua, "getPlayer", function(playerSID:String) {
+		funk.set("getPlayer", function(playerSID:String) {
 			return GameClient.room.state.players.get(playerSID);
 		});
 
-		Lua_helper.add_callback(lua, "getPlayerAccuracy", function(playerSID:String) {
+		funk.set("getPlayerAccuracy", function(playerSID:String) {
 			return GameClient.getPlayerAccuracyPercent(GameClient.room.state.players.get(playerSID));
 		});
 
-		Lua_helper.add_callback(lua, "getPlayerRating", function(playerSID:String) {
+		funk.set("getPlayerRating", function(playerSID:String) {
 			return GameClient.getPlayerRating(GameClient.room.state.players.get(playerSID));
 		});
 
@@ -72,37 +72,37 @@ class OnlineScriptFunctions {
 		funk.set('online', GameClient.isConnected());
 		funk.set('localPlay', false);
 		funk.set('leftSide', GameClient.isConnected() ? !PlayState.playsAsBF() : PlayState.opponentMode);
-		Lua_helper.add_callback(lua, "send", function(message:String, title:String) {
+		funk.set("send", function(message:String, title:String) {
 			online.GameClient.send("custom", [title, message]);
 		});
 		//
 
 		// deprecated
-		Lua_helper.add_callback(lua, "getStateSong", function() {
+		funk.set("getStateSong", function() {
 			return GameClient.room.state.song;
 		});
-		Lua_helper.add_callback(lua, "getStateFolder", function() {
+		funk.set("getStateFolder", function() {
 			return GameClient.room.state.folder;
 		});
-		Lua_helper.add_callback(lua, "getStateDiff", function() {
+		funk.set("getStateDiff", function() {
 			return GameClient.room.state.diff;
 		});
-		Lua_helper.add_callback(lua, "getStateModDir", function() {
+		funk.set("getStateModDir", function() {
 			return GameClient.room.state.modDir;
 		});
-		Lua_helper.add_callback(lua, "getStateModURL", function() {
+		funk.set("getStateModURL", function() {
 			return GameClient.room.state.modURL;
 		});
-		Lua_helper.add_callback(lua, "getStateIsPrivate", function() {
+		funk.set("getStateIsPrivate", function() {
 			return GameClient.room.state.isPrivate;
 		});
-		Lua_helper.add_callback(lua, "getStateIsStarted", function() {
+		funk.set("getStateIsStarted", function() {
 			return GameClient.room.state.isStarted;
 		});
-		Lua_helper.add_callback(lua, "isSwapSides", function() {
+		funk.set("isSwapSides", function() {
 			return !PlayState.playsAsBF();
 		});
-		Lua_helper.add_callback(lua, "isAnarchyMode", function() {
+		funk.set("isAnarchyMode", function() {
 			return GameClient.room.state.anarchyMode;
 		});
 	}

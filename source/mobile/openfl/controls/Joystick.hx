@@ -55,8 +55,7 @@ class Joystick extends InputHandler {
 
         var bW = baseGraphic.scrollRect != null ? baseGraphic.scrollRect.width : baseGraphic.bitmapData.width;
         var bH = baseGraphic.scrollRect != null ? baseGraphic.scrollRect.height : baseGraphic.bitmapData.height;
-        
-        // FIX: Include this.scaleX and this.scaleY to get the true Global Center Point!
+
         var globalMidX = this.x + (((bW * baseScale) / 2) * this.scaleX);
         var globalMidY = this.y + (((bH * baseScale) / 2) * this.scaleY);
 
@@ -81,12 +80,11 @@ class Joystick extends InputHandler {
                 touchX = p.x;
                 touchY = p.y;
             } else {
-                currentTouchID = -999; // Release the lock
+                currentTouchID = -999;
             }
         }
 
         if (isTouching) {
-            // Distance calculations in Global Screen Space
             var dx = touchX - globalMidX;
             var dy = touchY - globalMidY;
             var dist = Math.sqrt(dx * dx + dy * dy);

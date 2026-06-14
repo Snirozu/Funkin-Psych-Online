@@ -6,8 +6,11 @@ import backend.Discord;
 
 //Psych
 #if LUA_ALLOWED
-import llua.*;
-import llua.Lua;
+import hxluau.*;
+import hxluau.Types;
+import psychlua.FunkinLua;
+import psychlua.Convert;
+import psychlua.LuaFunction;
 #end
 
 #if ACHIEVEMENTS_ALLOWED

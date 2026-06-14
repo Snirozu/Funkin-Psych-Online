@@ -2,7 +2,7 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin': Psych Online" file="PsychOnline" main="Main" packageName="boo.sniro.psychonline" package="boo.sniro.psychonline" company="Snirozu" version="0.14.7" />
+	<app title="Friday Night Funkin': Psych Online" file="PsychOnline" main="Main" packageName="adb logcat --pid=$(adb shell pidof boo.sniro.psychonline)" package="boo.sniro.psychonline" company="Snirozu" version="0.14.7" />
 	<app if="mobile" title='Psych Online' />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
@@ -110,7 +110,7 @@
 	<haxelib name="flixel-addons" />
 
 	<!--Psych stuff needed-->
-	<haxelib name="linc_luajit" if="LUA_ALLOWED" />
+	<haxelib name="hxluau" if="LUA_ALLOWED" /> <!-- HELL YEAH -ArkoseLabs -->
 	<haxelib name="SScript" if="HSCRIPT_ALLOWED" />
 	<haxelib name="hxvlc" if="VIDEOS_ALLOWED" />
 	<haxelib name="hxdiscord_rpc" if="DISCORD_ALLOWED" />

@@ -62,11 +62,11 @@
       "version": "1.3.0"
     },
     {
-      "name": "linc_luajit",
+      "name": "hxluau",
       "type": "git",
       "dir": null,
       "ref": "main",
-      "url": "https://github.com/th2l-devs/linc_luajit"
+      "url": "https://github.com/ShadowEngineTeam/hxluau"
     },
     {
       "name": "colyseus",
@@ -119,8 +119,10 @@
     },
     {
       "name": "lumod",
-      "type": "haxelib",
-      "version": "2.2.0"
+      "type": "git",
+      "dir": null,
+      "ref": "main",
+      "url": "https://github.com/ArkoseLabsOfficial/Lumod-hxLuau"
     },
     {
       "name": "actuate",

@@ -467,14 +467,27 @@ class LuaUtils
 	
 	public static function typeToString(type:Int):String {
 		#if LUA_ALLOWED
-		switch(type) {
-			case Lua.LUA_TBOOLEAN: return "boolean";
-			case Lua.LUA_TNUMBER: return "number";
-			case Lua.LUA_TSTRING: return "string";
-			case Lua.LUA_TTABLE: return "table";
-			case Lua.LUA_TFUNCTION: return "function";
+		switch (type)
+		{
+			case type if (type == Lua.TBOOLEAN):
+				return "boolean";
+			case type if (type == Lua.TNUMBER):
+				return "number";
+			case type if (type == Lua.TSTRING):
+				return "string";
+			case type if (type == Lua.TTABLE):
+				return "table";
+			case type if (type == Lua.TFUNCTION):
+				return "function";
+			case type if (type == Lua.TINTEGER):
+				return "integer";
+			case type if (type == Lua.TVECTOR):
+				return "vector";
+			case type if (type == Lua.TBUFFER):
+				return "buffer";
+			case type if (type <= Lua.TNIL):
+				return "nil";
 		}
-		if (type <= Lua.LUA_TNIL) return "nil";
 		#end
 		return "unknown";
 	}

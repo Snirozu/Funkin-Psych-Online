@@ -15,6 +15,7 @@ class ControlSignal {
 }
 
 class InputHandler extends Sprite {
+    public var jsonName:String;
     public var activeIDs:Array<String> = [];
     public var lastActiveIDs:Array<String> = [];
 
@@ -32,7 +33,6 @@ class InputHandler extends Sprite {
 
     private var baseColor:ColorTransform;
 
-    // Updated Signals
     public var onButtonDown:ControlSignal = new ControlSignal();
     public var onButtonUp:ControlSignal = new ControlSignal();
 
@@ -53,6 +53,7 @@ class InputHandler extends Sprite {
 
     public function loadElementGraphics(gName:String, subName:String, sheet:String, path:String, colorHex:String, scaleVal:Float) {
         this.baseScale = scaleVal;
+        jsonName = gName;
 
         loadBitmap(baseGraphic, gName, sheet, path);
         if (subName != null && subName != "") {
@@ -153,7 +154,6 @@ class InputHandler extends Sprite {
         activeIDs = [];
     }
 
-    // Dispatches individually per ID string!
     public function checkSignals() {
         for (id in activeIDs) {
             if (!lastActiveIDs.contains(id)) onButtonDown.dispatch(this, id);

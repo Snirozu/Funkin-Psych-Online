@@ -303,7 +303,7 @@ class Achievements {
 	{
 		var lua:State = funk.lua;
 
-		Lua_helper.add_callback(lua, "getAchievementScore", function(name:String):Float
+		funk.set("getAchievementScore", function(name:String):Float
 		{
 			if(!achievements.exists(name))
 			{
@@ -312,7 +312,7 @@ class Achievements {
 			}
 			return getScore(name);
 		});
-		Lua_helper.add_callback(lua, "setAchievementScore", function(name:String, ?value:Float = 0, ?saveIfNotUnlocked:Bool = true):Float
+		funk.set("setAchievementScore", function(name:String, ?value:Float = 0, ?saveIfNotUnlocked:Bool = true):Float
 		{
 			if(!achievements.exists(name))
 			{
@@ -321,7 +321,7 @@ class Achievements {
 			}
 			return setScore(name, value, saveIfNotUnlocked);
 		});
-		Lua_helper.add_callback(lua, "addAchievementScore", function(name:String, ?value:Float = 1, ?saveIfNotUnlocked:Bool = true):Float
+		funk.set("addAchievementScore", function(name:String, ?value:Float = 1, ?saveIfNotUnlocked:Bool = true):Float
 		{
 			if(!achievements.exists(name))
 			{
@@ -330,7 +330,7 @@ class Achievements {
 			}
 			return addScore(name, value, saveIfNotUnlocked);
 		});
-		Lua_helper.add_callback(lua, "unlockAchievement", function(name:String):Dynamic
+		funk.set("unlockAchievement", function(name:String):Dynamic
 		{
 			if(!achievements.exists(name))
 			{
@@ -339,7 +339,7 @@ class Achievements {
 			}
 			return unlock(name);
 		});
-		Lua_helper.add_callback(lua, "isAchievementUnlocked", function(name:String):Dynamic
+		funk.set("isAchievementUnlocked", function(name:String):Dynamic
 		{
 			if(!achievements.exists(name))
 			{
@@ -348,7 +348,7 @@ class Achievements {
 			}
 			return isUnlocked(name);
 		});
-		Lua_helper.add_callback(lua, "achievementExists", function(name:String) return achievements.exists(name));
+		funk.set("achievementExists", function(name:String) return achievements.exists(name));
 	}
 	#end
 }

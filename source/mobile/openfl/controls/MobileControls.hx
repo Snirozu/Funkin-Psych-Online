@@ -1,6 +1,6 @@
 package mobile.openfl.controls;
 
-typedef Pointer = {id:Int, x:Float, y:Float, isDown:Bool, justPressed:Bool, justReleased:Bool, dead:Bool}
+typedef Pointer = {id:Int, x:Float, y:Float, isDown:Bool, justPressed:Bool, justReleased:Bool, dead:Bool, pendingUp:Bool}
 
 class MobileControls extends Sprite {
     public static var DPAD_PATH:String = "mobile/DPad/images/";
@@ -26,7 +26,6 @@ class MobileControls extends Sprite {
 
     private var isMouseTracking:Bool = false;
 
-    /* 1280x720 is default */
     public function new(designW:Float = 1280, designH:Float = 720) {
         super();
         this.designWidth = designW;
@@ -60,10 +59,9 @@ class MobileControls extends Sprite {
         resetAllInputs();
     }
 
-    // --- GET BUTTON BY NAME ---
     public function getFromName(buttonName:String):InputHandler {
         for (btn in controls) {
-            if (btn != null && btn.name == buttonName) {
+            if (btn != null && btn.jsonName == buttonName) {
                 return btn;
             }
         }
@@ -72,11 +70,8 @@ class MobileControls extends Sprite {
 
     public function addButton(name:String) {
         if (buttons.length > 0) removeButton();
-
-        var path = BUTTON_JSON + name + ".json";
-        var rawContent = File.getContent(path);
+        var rawContent = File.getContent(BUTTON_JSON + name + ".json");
         if (rawContent == null) return;
-
         var parsed:Dynamic = Json.parse(rawContent);
         for (data in (parsed.buttons : Array<Dynamic>)) {
             var btn = new Button(data);
@@ -88,11 +83,8 @@ class MobileControls extends Sprite {
 
     public function addDPad(name:String) {
         if (dpads.length > 0) removeDPad();
-
-        var path = DPAD_JSON + name + ".json";
-        var rawContent = File.getContent(path);
+        var rawContent = File.getContent(DPAD_JSON + name + ".json");
         if (rawContent == null) return;
-
         var parsed:Dynamic = Json.parse(rawContent);
         for (data in (parsed.dpads : Array<Dynamic>)) {
             var dpad = new DPad(data);
@@ -104,11 +96,8 @@ class MobileControls extends Sprite {
 
     public function addJoyStick(name:String) {
         if (joysticks.length > 0) removeJoyStick();
-
-        var path = JOYSTICK_JSON + name + ".json";
-        var rawContent = File.getContent(path);
+        var rawContent = File.getContent(JOYSTICK_JSON + name + ".json");
         if (rawContent == null) return;
-
         var parsed:Dynamic = Json.parse(rawContent);
         for (data in (parsed.joysticks : Array<Dynamic>)) {
             var joy = new Joystick(data);
@@ -120,11 +109,8 @@ class MobileControls extends Sprite {
 
     public function addHitbox(name:String) {
         if (hitboxes.length > 0) removeHitbox();
-
-        var path = HITBOX_JSON + name + ".json";
-        var rawContent = File.getContent(path);
+        var rawContent = File.getContent(HITBOX_JSON + name + ".json");
         if (rawContent == null) return;
-
         var parsed:Dynamic = Json.parse(rawContent);
         for (data in (parsed.hitboxes : Array<Dynamic>)) {
             var box = new Hitbox(data);
@@ -140,34 +126,22 @@ class MobileControls extends Sprite {
     }
 
     public function removeButton() {
-        for (btn in buttons) {
-            controls.remove(btn);
-            if (this.contains(btn)) removeChild(btn);
-        }
+        for (btn in buttons) { controls.remove(btn); if (this.contains(btn)) removeChild(btn); }
         buttons = [];
     }
 
     public function removeDPad() {
-        for (dpad in dpads) {
-            controls.remove(dpad);
-            if (this.contains(dpad)) removeChild(dpad);
-        }
+        for (dpad in dpads) { controls.remove(dpad); if (this.contains(dpad)) removeChild(dpad); }
         dpads = [];
     }
 
     public function removeJoyStick() {
-        for (joy in joysticks) {
-            controls.remove(joy);
-            if (this.contains(joy)) removeChild(joy);
-        }
+        for (joy in joysticks) { controls.remove(joy); if (this.contains(joy)) removeChild(joy); }
         joysticks = [];
     }
 
     public function removeHitbox() {
-        for (box in hitboxes) {
-            controls.remove(box);
-            if (this.contains(box)) removeChild(box);
-        }
+        for (box in hitboxes) { controls.remove(box); if (this.contains(box)) removeChild(box); }
         hitboxes = [];
     }
 
@@ -222,30 +196,46 @@ class MobileControls extends Sprite {
             c.checkSignals();
         }
 
-        for (p in activePointers) {
-            p.justPressed = false;
-            p.justReleased = false;
-            if (p.dead) activePointers.remove(p.id);
+        var deadKeys = [];
+        for (id => p in activePointers) {
+            if (p.dead) {
+                deadKeys.push(id);
+            } else if (p.pendingUp) {
+                p.isDown = false;
+                p.justPressed = false;
+                p.justReleased = true;
+                p.pendingUp = false;
+                p.dead = true; 
+            } else {
+                p.justPressed = false;
+                p.justReleased = false;
+            }
         }
+        for (k in deadKeys) activePointers.remove(k);
     }
 
     private function updatePointer(id:Int, px:Float, py:Float, isDown:Bool) {
         var p = activePointers.get(id);
         if (p == null) {
-            p = { id: id, x: px, y: py, isDown: false, justPressed: false, justReleased: false, dead: false };
+            p = { id: id, x: px, y: py, isDown: false, justPressed: false, justReleased: false, dead: false, pendingUp: false };
             activePointers.set(id, p);
         }
 
         p.x = px;
         p.y = py;
 
-        if (isDown && !p.isDown) {
-            p.isDown = true;
-            p.justPressed = true;
-        } else if (!isDown && p.isDown) {
-            p.isDown = false;
-            p.justReleased = true;
-            p.dead = true;
+        if (isDown) {
+            p.pendingUp = false;
+            if (!p.isDown) {
+                p.isDown = true;
+                p.justPressed = true;
+                p.justReleased = false;
+                p.dead = false;
+            }
+        } else {
+            if (p.isDown) {
+                p.pendingUp = true;
+            }
         }
     }
 

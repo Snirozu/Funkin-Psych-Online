@@ -37,6 +37,7 @@ class Main extends Sprite
 	#if FEATURE_TOUCH_CONTROLS
 	public static var mobileControls:MobileControls;
 	#end
+	public static var gameContainer:FlxGame;
 
 	var game = {
 		width: 1280, // WINDOW width
@@ -150,7 +151,6 @@ class Main extends Sprite
 			game.height = Math.ceil(stageHeight / game.zoom);
 		}
 		#end
-		hxvlc.util.Handle.init(['--no-lua']);
 
 		CoolUtil.setDarkMode(true);
 
@@ -174,13 +174,14 @@ class Main extends Sprite
 		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
 		#end
 	
-		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
+		//#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
 		Controls.instance = new Controls();
 		ClientPrefs.loadDefaultKeys();
 		#if FEATURE_TOUCH_CONTROLS
 		mobileControls = new MobileControls(1280, 720);
 		#end
-		addChild(new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
+		gameContainer = new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen);
+		addChild(gameContainer);
 		#if FEATURE_TOUCH_CONTROLS
 		addChild(mobileControls);
 		ScreenUtil.init(stage);
