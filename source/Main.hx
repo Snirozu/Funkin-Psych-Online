@@ -62,11 +62,10 @@ class Main extends Sprite
 	 * 
 	 * ANY TRY TO CIRCUMVENT THE PROPER WORKING OF THIS VARIABLE
 	 * WILL RESULT IN THE SOURCE/BUILD TO BE REPORTED
-	 * FUCK YOU, I FOUND THE MACRO AND MODIFIED IT -KralOyuncu
 	 * 
 	 * ! ! ! ! ! !
 	 */
-	public static var UNOFFICIAL_BUILD:Bool = false;
+	public static var UNOFFICIAL_BUILD:Bool = true;
 
 	public static var wankyUpdate:String = null;
 	public static var updatePageURL:String = '';
