@@ -41,14 +41,14 @@ class Waiter extends FlxBasic {
 		if (_queueRAW != null){
 			_queueCall = cast _queueRAW[0];
 			_queueCallPos = cast _queueRAW[1];
-		}
-		try {
-			if (_queueCall != null)
-				_queueCall();
-		}
-		catch (exc) {
-			waiterReports += 'Called for ${_queueCallPos.className}.${_queueCallPos.methodName} (${_queueCallPos.fileName} line ${_queueCallPos.lineNumber})\n';
-			throw exc;
+			try {
+				if (_queueCall != null)
+					_queueCall();
+			}
+			catch (exc) {
+				waiterReports += 'Called for ${_queueCallPos.className}.${_queueCallPos.methodName} (${_queueCallPos.fileName} line ${_queueCallPos.lineNumber})\n';
+				throw exc;
+			}
 		}
 	}
 
