@@ -1,1 +1,1 @@
-wss://funkin.sniro.boo,wss://gettinfreaky.onrender.com
+wss://funkin.sniro.boo,wss://peo-us-east.onrender.com,wss://gettinfreaky.onrender.com
