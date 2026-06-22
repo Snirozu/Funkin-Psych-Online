@@ -1,10 +1,7 @@
 package online.backend;
 
 import flixel.FlxBasic;
-
-class WaiterReservation {
-
-}
+import sys.thread.Mutex;
 
 //thread safe function handler
 class Waiter extends FlxBasic {
@@ -17,12 +14,18 @@ class Waiter extends FlxBasic {
     var _queueCall:Void->Void;
     var _queueCallPos:haxe.PosInfos;
 
+	static var queueMutex:Mutex = new Mutex();
+
 	public static function put(func:Void->Void, ?pos:haxe.PosInfos) {
+		queueMutex.acquire();
 		stateQueue.push([func, pos]);
+		queueMutex.release();
     }
 
 	public static function putPersist(func:Void->Void, ?pos:haxe.PosInfos) {
+		queueMutex.acquire();
 		persistQueue.push([func, pos]);
+		queueMutex.release();
     }
 
 	/**
@@ -38,6 +41,9 @@ class Waiter extends FlxBasic {
 
 	public static var waiterReports:String = '';
 	function _tryQueueCall() {
+		if (_queueRAW == null)
+			return;
+
 		_queueCall = cast _queueRAW[0];
 		_queueCallPos = cast _queueRAW[1];
 
@@ -55,12 +61,16 @@ class Waiter extends FlxBasic {
         super.update(elapsed);
 
 		while (stateQueue.length > 0) {
+		    queueMutex.acquire();
 			_queueRAW = stateQueue.shift();
+		    queueMutex.release();
 			_tryQueueCall();
         }
 
 		while (persistQueue.length > 0) {
+		    queueMutex.acquire();
 			_queueRAW = persistQueue.shift();
+		    queueMutex.release();
 			_tryQueueCall();
 		}
 
