@@ -123,7 +123,9 @@ class FranksSpiritsBowling extends BaseStage {
 							tankBih.resetShit(500, 290, TankmenBG.animationNotes[i][1] < 2);
 							tankBih.scale.set(1.1, 1.1);
 							tankBih.updateHitbox();
-							tankBih.shader = tankrunShader.shader;
+							if (ClientPrefs.data.shaders) {
+								tankBih.shader = tankrunShader.shader;
+							}
 							tankmanRun.add(tankBih);
 						}
 					}
