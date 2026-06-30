@@ -28,6 +28,12 @@ class Waiter extends FlxBasic {
 		queueMutex.release();
     }
 
+	public static function clearStateQueue() {
+		queueMutex.acquire();
+		stateQueue = [];
+		queueMutex.release();
+	}
+
 	/**
 		prepares a task for this state, but when the state switches this task will be removed
 	**/
@@ -40,6 +46,19 @@ class Waiter extends FlxBasic {
     static var _elapsedPing:Float = 0;
 
 	public static var waiterReports:String = '';
+
+	function _shiftStateQueueCall() {
+		queueMutex.acquire();
+		return stateQueue.shift();
+		queueMutex.release();
+	}
+
+	function _shiftPersistQueueCall() {
+		queueMutex.acquire();
+		return persistQueue.shift();
+		queueMutex.release();
+	}
+
 	function _tryQueueCall() {
 		if (_queueRAW == null)
 			return;
@@ -60,17 +79,17 @@ class Waiter extends FlxBasic {
     override function update(elapsed) {
         super.update(elapsed);
 
-		while (stateQueue.length > 0) {
-		    queueMutex.acquire();
-			_queueRAW = stateQueue.shift();
-		    queueMutex.release();
+		while (true) {
+			_queueRAW = _shiftStateQueueCall();
+			if (_queueRAW == null)
+				break;
 			_tryQueueCall();
         }
 
-		while (persistQueue.length > 0) {
-		    queueMutex.acquire();
-			_queueRAW = persistQueue.shift();
-		    queueMutex.release();
+		while (true) {
+			_queueRAW = _shiftPersistQueueCall();
+			if (_queueRAW == null)
+				break;
 			_tryQueueCall();
 		}
 

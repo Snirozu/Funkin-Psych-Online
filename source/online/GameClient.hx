@@ -328,7 +328,7 @@ class GameClient {
 	public static function clearOnMessage() {
 		// clear waiter queue to avoid tasks that want to access stuff from the previous state
 		// and then lead to a crash
-		Waiter.stateQueue = [];
+		Waiter.clearStateQueue();
 
 		if (!GameClient.isConnected() || GameClient.room?.onMessageHandlers == null)
 			return;
