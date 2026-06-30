@@ -47,16 +47,22 @@ class Waiter extends FlxBasic {
 
 	public static var waiterReports:String = '';
 
-	function _shiftStateQueueCall() {
-		queueMutex.acquire();
-		return stateQueue.shift();
-		queueMutex.release();
-	}
+	function _processQueue(queue:Array<Dynamic>):Void {
+		while (true) {
+			_queueRAW = _shiftQueue(queue);
 
-	function _shiftPersistQueueCall() {
+			if (_queueRAW == null)
+				break;
+				
+			_tryQueueCall();
+		}
+	}	
+
+	function _shiftQueue(queue:Array<Dynamic>):Dynamic {
 		queueMutex.acquire();
-		return persistQueue.shift();
+		var value = queue.shift();
 		queueMutex.release();
+		return value;
 	}
 
 	function _tryQueueCall() {
@@ -79,19 +85,8 @@ class Waiter extends FlxBasic {
     override function update(elapsed) {
         super.update(elapsed);
 
-		while (true) {
-			_queueRAW = _shiftStateQueueCall();
-			if (_queueRAW == null)
-				break;
-			_tryQueueCall();
-        }
-
-		while (true) {
-			_queueRAW = _shiftPersistQueueCall();
-			if (_queueRAW == null)
-				break;
-			_tryQueueCall();
-		}
+		_processQueue(stateQueue);
+		_processQueue(persistQueue);
 
 		if (waiterReports.length > 0) {
 			waiterReports = '';
