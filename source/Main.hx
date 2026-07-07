@@ -441,8 +441,8 @@ class Main extends Sprite
 					alertMsg += "\nPress Yes to draft a new GitHub bug report";
 					alertMsg += "\nPress No to jump into the origin error point (on GitHub)";
 					WinAPI.ask("Uncaught Exception!", alertMsg, () -> { // yes
-						daError += '\nVersion: ${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';
-						FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?template=bugs.yml&title=${StringTools.urlEncode('Exception: ${exc}')}&terminal=${StringTools.urlEncode(daError)}');
+						final version = '${Main.PSYCH_ONLINE_VERSION} ([$GIT_COMMIT]($cookUrl))';
+						FlxG.openURL('https://github.com/Snirozu/Funkin-Psych-Online/issues/new?template=bugs.yml&title=${StringTools.urlEncode('Exception: ${exc}')}&terminal=${StringTools.urlEncode(daError)}&version=${StringTools.urlEncode(version)}');
 					}, () -> { // no
 						FlxG.openURL(cookUrl);
 					});

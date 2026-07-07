@@ -232,6 +232,39 @@ class FunkinNetwork {
 		}
 	}
 
+	public static function searchMods(query:String, page:Int, sort:String):Array<PEOMod> {
+		var response = requestAPI("/api/search/mods?q=" + StringTools.urlEncode(query ?? '') + "&page=" + page + (sort != null ? '&sort=' + sort : ''));
+
+		if (response == null)
+			return null;
+
+		try {
+			return Json.parse(response.getString());
+		}
+		catch (exc) {
+			trace(exc);
+			return null;
+		}
+	}
+
+	public static function fetchMod(id:String):PEOModDetailed {
+		if (id == null)
+			return null;
+
+		var response = requestAPI("/api/mod/details/" + StringTools.urlEncode(id));
+
+		if (response == null)
+			return null;
+
+		try {
+			return Json.parse(response.getString());
+		}
+		catch (exc) {
+			trace(exc);
+			return null;
+		}
+	}
+
 	public static function fetchUserInfo(user:String):Dynamic {
 		if (user == null)
 			return null;
@@ -335,4 +368,29 @@ class FunkinNetwork {
 			return wildString == to;
 		return wildString.substr(0, wildIndex) == to.substr(0, wildIndex);
 	}
+}
+
+typedef PEOMod = {
+	id: String,
+	images: Array<String>,
+	title: String,
+	keywords: Array<String>,
+	downloadHits: Float,
+	favoritedCount: Float,
+}
+
+typedef PEOModDetailed = {
+	>PEOMod,
+	submitted: String,
+	favorited: Array<String>,
+	description: String,
+	downloads: Array<PEOModDownload>,
+}
+
+typedef PEOModDownload = {
+	id: String,
+	urls: Array<String>,
+	hits: Float,
+	size: Float,
+	modID: String
 }

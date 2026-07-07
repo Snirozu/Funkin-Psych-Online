@@ -1,9 +1,18 @@
 package online.substates;
 
 import openfl.filters.BlurFilter;
-import online.mods.GameBanana.DownloadPage;
-import online.mods.GameBanana.GBMod;
-import flixel.FlxObject;
+
+typedef MainDownload = {
+	name: String,
+	description: String,
+	url:String,
+	?size:Null<Float>
+}
+
+typedef SelectDownloads = {
+	mainFiles: Array<MainDownload>,
+	?altFiles: Null<Array<MainDownload>>,
+}
 
 class SelectDownloadSubstate extends MusicBeatSubstate {
 	public static var instance:SelectDownloadSubstate;
@@ -11,7 +20,7 @@ class SelectDownloadSubstate extends MusicBeatSubstate {
 	public var items:FlxTypedGroup<DownloadBox>;
 	public var selected(default, set):Int = 0;
 
-	var downloads:DownloadPage;
+	var downloads:SelectDownloads;
 
 	var blurFilter:BlurFilter;
 	var coolCam:FlxCamera;
@@ -27,7 +36,7 @@ class SelectDownloadSubstate extends MusicBeatSubstate {
 		return selected = v;
 	}
 
-	public function new(downloads:DownloadPage) {
+	public function new(downloads:SelectDownloads) {
         super();
 
 		instance = this;
@@ -77,14 +86,14 @@ class SelectDownloadSubstate extends MusicBeatSubstate {
 
 		var endCoord = altText.y + altText.height;
 
-		if (downloads._aFiles != null && downloads._aFiles.length > 0) {
-			for (dl in downloads._aFiles) {
-				if (dl._sFile.endsWith(".7z"))
+		if (downloads.mainFiles != null && downloads.mainFiles.length > 0) {
+			for (dl in downloads.mainFiles) {
+				if (dl.name.endsWith(".7z"))
 					continue;
 				
-				dl._sDescription += (dl._sDescription.trim() != "" ? "\n" : "") + "Size: " + DownloadAlert.prettyBytes(dl._nFilesize);
+				var desc = dl.description + (dl.description.trim() != "" ? "\n" : "") + (dl.size != null ? "Size: " + DownloadAlert.prettyBytes(dl.size) : '');
 
-				var download = new DownloadBox(dl._sFile, dl._sDescription, dl._sDownloadUrl, ++i);
+				var download = new DownloadBox(dl.name, desc, dl.url, ++i);
 				download.y = endCoord + 10;
 				endCoord = download.y + download.height;
 				download.camera = camera; //smh
@@ -92,7 +101,7 @@ class SelectDownloadSubstate extends MusicBeatSubstate {
 			}
 		}
 
-		if (downloads._aAlternateFileSources != null && downloads._aAlternateFileSources.length > 0) {
+		if (downloads.altFiles != null && downloads.altFiles.length > 0) {
 			var altText = new FlxText(bg.x, 0, bg.width);
 			altText.text = 'Alternate File Sources';
 			altText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -101,8 +110,8 @@ class SelectDownloadSubstate extends MusicBeatSubstate {
 			endCoord = altText.y + altText.height;
 			add(altText);
 
-			for (dl in downloads._aAlternateFileSources) {
-				var download = new DownloadBox(dl.description, dl.url, dl.url, ++i);
+			for (dl in downloads.altFiles) {
+				var download = new DownloadBox(dl.name, dl.description, dl.url, ++i);
 				download.y = endCoord + 10;
 				endCoord = download.y + download.height;
 				download.camera = camera; // smh
@@ -187,7 +196,10 @@ class DownloadBox extends FlxSpriteGroup {
 			bg.updateHitbox();
 		}
 
-		if (url.startsWith('https://drive.google.com/file/d/')) {
+		if (url.startsWith('https://funkin.sniro.boo/')) {
+			name.color = FlxColor.MAGENTA;
+		}
+		else if (url.startsWith('https://drive.google.com/file/d/')) {
 			name.color = FlxColor.LIME;
 		}
 		else if (url.startsWith('https://gamebanana.com/') 

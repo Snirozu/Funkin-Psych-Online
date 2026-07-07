@@ -442,7 +442,7 @@ class ShitUtil {
 					elementContent += raw.charAt(i);
 				}
 
-				if (elementContent.trim().startsWith('br')) {
+				if (elementContent.trim().startsWith('br') || elementContent.trim().startsWith('div')) {
 					output += '\n';
 				}
 

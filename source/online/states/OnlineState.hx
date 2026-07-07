@@ -289,16 +289,21 @@ class OnlineState extends MusicBeatState {
 
 			if (FunkinNetwork.loggedIn)
 				Waiter.put(() -> {
+					if (FlxG.state != theus)
+						return;
+
 					var profileBox = new ProfileBox(FunkinNetwork.nickname, true);
 					profileBox.setPosition(FlxG.width - profileBox.width - 20, 20);
-					if (FlxG.state == theus)
-						add(profileBox);
+					add(profileBox);
 				});
 		});
 
 		Thread.run(() -> {
 			var data = FunkinNetwork.fetchFront();
 			Waiter.put(() -> {
+				if (FlxG.state != theus)
+					return;
+
 				if (data == null) {
 					playersOnline.text = "NETWORK OFFLINE";
 					presenceInfo.visible = false;

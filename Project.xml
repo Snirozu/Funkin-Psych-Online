@@ -2,7 +2,7 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin': Psych Online" file="PsychOnline" main="Main" packageName="boo.sniro.psychonline" package="boo.sniro.psychonline" company="Snirozu" version="0.14.7" />
+	<app title="Friday Night Funkin': Psych Online" file="PsychOnline" main="Main" packageName="boo.sniro.psychonline" package="boo.sniro.psychonline" company="Snirozu" version="0.14.8" />
 	<app if="mobile" title='Psych Online' />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
@@ -128,6 +128,7 @@
 	<haxelib name="away3d" />
 	<haxelib name="yagp" />
 	<haxelib name="tink_await" />
+	<haxelib name="feathersui" />
 	<!-- <haxelib name="interpret" /> -->
 
 	<haxedef name="interpretable" />

@@ -68,12 +68,16 @@ class FunkinLua {
 	public function new(scriptName:String, ?skipPsychStuff:Bool = false) {
 		#if LUA_ALLOWED
 		lua = LuaL.newstate();
-		// LuaJIT.setmode(lua, 0, LuaJIT.LUAJIT_MODE_OFF);
 
 		Convert.enableUnsupportedTraces = true;
 
 		//load default lua libs
 		LuaL.openlibs(lua);
+
+		// Lua.gc(lua, Lua.LUA_GCSETPAUSE, 90);
+		// Lua.gc(lua, Lua.LUA_GCSETSTEPMUL, 400);
+		Lua.gc(lua, Lua.LUA_GCSTOP, 0);
+		// LuaJIT.setmode(lua, 0, LuaJIT.LUAJIT_MODE_OFF);
 
 		online.backend.LuaModuleSwap.doLua(lua, scriptName, () -> {
 			stop();
@@ -200,8 +204,13 @@ class FunkinLua {
 		// try {
 		// 	Lua.error(lua);
 		// } catch (exc) {}
+
 		LuaJIT.setmode(lua, 0, LuaJIT.LUAJIT_MODE_FLUSH); // does this do anything?
+		Lua_helper.stateStorage.clear(lua);
+		callbacks = null;
+
 		Lua.close(lua);
+
 		lua = null;
 		#if HSCRIPT_ALLOWED
 		if(hscript != null)
@@ -461,7 +470,7 @@ class FunkinLua {
 		set('rating', 0);
 		set('ratingName', '');
 		set('ratingFC', '');
-		set('version', MainMenuState.psychEngineVersion.trim());
+		set('version', MainMenuState.psychEngineVersion);
 
 		set('inGameOver', false);
 		set('mustHitSection', false);
@@ -1854,5 +1863,14 @@ class FunkinLua {
 		ShaderFunctions.implement(this);
 		DeprecatedFunctions.implement(this);
 		online.backend.OnlineScriptFunctions.implement(this);
+	}
+
+	public function quickGC() {
+		CoolUtil.teleStamp(true);
+		if (lua != null) {
+			Lua.gc(lua, Lua.LUA_GCSTEP, 1);
+			Lua.gc(lua, Lua.LUA_GCSTOP, 0);
+		}
+		CoolUtil.teleStamp();
 	}
 }

@@ -9,7 +9,7 @@ typedef StageData3D = {
 
 typedef StageObject3D = { >SpriteProps, >Object3DPose,
 	var type:String;
-	var scale:Null<Float>;
+	var ?scale:Null<Array<Float>>;
 }
 
 typedef Object3DPose = {

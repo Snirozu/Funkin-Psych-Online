@@ -34,6 +34,9 @@ class LoadingScreen extends Sprite {
 
 		instance = this;
 
+		mouseEnabled = false;
+		mouseChildren = false;
+
 		bg = new Bitmap(new BitmapData(1, 1, true, 0xFF000000));
 		bg.scaleX = Lib.application.window.width;
 		bg.scaleY = Lib.application.window.height;

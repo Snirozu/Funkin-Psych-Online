@@ -1,5 +1,6 @@
 package online.s3d;
 
+import flx3d.FlxSprite3D;
 import online.s3d.objects.PersonCameraController;
 import openfl.display.BitmapData;
 import backend.StageData;
@@ -14,9 +15,9 @@ import away3d.cameras.Camera3D;
 import flx3d.FlxGroup3D;
 
 class FunkinStage3D extends FlxGroup3D {
-	var stageData:StageFile;
+	public var stageData:StageFile;
 	
-	var cameraPoints:Map<String, Object3DPose> = new Map();
+	public var cameraPoints:Map<String, Object3DPose> = new Map();
 	var cameraLens:PerspectiveLens;
 
 	var debugMode:Bool = false;
@@ -28,7 +29,7 @@ class FunkinStage3D extends FlxGroup3D {
 
 	public function new(?stageData:StageFile) {
 		//override existing view3d
-		view = view2 = new View3DHandler();
+		view = view2 = new View3DHandler(this);
 
 		super();
 
@@ -97,15 +98,32 @@ class FunkinStage3D extends FlxGroup3D {
 		else
 			new StaticSprite3D(object, bitmap);
 		sprite.id = objectName;
+		applyDataToSprite(object, sprite);
+		view.scene.addChild(sprite);
+		return sprite;
+	}
+
+	override public function add(sprite:FlxSprite, ?keep2D:Bool = false):FlxSprite3D {
+		final sprite = super.add(sprite, keep2D);
+		var object = stageData.stage3D.objects.get(sprite.id);
+		applyDataToSprite(object, sprite);
+		return sprite;
+	}
+
+	public function applyDataToSprite(object:StageObject3D, sprite:ObjectContainer3D) {
+		if (object == null || sprite == null)
+			return;
+
 		if (object.scale != null) {
-			sprite.scaleX = object.scale ?? 1.0;
-			sprite.scaleY = object.scale ?? 1.0;
+			if (object.scale is Float) untyped {
+				object.scale = [object.scale, object.scale, object.scale];
+			}
+			sprite.scaleX = object.scale[0] ?? 1.0;
+			sprite.scaleY = object.scale[1] ?? 1.0;
+			sprite.scaleZ = object.scale[2] ?? 1.0;
 		}
 		setPositionFromArray(sprite, object.position);
 		setRotationFromArray(sprite, object.rotation);
-		view.scene.addChild(sprite);
-
-		return sprite;
 	}
 
 	var _cameraFollow:Object3D;

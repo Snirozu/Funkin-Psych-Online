@@ -71,8 +71,6 @@ class ProfileBox extends FlxSpriteGroup {
 			text.text = "";
 			desc.text = "";
 		}
-
-		#if SDEBUG trace(FlxG.state == _ste); #end
 		
 		Thread.run(() -> {
 			isSelf = verified && user == FunkinNetwork.nickname;
@@ -81,8 +79,6 @@ class ProfileBox extends FlxSpriteGroup {
 				profileData = FunkinNetwork.fetchUserInfo(user);
 			else
 				profileData = null;
-
-			#if SDEBUG trace(FlxG.state == _ste); #end
 
 			Waiter.put(creativo);
 		});
@@ -249,9 +245,6 @@ class ProfileBox extends FlxSpriteGroup {
     var destroyed:Bool = false;
     override function destroy() {
 		destroyed = true;
-		#if SDEBUG
-		trace(destroyed);
-		#end
         super.destroy();
     }
 }

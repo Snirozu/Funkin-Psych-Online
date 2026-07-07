@@ -1,5 +1,8 @@
 package online.states;
 
+import online.substates.SelectDownloadSubstate.SelectDownloads;
+import online.network.FunkinNetwork;
+import online.network.FunkinNetwork.PEOMod;
 import lime.system.Clipboard;
 import openfl.events.KeyboardEvent;
 import flixel.math.FlxRect;
@@ -10,13 +13,21 @@ import flixel.graphics.FlxGraphic;
 import online.mods.GameBanana.GBSub;
 import flixel.group.FlxGroup;
 
+@:publicFields
+abstract ModProvider(String) from String to String {
+	static inline var PEO = 'peo';
+	static inline var GB = 'gb';
+}
+
 #if lumod
 @:build(lumod.LuaScriptClass.build())
 #end
 class DownloaderState extends MusicBeatState {
 	var items:FlxTypedSpriteGroup<ModItem>;
 	var itemsY:Int = FlxG.height - (3 * 190) - 50;
+	var providerIcons:FlxTypedSpriteGroup<ProviderIcon>;
 	public static var curSelected:Int = 0;
+	public static var modProvider:ModProvider = ModProvider.PEO;
 	var page:Int = 1;
 	var searchBg:FlxSprite;
 	var searchPlaceholder:FlxText;
@@ -37,10 +48,12 @@ class DownloaderState extends MusicBeatState {
 
 	var initQuery:String = '';
 
-	public function new(?query:String = '') {
+	public function new(?query:String = '', ?provider:ModProvider) {
 		super();
 
 		initQuery = query;
+		if (provider != null)
+			modProvider = provider;
 	}
 	
 	override function create() {
@@ -51,10 +64,10 @@ class DownloaderState extends MusicBeatState {
 		FlxG.mouse.visible = true;
 
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("Browsing mods on GameBanana.", null, null, false);
+		DiscordClient.changePresence("Browsing mods.", null, null, false);
 		#end
 
-		GameClient.send("status", "Browsing mods on GameBanana");
+		GameClient.send("status", "Browsing mods.");
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff46463b;
@@ -106,6 +119,19 @@ class DownloaderState extends MusicBeatState {
 		searchInput.text = initQuery;
 		add(searchInput);
 
+		providerIcons = new FlxTypedSpriteGroup<ProviderIcon>();
+		add(providerIcons);
+
+		final providers:Array<ModProvider> = [ModProvider.PEO, ModProvider.GB];
+		for (provider in providers) {
+			var provIcon = new ProviderIcon(provider);
+			provIcon.x += providerIcons.width + (providerIcons.length > 0 ? 10 : 0);
+			providerIcons.add(provIcon);
+		}
+
+		providerIcons.x = (searchBg.x + searchBg.width + FlxG.width) / 2 - providerIcons.width / 2;
+		providerIcons.y = (searchBg.y + searchBg.height + searchBg.y) / 2 - providerIcons.height / 2;
+
 		pageInfo = new FlxText(0, 0, FlxG.width);
 		pageInfo.text = '< Page ${page} >';
 		pageInfo.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -126,8 +152,22 @@ class DownloaderState extends MusicBeatState {
 
 		FlxG.sound.music.fadeIn(1, 1, 0.5);
 
+		updateModProvider();
 		loadNextPage(true);
     }
+
+	function updateModProvider() {
+		final providerTitle = switch (modProvider) {
+			case ModProvider.GB:
+				'GameBanana';
+			case ModProvider.PEO:
+				'Psych Online Network';
+			default:
+				'unknown';
+		};
+
+		searchPlaceholder.text = 'Search mods on ${providerTitle} // Enter a Mod URL...';
+	}
 
 	var _newPage:Int = 0;
 	function loadNextPage(?value:Int = 0, ?newSearch:Bool = false) {
@@ -154,22 +194,37 @@ class DownloaderState extends MusicBeatState {
 		query = query.trim() == "" ? null : query.trim();
 		
 		_newPage = page + value;
-		if (query != null && newSearch) {
+		if (newSearch) {
 			_newPage = 1;
 		}
 
-		if (collection != null) {
-			GameBanana.listCollection(collection, _newPage, onLoadMods);
-		}
-		else if (category != null) {
-			GameBanana.listCategory(category, _newPage, onLoadMods);
+		if (modProvider == ModProvider.GB) {
+			if (collection != null) {
+				GameBanana.listCollection(collection, _newPage, onLoadModsGB);
+			}
+			else if (category != null) {
+				GameBanana.listCategory(category, _newPage, onLoadModsGB);
+			}
+			else {
+				GameBanana.searchMods(query, _newPage, order, onLoadModsGB);
+			}
 		}
 		else {
-			GameBanana.searchMods(query, _newPage, order, onLoadMods);
+			Thread.run(() -> {
+				var mods = FunkinNetwork.searchMods(query, _newPage - 1, order);
+				if (mods == null)
+					Waiter.put(() -> {
+						onLoadModsPEO(null, 'No Mods Found.');
+					});
+
+				Waiter.put(() -> {
+					onLoadModsPEO(mods, null);
+				});
+			});
 		}
 	}
 
-	function onLoadMods(mods:Array<GBSub>, err:Dynamic) {
+	function onLoadModsGB(mods:Array<GBSub>, err:Dynamic) {
 		LoadingScreen.toggle(false);
 
 		if (destroyed)
@@ -186,7 +241,27 @@ class DownloaderState extends MusicBeatState {
 		page = _newPage;
 		pageInfo.text = '< Page ${page} >';
 
-		loadMods(mods);
+		loadModsGB(mods);
+	}
+
+	function onLoadModsPEO(mods:Array<PEOMod>, err:Dynamic) {
+		LoadingScreen.toggle(false);
+
+		if (destroyed)
+			return;
+
+		if (mods == null)
+			err = "Mods not found!";
+
+		if (err != null) {
+			pageInfo.text = "Error: " + err;
+			return;
+		}
+
+		page = _newPage;
+		pageInfo.text = '< Page ${page} >';
+
+		loadModsPEO(mods);
 	}
 
 	function changeSelection(value:Int) {
@@ -209,12 +284,32 @@ class DownloaderState extends MusicBeatState {
 				LoadingScreen.loading = false;
 			}
 
+			for (provIcon in providerIcons) {
+				provIcon.alpha = provIcon.provider == modProvider ? 0.8 : 0.5;
+
+				if (FlxG.mouse.overlaps(provIcon)) {
+					provIcon.alpha = 1.0;
+
+					if (FlxG.mouse.justPressed && !LoadingScreen.loading) {
+						modProvider = provIcon.provider;
+						updateModProvider();
+						loadNextPage(true);
+					}
+				}
+			}
+
 			if (!LoadingScreen.loading) {
 				if (FlxG.mouse.wheel == 1 || FlxG.keys.justPressed.Q) {
 					loadNextPage(-1);
 				}
 				if (FlxG.mouse.wheel == -1 || FlxG.keys.justPressed.E) {
 					loadNextPage(1);
+				}
+
+				if (FlxG.keys.justPressed.TAB) {
+					modProvider = modProvider == ModProvider.GB ? ModProvider.PEO : ModProvider.GB;
+					updateModProvider();
+					loadNextPage(true);
 				}
 				
 				if (controls.UI_RIGHT_P) {
@@ -276,31 +371,94 @@ class DownloaderState extends MusicBeatState {
 		}
     }
 
-	function openModDownloads(modId:Float) {
+	function openModDownloads(modId:Dynamic) {
 		if (modId == 479714) {
 			FlxG.openURL('https://www.youtube.com/watch?v=WC_mHIBCHDo');
 			return;
 		}
 
 		LoadingScreen.toggle(true);
-		GameBanana.getModDownloads(modId, (downloads, err) -> {
-			LoadingScreen.toggle(false);
+		if (modProvider == ModProvider.GB) {
+			GameBanana.getModDownloads(modId, (downloads, err) -> {
+				LoadingScreen.toggle(false);
 
-			if (err != null) {
-				Alert.alert("Fetching downloads failed!", err);
-				return;
-			}
+				if (err != null) {
+					Alert.alert("Fetching downloads failed!", err);
+					return;
+				}
 
-			if (downloads._bIsTrashed || downloads._bIsWithheld) {
-				Alert.alert("Fetching downloads failed!", "That mod is deleted!");
-				return;
-			}
+				if (downloads._bIsTrashed || downloads._bIsWithheld) {
+					Alert.alert("Fetching downloads failed!", "That mod is deleted!");
+					return;
+				}
 
-			openSubState(new SelectDownloadSubstate(downloads));
-		});
+				var dls:SelectDownloads = {
+					mainFiles: [],
+					altFiles: []
+				};
+
+				if (downloads._aFiles != null && downloads._aFiles.length > 0)
+					for (dl in downloads._aFiles) {
+						dls.mainFiles.push({
+							name: dl._sFile,
+							description: dl._sDescription,
+							url: dl._sDownloadUrl,
+							size: dl._nFilesize,
+						});
+					}
+
+				if (downloads._aAlternateFileSources != null && downloads._aAlternateFileSources.length > 0)
+					for (dl in downloads._aAlternateFileSources) {
+						dls.mainFiles.push({
+							name: dl.url,
+							description: dl.description,
+							url: dl.url,
+						});
+					}
+
+				openSubState(new SelectDownloadSubstate(dls));
+			});
+		}
+		else {
+			Thread.run(() -> {
+				var mod = FunkinNetwork.fetchMod(modId);
+				if (mod != null) {
+					Waiter.put(() -> {
+						LoadingScreen.toggle(false);
+
+						if (mod.downloads == null || mod.downloads.length == 0) {
+							Alert.alert("Fetching downloads failed!", "That mod is deleted!");
+							return;
+						}
+
+						var dls:SelectDownloads = {
+							mainFiles: [],
+							altFiles: []
+						};
+						for (dl in mod.downloads) {
+							var downloadName = dl.id.substring(dl.modID.length + 1);
+        					var downloadTitle = downloadName.toUpperCase();
+							dls.mainFiles.push({
+								name: downloadTitle,
+								description: '',
+								url: FunkinNetwork.client.getURL('/mod/' + dl.modID + '/dl/' + downloadName),
+								size: dl.size,
+							});
+						}
+
+						openSubState(new SelectDownloadSubstate(dls));
+					});
+					return;
+				}
+
+				Waiter.put(() -> {
+					Alert.alert("Fetching downloads failed!");
+				});
+			});
+		}
 	}
 
-	function loadMods(mods:Array<GBSub>) {
+	function loadModsGB(mods:Array<GBSub>) {
 		items.clear();
 		curSelected = 0;
 
@@ -365,6 +523,68 @@ class DownloaderState extends MusicBeatState {
 		items.x = (FlxG.width - SPACING_X * (ROWS - 1) - ModItem.FRAME_WIDTH) / 2;
 		items.y = itemsY;
 	}
+
+	function loadModsPEO(mods:Array<PEOMod>) {
+
+		// VERY IMPORTANT for later -- flixel call destroy() on non-added objects to the state
+		// so that can cause crashes on Waiter.put() because of if (exists) that only works properly on added objects
+		for (item in items) { item.destroy(); }
+		items.clear();
+		
+		curSelected = 0;
+
+		final SPACING_X:Int = 250;
+		final ROWS = 5;
+
+		var i:Int = 0;
+		for (mod in mods) {
+			var thumbnails:Array<Thumbnail> = [];
+
+			var firstThumbURL = null;
+			for (url in mod.images) {
+				if (firstThumbURL == null) {
+					firstThumbURL = url;
+				}
+				thumbnails.push({
+					url: url,
+					width: 220,
+					height: 125
+				});
+			}
+
+			var item = new ModItem({
+				url: FunkinNetwork.client.getURL('mod/${mod.id}'),
+				id: mod.id,
+				name: mod.title,
+				likes: mod.favoritedCount,
+				category: null,
+				categoryIconURL: null,
+				thumbnail: {
+					url: firstThumbURL,
+					width: -1,
+					height: -1
+				},
+				thumbnails: thumbnails
+			});
+
+			item.x = Math.floor(i % ROWS) * SPACING_X;
+			item.y = Math.floor(i / ROWS) * 190;
+			item.ID = i;
+			items.add(item);
+
+			i++;
+		}
+
+		if (i == 0) {
+			pageInfo.text = "No mods found!";
+		}
+
+		// buggy mess for some reaosn
+		// items.screenCenter(X);
+
+		items.x = (FlxG.width - SPACING_X * (ROWS - 1) - ModItem.FRAME_WIDTH) / 2;
+		items.y = itemsY;
+	}
 }
 
 class ModItem extends FlxSpriteGroup {
@@ -397,43 +617,45 @@ class ModItem extends FlxSpriteGroup {
 
 		loadScreenshot(0);
 
-		var categoryNameBg = new FlxSprite();
-		categoryNameBg.makeGraphic(1, 1, FlxColor.BLACK);
-		categoryNameBg.alpha = 0.7;
-		categoryNameBg.visible = false;
-		add(categoryNameBg);
+		if (mod.category != null) {
+			var categoryNameBg = new FlxSprite();
+			categoryNameBg.makeGraphic(1, 1, FlxColor.BLACK);
+			categoryNameBg.alpha = 0.7;
+			categoryNameBg.visible = false;
+			add(categoryNameBg);
 
-		var categoryName = new FlxText(5, 5, 0, mod.category);
-		categoryName.setFormat("VCR OSD Mono", 15, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		categoryName.visible = false;
-		add(categoryName);
+			var categoryName = new FlxText(5, 5, 0, mod.category);
+			categoryName.setFormat("VCR OSD Mono", 15, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			categoryName.visible = false;
+			add(categoryName);
 
-		var category = new FlxSprite();
-		category.visible = false;
-		add(category);
+			var category = new FlxSprite();
+			category.visible = false;
+			add(category);
 
-		getImage(mod.categoryIconURL, (bytes, err) -> {
-			if (!exists)
-				return;
+			getImage(mod.categoryIconURL, (bytes, err) -> {
+				if (!exists)
+					return;
 
-			categoryName.visible = true;
-			categoryNameBg.visible = true;
+				categoryName.visible = true;
+				categoryNameBg.visible = true;
 
-			if (err == null || bytes == null) {
-				category.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes)));
-				category.antialiasing = ClientPrefs.data.antialiasing;
-				category.x = bg.x + bg.width - category.width; // bg.x is needed for some reason
-				category.visible = true;
-				if (categoryName.width > bg.width - category.frameWidth - 15)
-					categoryName.fieldWidth = bg.width - category.frameWidth - 15;
-			}
-			else if (categoryName.width > bg.width - 15) {
-				categoryName.fieldWidth = bg.width - 15;
-			}
-			categoryNameBg.scale.set(categoryName.width + 5, categoryName.height + 5);
-			categoryNameBg.updateHitbox();
-			categoryNameBg.setPosition(categoryName.x, categoryName.y);
-		});
+				if (err == null || bytes == null) {
+					category.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes)));
+					category.antialiasing = ClientPrefs.data.antialiasing;
+					category.x = bg.x + bg.width - category.width; // bg.x is needed for some reason
+					category.visible = true;
+					if (categoryName.width > bg.width - category.frameWidth - 15)
+						categoryName.fieldWidth = bg.width - category.frameWidth - 15;
+				}
+				else if (categoryName.width > bg.width - 15) {
+					categoryName.fieldWidth = bg.width - 15;
+				}
+				categoryNameBg.scale.set(categoryName.width + 5, categoryName.height + 5);
+				categoryNameBg.updateHitbox();
+				categoryNameBg.setPosition(categoryName.x, categoryName.y);
+			});
+		}
 
 		var name = new FlxText(0, thumb.clipRect.height, bg.width, mod.name);
 		name.setFormat("VCR OSD Mono", 15, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -567,15 +789,25 @@ class ModItem extends FlxSpriteGroup {
 						return;
 					}
 
-					thumb.clipRect = new FlxRect(0, 0, FRAME_WIDTH, 125);
+					if (mod.thumbnail.width != -1 && mod.thumbnail.height != -1) {
+						thumb.clipRect = new FlxRect(0, 0, FRAME_WIDTH, 125);
+					}
+					else {
+						thumb.clipRect = null;
+					}
 
 					thumb.loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromBytes(bytes), false, null, false));
 					thumb.antialiasing = ClientPrefs.data.antialiasing;
-					if (mod.thumbnail.height < thumb.clipRect.height) {
-						thumb.setGraphicSize(mod.thumbnail.width, thumb.clipRect.height);
+					if (mod.thumbnail.width != -1 && mod.thumbnail.height != -1) {
+						if (mod.thumbnail.height < thumb.clipRect.height) {
+							thumb.setGraphicSize(mod.thumbnail.width, thumb.clipRect.height);
+						}
+						else {
+							thumb.setGraphicSize(mod.thumbnail.width, mod.thumbnail.height);
+						}
 					}
 					else {
-						thumb.setGraphicSize(mod.thumbnail.width, mod.thumbnail.height);
+						thumb.setGraphicSize(FRAME_WIDTH, 125);
 					}
 					thumb.updateHitbox();
 
@@ -631,7 +863,7 @@ class ModItem extends FlxSpriteGroup {
 
 typedef ModInfo = {
 	var url:String;
-	var id:Float;
+	var id:Dynamic;
 	var category:String;
 	var likes:Null<Float>;
 	var name:String;
@@ -646,3 +878,28 @@ typedef Thumbnail = {
 	var width:Float;
 	var height:Float;
 } 
+
+class ProviderIcon extends FlxSpriteGroup {
+	public var provider:ModProvider;
+
+	var icon:FlxSprite;
+	var bg:FlxSprite;
+
+	public function new(provider:ModProvider, size:Int = 50) {
+		super();
+
+		this.provider = provider;
+
+		bg = new FlxSprite();
+		bg.makeGraphic(size, size, 0xE3000000);
+		add(bg);
+
+		icon = new FlxSprite();
+		icon.loadGraphic(Paths.image('provider_' + provider));
+		icon.setGraphicSize(size * 0.8, size * 0.8);
+		icon.updateHitbox();
+		icon.x = bg.width / 2 - icon.width / 2;
+		icon.y = bg.height / 2 - icon.height / 2;
+		add(icon);
+	}
+}

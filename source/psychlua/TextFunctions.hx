@@ -8,8 +8,14 @@ class TextFunctions
 		var game:PlayState = PlayState.instance;
 		Lua_helper.add_callback(lua, "makeLuaText", function(tag:String, text:String, width:Int, x:Float, y:Float) {
 			tag = tag.replace('.', '');
-			LuaUtils.resetTextTag(tag);
-			var leText:FlxText = new FlxText(x, y, width, text, 16);
+			// recycle it, looking at you hyperlink-reloaded/PressF1ForHelp.lua
+			var leText:FlxText = LuaUtils.resetTextTag(tag);
+			if (leText == null)
+				leText = new FlxText();
+			leText.x = x;
+			leText.y = y;
+			leText.fieldWidth = width;
+			leText.text = text;
 			leText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			leText.cameras = [game.camHUD];
 			leText.scrollFactor.set();

@@ -339,18 +339,18 @@ class LuaUtils
 		}
 	}
 
-	public static function resetTextTag(tag:String) {
+	public static function resetTextTag(tag:String):FlxText {
 		#if LUA_ALLOWED
 		if(!PlayState.instance.modchartTexts.exists(tag)) {
-			return;
+			return null;
 		}
 
 		var target:FlxText = PlayState.instance.modchartTexts.get(tag);
-		target.kill();
 		PlayState.instance.remove(target, true);
-		target.destroy();
 		PlayState.instance.modchartTexts.remove(tag);
+		return target;
 		#end
+		return null;
 	}
 
 	public static function resetSpriteTag(tag:String) {

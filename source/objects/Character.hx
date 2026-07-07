@@ -399,6 +399,7 @@ class Character extends FlxSprite {
 
 		visible = false;
 		sprite3D = PlayState.instance.stage3D.add(this);
+		sprite3D.id = charType;
 		sprite3D.followVisibility = false;
 		final originGroup = switch (charType) {
 			case 'gf': PlayState.instance.gfGroup;

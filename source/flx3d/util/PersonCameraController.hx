@@ -13,10 +13,13 @@ class PersonCameraController extends Sprite {
     @:isVar public var focused(get, set):Bool;
     @:isVar public var enabled(default, set):Bool = true;
     public var camera:Camera3D;
-	var _lastCursorVisible:Bool = false;
+	var _lastCursorVisible:Null<Bool> = null;
 
 	public function new(camera:Camera3D) {
 		super();
+
+		mouseEnabled = false;
+		mouseChildren = false;
 
 		this.camera = camera;
 
@@ -132,10 +135,11 @@ class PersonCameraController extends Sprite {
 		if (!enabled)
 			return focused = false;
 
-		if (v)
+		if (v) {
 			centerMouse();
-		_lastCursorVisible = FlxG.mouse.visible;
-		FlxG.mouse.visible = !_lastCursorVisible ? false : !v;
+			_lastCursorVisible = FlxG.mouse.visible;
+		}
+		FlxG.mouse.visible = v ? false : _lastCursorVisible != null ? _lastCursorVisible : FlxG.mouse.visible;
 		// Lib.application.window.mouseLock = v;
 		return focused = v;
 	}

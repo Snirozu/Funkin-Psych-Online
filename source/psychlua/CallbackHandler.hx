@@ -6,7 +6,7 @@ class CallbackHandler
 	{
 		try
 		{
-			var cbf:Dynamic = Lua_helper.callbacks.get(fname);
+			var cbf:Dynamic = Lua_helper.stateStorage[l].callbacks.get(fname);
 
 			//Local functions have the lowest priority
 			//This is to prevent a "for" loop being called in every single operation,
@@ -19,12 +19,12 @@ class CallbackHandler
 					for (script in PlayState.instance.luaArray)
 						if (script != FunkinLua.lastCalledScript && script != null && script.lua == l) {
 							// trace('found script');
-							cbf = script.callbacks.get(fname);
+							cbf = script.callbacks?.get(fname);
 							break;
 						}
 				}
 				else
-					cbf = last.callbacks.get(fname);
+					cbf = last.callbacks?.get(fname);
 			}
 			
 			if (cbf == null) {
@@ -67,9 +67,9 @@ class CallbackHandler
 				//if(Lua_helper.sendErrorsToLua) {LuaL.error(l, 'CALLBACK ERROR! ${if(e.message != null) e.message else e}');return 0;}
 				// throw(e);
 			}
-			// else {
-			// 	Sys.println(fname + ' - luaErr: ' + e);
-			// }
+			else {
+				Sys.println(fname + ' - luaErr: ' + e);
+			}
 		}
 		return returnNil(l);
 	}

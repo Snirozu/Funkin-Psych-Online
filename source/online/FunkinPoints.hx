@@ -26,7 +26,7 @@ class FunkinPoints {
 		return fp;
     }
 
-	public static function devFP(accuracy:Float, misses:Float, songDensity:Float, notesHit:Float, maxCombo:Float) {
+	public static function devFP(accuracy:Float, misses:Float, songDensity:Float, notesHit:Float, maxCombo:Float, fdi:online.ChartAnalyzer.FunkinDiffInfo) {
 
 		// the current system works good for the most part, but there are three main issues with it
 		// - (fixed) missing a note does a big damage to FP
@@ -38,17 +38,22 @@ class FunkinPoints {
 		// fp *= (Math.max(0, notesHit) - Math.pow(notesHit, 1.05)) / 1000;
 		// return fp;
 
-		// DP added to FP per 100 notes
-		var fp:Float = densityPower(songDensity) * (notesHit / 100);
-		// depends on player's note streak (x2fp per 5000 combo)
+		if (fdi == null)
+			return 0.0;
+
+		// base fp, based on songs difficulty
+		var fp:Float = Math.pow((fdi.strain + fdi.nps) / 2, 1.5) * Math.min(1, (notesHit / 200) / 2);
+		// fp bonus per 1000 notes
+		fp += strainPower(fdi.strain) * (notesHit / 1000);
+		// fp bonus x2fp per 5000 combo
 		fp *= 1 + maxCombo / 5000;
 		// depends on player's note accuracy (weighted by power of 3; 95% = x0.85, 90% = x0.72, 80% = x0.512)
-		fp *= Math.pow(accuracy, 3) / (1 + misses * 0.1);
+		fp *= Math.pow(accuracy, 3) / (1 + misses * 0.15);
 		return fp;
 	}
 
-	public static function densityPower(density:Float) {
-		return (Math.pow(1 + density, 1.2));
+	public static function strainPower(strain:Float) {
+		return Math.log(strain / 0.05 + 1) * 0.5;
 	}
 
 	public static function save(accuracy:Float, misses:Float, songDensity:Float, notesHit:Float, maxCombo:Float) {

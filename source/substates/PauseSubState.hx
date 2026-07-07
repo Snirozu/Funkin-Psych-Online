@@ -1,5 +1,6 @@
 package substates;
 
+import online.s3d.View3DHandler;
 import online.GameClient;
 import online.util.ShitUtil;
 import online.substates.PostTextSubstate;
@@ -425,7 +426,7 @@ class PauseSubState extends MusicBeatSubstate
 						'Swing Mode'
 					];
 					if (PlayState.instance.stage3D != null)
-						menuItems.insert(1, 'Stage 3D Debug');
+						menuItems.insert(1, 'Stage 3D Editor');
 					if (!PlayState.chartingMode)
 						menuItems.insert(2, 'Charting Mode');
 					menuItems.push('Back');
@@ -434,9 +435,9 @@ class PauseSubState extends MusicBeatSubstate
 				case 'Swap Sides':
 					PlayState.instance.toggleOpponentMode();
 					close();
-				case 'Stage 3D Debug': 
+				case 'Stage 3D Editor': 
 					close();
-					// Main.view3D.debugMode = !Main.view3D.debugMode;
+					View3DHandler.instance.debugMode = !View3DHandler.instance.debugMode;
 				case 'Position Debug': 
 					PlayState.instance.debugPoser.editMode = !PlayState.instance.debugPoser.editMode;
 					close();

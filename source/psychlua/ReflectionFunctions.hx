@@ -16,17 +16,16 @@ class ReflectionFunctions
 	{
 		var lua:State = funk.lua;
 		Lua_helper.add_callback(lua, "getProperty", function(variable:String, ?allowMaps:Bool = true) {
-			backend.CoolUtil.teleStamp(true);
 			variable = online.backend.Wrapper.wrapperField(variable);
-			backend.CoolUtil.teleStamp();
 
 			var split:Array<String> = variable.split('.');
-			backend.CoolUtil.teleStamp();
+
+			var ret:Dynamic = null;
 			if(split.length > 1)
-				return LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split, true, true, allowMaps), split[split.length-1], allowMaps);
-			backend.CoolUtil.teleStamp();
-			final ret = LuaUtils.getVarInArray(LuaUtils.getTargetInstance(), variable, allowMaps);
-			backend.CoolUtil.teleStamp();
+				ret = LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split, true, true, allowMaps), split[split.length-1], allowMaps);
+			else
+				ret = LuaUtils.getVarInArray(LuaUtils.getTargetInstance(), variable, allowMaps);
+
 			return ret;
 		});
 		Lua_helper.add_callback(lua, "setProperty", function(variable:String, value:Dynamic, allowMaps:Bool = true) {

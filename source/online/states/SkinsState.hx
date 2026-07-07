@@ -1,5 +1,6 @@
 package online.states;
 
+import online.states.DownloaderState.ModProvider;
 import flixel.input.keyboard.FlxKey;
 import backend.InputFormatter;
 import objects.HealthIcon;
@@ -697,11 +698,11 @@ class SkinsState extends MusicBeatState {
 		}
 
 		if (FlxG.keys.pressed.ALT && FlxG.keys.justPressed.F2) {
-			switchState(() -> new DownloaderState('collection:110039'));
+			switchState(() -> new DownloaderState('collection:110039', ModProvider.GB));
 		}
 
 		if (!FlxG.keys.pressed.ALT && FlxG.keys.justPressed.F2) {
-			switchState(() -> new DownloaderState('category:43788'));
+			switchState(() -> new DownloaderState('category:43788', ModProvider.GB));
 		}
 
 		if (controls.FAV && curCharacter >= 0) {

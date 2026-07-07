@@ -87,6 +87,9 @@ class SideUI extends WSprite {
 	function init(?e:Event) {
 		alpha = 0;
 
+		mouseEnabled = false;
+		mouseChildren = false;
+
 		var bg = new Bitmap(new BitmapData(Lib.application.window.width, Lib.application.window.height, true, 0x8E000000));
 		addChild(bg);
 
@@ -275,6 +278,9 @@ class SideUI extends WSprite {
 				button.alpha = tabs[i].locked ? 0.5 : 1;
 			}
 		}
+
+		mouseEnabled = active;
+		mouseChildren = active;
 
 		if (active) {
 			tabUI.addChild(curTab);
