@@ -47,6 +47,9 @@ typedef SpriteProps = {
 
 	var ?frameSize:Array<Int>;
 	var ?animations:Array<AnimationData>;
+	var ?shader:String;
+	var ?segmentsW:Int;
+	var ?segmentsH:Int;
 }
 
 typedef AnimationDataMap = Map<String, AnimationData>;

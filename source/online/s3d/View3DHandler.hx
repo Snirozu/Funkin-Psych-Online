@@ -460,7 +460,6 @@ class View3DHandler extends View3D {
 	}
 
 	private function init(?_:Event):Void {
-		// here lies the skybox which fucking died for no reason in the middle of programming this stage
 		// skyboxTexture = new BitmapCubeTexture(
 		// 	GAssets.image("skybox_positive_x"),
 		// 	GAssets.image("skybox_negative_x"),
@@ -469,22 +468,9 @@ class View3DHandler extends View3D {
 		// 	GAssets.image("skybox_positive_z"),
 		// 	GAssets.image("skybox_negative_z")
 		// );
-
-		// ... but it's still needed because other assets would flicker lol
-		// if there's no skybox (even though it's NOT visible) the stage glitches but it only happens while flixel is active so guess what can i blame for that
-		var blankBitmap:BitmapData = new BitmapData(1, 1, false, 0x000000);
-		skyboxTexture = new BitmapCubeTexture(
-			blankBitmap,
-			blankBitmap,
-			blankBitmap,
-			blankBitmap,
-			blankBitmap,
-			blankBitmap
-		);
-		
-		_skyBox = new SkyBox(skyboxTexture);
-		_skyBox.id = 'skybox';
-		scene.addChild(_skyBox);
+		// _skyBox = new SkyBox(skyboxTexture);
+		// _skyBox.id = 'skybox';
+		// scene.addChild(_skyBox);
 
 		// TODO FlxSound -> FlxSound3D proxy
 

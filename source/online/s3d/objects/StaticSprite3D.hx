@@ -41,7 +41,7 @@ class StaticSprite3D extends Mesh {
 		var geom = new PlaneGeometry(
 			props.geomWidth ?? (props.completeSize ? bitmap.width * props.scaleUV : 1), 
 			props.geomHeight ?? (props.completeSize ? bitmap.height * props.scaleUV : 1),
-			1, 1, false, props.bothSides
+			props.segmentsW ?? 1, props.segmentsH ?? 1, false, props.bothSides
 		);
 		if (props.scaleUV != 1.0)
 			geom.scaleUV(geom.width / (bitmap.width * props.scaleUV), geom.height / (bitmap.height * props.scaleUV));

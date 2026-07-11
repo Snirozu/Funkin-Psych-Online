@@ -28,6 +28,8 @@ class FunkinStage3D extends FlxGroup3D {
 	// but @:optional var objects3D:Array<Dynamic>;
 
 	public function new(?stageData:StageFile) {
+		// away3d.debug.Debug.active = true;
+
 		//override existing view3d
 		view = view2 = new View3DHandler(this);
 
