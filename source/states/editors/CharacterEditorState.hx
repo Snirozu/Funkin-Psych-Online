@@ -764,8 +764,7 @@ class CharacterEditorState extends MusicBeatState {
 					lastOffsets = anim.offsets;
 					if(char.animOffsets.exists(animationInputText.text))
 					{
-						if(!char.isAnimateAtlas) char.animation.remove(animationInputText.text);
-						else @:privateAccess char.atlas.anim.animsMap.remove(animationInputText.text);
+						char.animation.remove(animationInputText.text);
 					}
 					char.animationsArray.remove(anim);
 				}
@@ -847,8 +846,7 @@ class CharacterEditorState extends MusicBeatState {
 					if(anim.anim == char.getAnimationName()) resetAnim = true;
 					if(char.animOffsets.exists(anim.anim))
 					{
-						if(!char.isAnimateAtlas) char.animation.remove(anim.anim);
-						else @:privateAccess char.atlas.anim.animsMap.remove(anim.anim);
+						char.animation.remove(anim.anim);
 						char.animOffsets.remove(anim.anim);
 						char.animationsArray.remove(anim);
 					}
@@ -1219,12 +1217,9 @@ class CharacterEditorState extends MusicBeatState {
 		if(char.isAnimateAtlas)
 		{
 			ghostChar.frames = null;
-			ghostChar.isAnimateAtlas = true;
-			ghostChar.atlas = new FlxAnimate();
-			ghostChar.atlas.showPivot = false;
 			try
 			{
-				Paths.loadAnimateAtlas(ghostChar.atlas, char.imageFile);
+				Paths.loadAnimateAtlas(ghostChar, char.imageFile);
 			}
 			catch(e:Dynamic)
 			{
@@ -1233,7 +1228,6 @@ class CharacterEditorState extends MusicBeatState {
 		}
 		else
 		{
-			ghostChar.isAnimateAtlas = false;
 			ghostChar.frames = char.frames;
 		}
 

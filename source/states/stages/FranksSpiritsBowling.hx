@@ -139,19 +139,24 @@ class FranksSpiritsBowling extends BaseStage {
 				if(!Std.isOfType(character, objects.Character))
 					continue;
 
+				var char = cast(character, objects.Character);
+
 				var rim:DropShadow = new DropShadow();
 				rim.setAdjustColor(-46, -38, -25, -20);
 				rim.color = 0xFFDFEF3C;
-				rim.attachedSprite = character;
+				rim.attachedSprite = char;
 
 				rim.angle = 90;
-				character.shader = rim.shader;
+				char.shader = rim.shader;
+				
+				if(char.isAnimateAtlas)
+					char.atlas.useRenderTexture = true;
 
-				character.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
+				char.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
 					if(name.endsWith('-bloody'))
 						rim.useAltMask = true;
 
-					rim.updateFrameInfo(character.frame);
+					rim.updateFrameInfo(char.frame);
 				};
 			}
 
@@ -159,16 +164,21 @@ class FranksSpiritsBowling extends BaseStage {
 				if(!Std.isOfType(character, objects.Character))
 					continue;
 
+				var char = cast(character, objects.Character);
+
 				var rim:DropShadow = new DropShadow();
 				rim.setAdjustColor(-46, -38, -25, -20);
 				rim.color = 0xFFDFEF3C;
-				rim.attachedSprite = character;
+				rim.attachedSprite = char;
 
 				rim.angle = 90;
-				character.shader = rim.shader;
+				char.shader = rim.shader;
 
-				character.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
-					rim.updateFrameInfo(character.frame);
+				if(char.isAnimateAtlas)
+					char.atlas.useRenderTexture = true;
+
+				char.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
+					rim.updateFrameInfo(char.frame);
 				};
 			}
 
@@ -176,16 +186,21 @@ class FranksSpiritsBowling extends BaseStage {
 				if(!Std.isOfType(character, objects.Character))
 					continue;
 
+				var char = cast(character, objects.Character);
+
 				var rim:DropShadow = new DropShadow();
 				rim.setAdjustColor(-46, -38, -25, -20);
 				rim.color = 0xFFDFEF3C;
-				rim.attachedSprite = character;
+				rim.attachedSprite = char;
 
 				rim.angle = 135;
 				rim.threshold = 0.3;
-				character.shader = rim.shader;
+				char.shader = rim.shader;
 
-				switch(cast(character, objects.Character)?.curCharacter) {
+				if(char.isAnimateAtlas)
+					char.atlas.useRenderTexture = true;
+
+				switch(char?.curCharacter) {
 					case 'tankman-bloody':
 						rim.loadAltMask('erect/masks/tankmanCaptainBloody_mask');
 				}
@@ -193,8 +208,8 @@ class FranksSpiritsBowling extends BaseStage {
 				rim.maskThreshold = 1;
 				rim.useAltMask = false;
 
-				character.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
-					rim.updateFrameInfo(character.frame);
+				char.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
+					rim.updateFrameInfo(char.frame);
 				};
 			}
 		}

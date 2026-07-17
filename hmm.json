@@ -107,11 +107,8 @@
       "version": "1.1.0"
     },
     {
-      "name": "flxanimate",
-      "type": "git",
-      "dir": null,
-      "ref": "v4.0.0",
-      "url": "https://github.com/Dot-Stuff/flxanimate"
+      "name": "flixel-animate",
+      "type": "haxelib"
     },
     {
       "name": "lumod",
