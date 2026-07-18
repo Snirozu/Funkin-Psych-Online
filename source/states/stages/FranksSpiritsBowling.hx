@@ -75,6 +75,7 @@ class FranksSpiritsBowling extends BaseStage {
 
 			tankmanEnd = new FlxAnimate(778, 513);
 			tankmanEnd.antialiasing = ClientPrefs.data.antialiasing;
+			tankmanEnd.applyStageMatrix = true;
 			Paths.loadAnimateAtlas(tankmanEnd, 'erect/cutscene/tankmanEnding');
 			tankmanEnd.anim.addBySymbol('scene', 'tankman stress ending', 24, false);
 			if(ClientPrefs.data.shaders)
