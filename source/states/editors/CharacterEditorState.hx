@@ -30,6 +30,9 @@ import sys.FileSystem;
 class FlixelGraphicCursorCross extends BitmapData {}
 
 class CharacterEditorState extends MusicBeatState {
+
+	public static final EXPORT_VERSION:Int = 1;
+
 	var char:Character;
 	var ghostChar:Character;
 	var dadMilk:Character;
@@ -1545,7 +1548,8 @@ class CharacterEditorState extends MusicBeatState {
 			"dead_character": char.deadName,
 			"results_character": char.resultsName,
 
-			"speaker": char.speakerName
+			"speaker": char.speakerName,
+			"exportVersion": EXPORT_VERSION
 		};
 
 		var data:String = haxe.Json.stringify(json, "\t");

@@ -36,6 +36,7 @@ typedef CharacterFile = {
 	@:optional var dead_character:Null<String>;
 	@:optional var results_character:Null<String>;
 	@:optional var speaker:Null<String>;
+	@:optional var exportVersion:Null<Int>;
 }
 
 typedef AnimArray = {
@@ -263,7 +264,7 @@ class Character extends FlxAnimate {
 					ogPositionArray = positionArray = json.position;
 				cameraPosition = json.camera_position;
 
-				if(isAnimate){ //offset this to not break mods and work like it used to
+				if(isAnimate && json.exportVersion == null && !debugMode){ //offset this to not break mods and work like it used to
 					if(charType == 'bf'){
 						ogPositionArray[0] = positionArray[0] -= 300;
 						cameraPosition[0] += 350;
