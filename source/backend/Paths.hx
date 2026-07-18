@@ -301,6 +301,13 @@ class Paths
 		return null;
 	}
 
+	static public function loadAnimateAtlas(spr:FlxAnimate, folderOrImg:String, ?spriteJson:Dynamic = null, ?animationJson:Dynamic = null, ?library:String = 'shared') {
+		if(spriteJson != null || animationJson != null)
+			Sys.println("The last 2 arguments of 'loadAnimateAtlas' are deprecated and do literally nothing.");
+
+		spr.frames = FlxAnimateFrames.fromAnimate(getAtlasPath('images/$folderOrImg').replace("/Animation.json", ""));
+	}
+
 	/**
 		use if you know how threads work
 		note: flxgraphic is not possible to obtain asynchronically, use bitmapToGraphic() in the main thread after fetching the bitmap
@@ -386,6 +393,37 @@ class Paths
 		#end
 		var path:String = getPath(key, TEXT);
 		if(OpenFlAssets.exists(path, TEXT)) return Assets.getText(path);
+		return null;
+	}
+
+	static public function getAtlasPath(key:String, ?ignoreMods:Bool = false):String
+	{
+		key = key + "/Animation.json";
+		#if sys
+		#if MODS_ALLOWED
+		if (!ignoreMods && FileSystem.exists(modFolders(key)))
+			return modFolders(key);
+		#end
+
+		if (FileSystem.exists(getPreloadPath(key)))
+			return getPreloadPath(key);
+
+		if (currentLevel != null)
+		{
+			var levelPath:String = '';
+			if(currentLevel != 'shared') {
+				levelPath = getLibraryPathForce(key, 'week_assets', currentLevel);
+				if (FileSystem.exists(levelPath))
+					return levelPath;
+			}
+
+			levelPath = getLibraryPathForce(key, 'shared');
+			if (FileSystem.exists(levelPath))
+				return levelPath;
+		}
+		#end
+		var path:String = getPath(key, TEXT);
+		if(OpenFlAssets.exists(path, TEXT)) return path;
 		return null;
 	}
 
@@ -535,16 +573,6 @@ class Paths
 		}
 		localTrackedAssets.push(gottenPath);
 		return currentTrackedSounds.get(gottenPath);
-	}
-
-	static public function loadAnimateAtlas(spr:FlxAnimate, folderOrImg:String, ?spriteJson:Dynamic = null, ?animationJson:Dynamic = null, ?library:String = 'shared') {
-		if(spriteJson != null || animationJson != null)
-			Sys.println("The last 2 arguments of 'loadAnimateAtlas' are deprecated and do literally nothing.");
-
-		var path = modFolders(Mods.currentModDirectory+'/images/$folderOrImg');
-		if(!FileSystem.exists(path))
-			path = getPath('images/$folderOrImg', IMAGE, library);
-		spr.frames = FlxAnimateFrames.fromAnimate(path);
 	}
 
 	#if MODS_ALLOWED
