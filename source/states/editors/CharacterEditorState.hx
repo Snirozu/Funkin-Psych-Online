@@ -794,7 +794,6 @@ class CharacterEditorState extends MusicBeatState {
 					char.animation.addByPrefix(newAnim.anim, newAnim.name, newAnim.fps, newAnim.loop);
 				}
 			}
-			#if flxanimate
 			else
 			{
 				if(indices != null && indices.length > 0)
@@ -802,7 +801,6 @@ class CharacterEditorState extends MusicBeatState {
 				else
 					char.atlas.anim.addBySymbol(newAnim.anim, newAnim.name, newAnim.fps, newAnim.loop);
 			}
-			#end
 
 			if (!char.animOffsets.exists(newAnim.anim)) {
 				char.addOffset(newAnim.anim, 0, 0);
@@ -953,18 +951,12 @@ class CharacterEditorState extends MusicBeatState {
 	function reloadCharacterImage() {
 		var lastAnim:String = char.getAnimationName();
 		var anims:Array<AnimArray> = char.animationsArray.copy();
-		
-		#if flxanimate
-		char.isAnimateAtlas = false;
 
 		if (Paths.fileExists('images/' + char.imageFile + '/Animation.json', TEXT)) {
 			char.frames = null;
-			char.isAnimateAtlas = true;
-			char.atlas = new FlxAnimate();
-			char.atlas.showPivot = false;
 			try
 			{
-				Paths.loadAnimateAtlas(char.atlas, char.imageFile);
+				Paths.loadAnimateAtlas(char, char.imageFile);
 			}
 			catch(e:Dynamic)
 			{
@@ -972,7 +964,6 @@ class CharacterEditorState extends MusicBeatState {
 			}
 		}
 		else
-		#end
 		if (Paths.fileExists('images/' + char.imageFile + '.txt', TEXT)) {
 			char.frames = Paths.getPackerAtlas(char.imageFile);
 		}
@@ -980,7 +971,7 @@ class CharacterEditorState extends MusicBeatState {
 			char.frames = Paths.getSparrowAtlas(char.imageFile);
 		}
 
-		if(char.frames != null)
+		if(char.frames != null && !char.isAnimate)
 		{
 			for (i in char.imageFile.split(',')) {
 				if (!char.imageFile.contains(i))
@@ -1005,7 +996,6 @@ class CharacterEditorState extends MusicBeatState {
 						char.animation.addByPrefix(animAnim, animName, animFps, animLoop);
 					}
 				}
-				#if flxanimate
 				else
 				{
 					if(animIndices != null && animIndices.length > 0)
@@ -1013,7 +1003,6 @@ class CharacterEditorState extends MusicBeatState {
 					else
 						char.atlas.anim.addBySymbol(animAnim, animName, animFps, animLoop);
 				}
-				#end
 			}
 		}
 		else {
@@ -1249,7 +1238,6 @@ class CharacterEditorState extends MusicBeatState {
 					ghostChar.animation.addByPrefix(animAnim, animName, animFps, animLoop);
 				}
 			}
-			#if flxanimate
 			else
 			{
 				if(animIndices != null && animIndices.length > 0)
@@ -1257,7 +1245,6 @@ class CharacterEditorState extends MusicBeatState {
 				else
 					ghostChar.atlas.anim.addBySymbol(animAnim, animName, animFps, animLoop);
 			}
-			#end
 
 			if (anim.offsets != null && anim.offsets.length > 1) {
 				ghostChar.addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);

@@ -221,10 +221,6 @@ class Character extends FlxAnimate {
 				var animToFind:String = Paths.getPath('images/' + imageFile + '/Animation.json', TEXT);
 				// if (FileSystem.exists(modAnimToFind) || FileSystem.exists(animToFind) || Assets.exists(animToFind))
 				#end
-				
-				// if (true) {
-				trace(imageFile);
-				// }
 
 				if(Paths.image(imageFile) == null)
 				{
