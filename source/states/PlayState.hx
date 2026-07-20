@@ -460,12 +460,13 @@ class PlayState extends MusicBeatState
 	public var opponentCameraOffset:Array<Float> = null;
 	public var girlfriendCameraOffset:Array<Float> = null;
 
-	#if DISCORD_ALLOWED
+	// android compilation - it's better to leave those to exist so luas dont error
+	// #if DISCORD_ALLOWED
 	// Discord RPC variables
 	var storyDifficultyText:String = "";
 	var detailsText:String = "";
 	var detailsPausedText:String = "";
-	#end
+	// #end
 
 	//Achievement shit
 	var keysPressed:Array<Int> = [];
@@ -3122,10 +3123,10 @@ class PlayState extends MusicBeatState
 	function resetRPC(?cond:Bool = false, ?paused:Null<Bool>) {
 		paused ??= this.paused;
 
+		#if DISCORD_ALLOWED
 		final upperText = (paused ? '[Pause] ' : '') + SONG.song + " (" + storyDifficultyText.toUpperCase() + ")" + ' [${Note.maniaKeys}k]';
 		final downText = '${FlxStringUtil.formatMoney(songScore, false)} [${ratingFC}] - ${CoolUtil.floorDecimal(ratingPercent * 100, 1)}%${getPresencePoints()}';
 
-		#if DISCORD_ALLOWED
 		if (cond) {
 			if (Conductor.songPosition < 0.0)
 				DiscordClient.changePresence(upperText, downText, iconP2.getCharacter(), true, songLength);

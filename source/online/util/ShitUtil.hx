@@ -418,7 +418,7 @@ class ShitUtil {
 	private static final gifPrefix = Bytes.ofString("GIF");
 
 	static function isGIF(bytes:Bytes) {
-		if (bytes == null) return false;
+		if (bytes == null || bytes.length < gifPrefix.length) return false;
 		return bytes.sub(0, gifPrefix.length).compare(gifPrefix) == 0;
 	}
 
