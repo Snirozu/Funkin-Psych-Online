@@ -1,5 +1,9 @@
 package objects;
 
+import objects.NoteSplash.PixelSplashShaderRef;
+import shaders.RGBPalette;
+import online.GameClient;
+
 class SustainSplash extends FlxSprite {
 	public static var startCrochet:Float;
 	public static var frameRate:Int;
@@ -10,8 +14,13 @@ class SustainSplash extends FlxSprite {
 
 	public static var defaultNoteHoldSplash(default, never):String = 'noteSplashes/holdSplashes/holdSplash';
 
+	var rgbShader:PixelSplashShaderRef;
+
 	public function new():Void {
 		super();
+
+		rgbShader = new PixelSplashShaderRef();
+		shader = rgbShader.shader;
 
 		x = -50000;
 
@@ -49,6 +58,7 @@ class SustainSplash extends FlxSprite {
 	}
 
 	public function setupSusSplash(strum:StrumNote, daNote:Note, ?playbackRate:Float = 1):Void {
+		final direction = Note.colToIndex(Note.getColArrayFromKeys(true)[daNote.noteData % Note.maniaKeys]);
 		final lengthToGet:Int = !daNote.isSustainNote ? daNote.tail.length : daNote.parent.tail.length;
 		final timeToGet:Float = !daNote.isSustainNote ? daNote.strumTime : daNote.parent.strumTime;
 		final timeThingy:Float = (startCrochet * lengthToGet + (timeToGet - Conductor.songPosition + ClientPrefs.data.ratingOffset)) / playbackRate * .001;
@@ -57,6 +67,24 @@ class SustainSplash extends FlxSprite {
 
 		if (animation == null)
 			return;
+
+		if(daNote.noteSplashData.useRGBShader && (PlayState.SONG == null || !PlayState.SONG.disableNoteRGB)) {
+			var tempShader:RGBPalette = null;
+
+			// If Note RGB is enabled:
+			if(!daNote.noteSplashData.useGlobalShader) {
+				if(daNote.noteSplashData.r != -1) daNote.rgbShader.r = daNote.noteSplashData.r;
+				if(daNote.noteSplashData.g != -1) daNote.rgbShader.g = daNote.noteSplashData.g;
+				if(daNote.noteSplashData.b != -1) daNote.rgbShader.b = daNote.noteSplashData.b;
+				tempShader = daNote.rgbShader.parent;
+			}
+			else tempShader = Note.globalRgbShaders[direction];
+
+			rgbShader.copyValues(tempShader);
+		}
+		else {
+			return;
+		}
 
 		if (online.backend.SyncScript.dispatch('testSusSplash', [this]) == null) {
 			setGraphicSize(Std.int(width * Note.noteScale));
@@ -71,20 +99,6 @@ class SustainSplash extends FlxSprite {
 		}
 
 		clipRect = new flixel.math.FlxRect(0, !PlayState.isPixelStage ? 0 : -210, frameWidth, frameHeight);
-
-		if (daNote.shader != null) {
-			// idk what this does, and it causes issues so i'm putting it into try-catch
-			try {
-				shader = new objects.NoteSplash.PixelSplashShaderRef().shader;
-				shader.data.r.value = daNote.shader.data.r.value;
-				shader.data.g.value = daNote.shader.data.g.value;
-				shader.data.b.value = daNote.shader.data.b.value;
-				shader.data.mult.value = daNote.shader.data.mult.value;
-			}
-			catch (e) {
-				trace(e);
-			}
-		}
 
 		strumNote = strum;
 		alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
