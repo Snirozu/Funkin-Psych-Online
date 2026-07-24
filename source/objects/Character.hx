@@ -62,7 +62,7 @@ class Character extends FlxSprite {
 	public var speaker:FlxSprite = null;
 
 	public var colorTween:FlxTween;
-	// uh... check if opponent is holding
+	// uh... check if character is holding the note
 	public var noteHold(default, set):Bool = false;
 	function set_noteHold(v) {
 		if (PlayState.isCharacterPlayer(this) && noteHold != v) {
@@ -417,7 +417,15 @@ class Character extends FlxSprite {
 
 	public var isFirstUpdate:Bool = true;
 
+	public var sustainTimer:Float = 0;
+
 	override function update(elapsed:Float) {
+		if (sustainTimer > 0) {
+			sustainTimer -= elapsed;
+
+			holdAnimation();
+		}
+
 		if (isFirstUpdate) {
 			isFirstUpdate =  false;
 
@@ -492,6 +500,9 @@ class Character extends FlxSprite {
 		super.update(elapsed);
 	}
 
+	inline public function isHoldSinging():Bool
+		return noteHold && !isAnimationNull() && getAnimationName().startsWith('sing');
+
 	inline public function isAnimationNull():Bool
 		return !isAnimateAtlas ? (animation.curAnim == null) : (atlas.anim.curSymbol == null);
 
@@ -507,6 +518,13 @@ class Character extends FlxSprite {
 	{
 		if(isAnimationNull()) return false;
 		return !isAnimateAtlas ? animation.curAnim.finished : atlas.anim.finished;
+	}
+
+	public function holdAnimation():Void
+	{
+		if(isAnimationNull()) return;
+		if(!isAnimateAtlas) animation.curAnim.curFrame = 0;
+		else atlas.anim.curFrame = 0;
 	}
 
 	public function finishAnimation():Void
@@ -540,7 +558,8 @@ class Character extends FlxSprite {
 	 * FOR GF DANCING SHIT
 	 */
 	public function dance() {
-		if (!debugMode && !skipDance && !specialAnim) {
+		// && !isHoldSinging() - cool to have but some songs with multiple characters break so rip
+		if (!debugMode && !skipDance && !specialAnim && sustainTimer <= 0 /*&& !isHoldSinging()*/) {
 			if (danceIdle) {
 				danced = !danced;
 

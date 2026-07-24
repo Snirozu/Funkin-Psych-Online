@@ -53,6 +53,7 @@ class Note extends FlxSprite
 	public var spawned:Bool = false;
 
 	public var tail:Array<Note> = []; // for sustains
+	public var isTailEnd:Bool = false;
 	public var parent:Note;
 	public var blockHit:Bool = false; // only works for player
 
@@ -335,6 +336,7 @@ class Note extends FlxSprite
 			offsetX += width / 2;
 			copyAngle = false;
 
+			isTailEnd = true;
 			animation.play(colArray[noteData % colArray.length] + 'holdend');
 
 			updateHitbox();
@@ -346,6 +348,7 @@ class Note extends FlxSprite
 
 			if (prevNote.isSustainNote)
 			{
+				prevNote.isTailEnd = false;
 				prevNote.animation.play(colArray[prevNote.noteData % colArray.length] + 'hold');
 
 				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;

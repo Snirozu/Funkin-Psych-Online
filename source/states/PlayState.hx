@@ -5591,6 +5591,8 @@ class PlayState extends MusicBeatState
 			{
 				char.playAnim(animToPlay, true);
 				char.holdTimer = 0;
+				if (note.isSustainNote && !note.isTailEnd)
+					char.sustainTimer = Conductor.stepCrochet * 1.25 / 1000 / playbackRate;
 			}
 		}
 
@@ -5684,13 +5686,8 @@ class PlayState extends MusicBeatState
 
 		if(!note.noAnimation) {
 			var altAnim:String = note.animSuffix;
-
-			if (!playsAsBF()) {
-				if (SONG.notes[curSection] != null) {
-					if (SONG.notes[curSection].altAnim && !SONG.notes[curSection].gfSection) {
-						altAnim = '-alt';
-					}
-				}
+			if (FlxG.keys.pressed.ALT || (!playsAsBF() && SONG.notes[curSection] != null && SONG.notes[curSection].altAnim && !SONG.notes[curSection].gfSection)) {
+				altAnim = '-alt';
 			}
 
 			var animToPlay:String = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length - 1, note.noteData)))] + altAnim;
@@ -5707,6 +5704,8 @@ class PlayState extends MusicBeatState
 			{
 				char.playAnim(animToPlay, true);
 				char.holdTimer = 0;
+				if (note.isSustainNote && !note.isTailEnd)
+					char.sustainTimer = Conductor.stepCrochet * 1.25 / 1000 / playbackRate;
 
 				if (note.noteType == 'Hey!' && char.animOffsets.exists(animCheck)) {
 					char.playAnim(animCheck, true);
