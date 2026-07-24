@@ -119,7 +119,7 @@
 	<haxelib name="away3d" />
 	<haxelib name="json2object" />
 	<haxelib name="hxjsonast" />
-	<haxelib name="flxanimate" />
+	<haxelib name="flixel-animate" />
 	<haxelib name="lumod" />
 	<haxelib name="actuate" />
 	<haxelib name="compiletime" />

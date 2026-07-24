@@ -14,14 +14,11 @@ import llua.Lua;
 import backend.Achievements;
 #end
 
-#if flxanimate
-import flxanimate.FlxAnimate;
-#end
-
 #if lumod
 import lumod.Lumod;
 #end
 
+import flxanimate.FlxAnimate;
 import backend.Paths;
 import backend.Controls;
 import backend.CoolUtil;
