@@ -115,6 +115,8 @@ class Character extends FlxAnimate {
 	public var onAtlasAnimationComplete:String->Void;
 
 	public var Custom(get, set):Bool;
+
+	public var centeredCamera:Bool = true;
 	
 	function set_Custom(value:Bool):Bool
 	{
@@ -227,7 +229,10 @@ class Character extends FlxAnimate {
 					try
 					{
 						Paths.loadAnimateAtlas(this, imageFile);
-						applyStageMatrix = true; //behave more like flxanimate
+						if(json.exportVersion == null && !debugMode){
+							applyStageMatrix = true; //behave more like flxanimate
+							centeredCamera = false;
+						}
 					}
 					catch(e:Dynamic)
 					{
@@ -260,16 +265,12 @@ class Character extends FlxAnimate {
 					ogPositionArray = positionArray = json.position;
 				cameraPosition = json.camera_position;
 
-				if(isAnimate && json.exportVersion == null && !debugMode){ //offset this to not break mods and work like it used to
-					if(charType == 'bf'){
-						ogPositionArray[0] = positionArray[0] -= 300;
-						cameraPosition[0] += 350;
-					} else {
-						// ogPositionArray[0] = positionArray[0] += width / 4;
-						cameraPosition[0] -= 350;
-					}
-					cameraPosition[1] -= 750 / 2;
-				}
+				// if(isAnimate && json.exportVersion == null && !debugMode){ //offset this to not break mods and work like it used to
+				// 	if(isPlayer){
+				// 		ogPositionArray[0] -= 540;
+				// 		cameraPosition[0] -= 540;
+				// 	}
+				// }
 
 				// data
 				healthIcon = json.healthicon;
@@ -311,7 +312,6 @@ class Character extends FlxAnimate {
 						}
 						else
 						{
-							// TODO replace flxanimate with flixel-animate
 							try {
 								if(animIndices != null && animIndices.length > 0)
 									this.anim.addBySymbolIndices(animAnim, animName, animIndices, animFps, animLoop, flipX);
