@@ -3,8 +3,9 @@ package backend;
 
 import openfl.utils.Future;
 import flixel.system.FlxAssets.FlxGraphicAsset;
-import flxanimate.data.SpriteMapData.FlxSpriteMap;
-import flxanimate.frames.FlxAnimateFrames;
+// import flxanimate.data.SpriteMapData.FlxSpriteMap;
+import animate.FlxAnimateFrames;
+import animate.FlxAnimate;
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.graphics.FlxGraphic;
@@ -300,6 +301,13 @@ class Paths
 		return null;
 	}
 
+	static public function loadAnimateAtlas(spr:FlxAnimate, folderOrImg:String, ?spriteJson:Dynamic = null, ?animationJson:Dynamic = null, ?library:String = 'shared') {
+		if(spriteJson != null || animationJson != null)
+			Sys.println("The last 2 arguments of 'loadAnimateAtlas' are deprecated and do literally nothing.");
+
+		spr.frames = FlxAnimateFrames.fromAnimate(getAtlasPath('images/$folderOrImg').replace("/Animation.json", ""));
+	}
+
 	/**
 		use if you know how threads work
 		note: flxgraphic is not possible to obtain asynchronically, use bitmapToGraphic() in the main thread after fetching the bitmap
@@ -385,6 +393,37 @@ class Paths
 		#end
 		var path:String = getPath(key, TEXT);
 		if(OpenFlAssets.exists(path, TEXT)) return Assets.getText(path);
+		return null;
+	}
+
+	static public function getAtlasPath(key:String, ?ignoreMods:Bool = false):String
+	{
+		key = key + "/Animation.json";
+		#if sys
+		#if MODS_ALLOWED
+		if (!ignoreMods && FileSystem.exists(modFolders(key)))
+			return modFolders(key);
+		#end
+
+		if (FileSystem.exists(getPreloadPath(key)))
+			return getPreloadPath(key);
+
+		if (currentLevel != null)
+		{
+			var levelPath:String = '';
+			if(currentLevel != 'shared') {
+				levelPath = getLibraryPathForce(key, 'week_assets', currentLevel);
+				if (FileSystem.exists(levelPath))
+					return levelPath;
+			}
+
+			levelPath = getLibraryPathForce(key, 'shared');
+			if (FileSystem.exists(levelPath))
+				return levelPath;
+		}
+		#end
+		var path:String = getPath(key, TEXT);
+		if(OpenFlAssets.exists(path, TEXT)) return path;
 		return null;
 	}
 
@@ -596,9 +635,9 @@ class Paths
 				var fullNewFilePath = Path.join([dirToSearch,file]);
 				if (FileSystem.isDirectory(fullNewFilePath))
 					continue;
-				trace("Current file: " + file + ", looking for " + fileName);
+				// trace("Current file: " + file + ", looking for " + fileName);
 				if (file.toLowerCase() == fileName.toLowerCase()) {
-					trace("Filename is real! It's " + file);
+					// trace("Filename is real! It's " + file);
 					return fullNewFilePath;
 				}
 			}
@@ -640,74 +679,4 @@ class Paths
 		return 'mods/' + key;
 	}
 	#end
-
-	public static function loadAnimateAtlas(spr:FlxAnimate, folderOrImg:Dynamic, spriteJson:Dynamic = null, animationJson:Dynamic = null) {
-		var changedAnimJson = false;
-		var changedAtlasJson = false;
-		var changedImage = false;
-
-		if (spriteJson != null) {
-			changedAtlasJson = true;
-			spriteJson = File.getContent(spriteJson);
-		}
-
-		if (animationJson != null) {
-			changedAnimJson = true;
-			animationJson = File.getContent(animationJson);
-		}
-
-		var frames:FlxAnimateFrames = new FlxAnimateFrames();
-
-		// is folder or image path
-		if (Std.isOfType(folderOrImg, String)) {
-			var originalPath:String = folderOrImg;
-			for (i in 0...10) {
-				var st:String = '$i';
-				if (i == 0)
-					st = '';
-
-				if (!changedAtlasJson) {
-					spriteJson = getTextFromFile('images/$originalPath/spritemap$st.json');
-					if (spriteJson != null) {
-						// trace('found Sprite Json');
-						changedImage = true;
-						changedAtlasJson = true;
-						loadSpriteMap(frames, spriteJson, folderOrImg = Paths.image('$originalPath/spritemap$st'));
-						break;
-					}
-				}
-				else if (Paths.fileExists('images/$originalPath/spritemap$st.png', IMAGE)) {
-					// trace('found Sprite PNG');
-					changedImage = true;
-					loadSpriteMap(frames, spriteJson, folderOrImg = Paths.image('$originalPath/spritemap$st'));
-					break;
-				}
-			}
-
-			if (!changedImage) {
-				// trace('Changing folderOrImg to FlxGraphic');
-				changedImage = true;
-				loadSpriteMap(frames, spriteJson, folderOrImg = Paths.image(originalPath));
-			}
-
-			if (!changedAnimJson) {
-				// trace('found Animation Json');
-				changedAnimJson = true;
-				animationJson = getTextFromFile('images/$originalPath/Animation.json');
-			}
-		}
-
-		// trace(folderOrImg);
-		// trace(spriteJson);
-		// trace(animationJson);
-
-		spr.loadSeparateAtlas(animationJson, frames);
-	}
-
-	static function loadSpriteMap(frames:FlxAnimateFrames, spritemap:FlxSpriteMap, ?image:FlxGraphicAsset) {
-		var spritemapFrames = FlxAnimateFrames.fromSpriteMap(spritemap, image);
-		if (spritemapFrames != null)
-			frames.addAtlas(spritemapFrames);
-		return spritemapFrames;
-	}
 }

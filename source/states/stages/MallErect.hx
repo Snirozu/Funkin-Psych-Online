@@ -113,11 +113,13 @@ class MallErect extends BaseStage
 
 		santaSpeak = new FlxAnimate(0, 0);
 		santaSpeak.antialiasing = ClientPrefs.data.antialiasing;
+		santaSpeak.applyStageMatrix = true;
 		Paths.loadAnimateAtlas(santaSpeak, 'christmas/santa_speaks_assets');
 		santaSpeak.anim.addBySymbol('scene', 'santa whole scene', 24, false);
 
 		dadTroll = new FlxAnimate(0, 0);
 		dadTroll.antialiasing = ClientPrefs.data.antialiasing;
+		dadTroll.applyStageMatrix = true;
 		Paths.loadAnimateAtlas(dadTroll, 'christmas/parents_shoot_assets');
 		dadTroll.anim.addBySymbol('scene', 'parents whole scene', 24, false);
 

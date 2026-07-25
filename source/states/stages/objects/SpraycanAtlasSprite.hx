@@ -23,6 +23,7 @@ class SpraycanAtlasSprite extends FlxSpriteGroup
 		Paths.setCurrentLevel('weekend1');
 
 		canAtlas = new FlxAnimate(x, y);
+		canAtlas.applyStageMatrix = true;
 		Paths.loadAnimateAtlas(canAtlas, 'spraycanAtlas');
 		canAtlas.anim.addBySymbolIndices('Can Start', 'Can with Labels', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], 24, false);
 		canAtlas.anim.addBySymbolIndices('Hit Pico', 'Can with Labels', [19, 20, 21, 22, 23, 24, 25], false);

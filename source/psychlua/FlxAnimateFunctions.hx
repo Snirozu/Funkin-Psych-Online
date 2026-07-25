@@ -2,7 +2,7 @@ package psychlua;
 
 import openfl.utils.Assets;
 
-#if (LUA_ALLOWED && flxanimate)
+#if (LUA_ALLOWED)
 
 class FlxAnimateFunctions
 {
