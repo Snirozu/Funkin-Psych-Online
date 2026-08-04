@@ -43,12 +43,11 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Install Haxelib
         run: |
-          sudo apt-get install libvlc-dev
-          sudo apt-get install libvlccore-dev
+          sudo apt-get install libvlc-dev libvlccore-dev
           haxelib setup ~/haxelib
-          haxelib install hxcpp > /dev/null --quiet
           haxelib install hmm --quiet
-          haxelib run hmm install
+          haxelib run hmm install --quiet
+          haxelib run lime rebuild hxcpp
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
       - name: Compile
@@ -82,9 +81,9 @@ jobs:
       - name: Install Haxelib
         run: |
           haxelib setup C:/haxelib
-          haxelib install hxcpp > /dev/null --quiet
           haxelib install hmm --quiet
-          haxelib run hmm install
+          haxelib run hmm install --quiet
+          haxelib run lime rebuild hxcpp
         shell: cmd
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
@@ -96,7 +95,7 @@ jobs:
           name: windowsBuild
           path: export/release/windows/bin
   buildMac:
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -119,9 +118,9 @@ jobs:
       - name: Install Haxelib
         run: |
           haxelib setup ~/haxelib
-          haxelib install hxcpp > /dev/null --quiet
           haxelib install hmm --quiet
-          haxelib run hmm install
+          haxelib run hmm install --quiet
+          haxelib run lime rebuild hxcpp
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
       - name: Compile
