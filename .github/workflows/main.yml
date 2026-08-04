@@ -47,9 +47,9 @@ jobs:
           sudo apt-get install libvlccore-dev
           sudo apt-get install libasound2-dev
           haxelib setup ~/haxelib
-          haxelib install hxcpp > /dev/null --quiet
           haxelib install lpm --quiet
           haxelib run lpm install
+          haxelib run libhxcpp setup
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
       - name: Compile
@@ -83,9 +83,9 @@ jobs:
       - name: Install Haxelib
         run: |
           haxelib setup C:/haxelib
-          haxelib install hxcpp > /dev/null --quiet
           haxelib install lpm --quiet
           haxelib run lpm install
+          haxelib run libhxcpp setup
         shell: cmd
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
@@ -97,7 +97,7 @@ jobs:
           name: windowsBuild
           path: export/release/windows/bin
   buildMac:
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -120,9 +120,9 @@ jobs:
       - name: Install Haxelib
         run: |
           haxelib setup ~/haxelib
-          haxelib install hxcpp > /dev/null --quiet
           haxelib install lpm --quiet
           haxelib run lpm install
+          haxelib run libhxcpp setup
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
       - name: Compile
@@ -171,9 +171,9 @@ jobs:
   #         sudo apt-get install libvlc-dev
   #         sudo apt-get install libvlccore-dev
   #         haxelib setup ~/haxelib
-  #         haxelib install hxcpp > /dev/null --quiet
   #         haxelib install lpm --quiet
   #         haxelib run lpm install
+  #         haxelib run libhxcpp setup
   #         haxelib run lime config ANDROID_SDK $ANDROID_HOME
   #         haxelib run lime config ANDROID_NDK_ROOT ${{steps.setup-ndk.outputs.ndk-path}}
   #         haxelib run lime config JAVA_HOME $JAVA_HOME
@@ -211,9 +211,9 @@ jobs:
   #     - name: Install Haxelib
   #       run: |
   #         haxelib setup ~/haxelib
-  #         haxelib install hxcpp > /dev/null --quiet
   #         haxelib install lpm --quiet
   #         haxelib run lpm install
+  #         haxelib run libhxcpp setup
   #     - name: Create Version Tag
   #       run: echo "${{github.run_id}}" > VERSION
   #     - name: Compile
