@@ -138,6 +138,10 @@ class Character extends FlxSprite {
 	}
 	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
 
+	private var leftJson:CharacterFile;
+	private var rightJson:CharacterFile;
+	private var Flipped:Bool = false;
+
 	public static function getCharacterFile(character:String, ?instance:Character, ?nullOnFail:Bool = false):CharacterFile {
 		var characterPath:String = 'characters/' + character + '.json';
 
@@ -210,7 +214,24 @@ class Character extends FlxSprite {
 			// case 'your character name in case you want to hardcode them instead':
 
 			default:
-				var json:CharacterFile = getCharacterFile(curCharacter, this);
+				var json:CharacterFile;
+				if(this.isSkin)
+				{
+					json = getCharacterFile(curCharacter, this);
+					if(curCharacter.endsWith("-player")) rightJson = json;
+					else leftJson = json;
+					var charNameShi:String = curCharacter;
+					if(rightJson!=null) {
+						charNameShi = charNameShi.split("-player")[0];
+						leftJson = getCharacterFile(charNameShi, this);
+					}
+					else {
+						charNameShi = charNameShi = charNameShi+"-player";
+						rightJson = getCharacterFile(charNameShi, this);
+					}
+
+				}
+				else json = getCharacterFile(curCharacter, this);
 				isAnimateAtlas = false;
 
 				var split:Array<String> = json.image.split(',');
@@ -410,6 +431,75 @@ class Character extends FlxSprite {
 		if (originGroup != null)
 			sprite3D.z -= originGroup.members.indexOf(this) * 0.0001;
 		PlayState.instance.stage3D.setPositionFromArray(sprite3D, stageObjects.get(charType).position);
+	}
+
+	public function flipOffsets()
+	{
+		if(!this.isSkin) return;
+
+			var json:CharacterFile;
+			
+			if(isPlayer) json = Flipped ? rightJson : leftJson;
+			else json = Flipped ? leftJson : rightJson;
+
+			Flipped = !Flipped;
+			flipX = !flipX;
+			positionArray = json.position;
+			cameraPosition = json.camera_position;
+
+			animationsArray = json.animations;
+				if (animationsArray != null && animationsArray.length > 0) {
+					for (anim in animationsArray) {
+						var animAnim:String = '' + anim.anim;
+						var animName:String = '' + anim.name;
+						var animFps:Int = anim.fps;
+						var animLoop:Bool = !!anim.loop; // Bruh
+						var animIndices:Array<Int> = anim.indices;
+						var flipX:Bool = !!anim.flip_x;
+						if(!isAnimateAtlas)
+						{
+							if (animIndices != null && animIndices.length > 0) {
+								animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop, flipX);
+							}
+							else {
+								animation.addByPrefix(animAnim, animName, animFps, animLoop, flipX);
+							}
+						}
+						#if flxanimate
+						else
+						{
+							// TODO replace flxanimate with flixel-animate
+							try {
+								// no flipX in flxanimate bcs not supported bye
+								if(animIndices != null && animIndices.length > 0)
+									atlas.anim.addBySymbolIndices(animAnim, animName, animIndices, animFps, animLoop);
+								else if (atlas.anim.symbolDictionary.exists(animName))
+									atlas.anim.addBySymbol(animAnim, animName, animFps, animLoop);
+								else
+									atlas.anim.addByFrameLabel(animAnim, animName, animFps, animLoop);
+							}
+							catch (exc) {
+								trace('couldnt add flxanimate animation');
+								trace(exc);
+							}
+						}
+						#end
+
+						if (anim.offsets != null && anim.offsets.length > 1) 
+							addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
+						else
+							addOffset(anim.anim, 0, 0);
+
+						if (anim.sound != null && !ClientPrefs.data.disableAnimAudio) {
+							var sound = Paths.sound(anim.sound);
+							if (sound != null)
+								animSounds.set(animAnim, sound);
+						}
+					}
+				}
+				else {
+					quickAnimAdd('idle', 'BF idle dance');
+				}
 	}
 
 	public var noAnimationBullshit:Bool = false;

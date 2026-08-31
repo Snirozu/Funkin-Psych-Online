@@ -767,6 +767,39 @@ class FunkinLua {
 			return false;
 		});
 
+		Lua_helper.add_callback(lua, "characterFlip", function(character:String) {
+            if(PlayState.instance!=null)
+            switch(character.toLowerCase()) {
+                case 'dad':
+					if(!GameClient.isConnected())
+                    PlayState.instance.dad.flipOffsets();
+					else
+					{
+						PlayState.instance.dad.flipOffsets();
+						for(char in PlayState.instance.characters.keys())
+						{
+						var character = PlayState.instance.characters[char];
+						if(!character.isPlayer&&character!=PlayState.instance.dad) character.flipOffsets();
+						}
+					}
+                case 'gf' | 'girlfriend':
+                    if(PlayState.instance.gf != null)
+                    PlayState.instance.gf.flipOffsets();
+                default:
+					if(!GameClient.isConnected())
+                    PlayState.instance.boyfriend.flipOffsets();
+					else
+					{
+						PlayState.instance.boyfriend.flipOffsets();
+						for(char in PlayState.instance.characters.keys())
+						{
+						var character = PlayState.instance.characters[char];
+						if(character.isPlayer&&character!=PlayState.instance.boyfriend) character.flipOffsets();
+						}
+					}
+            }
+        });
+
 		Lua_helper.add_callback(lua, "loadSong", function(?name:String = null, ?difficultyNum:Int = -1) {
 			if (name == null || name.length < 1)
 				name = PlayState.SONG.song;
