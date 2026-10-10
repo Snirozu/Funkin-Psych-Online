@@ -387,9 +387,17 @@ class PauseSubState extends MusicBeatSubstate
 					OptionsState.onPlayState = true;
 					OptionsState.onOnlineRoom = false;
 				case 'Change Modifiers':
-					if (!changedModifiers) menuItems.remove("Resume");
-					changedModifiers = true;
+					var oldGameplaySettings:Map<String, Dynamic> = ClientPrefs.gameplaySettings;
 					openSubState(new GameplayChangersSubstate());
+					var hasChanged:Bool = false;
+
+					for (k => v in oldGameplaySettings) {
+						if (v != ClientPrefs.gameplaySettings[k]) {
+							if (!changedModifiers) menuItems.remove("Resume");
+							changedModifiers = true;
+							break;
+						}
+					}
 				case "Exit to menu":
 					#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 					PlayState.deathCounter = 0;
