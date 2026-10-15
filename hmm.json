@@ -39,8 +39,8 @@
       "name": "hxcpp",
       "type": "git",
       "dir": null,
-      "ref": "master",
-      "url": "https://github.com/HaxeFoundation/hxcpp"
+      "ref": "main",
+      "url": "https://github.com/openfl/libhxcpp"
     },
     {
       "name": "tjson",
