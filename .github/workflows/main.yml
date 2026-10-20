@@ -45,6 +45,7 @@ jobs:
         run: |
           sudo apt-get install libvlc-dev
           sudo apt-get install libvlccore-dev
+          sudo apt-get install libasound2-dev
           haxelib setup ~/haxelib
           haxelib install hxcpp > /dev/null --quiet
           haxelib install lpm --quiet
