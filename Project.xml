@@ -2,160 +2,158 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin': Psych Online" file="PsychOnline" main="Main" packageName="boo.sniro.psychonline" package="boo.sniro.psychonline" company="Snirozu" version="0.14.8" />
-	<app if="mobile" title='Psych Online' />
+	<app version="0.14.8" title="Friday Night Funkin&#039;: Psych Online" packageName="boo.sniro.psychonline" package="boo.sniro.psychonline" main="Main" file="PsychOnline" company="Snirozu"/>
+	<app title="Psych Online" if="mobile"/>
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
-	<set name="APP_ID" value="0x0100f6c013bbc000" />
+	<set value="0x0100f6c013bbc000" name="APP_ID"/>
 
 	<!-- NOTE TO SELF: DISABLE THIS IF ISSUES ARE FOUND -->
-	<haxedef name="LINC_LUA_RELATIVE_DYNAMIC_LIB" /> <!-- stable luas PUT AFTER FIRST LINE WITH APP NAME AND ETC -->
+	<haxedef name="LINC_LUA_RELATIVE_DYNAMIC_LIB"/> <!-- stable luas PUT AFTER FIRST LINE WITH APP NAME AND ETC -->
 
-	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
-		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
+	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html fileor you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
 	<!-- <app preloader="Preloader" resizable="true" /> -->
-	<app preloader="flixel.system.FlxPreloader" />
+	<app preloader="flixel.system.FlxPreloader"/>
 
 	<!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
-	<set name="SWF_VERSION" value="11.8" />
+	<set value="11.8" name="SWF_VERSION"/>
 	
 	<!-- ______________________ PSYCH ENGINE CUSTOMIZATION ______________________ -->
 
-	<define name="MODS_ALLOWED" />
-	<define name="HSCRIPT_ALLOWED" />
+	<define name="MODS_ALLOWED"/>
+	<define name="HSCRIPT_ALLOWED"/>
 	<define name="LUA_ALLOWED" if="cpp" />
-	<define name="ACHIEVEMENTS_ALLOWED" />
-	<define name="DISCORD_ALLOWED" if="desktop" unless="hl" />
-	<define name="VIDEOS_ALLOWED" if="desktop || mobile" />
-	<define name="PSYCH_WATERMARKS" /> <!-- DELETE THIS TO REMOVE WATERMARKS/DEV NAMES ON TITLE SCREEN -->
-	<define name="TITLE_SCREEN_EASTER_EGG" /> <!-- DELETE THE if="officialBuild" for enabling this on an unofficial build -->
-	<define name="RAR_SUPPORTED" if="windows" unless="hl" />
+	<define name="ACHIEVEMENTS_ALLOWED"/>
+	<define unless="hl" name="DISCORD_ALLOWED" if="desktop"/>
+	<define name="VIDEOS_ALLOWED" if="desktop || mobile"/>
+	<define name="PSYCH_WATERMARKS"/> <!-- DELETE THIS TO REMOVE WATERMARKS/DEV NAMES ON TITLE SCREEN -->
+	<define name="TITLE_SCREEN_EASTER_EGG"/> <!-- DELETE THE if="officialBuild" for enabling this on an unofficial build -->
+	<define unless="hl" name="RAR_SUPPORTED" if="windows"/>
 
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="120" background="#000000" hardware="true" vsync="false" />
+	<window width="1280" vsync="false" height="720" hardware="true" fps="120" background="#000000"/>
 
 	<!--HTML5-specific-->
-	<window if="html5" resizable="true" />
+	<window resizable="true" if="html5"/>
 
 	<!--Desktop-specific-->
-	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false" />
+	<window vsync="false" resizable="true" orientation="landscape" if="desktop" fullscreen="false"/>
 
 	<!--Mobile-specific-->
-	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0"
-		resizable="false" />
+	<window width="0" resizable="false" orientation="landscape" if="mobile" height="0" fullscreen="true"/>
 
 	<!--Switch-specific-->
-	<window if="switch" orientation="landscape" fullscreen="true" width="0" height="0"
-		resizable="true" />
+	<window width="0" resizable="true" orientation="landscape" if="switch" height="0" fullscreen="true"/>
 
 	<!-- _____________________________ Path Settings ____________________________ -->
 
-	<set name="BUILD_DIR" value="export/debug" if="debug" />
-	<set name="BUILD_DIR" value="export/release" unless="debug" />
-	<set name="BUILD_DIR" value="export/32bit" if="32bits" />
+	<set value="export/debug" name="BUILD_DIR" if="debug"/>
+	<set value="export/release" unless="debug" name="BUILD_DIR"/>
+	<set value="export/32bit" name="BUILD_DIR" if="32bits"/>
 
-	<classpath name="source" />
+	<classpath name="source"/>
 
 	<!-- __________________________ Game Assets & Etc. __________________________ -->
 
 	<!-- Preload Assets -->
-	<define name="PRELOAD_ALL" unless="web" />
-	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL" />
+	<define unless="web" name="PRELOAD_ALL"/>
+	<define unless="PRELOAD_ALL" name="NO_PRELOAD_ALL"/>
 
-	<assets path="assets/fonts" />
-	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web" />
-	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web" />
+	<assets path="assets/fonts"/>
+	<assets rename="assets" path="assets/preload" if="web" exclude="*.ogg"/>
+	<assets unless="web" rename="assets" path="assets/preload" exclude="*.mp3"/>
 	<section if="TITLE_SCREEN_EASTER_EGG">
-		<assets path="assets/secrets" rename="assets" exclude="*.ogg" if="web" />
-		<assets path="assets/secrets" rename="assets" exclude="*.mp3" unless="web" />
+		<assets rename="assets" path="assets/secrets" if="web" exclude="*.ogg"/>
+		<assets unless="web" rename="assets" path="assets/secrets" exclude="*.mp3"/>
 	</section>
 
-	<define name="CHECK_FOR_UPDATES" unless="LOCAL" />
+	<define unless="LOCAL" name="CHECK_FOR_UPDATES"/>
 
 	<!-- Week Assets -->
-	<library name="videos" preload="true" />
+	<library preload="true" name="videos"/>
 	<section if="PRELOAD_ALL">
-		<library name="songs" preload="true" />
-		<library name="shared" preload="true" />
-		<library name="week_assets" preload="true" />
+		<library preload="true" name="songs"/>
+		<library preload="true" name="shared"/>
+		<library preload="true" name="week_assets"/>
 	</section>
 	
 	<section if="NO_PRELOAD_ALL">
-		<library name="songs" preload="false" />
-		<library name="shared" preload="false" />
-		<library name="week_assets" preload="false" />
+		<library preload="false" name="songs"/>
+		<library preload="false" name="shared"/>
+		<library preload="false" name="week_assets"/>
 	</section>
 
-	<assets path="assets/videos" library="videos" if="VIDEOS_ALLOWED" />
-	<assets path="assets/songs" library="songs" exclude="*.ogg" if="web" />
-	<assets path="assets/songs" library="songs" exclude="*.mp3" unless="web" />
-	<assets path="assets/shared" library="shared" exclude="*.ogg" if="web" />
-	<assets path="assets/shared" library="shared" exclude="*.mp3" unless="web" />
-	<assets path="assets/week_assets" library="week_assets" rename="assets" exclude="*.ogg" if="web" />
-	<assets path="assets/week_assets" library="week_assets" rename="assets" exclude="*.mp3"
-		unless="web" />
+	<assets path="assets/videos" library="videos" if="VIDEOS_ALLOWED"/>
+	<assets path="assets/songs" library="songs" if="web" exclude="*.ogg"/>
+	<assets unless="web" path="assets/songs" library="songs" exclude="*.mp3"/>
+	<assets path="assets/shared" library="shared" if="web" exclude="*.ogg"/>
+	<assets unless="web" path="assets/shared" library="shared" exclude="*.mp3"/>
+	<assets rename="assets" path="assets/week_assets" library="week_assets" if="web" exclude="*.ogg"/>
+	<assets unless="web" rename="assets" path="assets/week_assets" library="week_assets" exclude="*.mp3"/>
 	
 	<section if="MODS_ALLOWED">
-		<assets path='example_mods' rename='mods' embed='false' />
+		<assets rename="mods" path="example_mods" embed="false"/>
 	</section>
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<section>
-		<haxelib name="lime"               version="8.1.3" />
-		<haxelib name="openfl"             version="9.3.3" />
-		<haxelib name="flixel"             version="5.8.0" />
-		<haxelib name="flixel-addons"      version="3.2.2" />
-		<haxelib name="flixel-tools"       version="1.5.1" />
-		<haxelib name="flixel-ui"          version="2.6.4" />
-		<haxelib name="hxcpp"              version="4.3.2" />
-		<haxelib name="tjson"              version="1.4.0" />
-		<haxelib name="colyseus"           version="0.17.3" />
-		<haxelib name="colyseus-websocket" version="1.0.15" />
-		<haxelib name="HtmlParser"         version="3.4.0" />
-		<haxelib name="UnRAR"              version="1.0.0" />
-		<haxelib name="away3d"             version="git" url="https://github.com/Snirozu/away3d"       ref="master" />
-		<haxelib name="json2object"        version="3.11.0" />
-		<haxelib name="hxjsonast"          version="1.1.0" />
-		<haxelib name="flxanimate"         version="git" url="https://github.com/Dot-Stuff/flxanimate" ref="v4.0.0" />
-		<haxelib name="lumod"              version="2.2.0" />
-		<haxelib name="actuate"            version="1.9.0" />
-		<haxelib name="compiletime"        version="2.8.0" />
-		<haxelib name="grig.audio"         version="git" url="https://github.com/Snirozu/grig.audio"   ref="162f924bdde427fc84af5b51961d2faef51f6955" />
-		<haxelib name="tink_core"          version="2.1.1" />
-		<haxelib name="yagp"               version="git" url="https://github.com/Snirozu/yagp"         ref="master" />
-		<haxelib name="funkin.vis"         version="git" url="https://github.com/FunkinCrew/funkVis"   ref="1966f8fbbbc509ed90d4b520f3c49c084fc92fd6" />
-		<haxelib name="feathersui"         version="1.3.1" />
+		<haxelib version="8.1.3" name="lime"/>
+		<haxelib version="9.3.3" name="openfl"/>
+		<haxelib version="5.8.0" name="flixel"/>
+		<haxelib version="3.2.2" name="flixel-addons"/>
+		<haxelib version="1.5.1" name="flixel-tools"/>
+		<haxelib version="2.6.4" name="flixel-ui"/>
+		<haxelib version="4.3.2" name="hxcpp"/>
+		<haxelib version="1.4.0" name="tjson"/>
+		<haxelib version="0.17.13" name="colyseus"/>
+		<haxelib version="1.0.15" name="colyseus-websocket"/>
+		<haxelib version="3.4.0" name="HtmlParser"/>
+		<haxelib version="1.0.0" name="UnRAR"/>
+		<haxelib version="git" url="https://github.com/Snirozu/away3d" ref="master" name="away3d"/>
+		<haxelib version="3.11.0" name="json2object"/>
+		<haxelib version="1.1.0" name="hxjsonast"/>
+		<haxelib version="git" url="https://github.com/Dot-Stuff/flxanimate" ref="v4.0.0" name="flxanimate"/>
+		<haxelib version="1.9.0" name="actuate"/>
+		<haxelib version="2.8.0" name="compiletime"/>
+		<haxelib version="git" url="https://github.com/Snirozu/grig.audio" ref="162f924bdde427fc84af5b51961d2faef51f6955" name="grig.audio"/>
+		<haxelib version="2.1.1" name="tink_core"/>
+		<haxelib version="git" url="https://github.com/Snirozu/yagp" ref="master" name="yagp"/>
+		<haxelib version="git" url="https://github.com/FunkinCrew/funkVis" ref="1966f8fbbbc509ed90d4b520f3c49c084fc92fd6" name="funkin.vis"/>
+		<haxelib version="1.3.1" name="feathersui"/>
+		<haxelib version="0.0.12" name="grig.midi"/>
 	</section>
 
 	<section if="VIDEOS_ALLOWED">
-		<haxelib name="hxvlc" version="2.0.1" />
+		<haxelib version="2.3.0" name="hxvlc"/>
 	</section>
 
 	<section if="DISCORD_ALLOWED">
-		<haxelib name="hxdiscord_rpc" version="1.3.0" />
+		<haxelib version="1.3.0" name="hxdiscord_rpc"/>
 	</section>
 
 	<section if="LUA_ALLOWED">
-		<haxelib name="linc_luajit" version="git" url="https://github.com/Snirozu/linc_luajit" ref="master" />
+		<haxelib version="2.2.0" name="lumod"/>
+		<haxelib version="git" url="https://github.com/Snirozu/linc_luajit" ref="master" name="linc_luajit"/>
 	</section>
 
 	<section if="HSCRIPT_ALLOWED">
-		<haxelib name="hscript" version="2.6.0" />
-		<haxelib name="SScript" version="git" url="https://github.com/Snirozu/SScript-7.7.0" ref="main" />
+		<haxelib version="git" url="https://github.com/FNF-CNE-Devs/hscript-improved" ref="943d3055235ac5b7c6bd65e14231aab9ee2442d1" name="hscript-improved"/>
+		<!-- <haxelib version="2.7.0" name="hscript"/> -->
+		<!-- <haxelib name="SScript" version="git" url="https://github.com/Snirozu/SScript-7.7.0" ref="main" /> -->
 	</section>
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
-	<haxedef name="openflPos" />
-	<haxedef name="hscriptPos" />
+	<haxedef name="openflPos"/>
+	<haxedef name="hscriptPos"/>
 
 	<!-- Enables a terminal log prompt on debug builds -->
 	<!-- <haxelib name="hxcpp-debug-server" if="debug"/> -->
-	<haxedef name="HXC_LIBVLC_LOGGING" if="VIDEOS_ALLOWED debug" />
-	<haxedef name="LUMOD_HSCRIPT" />
+	<haxedef name="HXC_LIBVLC_LOGGING" if="VIDEOS_ALLOWED debug"/>
+	<haxedef name="LUMOD_HSCRIPT"/>
 
 	<!--Enable the Flixel core recording system-->
 	<!--<haxedef name="FLX_RECORD" />-->
@@ -179,60 +177,59 @@
 	<!--<haxedef name="FLX_NO_SOUND_SYSTEM" />-->
 
 	<!--Disable the Flixel core focus lost screen-->
-	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
+	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN"/>
 
 	<!-- Show debug traces for hxCodec -->
-	<haxedef name="HXC_DEBUG_TRACE" if="debug" />
+	<haxedef name="HXC_DEBUG_TRACE" if="debug"/>
 
 	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
-	<haxedef name="FLX_NO_DEBUG" unless="debug" />
+	<haxedef unless="debug" name="FLX_NO_DEBUG"/>
 
 	<!--Enable this for Nape release builds for a serious peformance improvement-->
-	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
+	<haxedef unless="debug" name="NAPE_RELEASE_BUILD"/>
 
 	<!--Used for Izzy Engine's crash handler-->
-	<haxedef name="HXCPP_GC_CHECK_POINTER" />
-	<haxedef name="HXCPP_STACK_LINE" />
-	<haxedef name="HXCPP_STACK_TRACE" />
-	<haxedef name="HXCPP_CATCH_SEGV" />
+	<haxedef name="HXCPP_CHECK_POINTER"/>
+	<haxedef name="HXCPP_STACK_LINE"/>
+	<haxedef name="HXCPP_STACK_TRACE"/>
+	<haxedef name="HXCPP_CATCH_SEGV"/>
 
 	<!-- <haxedef name="message.reporting" value="pretty" /> -->
-	<haxedef name='no-deprecation-warnings' />
+	<haxedef name="no-deprecation-warnings"/>
 
 	<!--Avoid memory leaks with for loops in HScript-->
-	<haxedef name="loop_unroll_max_cost" value="25" />
-	<haxedef name="DISABLED_MACRO_SUPERLATIVE" if="android" />
+	<haxedef value="25" name="loop_unroll_max_cost"/>
+	<haxedef name="DISABLED_MACRO_SUPERLATIVE" if="android"/>
 
 	<!--Macro fixes-->
-	<haxeflag name="--macro" value="allowPackage('flash')" />
-	<haxeflag name="--macro" value="include('my.pack')" />
+	<haxeflag value="allowPackage(&#039;flash&#039;)" name="--macro"/>
+	<haxeflag value="include(&#039;my.pack&#039;)" name="--macro"/>
 
-	<haxeflag name="-D" value="HXCPP_DEBUGGER" if="debug"/>
+	<haxeflag value="HXCPP_DEBUGGER" name="-D" if="debug"/>
 	<haxeflag name="-debug" if="debug"/>
 
 	<!-- USE telemetry INSTEAD -->
-	<section if='debugmon'>
-		<haxeflag name="--macro" value="addGlobalMetadata('online', '@:build(online.backend.MonitorMacro.build())')" />
-		<haxeflag name="--macro" value="addGlobalMetadata('states', '@:build(online.backend.MonitorMacro.build())')" />
-		<haxeflag name="--macro" value="addGlobalMetadata('flixel', '@:build(online.backend.MonitorMacro.build())')" />
-		<haxeflag name="--macro" value="addGlobalMetadata('backend', '@:build(online.backend.MonitorMacro.build())')" />
-		<haxeflag name="--macro" value="addGlobalMetadata('io', '@:build(online.backend.MonitorMacro.build())')" />
-		<haxeflag name="--macro" value="addGlobalMetadata('objects', '@:build(online.backend.MonitorMacro.build())')" />
-		<haxeflag name="--macro" value="addGlobalMetadata('psychlua', '@:build(online.backend.MonitorMacro.build())')" />
-		<haxeflag name="--macro" value="addGlobalMetadata('llua', '@:build(online.backend.MonitorMacro.build())')" />
+	<section if="debugmon">
+		<haxeflag value="addGlobalMetadata(&#039;online&#039;, &#039;@:build(online.backend.MonitorMacro.build())&#039;)" name="--macro"/>
+		<haxeflag value="addGlobalMetadata(&#039;states&#039;, &#039;@:build(online.backend.MonitorMacro.build())&#039;)" name="--macro"/>
+		<haxeflag value="addGlobalMetadata(&#039;flixel&#039;, &#039;@:build(online.backend.MonitorMacro.build())&#039;)" name="--macro"/>
+		<haxeflag value="addGlobalMetadata(&#039;backend&#039;, &#039;@:build(online.backend.MonitorMacro.build())&#039;)" name="--macro"/>
+		<haxeflag value="addGlobalMetadata(&#039;io&#039;, &#039;@:build(online.backend.MonitorMacro.build())&#039;)" name="--macro"/>
+		<haxeflag value="addGlobalMetadata(&#039;objects&#039;, &#039;@:build(online.backend.MonitorMacro.build())&#039;)" name="--macro"/>
+		<haxeflag value="addGlobalMetadata(&#039;psychlua&#039;, &#039;@:build(online.backend.MonitorMacro.build())&#039;)" name="--macro"/>
+		<haxeflag value="addGlobalMetadata(&#039;llua&#039;, &#039;@:build(online.backend.MonitorMacro.build())&#039;)" name="--macro"/>
 	</section>
 
 	<!-- DEBUG PERFORMANCE ANALYZER FOR HXSCOUT!!!!! -->
-	<section if='telemetry'>
-		<haxelib name="hxtelemetry" />
-		<haxedef name="HXCPP_TELEMETRY" />
-		<haxedef name="HXCPP_GC_SUMMARY" />
-		<haxedef name="HXCPP_GC_VERIFY" />
-		<haxeflag name="-D" value="HXCPP_GC_DEBUG_LEVEL=4"/>
+	<section if="telemetry">
+		<!-- <haxelib version="0.4.0" name="hxtelemetry"/> -->
+		<!-- <haxedef name="HXCPP_TELEMETRY"/> -->
+		<!-- <haxedef name="HXCPP_GC_SUMMARY"/>
+		<haxedef name="HXCPP_GC_VERIFY"/>
+		<haxeflag value="HXCPP_GC_DEBUG_LEVEL=4" name="-D"/> -->
 		<!-- hmm maybe use this to debug lua better -->
-		<!-- <haxedef name="HXCPP_PROFILER" /> -->
+		<haxedef name="HXCPP_PROFILER" />
 	</section>
-	<!-- <haxeflag name="-D" value="telemetry" /> -->
 
 	<!-- <haxedef name="HXCPP_GC_DYNAMIC_SIZE" /> -->
 	<!-- <haxedef name="HXCPP_GC_GENERATIONAL" /> -->
@@ -241,12 +238,12 @@
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 
-	<assets path='art/iconOG.png' rename='icon.png' if="linux" />
+	<assets rename="icon.png" path="art/iconOG.png" if="linux"/>
 	
-	<icon path="art/icon16.png" size='16'/>
-	<icon path="art/icon32.png" size='32'/>
-	<icon path="art/icon64.png" size='64'/>
-	<icon path="art/iconOG.png" />
+	<icon size="16" path="art/icon16.png"/>
+	<icon size="32" path="art/icon32.png"/>
+	<icon size="64" path="art/icon64.png"/>
+	<icon path="art/iconOG.png"/>
 
-	<assets path='art/README_LINUX.txt' rename='README_PLEASE.txt' if="linux" />
+	<assets rename="README_PLEASE.txt" path="art/README_LINUX.txt" if="linux"/>
 </project>
