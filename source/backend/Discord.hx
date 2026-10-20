@@ -56,18 +56,18 @@ class DiscordClient
 		else //New Discord IDs/Discriminator system
 			message += '($user)';
 
-		trace(message);
+		Log.info(message);
 		changePresence();
 	}
 
 	private static function onError(errorCode:Int, message:cpp.ConstCharStar):Void
 	{
-		trace('Discord: Error ($errorCode: ${cast(message, String)})');
+		Log.error('Discord: Error ($errorCode: ${cast(message, String)})');
 	}
 
 	private static function onDisconnected(errorCode:Int, message:cpp.ConstCharStar):Void
 	{
-		trace('Discord: Disconnected ($errorCode: ${cast(message, String)})');
+		Log.info('Discord: Disconnected ($errorCode: ${cast(message, String)})');
 	}
 
 	private static function onRequest(user:cpp.RawConstPointer<DiscordUser>):Void
@@ -100,7 +100,7 @@ class DiscordClient
 		discordHandlers.joinRequest = cpp.Function.fromStaticFunction(onRequest);
 		Discord.Initialize(clientID, cpp.RawPointer.addressOf(discordHandlers), true, null);
 
-		if(!isInitialized) trace("Discord Client initialized");
+		if(!isInitialized) Log.info("Discord Client initialized");
 
 		if (__thread == null)
 		{
@@ -149,7 +149,7 @@ class DiscordClient
 		presence.endTimestamp = Std.int(endTimestamp / 1000);
 		updateOnlinePresence();
 
-		//trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp, $largeImageKey');
+		//Log.info('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp, $largeImageKey');
 	}
 
 	public static function updateOnlinePresence():Void
@@ -218,7 +218,7 @@ class DiscordClient
 		if(pack != null && pack.discordRPC != null && pack.discordRPC != clientID)
 		{
 			clientID = pack.discordRPC;
-			//trace('Changing clientID! $clientID, $_defaultID');
+			//Log.info('Changing clientID! $clientID, $_defaultID');
 		}
 	}
 	#end

@@ -129,7 +129,7 @@ class TextFormats {
 
 		for (i in 0...field.text.length) {
 			if (emojis.contains(field.text.charCodeAt(i))) {
-				trace(field.text.charCodeAt(i), field.text.charAt(i));
+				Log.infoTrace(field.text.charCodeAt(i)+', '+field.text.charAt(i));
 				field.setTextFormat(format, i, i + 1);
 			}
 			if (field.text.charAt(i) == 'a') {

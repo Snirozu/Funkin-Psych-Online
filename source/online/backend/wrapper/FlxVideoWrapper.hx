@@ -23,20 +23,20 @@ class FlxVideoWrapper extends DisplayObject { // as DisplayObject so scripts thi
 	// @:forwardField(_video.alpha) var alpha(get, set):Float;
 	@:forwardField(_video.bitmapData) var bitmapData(get, set):BitmapData;
 
-	@:forwardField(_video.textureWidth) var videoWidth(get, set):UInt32;
-	@:forwardField(_video.textureHeight) var videoHeight(get, set):UInt32;
+	@:forwardField(_video.width) var videoWidth(get, set):Float;
+	@:forwardField(_video.height) var videoHeight(get, set):Float;
 	@:forwardField(_video.time) var time(get, set):Int64;
 	@:forwardGetter(_video.length) var length(get, never):Int64;
 	@:forwardGetter(_video.duration) var duration(get, never):Int64;
 	@:forwardField(_video.position) var position(get, set):Single;
 	@:forwardGetter(_video.mrl) var mrl(get, never):Null<String>;
-	@:forwardField(_video.volume) var volume(get, set):Int;
-	@:forwardField(_video.channel) var channel(get, set):Int;
-	@:forwardField(_video.delay) var delay(get, set):Int64;
+	@:forwardField(_video.volume) var volume(get, set):Float;
+	@:forwardField(_video.audioTrack) var channel(get, set):Int;
+	/*@:forwardField(_video.delay)*/ var delay:Int64 = 0;
 	@:forwardField(_video.rate) var rate(get, set):Single;
 	@:forwardGetter(_video.isPlaying) var isPlaying(get, never):Bool;
 	@:forwardGetter(_video.isSeekable) var isSeekable(get, never):Bool;
-	@:forwardGetter(_video.canPause) var canPause(get, never):Bool;
+	/*@:forwardGetter(_video.canPause)*/ var canPause:Bool;
 	@:forwardGetter(mute) var hasVolume(get, never):Bool;
 
 	@:forwardGetter(_video.onOpening) var onOpening(get, never):Event<Void->Void>;
@@ -47,7 +47,7 @@ class FlxVideoWrapper extends DisplayObject { // as DisplayObject so scripts thi
 	@:forwardGetter(_video.onEncounteredError) var onEncounteredError(get, never):Event<String->Void>;
 	@:forwardGetter(_video.onTimeChanged) var onForward(get, never):Event<Int64->Void>;
 	@:forwardGetter(_video.onTimeChanged) var onBackward(get, never):Event<Int64->Void>;
-	@:forwardGetter(_video.onMediaChanged) var onMediaChanged(get, never):Event<Void->Void>;
+	@:forwardGetter(_video.onMediaChanged) var onMediaChanged(get, never):Event<hxvlc.impl.Media->Void>;
 	@:forwardGetter(_video.onFormatSetup) var onTextureSetup(get, never):Event<Void->Void>;
 	
 	var mute(get, set):Bool;

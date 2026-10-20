@@ -183,17 +183,17 @@ class AchievementsMenuState extends MusicBeatState
 				{
 					var diff:Int = curSelected - (Math.floor(curSelected / MAX_PER_ROW) * MAX_PER_ROW);
 					curSelected += add * MAX_PER_ROW;
-					//trace('Before correction: $curSelected');
+					//Log.trace('Before correction: $curSelected');
 					if(curSelected < 0)
 					{
 						curSelected += Math.ceil(options.length / MAX_PER_ROW) * MAX_PER_ROW;
 						if(curSelected >= options.length) curSelected -= MAX_PER_ROW;
-						//trace('Pass 1: $curSelected');
+						//Log.trace('Pass 1: $curSelected');
 					}
 					if(curSelected >= options.length)
 					{
 						curSelected = diff;
-						//trace('Pass 2: $curSelected');
+						//Log.trace('Pass 2: $curSelected');
 					}
 
 					_changeSelection();

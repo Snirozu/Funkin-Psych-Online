@@ -1342,7 +1342,7 @@ class FlxTweenManager extends FlxBasic
 			    tween.update(elapsed);
             }
             catch (exc) {
-                trace('FLXTWEEN CRASH CAUGHT: ', exc);
+                Log.error('FLXTWEEN CRASH CAUGHT: ', exc);
                 tween.finished = true;
             }
 

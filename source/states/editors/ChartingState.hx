@@ -426,7 +426,7 @@ class ChartingState extends MusicBeatState
 		check_voices.callback = function()
 		{
 			_song.needsVoices = check_voices.checked;
-			//trace('CHECKED!');
+			//Log.trace('CHECKED!');
 		};
 
 		var saveButton:FlxButton = new FlxButton(110, 8, "Save", function()
@@ -708,7 +708,7 @@ class ChartingState extends MusicBeatState
 			}
 
 			var addToTime:Float = Conductor.stepCrochet * (getSectionBeats() * 4 * (curSec - sectionToCopy));
-			//trace('Time to add: ' + addToTime);
+			//Log.trace('Time to add: ' + addToTime);
 
 			for (note in notesCopied)
 			{
@@ -1348,7 +1348,7 @@ class ChartingState extends MusicBeatState
 		{
 			_song.disableNoteRGB = check_disableNoteRGB.checked;
 			updateGrid();
-			//trace('CHECKED!');
+			//Log.trace('CHECKED!');
 		};
 
 		//
@@ -1422,10 +1422,10 @@ class ChartingState extends MusicBeatState
 		FlxG.sound.music.time = Conductor.songPosition;
 
 		var curTime:Float = 0;
-		//trace(_song.notes.length);
+		//Log.trace(_song.notes.length);
 		if(_song.notes.length <= 1) //First load ever
 		{
-			trace('first load ever!!');
+			Log.infoTrace('first load ever!!');
 			while(curTime < FlxG.sound.music.length)
 			{
 				addSection();
@@ -2238,7 +2238,7 @@ class ChartingState extends MusicBeatState
 			var lastMetroStep:Int = Math.floor(((lastConductorPos + metronomeOffsetStepper.value) / metroInterval) / 1000);
 			if(metroStep != lastMetroStep) {
 				FlxG.sound.play(Paths.sound('Metronome_Tick'));
-				//trace('Ticked');
+				//Log.trace('Ticked');
 			}
 		}
 		lastConductorPos = Conductor.songPosition;
@@ -2269,13 +2269,13 @@ class ChartingState extends MusicBeatState
 		#if MODS_ALLOWED
 		if(FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg'))) {
 			audioBuffers[0] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg'));
-			//trace('Custom vocals found');
+			//Log.trace('Custom vocals found');
 		}
 		else { #end
 			var leVocals:String = Paths.getPath(currentSongName + '/Inst.' + Paths.SOUND_EXT, SOUND, 'songs');
 			if (OpenFlAssets.exists(leVocals)) { //Vanilla inst
 				audioBuffers[0] = AudioBuffer.fromFile('./' + leVocals.substr(6));
-				//trace('Inst found');
+				//Log.trace('Inst found');
 			}
 		#if MODS_ALLOWED
 		}
@@ -2288,12 +2288,12 @@ class ChartingState extends MusicBeatState
 		#if MODS_ALLOWED
 		if(FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'))) {
 			audioBuffers[1] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'));
-			//trace('Custom vocals found');
+			//Log.trace('Custom vocals found');
 		} else { #end
 			var leVocals:String = Paths.getPath(currentSongName + '/Voices.' + Paths.SOUND_EXT, SOUND, 'songs');
 			if (OpenFlAssets.exists(leVocals)) { //Vanilla voices
 				audioBuffers[1] = AudioBuffer.fromFile('./' + leVocals.substr(6));
-				//trace('Voices found, LETS FUCKING GOOOO');
+				//Log.trace('Voices found, LETS FUCKING GOOOO');
 			}
 		#if MODS_ALLOWED
 		}
@@ -2397,7 +2397,7 @@ class ChartingState extends MusicBeatState
 		waveformPrinted = false;
 
 		if(!FlxG.save.data.chart_waveformInst && !FlxG.save.data.chart_waveformVoices) {
-			//trace('Epic fail on the waveform lol');
+			//Log.trace('Epic fail on the waveform lol');
 			return;
 		}
 
@@ -2802,7 +2802,7 @@ class ChartingState extends MusicBeatState
 		if (_song.notes[curSec].changeBPM && _song.notes[curSec].bpm > 0)
 		{
 			Conductor.bpm = _song.notes[curSec].bpm;
-			//trace('BPM of this section:');
+			//Log.trace('BPM of this section:');
 		}
 		else
 		{
@@ -2863,7 +2863,7 @@ class ChartingState extends MusicBeatState
 				curRenderedNoteType.add(daText);
 				daText.sprTracker = note;
 				daText.keepOnScreen = true;
-				//trace('test: ' + i[0], 'startThing: ' + startThing, 'endThing: ' + endThing);
+				//Log.trace('test: ' + i[0], 'startThing: ' + startThing, 'endThing: ' + endThing);
 			}
 		}
 
@@ -3058,6 +3058,19 @@ class ChartingState extends MusicBeatState
 		updateGrid();
 	}
 
+	@:keep function handleMidiPress(note:Int) {
+		note -= 36;
+		if (note < 0 || note >= Note.maniaKeys)
+			return;
+		doANoteThing(Conductor.songPosition, note, currentType);
+	}
+
+	// @:keep function handleMidiRelease(note:Int) {
+	// 	if (note < 0 || note >= Note.maniaKeys)
+	// 		return;
+	// 	keyReleased(note);
+	// }
+
 	public function doANoteThing(cs, d, style){
 		var delnote = false;
 		if(strumLineNotes.members[d].overlaps(curRenderedNotes))
@@ -3066,7 +3079,7 @@ class ChartingState extends MusicBeatState
 			{
 				if (note.overlapsPoint(new FlxPoint(strumLineNotes.members[d].x + 1,strumLine.y+1)) && note.noteData == d % Note.maniaKeys)
 				{
-						//trace('tryin to delete note...');
+						//Log.trace('tryin to delete note...');
 						if(!delnote) deleteNote(note);
 						delnote = true;
 				}
@@ -3126,7 +3139,7 @@ class ChartingState extends MusicBeatState
 			_song.notes[curSec].sectionNotes.push([noteStrum, (noteData + Note.maniaKeys) % (Note.maniaKeys * 2), noteSus, curNoteTypes[daType]]);
 		}
 
-		//trace(noteData + ', ' + noteStrum + ', ' + curSec);
+		//Log.trace(noteData + ', ' + noteStrum + ', ' + curSec);
 		strumTimeInputText.text = '' + curSelectedNote[0];
 
 		updateGrid();
@@ -3144,7 +3157,7 @@ class ChartingState extends MusicBeatState
 		//redos.push(_song);
 		undos.pop();
 		//_song.notes = undos[undos.length - 1];
-		///trace(_song.notes);
+		///Log.trace(_song.notes);
 		//updateGrid();
 	}
 
@@ -3199,7 +3212,7 @@ class ChartingState extends MusicBeatState
 		}
 		catch(e)
 		{
-			trace('ERROR! $e');
+			Log.error(e);
 
 			var errorStr:String = e.toString();
 			if(errorStr.startsWith('[file_contents,assets/data/')) errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length-1); //Missing chart
@@ -3312,7 +3325,7 @@ class ChartingState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		FlxG.log.error("Problem saving Level data");
+		Log.error("Problem saving Level data");
 	}
 
 	function getSectionBeats(?section:Null<Int> = null)

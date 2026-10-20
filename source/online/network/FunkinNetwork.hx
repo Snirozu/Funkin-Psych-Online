@@ -127,7 +127,7 @@ class FunkinNetwork {
 	}
 
 	static function saveCredentials(json:Dynamic) {
-		trace("Saving credentials");
+		Log.info("Saving credentials");
 		Auth.save(json.id, json.token);
 		// new FileReference().save(json.id + "\n" + json.secret, "recovery_token.txt");
 		ping();
@@ -188,7 +188,7 @@ class FunkinNetwork {
 			return Json.parse(response.getString());
 		}
 		catch (exc) {
-			trace(exc);
+			Log.error(exc);
 			return null;
 		}
 	}
@@ -203,7 +203,7 @@ class FunkinNetwork {
 			return Json.parse(response.getString());
 		}
 		catch (exc) {
-			trace(exc);
+			Log.error(exc);
 			return null;
 		}
 	}
@@ -227,7 +227,7 @@ class FunkinNetwork {
 			return Json.parse(response.getString());
 		}
 		catch (exc) {
-			trace(exc);
+			Log.error(exc);
 			return null;
 		}
 	}
@@ -242,7 +242,7 @@ class FunkinNetwork {
 			return Json.parse(response.getString());
 		}
 		catch (exc) {
-			trace(exc);
+			Log.error(exc);
 			return null;
 		}
 	}
@@ -260,7 +260,7 @@ class FunkinNetwork {
 			return Json.parse(response.getString());
 		}
 		catch (exc) {
-			trace(exc);
+			Log.error(exc);
 			return null;
 		}
 	}
@@ -278,7 +278,7 @@ class FunkinNetwork {
 			return Json.parse(response.getString());
 		}
 		catch (exc) {
-			trace(exc);
+			Log.error(exc);
 			return null;
 		}
 	}
@@ -305,7 +305,7 @@ class FunkinNetwork {
 			return bytes;
 		}
 		catch (exc) {
-			trace(exc);
+			Log.error(exc);
 			return null;
 		}
 	}

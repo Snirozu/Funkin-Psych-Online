@@ -70,7 +70,7 @@ class Song
 			throw new haxe.Exception('No chart format found!');
 
 		if (ClientPrefs.isDebug())
-			trace('Loaded ${songJson.format} Song!');
+			Log.info('Loaded ${songJson.format} Song!');
 
 		if(songJson.gfVersion == null)
 		{
@@ -170,13 +170,13 @@ class Song
 	{
 		// FIX THE CASTING ON WINDOWS/NATIVE
 		// Windows???
-		// trace(songData);
+		// Log.info(songData);
 
-		// trace('LOADED FROM JSON: ' + songData.notes);
+		// Log.info('LOADED FROM JSON: ' + songData.notes);
 		/* 
 			for (i in 0...songData.notes.length)
 			{
-				trace('LOADED FROM JSON: ' + songData.notes[i].sectionNotes);
+				Log.info('LOADED FROM JSON: ' + songData.notes[i].sectionNotes);
 				// songData.notes[i].sectionNotes = songData.notes[i].sectionNotes
 			}
 

@@ -497,7 +497,7 @@ class ShitUtil {
 			return bytes;
 		}
 		catch (exc) {
-			trace(exc);
+			Log.error(exc);
 			return null;
 		}
 	}

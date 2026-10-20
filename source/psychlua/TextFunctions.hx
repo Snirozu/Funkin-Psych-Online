@@ -9,13 +9,13 @@ class TextFunctions
 		Lua_helper.add_callback(lua, "makeLuaText", function(tag:String, text:String, width:Int, x:Float, y:Float) {
 			tag = tag.replace('.', '');
 			// recycle it, looking at you hyperlink-reloaded/PressF1ForHelp.lua
-			var leText:FlxText = LuaUtils.resetTextTag(tag);
-			if (leText == null)
+			var leText:FlxText = cast LuaUtils.removeObject(tag);
+			if (leText == null || !leText.exists)
 				leText = new FlxText();
 			leText.x = x;
 			leText.y = y;
 			leText.fieldWidth = width;
-			leText.text = text;
+			leText.text = text ?? '';
 			leText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			leText.cameras = [game.camHUD];
 			leText.scrollFactor.set();
@@ -24,17 +24,19 @@ class TextFunctions
 		});
 
 		Lua_helper.add_callback(lua, "setTextString", function(tag:String, text:String) {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null)
 			{
-				obj.text = text;
+				obj.text = text ?? '';
 				return true;
 			}
 			funk.luaTrace("setTextString: Object " + tag + " doesn't exist!", false, false, FlxColor.RED);
 			return false;
 		});
 		Lua_helper.add_callback(lua, "setTextSize", function(tag:String, size:Int) {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null)
 			{
 				obj.size = size;
@@ -44,7 +46,8 @@ class TextFunctions
 			return false;
 		});
 		Lua_helper.add_callback(lua, "setTextWidth", function(tag:String, width:Float) {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null)
 			{
 				obj.fieldWidth = width;
@@ -54,7 +57,8 @@ class TextFunctions
 			return false;
 		});
 		Lua_helper.add_callback(lua, "setTextBorder", function(tag:String, size:Int, color:String) {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null)
 			{
 				if(size > 0)
@@ -71,7 +75,8 @@ class TextFunctions
 			return false;
 		});
 		Lua_helper.add_callback(lua, "setTextColor", function(tag:String, color:String) {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null)
 			{
 				obj.color = CoolUtil.colorFromString(color);
@@ -81,7 +86,8 @@ class TextFunctions
 			return false;
 		});
 		Lua_helper.add_callback(lua, "setTextFont", function(tag:String, newFont:String) {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null)
 			{
 				obj.font = Paths.font(newFont);
@@ -91,7 +97,8 @@ class TextFunctions
 			return false;
 		});
 		Lua_helper.add_callback(lua, "setTextItalic", function(tag:String, italic:Bool) {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null)
 			{
 				obj.italic = italic;
@@ -101,7 +108,8 @@ class TextFunctions
 			return false;
 		});
 		Lua_helper.add_callback(lua, "setTextAlignment", function(tag:String, alignment:String = 'left') {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null)
 			{
 				obj.alignment = LEFT;
@@ -119,16 +127,18 @@ class TextFunctions
 		});
 
 		Lua_helper.add_callback(lua, "getTextString", function(tag:String) {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null && obj.text != null)
 			{
-				return obj.text;
+				return obj.text ?? ''; // safely make it an empty string
 			}
 			funk.luaTrace("getTextString: Object " + tag + " doesn't exist!", false, false, FlxColor.RED);
 			return null;
 		});
 		Lua_helper.add_callback(lua, "getTextSize", function(tag:String) {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null)
 			{
 				return obj.size;
@@ -137,7 +147,8 @@ class TextFunctions
 			return -1;
 		});
 		Lua_helper.add_callback(lua, "getTextFont", function(tag:String) {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null)
 			{
 				return obj.font;
@@ -146,7 +157,8 @@ class TextFunctions
 			return null;
 		});
 		Lua_helper.add_callback(lua, "getTextWidth", function(tag:String) {
-			var obj:FlxText = LuaUtils.getTextObject(tag);
+			var split:Array<String> = tag.split('.');
+			var obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1])) : LuaUtils.getObjectDirectly(split[0]);
 			if(obj != null)
 			{
 				return obj.fieldWidth;

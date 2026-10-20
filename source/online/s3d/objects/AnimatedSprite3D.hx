@@ -149,7 +149,7 @@ class AnimatedSprite3D extends ObjectContainer3D {
 		framesData ??= getFramesByPrefix(animation.name);
 
 		if (framesData == null) {
-			trace('Animation "${animation.id}" couldn\'t be found!');
+			Log.warn('Animation "${animation.id}" couldn\'t be found!');
 			return null;
 		}
 
@@ -165,7 +165,7 @@ class AnimatedSprite3D extends ObjectContainer3D {
 			}
 
 		if (animation.frames == null) {
-			trace('Frames for Animation "${animation.id}" in "${animation.name}" couldn\'t be found!');
+			Log.warn('Frames for Animation "${animation.id}" in "${animation.name}" couldn\'t be found!');
 			return null;
 		}
 

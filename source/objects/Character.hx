@@ -188,6 +188,8 @@ class Character extends FlxSprite {
 
 	var charType:String = null;
 
+	public var config:CharacterFile;
+
 	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false, ?isSkin:Bool = false, ?charType:String) {
 		super(x, y);
 
@@ -210,10 +212,10 @@ class Character extends FlxSprite {
 			// case 'your character name in case you want to hardcode them instead':
 
 			default:
-				var json:CharacterFile = getCharacterFile(curCharacter, this);
+				config = getCharacterFile(curCharacter, this);
 				isAnimateAtlas = false;
 
-				var split:Array<String> = json.image.split(',');
+				var split:Array<String> = config.image.split(',');
 				imageFile = split[0].trim();
 
 				#if MODS_ALLOWED
@@ -240,7 +242,7 @@ class Character extends FlxSprite {
 					catch(e:Dynamic)
 					{
 						FlxG.log.warn('Could not load atlas ${imageFile}: $e');
-						trace('Could not load atlas ${imageFile}: $e');
+						Log.error('Could not load atlas ${imageFile}', e);
 					}
 
 					// load some graphic so we can use animation.add() at playAnim()
@@ -261,38 +263,38 @@ class Character extends FlxSprite {
 					}
 				}
 
-				if (json.scale != 1) {
-					jsonScale = json.scale;
+				if (config.scale != 1) {
+					jsonScale = config.scale;
 					scale.set(jsonScale, jsonScale);
 					updateHitbox();
 				}
 
 				// positioning
-				if (json.position != null)
-					ogPositionArray = positionArray = json.position;
-				cameraPosition = json.camera_position;
+				if (config.position != null)
+					ogPositionArray = positionArray = config.position;
+				cameraPosition = config.camera_position;
 
 				// data
-				healthIcon = json.healthicon;
-				singDuration = json.sing_duration;
-				flipX = (json.flip_x == true);
+				healthIcon = config.healthicon;
+				singDuration = config.sing_duration;
+				flipX = (config.flip_x == true);
 
-				if (json.healthbar_colors != null && json.healthbar_colors.length > 2)
-					healthColorArray = json.healthbar_colors;
+				if (config.healthbar_colors != null && config.healthbar_colors.length > 2)
+					healthColorArray = config.healthbar_colors;
 
-				vocalsFile = json.vocals_file ?? curCharacter;
+				vocalsFile = config.vocals_file ?? curCharacter;
 				
-				deadName = json.dead_character;
+				deadName = config.dead_character;
 				//TODO add to character editor
-				resultsName = json.results_character;
-				speakerName = json.speaker;
+				resultsName = config.results_character;
+				speakerName = config.speaker;
 
 				// antialiasing
-				noAntialiasing = (json.no_antialiasing == true);
+				noAntialiasing = (config.no_antialiasing == true);
 				antialiasing = ClientPrefs.data.antialiasing ? !noAntialiasing : false;
 
 				// animations
-				animationsArray = json.animations;
+				animationsArray = config.animations;
 				if (animationsArray != null && animationsArray.length > 0) {
 					for (anim in animationsArray) {
 						var animAnim:String = '' + anim.anim;
@@ -324,8 +326,7 @@ class Character extends FlxSprite {
 									atlas.anim.addByFrameLabel(animAnim, animName, animFps, animLoop);
 							}
 							catch (exc) {
-								trace('couldnt add flxanimate animation');
-								trace(exc);
+								Log.error('couldnt add flxanimate animation', exc);
 							}
 						}
 						#end
@@ -349,7 +350,7 @@ class Character extends FlxSprite {
 				#if flxanimate
 				if(isAnimateAtlas) copyAtlasValues();
 				#end
-				// trace('Loaded file to character ' + curCharacter);
+				// Log.info('Loaded file to character ' + curCharacter);
 		}
 		originalFlipX = flipX;
 
@@ -739,8 +740,7 @@ class Character extends FlxSprite {
 			noteData = Song.loadFromJson('picospeaker', Paths.formatToSongPath(PlayState.SONG.song)).notes;
 		}
 		catch (exc) {
-			trace("Failed to load picospeaker.json!");
-			trace(exc);
+			Log.error("Failed to load picospeaker.json!", exc);
 		}
 		if (noteData == null)
 			return false;

@@ -66,8 +66,7 @@ class VarTween extends FlxTween
 					}
             }
             catch (exc) {
-                trace("Tween encountered an error and has closed!");
-                trace(exc);
+                Log.error("Tween encountered an error and has closed!", exc);
 
 				if (onStart != null)
 					onStart(this);

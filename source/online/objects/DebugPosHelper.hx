@@ -129,7 +129,7 @@ class DebugPosHelper extends FlxTypedGroup<FlxBasic> {
 			else if (sprite != null)
 				text.text = '(EDIT MODE)\ni: $curObject\nOX: ${sprite.offset.x}\nOY: ${sprite.offset.y}\nA: ${obj.angle}';
 			if (FlxG.keys.justPressed.F11)
-				trace(text.text);
+				Log.infoTrace(text.text);
         }
     }
 }

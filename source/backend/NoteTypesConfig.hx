@@ -38,7 +38,7 @@ class NoteTypesConfig
 				property: arr,
 				value: _interpretValue(line.substr(sep + 1).trim())
 			}
-			//trace('pushing $newProp');
+			//Log.info('pushing $newProp');
 			parsed.push(newProp);
 		}
 		noteTypesData.set(name, parsed);
@@ -78,7 +78,7 @@ class NoteTypesConfig
 						obj = _propCheckArray(obj, split[i]);
 				}
 				_propCheckArray(obj, split[split.length-1], true, line.value);
-			} catch(e) if (ClientPrefs.isDebug()) Sys.println("Note Config: " + e);
+			} catch(e) if (ClientPrefs.isDebug()) Log.infoTrace("Note Config: " + e);
 		}
 	}
 
@@ -98,11 +98,11 @@ class NoteTypesConfig
 		}
 		else if(setProp)
 		{
-			//trace('setProp: $slice');
+			//Log.info('setProp: $slice');
 			Reflect.setProperty(obj, slice, valueToSet);
 			return valueToSet;
 		}
-		//trace('getting prop: $slice');
+		//Log.info('getting prop: $slice');
 		return Reflect.getProperty(obj, slice);
 	}
 

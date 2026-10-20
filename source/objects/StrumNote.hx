@@ -11,13 +11,13 @@ class StrumNote extends FlxSprite
 	public var rgbShader:RGBShaderReference;
 	public var resetAnim:Float = 0;
 	private var noteData:Int = 0;
-	public var direction:Float = 90;//plan on doing scroll directions soon -bb
+	public var direction(default, set):Float = 90;//plan on doing scroll directions soon -bb
 	public var downScroll:Bool = false;//plan on doing scroll directions soon -bb
 	public var sustainReduce:Bool = true;
 	private var player:Int;
 	public var maxAlpha:Float = 1.;
 
-	public var forceShow:Bool = false;
+	public var noModchart:Bool = false;
 	
 	public var texture(default, set):String = null;
 	private function set_texture(value:String):String {
@@ -264,7 +264,7 @@ class StrumNote extends FlxSprite
 			if (forceHide)
 				return super.set_visible(false);
 
-			if (forceShow)
+			if (noModchart)
 				return visible;
 		}
 		return super.set_visible(value);
@@ -275,23 +275,30 @@ class StrumNote extends FlxSprite
 			if (forceHide)
 				return super.set_alpha(0);
 
-			if (forceShow)
+			if (noModchart)
 				return super.set_alpha(FlxMath.bound(value, 0.75, 1));
 		}
 		return super.set_alpha(value);
 	}
 
 	override function set_x(value:Float):Float {
-		if (initialized && forceShow) {
+		if (initialized && noModchart) {
 			return x;
 		}
 		return super.set_x(value);
 	}
 
 	override function set_y(value:Float):Float {
-		if (initialized && forceShow) {
+		if (initialized && noModchart) {
 			return y;
 		}
 		return super.set_y(value);
+	}
+
+	function set_direction(value:Float) {
+		if (initialized && noModchart) {
+			return direction;
+		}
+		return direction = value;
 	}
 }

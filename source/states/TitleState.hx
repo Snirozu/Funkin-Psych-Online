@@ -125,7 +125,7 @@ class TitleState extends MusicBeatState
 			if(FlxG.save.data != null && FlxG.save.data.fullscreen)
 			{
 				FlxG.fullscreen = FlxG.save.data.fullscreen;
-				//trace('LOADED FULLSCREEN SETTING!!');
+				//Log.trace('LOADED FULLSCREEN SETTING!!');
 			}
 			persistentUpdate = true;
 			persistentDraw = true;
@@ -178,6 +178,7 @@ class TitleState extends MusicBeatState
 		{
 			if(FlxG.sound.music == null) {
 				states.TitleState.playFreakyMusic(0);
+				Mods.loadTopMod();
 			}
 		}
 
@@ -353,7 +354,7 @@ class TitleState extends MusicBeatState
 		#if lumod
 		if (FlxG.keys.justPressed.DELETE) {
 			// lumod.Lumod.storage.scripts.clear();
-			trace("cleared lumod cache");
+			Log.info("cleared lumod cache");
 		}
 		#end
 
@@ -443,14 +444,14 @@ class TitleState extends MusicBeatState
 				if(allowedKeys.contains(keyName)) {
 					easterEggKeysBuffer += keyName;
 					if(easterEggKeysBuffer.length >= 32) easterEggKeysBuffer = easterEggKeysBuffer.substring(1);
-					//trace('Test! Allowed Key pressed!!! Buffer: ' + easterEggKeysBuffer);
+					//Log.trace('Test! Allowed Key pressed!!! Buffer: ' + easterEggKeysBuffer);
 
 					for (wordRaw in easterEggKeys)
 					{
 						var word:String = wordRaw.toUpperCase(); //just for being sure you're doing it right
 						if (easterEggKeysBuffer.contains(word))
 						{
-							//trace('YOOO! ' + word);
+							//Log.trace('YOOO! ' + word);
 							if (FlxG.save.data.psychDevsEasterEgg == word)
 								FlxG.save.data.psychDevsEasterEgg = '';
 							else
@@ -788,7 +789,7 @@ class TitleState extends MusicBeatState
 				}
 			}
 			catch (exc) {
-				trace(exc);
+				Log.error(exc);
 			}
 		}
 

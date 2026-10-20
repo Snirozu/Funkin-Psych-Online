@@ -245,7 +245,7 @@ class EditorPlayState extends MusicBeatSubstate
 	override function beatHit()
 	{
 		if(lastBeatHit >= curBeat) {
-			//trace('BEAT HIT: ' + curBeat + ', LAST HIT: ' + lastBeatHit);
+			//Log.trace('BEAT HIT: ' + curBeat + ', LAST HIT: ' + lastBeatHit);
 			return;
 		}
 		notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
@@ -493,7 +493,7 @@ class EditorPlayState extends MusicBeatSubstate
 	private function popUpScore(note:Note = null):Void
 	{
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.getRatingOffset());
-		//trace(noteDiff, ' ' + Math.abs(note.strumTime - Conductor.songPosition));
+		//Log.trace(noteDiff, ' ' + Math.abs(note.strumTime - Conductor.songPosition));
 
 		vocals.volume = 1;
 		var placement:String = Std.string(combo);
@@ -625,8 +625,8 @@ class EditorPlayState extends MusicBeatSubstate
 		}
 		comboSpr.x = xThing + 50;
 		/*
-			trace(combo);
-			trace(seperatedScore);
+			Log.trace(combo);
+			Log.trace(seperatedScore);
 			*/
 
 		coolText.text = Std.string(seperatedScore);
@@ -652,7 +652,7 @@ class EditorPlayState extends MusicBeatSubstate
 	{
 		var eventKey:FlxKey = event.keyCode;
 		var key:Int = PlayState.getKeyFromEvent(keysArray, eventKey);
-		//trace('Pressed: ' + eventKey);
+		//Log.trace('Pressed: ' + eventKey);
 
 		if (!controls.controllerMode && FlxG.keys.checkStatus(eventKey, JUST_PRESSED)) keyPressed(key);
 	}
@@ -717,7 +717,7 @@ class EditorPlayState extends MusicBeatSubstate
 	{
 		var eventKey:FlxKey = event.keyCode;
 		var key:Int = PlayState.getKeyFromEvent(keysArray, eventKey);
-		//trace('Pressed: ' + eventKey);
+		//Log.trace('Pressed: ' + eventKey);
 
 		if(!controls.controllerMode && key > -1) keyReleased(key);
 	}

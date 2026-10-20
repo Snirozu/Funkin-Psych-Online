@@ -7,7 +7,7 @@ class HealthBar extends FlxSpriteGroup
 {
 	public var leftBar:FlxSprite;
 	public var rightBar:FlxSprite;
-	public var bg:FlxSprite;
+	public var bg:AttachedSprite; // changed back from FlxSprite to AttachedSprite for compatibility
 	public var valueFunction:Void->Float = function() return 0;
 	public var percent(default, set):Float = 0;
 	public var bounds:Dynamic = {min: 0, max: 1};
@@ -26,7 +26,8 @@ class HealthBar extends FlxSpriteGroup
 		if(valueFunction != null) this.valueFunction = valueFunction;
 		setBounds(boundX, boundY);
 		
-		bg = new FlxSprite().loadGraphic(Paths.image(image));
+		bg = new AttachedSprite(image);
+		bg.sprTracker = this;
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		barWidth = Std.int(bg.width - 6);
 		barHeight = Std.int(bg.height - 6);

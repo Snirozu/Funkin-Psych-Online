@@ -14,6 +14,7 @@ import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.input.keyboard.FlxKey;
 import openfl.events.KeyboardEvent;
 import flixel.FlxBasic;
+import backend.MidiControls;
 
 class ReplayRecorder extends FlxBasic {
 	@:unreflective
@@ -69,11 +70,12 @@ class ReplayRecorder extends FlxBasic {
 
 	var keyboardIds:Map<FlxKey, Array<String>> = [];
 	var controllerIds:Map<FlxGamepadInputID, Array<String>> = [];
+	var midiIds:Map<Int, Array<String>> = [];
 
 	public function new(state:PlayState) {
         super();
 
-		trace("Recording a replay...");
+		Log.info("Recording a replay...");
 
         this.state = state;
 
@@ -127,6 +129,17 @@ class ReplayRecorder extends FlxBasic {
 			}
 		}
 
+		for (id => binds in state.controls.midiBinds) {
+			for (bind in binds) {
+				if (REGISTER_BINDS.contains(id)) {
+					if (midiIds.exists(bind))
+						midiIds.get(bind).push(id);
+					else
+						midiIds.set(bind, [id]);
+				}
+			}
+		}
+
 		state.add(this);
         
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
@@ -171,6 +184,16 @@ class ReplayRecorder extends FlxBasic {
 							// nothing
 					}
 				}
+		}
+
+		if (MidiControls.isActive) {
+			for (key in MidiControls.justPressed) {
+				recordKey(Conductor.songPosition, midiIds.get(key), key, 0, true);
+			}
+
+			for (key in MidiControls.justReleased) {
+				recordKey(Conductor.songPosition, midiIds.get(key), key, 1, true);
+			}
 		}
 	}
 
@@ -219,13 +242,13 @@ class ReplayRecorder extends FlxBasic {
 			return 0;
 		}
 
-		trace("Saving replay...");
+		Log.info("Saving replay...");
 		var replayData = Json.stringify(data);
 		File.saveContent(FileUtils.joinFiles([
 			"replays", 
 			"MyReplay-" + PlayState.SONG.song + "-" + Difficulty.getString().toUpperCase() + "-" + DateTools.format(Date.now(), "%Y-%m-%d_%H'%M'%S") + ".funkinreplay"
 		]), replayData);
-		trace("Saved a replay!");
+		Log.info("Saved a replay!");
 
 		return upload();
     }
@@ -235,7 +258,7 @@ class ReplayRecorder extends FlxBasic {
 			return 0;
 		}
 
-		trace("Uploading replay...");
+		Log.info("Uploading replay...");
 
 		var response = null;
 		final MAX_TRIES = 3;
@@ -256,7 +279,7 @@ class ReplayRecorder extends FlxBasic {
 				Alert.alert('Replay Uploaded!', 'After try #' + (MAX_TRIES - tries));
 			}
 			if (res.gained_points != null) {
-				trace("Uploaded replay!");
+				Log.info("Uploaded replay!");
 				return res.gained_points;
 			}
 		}

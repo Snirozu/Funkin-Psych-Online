@@ -174,7 +174,7 @@ class ABotSpeaker extends FlxSpriteGroup {
 		}
 
 		if (levelMax >= 4) {
-			// trace(levelMax);
+			// Log.trace(levelMax);
 			if (oldLevelMax <= levelMax && (levelMax >= 5 || getCurSpeakerFrame() >= 3))
 				bumpSpeaker();
 		}

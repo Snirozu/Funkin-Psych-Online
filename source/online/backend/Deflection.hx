@@ -3,6 +3,7 @@ package online.backend;
 class Deflection {
 	//@:unreflective public static final luaClassBlacklist:Array<String> = ['cpp', 'lib', 'reflect', 'cffi', 'process', 'lua', 'http'];
     @:unreflective public static var classBlacklist(get, default):Array<Class<Dynamic>> = null;
+    @:unreflective public static var classPathsBlacklist(get, default):Array<String> = null;
 	public static var CLASS_ALIASES:Map<String, String> = [
 		"Achievements" => "backend.Achievements",
 		// "AchievementsMenuState" => "",
@@ -99,6 +100,12 @@ class Deflection {
 		return classBlacklist;
 	}
 
+	private static function get_classPathsBlacklist() {
+		if (classPathsBlacklist == null)
+			initClassBlacklist();
+		return classPathsBlacklist;
+	}
+
     private static function initClassBlacklist() {
 		var blacklist:Array<Class<Dynamic>> = [];
 
@@ -110,7 +117,7 @@ class Deflection {
 
 		// `Reflect`
 		// Reflect.callMethod() can access blacklisted packages
-		blacklist.push(Reflect);
+		// blacklist.push(Reflect);
 
 		// `Type`
 		// Type.createInstance(Type.resolveClass()) can access blacklisted packages
@@ -181,6 +188,24 @@ class Deflection {
 			blacklist.push(cls);
 		}
 
+		for (cls in CompileTime.getAllClasses('hscriptBase')) {
+			if (cls == null)
+				continue;
+			blacklist.push(cls);
+		}
+
+		for (cls in CompileTime.getAllClasses('hscript')) {
+			if (cls == null)
+				continue;
+			blacklist.push(cls);
+		}
+
+		for (cls in CompileTime.getAllClasses('macro')) {
+			if (cls == null)
+				continue;
+			blacklist.push(cls);
+		}
+
 		for (cls in CompileTime.getAllClasses('lumod')) {
 			if (cls == null)
 				continue;
@@ -197,8 +222,9 @@ class Deflection {
 		#end
 
 		classBlacklist = blacklist;
+		classPathsBlacklist = [for (cls in classBlacklist) Type.getClassName(cls)];
 
         if (ClientPrefs.isDebug())
-			trace(classBlacklist);
+			Log.infoTrace(classPathsBlacklist);
     }
 }

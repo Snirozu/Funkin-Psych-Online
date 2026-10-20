@@ -145,7 +145,7 @@ class HostServerTab extends TabSprite {
                     });
                 }
                 catch (e:Dynamic) {
-                    trace('cras');
+                    Log.error('Server crashed!', e);
                     if (e == Error.Blocked) {
                         // Blocked will be ignored
                         continue;
@@ -156,7 +156,7 @@ class HostServerTab extends TabSprite {
         }
         catch (e:Dynamic) {
             stopServer();
-            trace(e);
+            Log.error(e);
         }
     }
 
@@ -165,7 +165,7 @@ class HostServerTab extends TabSprite {
 			return;
 		}
 
-        trace('killing the server');
+        Log.info('killing the server');
 		#if windows
 		var killServer = new sys.io.Process("taskkill /t /f /PID " + process.getPid());
 		#else
@@ -189,7 +189,7 @@ class HostServerTab extends TabSprite {
 	function logProcess(process:sys.io.Process) {
 		logs.setText(logs.text + '\n' + process.stdout.readAll().toString().wrapText(70, 6969, false));
 		TextFormats.applyASCII(logs);
-		trace(process.exitCode());
+		Log.infoTrace(process.exitCode());
 		process.close();
     }
 }

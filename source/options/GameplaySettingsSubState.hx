@@ -107,12 +107,6 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		addOption(option);
 
-		var option:Option = new Option('Disable Note Modchart',
-			'If checked, strum notes will no longer move or change their opacity to invisible.',
-			'disableStrumMovement',
-			'bool');
-		addOption(option);
-
 		var option:Option = new Option('Modchart Skin Changes',
 			'If enabled, the song events will change the character of your active skin',
 			'modchartSkinChanges',

@@ -160,7 +160,7 @@ class ModDownloader {
 	}
 
 	public static function cancelAll() {
-		Sys.println("Cancelling " + downloaders.length + " downloads...");
+		Log.info("Cancelling " + downloaders.length + " downloads...");
 		for (downloader in downloaders) {
 			if (downloader != null)
 				downloader.client.cancel();

@@ -111,7 +111,8 @@ class PauseSubState extends MusicBeatSubstate
 				var msc = null;
 				if (ClientPrefs.data.currentSkin != null) {
 					ShitUtil.tempSwitchMod(ClientPrefs.data.currentSkin[3], () -> {
-						msc = Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic + '-' + ClientPrefs.data.currentSkin[0]));
+						final musicTrack = (ClientPrefs.data.currentSkin[0] ?? '').toLowerCase() == 'vektor' ? 'dinner' : ClientPrefs.data.pauseMusic;
+						msc = Paths.music(Paths.formatToSongPath(musicTrack + '-' + ClientPrefs.data.currentSkin[0]));
 					});
 				}
 				msc ??= Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic));
@@ -299,7 +300,7 @@ class PauseSubState extends MusicBeatSubstate
 						return;
 					}					
 				}catch(e:Dynamic){
-					trace('ERROR! $e');
+					Log.error(e);
 
 					var errorStr:String = e.toString();
 					if(errorStr.startsWith('[file_contents,assets/data/')) errorStr = 'Missing file: ' + errorStr.substring(27, errorStr.length-1); //Missing chart

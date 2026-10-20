@@ -20,7 +20,6 @@ import online.states.OnlineState;
 import lime.app.Application;
 import io.colyseus.events.EventHandler;
 import states.MainMenuState;
-import online.backend.schema.Room as GameRoom;
 import io.colyseus.Client;
 import io.colyseus.Room;
 
@@ -28,12 +27,12 @@ typedef Error = #if (colyseus < "0.15.3") io.colyseus.error.MatchMakeError #else
 
 class GameClient {
     public static var client:Client;
-	public static var room(default, set):Room<GameRoom>;
-	static function set_room(v) {
+	public static var room(default, set):Room<online.backend.schema.Room>;
+	static function set_room(v:Room<online.backend.schema.Room>) {
 		callbacks = v == null ? null : Callbacks.get(v);
 		return room = v; 
 	}
-	public static var callbacks(default, null):SchemaCallbacks<GameRoom>;
+	public static var callbacks(default, null):Dynamic;
 	public static var isOwner(get, never):Bool;
 	public static var address:String;
 	public static var reconnecting:Bool = false;
@@ -68,11 +67,11 @@ class GameClient {
 			client = new Client(address);
 			_pendingMessages = [];
 
-			client.create("room", getOptions(true, address), GameRoom, (err, room) -> _onJoin(err, room, true, address, onJoin));
+			client.create("room", getOptions(true, address), online.backend.schema.Room, (err, room) -> _onJoin(err, room, true, address, onJoin));
 		}, (exc) -> {
 			onJoin(exc);
 			LoadingScreen.toggle(false);
-			trace(exc.details());
+			Log.error(exc);
 			Alert.alert("Failed to connect!", exc.details());
 		});
     }
@@ -98,18 +97,18 @@ class GameClient {
 			client = new Client(roomAddress);
 			_pendingMessages = [];
 
-			client.joinById(roomID, getOptions(false, roomAddress), GameRoom, (err, room) -> _onJoin(err, room, false, roomAddress, onJoin));
+			client.joinById(roomID, getOptions(false, roomAddress), online.backend.schema.Room, (err, room) -> _onJoin(err, room, false, roomAddress, onJoin));
 		}, (exc) -> {
 			onJoin(exc);
 			LoadingScreen.toggle(false);
-			trace(exc.details());
+			Log.error(exc);
 			Alert.alert("Failed to connect!", exc.toString());
 		});
     }
 
-	private static function _onJoin(err:Error, room:Room<GameRoom>, isHost:Bool, address:String, ?onJoin:(err:Dynamic)->Void) {
+	private static function _onJoin(err:Error, room:Room<online.backend.schema.Room>, isHost:Bool, address:String, ?onJoin:(err:Dynamic)->Void) {
 		if (err != null) {
-			trace(err.code + " - " + err.message);
+			Log.error(err.code + " - " + err.message);
 			Alert.alert("Couldn't connect!", "JOIN ERROR: " + ShitUtil.prettyStatus(err.code) + "\n" + ShitUtil.readableError(err.message));
 			onJoin(err);
 			leaveRoom();
@@ -129,18 +128,18 @@ class GameClient {
 		reconnecting = false;
 
 		GameClient.room.onError += (code:Int, e:String) -> {
-			Sys.println("Room.onError: " + code + " - " + e);
+			Log.error("Room.onError: " + code + " - " + e);
 			if (code == 524)
 				return;
 			Alert.alert("Room error!", "room.onError: " + ShitUtil.prettyStatus(code) + "\n" + ShitUtil.readableError(e));
 		}
 
 		GameClient.room.onLeave += (code) -> {
-			trace(code);
+			Log.infoTrace(code);
 			if (room?.roomId != null)
-				trace("Left/Kicked from room: " + room.roomId);
+				Log.info("Left/Kicked from room: " + room.roomId);
 			else
-				trace("Left/Kicked from unknown room!");
+				Log.info("Left/Kicked from unknown room!");
 
 			if (client == null) {
 				leaveRoom();
@@ -154,7 +153,7 @@ class GameClient {
 			var tries = 50;
 			// great stuff colyseus
 			while (getPlayerSelf() == null) {
-				trace(getPlayerSelf() == null);
+				Log.infoTrace(getPlayerSelf() == null);
 				if (tries-- < 0) {
 					Alert.alert("Couldn't connect!", "Client couldn't receive server's state data!");
 					onJoin(new Error(-1, 'no state data'));
@@ -165,7 +164,7 @@ class GameClient {
 				Sys.sleep(0.2);
 			}
 
-			trace("Joined!");
+			Log.info("Joined the room!");
 
 			FlxG.autoPause = false;
 
@@ -175,7 +174,7 @@ class GameClient {
 
 		//maybe just make it global
 		//if (address.contains(".onrender.com")) {
-		//	trace("onrender server detected");
+		//	Log.trace("onrender server detected");
 		Waiter.pingServer = address;
 		//}
 	}
@@ -192,7 +191,7 @@ class GameClient {
 
 		var reconnectToken = room.reconnectionToken;
 
-		trace("Reconnecting with Token: " + reconnectToken);
+		Log.info("Reconnecting with Token: " + reconnectToken);
 		Alert.alert("Reconnecting...");
 
 		try {
@@ -206,7 +205,7 @@ class GameClient {
 				Sys.sleep(debugReconnectDelay);
 			if (client == null)
 				return;
-			client.reconnect(reconnectToken, GameRoom, (err, newRoom:Room<GameRoom>) -> {
+			client.reconnect(reconnectToken, online.backend.schema.Room, (err, newRoom:Room<online.backend.schema.Room>) -> {
 				try {
 					if (reconnectToken != room.reconnectionToken) {
 						reconnecting = false;
@@ -214,7 +213,7 @@ class GameClient {
 					}
 
 					if (err != null) {
-						trace(err.code + " - " + err.message);
+						Log.error(err.code + " - " + err.message);
 						Waiter.putPersist(() -> {
 							Alert.alert("Couldn't reconnect!", "RECONNECT ERROR: " + ShitUtil.prettyStatus(err.code) + " - " + ShitUtil.readableError(err.message));
 						});
@@ -285,7 +284,7 @@ class GameClient {
 		Waiter.putPersist(() -> {
 			if (reason != null)
 				Alert.alert("Disconnected!", reason.trim() != "" ? reason : null);
-			trace("Leaving the Room, Reason: " + reason);
+			Log.info("Leaving the Room, Reason: " + reason);
 
 			FlxG.autoPause = ClientPrefs.data.autoPause;
 
@@ -415,14 +414,14 @@ class GameClient {
 			Waiter.putPersist(() -> {
 				try {
 					var hash = Md5.encode(Song.loadRawSong(GameClient.room.state.song, GameClient.room.state.folder));
-					trace("verifying song: " + GameClient.room.state.song + " | " + GameClient.room.state.folder + " : " + hash);
+					Log.info("verifying song: " + GameClient.room.state.song + " | " + GameClient.room.state.folder + " : " + hash);
 					GameClient.send("verifyChart", hash);
 					states.FreeplayState.destroyFreeplayVocals();
 					FlxG.switchState(() -> new RoomState());
 					FlxG.autoPause = ClientPrefs.data.autoPause;
 				}
 				catch (exc:Dynamic) {
-					Sys.println(exc);
+					Log.error(exc);
 				}
 			});
 		});
@@ -434,37 +433,25 @@ class GameClient {
 		#end
 	}
 
-	public static function clearCallbacks(irefSchema:IRef, ?fieldNameOrOperation:String) @:privateAccess {
+	public static function clearCallbacks(irefSchema:IRef) @:privateAccess {
 		if (irefSchema == null)
+			return;
+
+		if (callbacks?.decoder?.refs == null)
 			return;
 
 		final refId = irefSchema.__refId;
 
-		// if specific field wasn't provided the whole schema gets purged
-		if (fieldNameOrOperation == null) {
-			callbacks.decoder.refs.callbacks.set(refId, new Map<String, Array<Dynamic>>());
+		try {
+			if (callbacks.decoder.refs.callbacks0.exists(refId))
+				callbacks.decoder.refs.callbacks0.remove(refId);
 
-			for (field in Reflect.fields(irefSchema)) {
-				final childIRef = Reflect.field(irefSchema, field);
-				if (childIRef is IRef)
-					clearCallbacks(childIRef);
-			}
-
-			return;
+			if (callbacks.decoder.refs.callbacks2.exists(refId))
+				callbacks.decoder.refs.callbacks2.remove(refId);
 		}
-
-		// remove child fields that have their own IRefs???
-		if (Std.isOfType(fieldNameOrOperation, String) && Reflect.hasField(irefSchema, fieldNameOrOperation)) {
-			final childIRef = Reflect.field(irefSchema, fieldNameOrOperation);
-			if (childIRef is IRef)
-				clearCallbacks(childIRef);
+		catch (exc) {
+			Log.error(exc);
 		}
-
-		final key = (Std.isOfType(fieldNameOrOperation, String))
-            ? fieldNameOrOperation
-            : "#" + fieldNameOrOperation;
-
-		callbacks.decoder.refs.callbacks.get(refId).remove(key);
 	}
 
 	private static var _pendingMessages:Array<Array<Dynamic>> = [];
@@ -472,7 +459,7 @@ class GameClient {
 		if (_pendingMessages.length == 0)
 			return;
 
-		Sys.println('resending ' + _pendingMessages.length + " packets");
+		Log.info('resending ' + _pendingMessages.length + " packets");
 		while (_pendingMessages.length > 0) {
 			var msg = _pendingMessages.shift();
 			GameClient.send(msg[0], msg[1]);
@@ -489,7 +476,7 @@ class GameClient {
 					_pendingMessages.push([type, message]);
 
 					if (!reconnecting) {
-						trace(exc + " : FAILED TO SEND: " + type + " -> " + message);
+						Log.error("FAILED TO SEND: " + type + " -> " + message, exc);
 						reconnect();
 					}
 				}
@@ -744,7 +731,7 @@ class GameClient {
 		}
 		http.onError = function(error) {
 			GameClient.serverAddresses = ["wss://funkin.sniro.boo"];
-			trace('error: $error');
+			Log.errorTrace('$error');
 			hasAddresses = false;
 		}
 		http.request();

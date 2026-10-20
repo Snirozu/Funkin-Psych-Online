@@ -16,7 +16,7 @@ class ReplayPlayer extends FlxBasic {
 	public function new(state:PlayState, data:ReplayData) {
 		super();
 
-		trace("Playing a replay!");
+		Log.info("Playing a replay!");
 
 		this.state = state;
         this.data = data;

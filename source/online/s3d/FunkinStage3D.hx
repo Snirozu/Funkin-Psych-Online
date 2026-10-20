@@ -91,7 +91,7 @@ class FunkinStage3D extends FlxGroup3D {
 	public function createSprite(objectName:String, ?animated:Bool = false, ?bitmap:BitmapData):Any {
 		var object = stageData.stage3D.objects.get(objectName);
 		if (object == null) {
-			trace('Object "${objectName}" not found in the Stage file!');
+			Log.warn('Object "${objectName}" not found in the Stage file!');
 			return null;
 		}
 
@@ -156,7 +156,7 @@ class FunkinStage3D extends FlxGroup3D {
 				cameraPoint = newCameraPoint;
 
 			if (ClientPrefs.isDebug())
-				trace("targeting alt point: " + altName);
+				Log.infoTrace("targeting alt point: " + altName);
 		}
 
 		setPositionFromArray(object, cameraPoint.position);

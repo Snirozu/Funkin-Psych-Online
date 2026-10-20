@@ -44,13 +44,20 @@ class NoteSplash extends FlxSprite
 	var noteDataMap:Map<Int, String> = new Map();
 
 	public static var defaultNoteSplash(default, never):String = "noteSplashes/noteSplashes";
-	public static var configs:Map<String, NoteSplashConfig> = new Map();
+
+	// literally no reason to cache it?
+	// causes issues for mods
+	public /*static*/ var configs:Map<String, NoteSplashConfig> = new Map();
 
 	public function new(?x:Float = 0, ?y:Float = 0, ?splash:String)
 	{
 		super(x, y);
 
 		animation = new PsychAnimationController(this);
+		animation.finishCallback = function(name:String) {
+			kill();
+			spawned = false;
+		}
 
 		rgbShader = new PixelSplashShaderRef();
 		shader = rgbShader.shader;
@@ -63,7 +70,7 @@ class NoteSplash extends FlxSprite
 	public var maxAnims(default, set):Int = 0;
 	public function loadSplash(?splash:String)
 	{
-		regularColArray = Note.getColArrayFromKeys(true);
+		regularColArray = Note.getColArrayFromKeys(true, 4);
 		config = null;
 		maxAnims = 0;
 
@@ -97,7 +104,7 @@ class NoteSplash extends FlxSprite
 			}
 			return;
 		}
-		else if (Paths.fileExists('$path.json', TEXT))
+		else if (Paths.fileExists('$path.json', TEXT) && !Paths.contextFileExists('$path.txt', TEXT))
 		{
 			var config:Dynamic = haxe.Json.parse(Paths.getTextFromFile('$path.json'));
 			if (config != null)
@@ -213,15 +220,19 @@ class NoteSplash extends FlxSprite
 		setPosition(x, y);
 
 		if (babyArrow != null)
-			setPosition(babyArrow.x - Note.swagWidth * 0.95, babyArrow.y - Note.swagWidth); // To prevent it from being misplaced for one game tick
+			setPosition(babyArrow.x, babyArrow.y); // To prevent it from being misplaced for one game tick
+
+		x -= Note.swagScaledWidth * 0.95;
+		y -= Note.swagScaledWidth;
 
 		setGraphicSize(Std.int(width * Note.noteScale));
 
-		if (note != null)
+		if (note != null) {
 			noteData = note.noteData;
+		}
 
-		if (randomize && maxAnims > 1)
-			noteData = noteData % regularColArray.length + (FlxG.random.int(0, maxAnims - 1) * regularColArray.length);
+		// if (randomize && maxAnims > 1)
+		// 	noteData = noteData % regularColArray.length + (FlxG.random.int(0, maxAnims - 1) * regularColArray.length);
 
 		this.noteData = Note.colToIndex(Note.getColArrayFromKeys(true)[noteData % Note.maniaKeys]);
 
@@ -230,7 +241,7 @@ class NoteSplash extends FlxSprite
 		var tempShader:RGBPalette = null;
 		if (config.allowRGB)
 		{
-			Note.initializeGlobalRGBShader(noteData % regularColArray.length, note?.mustPress ?? true);
+			Note.initializeGlobalRGBShader(noteData, note?.mustPress ?? true);
 			if (inEditor || (note == null || note.noteSplashData.useRGBShader) && (PlayState.SONG == null || !PlayState.SONG.disableNoteRGB))
 			{
 				tempShader = new RGBPalette();
@@ -244,8 +255,8 @@ class NoteSplash extends FlxSprite
 						{
 							if (i > 2) break;
 
-							var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData % regularColArray.length];
-							if (PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData % regularColArray.length];
+							var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
+							if (PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];
 
 							var arr:Array<FlxColor> = null;
 
@@ -255,7 +266,7 @@ class NoteSplash extends FlxSprite
 									ClientPrefs.getRGBPixelColor(note?.mustPress ?? true == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData]
 								;
 							} catch (exc) {
-								trace(exc);
+								Log.error(exc);
 							}
 
 							var rgb = colors[i];
@@ -281,7 +292,7 @@ class NoteSplash extends FlxSprite
 							else if (i == 2) tempShader.b = color;
 						}
 					}
-					else tempShader.copyValues(Note.globalRgbShaders[noteData % regularColArray.length]);
+					else tempShader.copyValues(Note.globalRgbShaders[noteData]);
 
 					if (note != null)
 					{
@@ -290,7 +301,7 @@ class NoteSplash extends FlxSprite
 						if (note.noteSplashData.b != -1) tempShader.b = note.noteSplashData.b;
 					}
 				}
-				else tempShader.copyValues(Note.globalRgbShaders[noteData % regularColArray.length]);
+				else tempShader.copyValues(Note.globalRgbShaders[noteData]);
 			}
 		}
 		rgbShader.copyValues(tempShader);
@@ -300,20 +311,17 @@ class NoteSplash extends FlxSprite
 		offset.set(10, 10);
 		var conf:NoteSplashAnim = config.animations.get(anim);
 		var offsets:Array<Float> = [0, 0];
-		if (conf != null) offsets = conf.offsets;
-		if (offsets != null)
-		{
+		if (conf != null) { 
+			offsets = conf.offsets;
+		}
+
+		if (offsets != null) {
 			offset.x += offsets[0];
 			offset.y += offsets[1];
 		}
 
 		offset.x *= Note.noteScale;
 		offset.y *= Note.noteScale;
-
-		animation.finishCallback = function(name:String) {
-			kill();
-			spawned = false;
-		}
 
 		alpha = ClientPrefs.data.splashAlpha;
 		if (note != null) alpha = note.noteSplashData.a;
@@ -347,7 +355,7 @@ class NoteSplash extends FlxSprite
 		if (anim != null && animation.exists(anim))
 			animation.play(anim, true);
 		else {
-			// trace(noteData, noteDataMap, "NULL ANIM: " + anim);
+			// Log.trace(noteData, noteDataMap, "NULL ANIM: " + anim);
 			kill();
 		}
 
@@ -380,10 +388,10 @@ class NoteSplash extends FlxSprite
 		if (babyArrow != null)
 		{
 			if (copyX)
-				x = babyArrow.x - Note.swagWidth * 0.95;
+				x = (babyArrow.x - (Note.swagWidth - Note.swagScaledWidth)) - Note.swagScaledWidth * 0.95;
 
 			if (copyY)
-				y = babyArrow.y - Note.swagWidth;
+				y = (babyArrow.y - (Note.swagWidth - Note.swagScaledWidth)) - Note.swagScaledWidth;
 		}
 		super.update(elapsed);
 	}
@@ -502,7 +510,7 @@ class PixelSplashShaderRef
 
 		if (!PlayState.isPixelStage) pixelAmount = 1;
 		else pixelAmount = PlayState.daPixelZoom;
-		//trace('Created shader ' + Conductor.songPosition);
+		//Log.trace('Created shader ' + Conductor.songPosition);
 	}
 }
 

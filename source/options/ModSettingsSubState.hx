@@ -59,7 +59,7 @@ class ModSettingsSubState extends BaseOptionsMenu
 						// getting inputs and checking
 						var keyboardKey:FlxKey = cast FlxKey.fromString(keyboardStr);
 						var gamepadKey:FlxGamepadInputID = cast FlxGamepadInputID.fromString(gamepadStr);
-						//trace('${keyboardStr}: $keyboardKey, ${gamepadStr}: $gamepadKey');
+						//Log.trace('${keyboardStr}: $keyboardKey, ${gamepadStr}: $gamepadKey');
 
 						@:privateAccess
 						{
@@ -132,7 +132,7 @@ class ModSettingsSubState extends BaseOptionsMenu
 			#if windows
 			lime.app.Application.current.window.alert(errorMsg, errorTitle);
 			#end
-			trace('$errorTitle - $errorMsg');
+			Log.error('$errorTitle - $errorMsg');
 
 			_crashed = true;
 			close();

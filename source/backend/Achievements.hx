@@ -85,7 +85,7 @@ class Achievements {
 
 			if(FlxG.save.data.achievementsMap != null) {
 				var achievementsMap:Map<String, Bool> = cast FlxG.save.data.achievementsMap;
-				trace('Found legacy achievement save data! ($achievementsMap)');
+				Log.info('Found legacy achievement save data! ($achievementsMap)');
 				for(achievement=>unlocked in achievementsMap) {
 					if(unlocked && !achievementsUnlocked.contains(achievement))
 						achievementsUnlocked.push(achievement);
@@ -104,7 +104,7 @@ class Achievements {
 			}
 
 			if(FlxG.save.data.henchmenDeath != null) {
-				trace('Found legacy "Roadkill Enthusiast" save data! (${FlxG.save.data.henchmenDeath})');
+				Log.info('Found legacy "Roadkill Enthusiast" save data! (${FlxG.save.data.henchmenDeath})');
 
 				if((variables.get('roadkill_enthusiast') ?? 0) < FlxG.save.data.henchmenDeath)
 					variables.set('roadkill_enthusiast', FlxG.save.data.henchmenDeath);
@@ -169,14 +169,14 @@ class Achievements {
 	public static function unlock(name:String, autoStartPopup:Bool = true):String {
 		if(!achievements.exists(name))
 		{
-			FlxG.log.error('Achievement "$name" does not exists!');
+			Log.error('Achievement "$name" does not exists!');
 			throw new Exception('Achievement "$name" does not exists!');
 			return null;
 		}
 
 		if(Achievements.isUnlocked(name)) return null;
 
-		trace('Completed achievement "$name"');
+		Log.info('Completed achievement "$name"');
 		achievementsUnlocked.push(name);
 
 		// earrape prevention
@@ -213,7 +213,7 @@ class Achievements {
 
 		var newPop:AchievementPopup = new AchievementPopup(achieve, endFunc);
 		_popups.push(newPop);
-		//trace('Giving achievement ' + achieve);
+		//Log.info('Giving achievement ' + achieve);
 	}
 
 	// Map sorting cuz haxe is physically incapable of doing that by itself
@@ -269,7 +269,7 @@ class Achievements {
 							#if windows
 							lime.app.Application.current.window.alert(errorMsg, errorTitle);
 							#end
-							trace('$errorTitle - $errorMsg');
+							Log.error('$errorTitle - $errorMsg');
 							continue;
 						}
 
@@ -281,7 +281,7 @@ class Achievements {
 							#if windows
 							lime.app.Application.current.window.alert(errorMsg, errorTitle);
 							#end
-							trace('$errorTitle - $errorMsg');
+							Log.error('$errorTitle - $errorMsg');
 							continue;
 						}
 						key = key.trim();
@@ -296,7 +296,7 @@ class Achievements {
 				#if windows
 				lime.app.Application.current.window.alert(errorMsg, errorTitle);
 				#end
-				trace('$errorTitle - $errorMsg');
+				Log.error('$errorTitle - $errorMsg');
 			}
 		}
 		return retVal;

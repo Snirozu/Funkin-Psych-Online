@@ -28,7 +28,7 @@ class Auth {
 		if (FileSystem.exists(legacyPath)) {
 			File.saveContent(savePath, File.getContent(legacyPath));
 			FileSystem.deleteFile(legacyPath);
-			trace('migrated auth data');
+			Log.info('migrated auth data');
 		}
 
 		if (!FileSystem.exists(savePath))
@@ -37,7 +37,7 @@ class Auth {
 		try {
 			saveData = Json.parse(File.getContent(savePath));
 		} catch(e) {
-			trace("Couldn't load peo_auth.json! More info: " + e);
+			Log.error("Couldn't load peo_auth.json!", e);
 			generateSave();
 			saveData = {
 				id: null,
@@ -52,7 +52,7 @@ class Auth {
         
         // move from old save data
 		if (authID == null && authToken == null && FlxG.save.data.networkAuthID != null && FlxG.save.data.networkAuthToken != null) {
-            trace("Moved credentials from the old save data!");
+            Log.info("Moved credentials from the old save data!");
 			save(FlxG.save.data.networkAuthID, FlxG.save.data.networkAuthToken);
 			FlxG.save.data.networkAuthID = null;
 			FlxG.save.data.networkAuthToken = null;
@@ -91,7 +91,7 @@ class Auth {
 		}
 		if (saveData.id != null && saveData.token != null) {
 			File.saveContent(savePath, Json.stringify(saveData));
-			trace("Saved Auth Credentials...");
+			Log.info("Saved Auth Credentials...");
 		}
         Sys.exit(1);
 	}

@@ -1,5 +1,6 @@
 package online.states;
 
+import psychlua.ModchartSprite;
 import states.stages.objects.PhillyTrain;
 import backend.StageData;
 import flixel.util.FlxStringUtil;
@@ -235,7 +236,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 		//cool colyseus
 		// for (sid => player in GameClient.room.state.players) {
-		// 	trace('for: ' + sid + " " + player);
+		// 	Log.trace('for: ' + sid + " " + player);
 		// 	initPlayer(sid, player);
 		// }
 		GameClient.callbacks.onAdd("players", (player, sid) -> {
@@ -292,7 +293,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 		try {
 			GameClient.clearCallbacks(GameClient.room.state.gameplaySettings);
 		} catch (exc) {
-			trace(exc);
+			Log.error(exc);
 		}
 	}
 
@@ -611,7 +612,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 
 		#if lumod
 		if (FlxG.keys.justPressed.F12) {
-			trace('reloading lumod');
+			Log.info('reloading lumod');
 			// Lumod.storage.scripts.clear();
 			lmLoad();
 		}
@@ -740,7 +741,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 			}
 			playerHold = held;
 
-			// trace('playerHold = ' + playerHold + ', oppHold = ' + oppHold);
+			// Log.trace('playerHold = ' + playerHold + ', oppHold = ' + oppHold);
 
 			if (FlxG.keys.pressed.ALT) { // useless, but why not?
 				var suffix = FlxG.keys.pressed.CONTROL ? 'miss' : '';
@@ -876,7 +877,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 	
 	function verifyDownloadMod(manual:Bool, ?ignoreAlert:Bool = false) {
 		try {
-			trace(GameClient.getPlayerSelf().hasSong, GameClient.room.state.song, GameClient.room.state.modDir);
+			Log.infoTrace(GameClient.getPlayerSelf().hasSong+', '+GameClient.room.state.song+', '+GameClient.room.state.modDir);
 			if (GameClient.room.state.song == "") {
 				if (ignoreAlert)
 					return false;
@@ -950,7 +951,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 			}
 		}
 		catch (exc) {
-			Sys.println(exc);
+			Log.error(exc);
 		}
 
 		return false;
@@ -1085,7 +1086,7 @@ class RoomState extends MusicBeatState /*#if interpret implements interpret.Inte
 				return;
 			}
 			catch (exc) {
-				trace(exc);
+				Log.error(exc);
 			}
 		}
 		
@@ -1334,8 +1335,18 @@ class LobbyStage extends BaseStage {
 	var curLight:Int = 0;
 	var phillyLightsColors:Array<FlxColor> = [0xFF31A2FD, 0xFF31FD8C, 0xFFFB33F5, 0xFFFD4531, 0xFFFBA633];
 
+	var randi:ModchartSprite;
+	var randiName:String;
+	var gotRandiInteraction:Bool = false;
+
 	override function create() {
-		var stageData = StageData.getStageFile("lobby");
+		var stageName = 'lobby';
+
+		if (online.backend.DateEvent.isHalloween) {
+			stageName = 'lobby-halloween';
+		}
+
+		var stageData = StageData.getStageFile(stageName);
 		if (stageData == null) { // Stage couldn't be found, create a dummy stage for preventing a crash
 			stageData = StageData.dummy();
 		}
@@ -1357,6 +1368,16 @@ class LobbyStage extends BaseStage {
 		if (phillyWindow != null) {
 			phillyWindow.alpha = 0;
 		}
+
+		randi = cast sprites.get('randi');
+		if (randi != null) {
+			randi.alpha = 0;
+			if (FlxG.random.bool(10) || true) {
+				randi.alpha = 1;
+				randiName = FlxG.random.getObject(['ananasy', 'blud', 'four', 'pbo', 'piump', 'skull', 'pumpic', 'five', 'ingit']);
+				randi.playAnim(randiName, true);
+			}
+		}
 	}
 
 	override function update(elapsed:Float) {
@@ -1364,6 +1385,55 @@ class LobbyStage extends BaseStage {
 
 		if (phillyWindow != null) {
 			phillyWindow.alpha -= (Conductor.crochet / 1000) * FlxG.elapsed * 1.5;
+		}
+
+		if (randi != null) {
+			if (FlxG.mouse.overlaps(randi) && !gotRandiInteraction) {
+				randi.colorTransform.redOffset = 100;
+				randi.colorTransform.greenOffset = 100;
+				randi.colorTransform.blueOffset = 100;
+				if (FlxG.mouse.justPressed) {
+					var dialogue = '';
+					var dialogist = '';
+					switch (randiName) {
+						case 'ananasy':
+							dialogist = 'Trzy Ananasy';
+							dialogue = 'Trzy Ananasy';
+						case 'blud':
+							dialogist = 'blud';
+							dialogue = 'i tired to hang self, the noose really bad was, ill try to figure out how to improve my noose in the next update';
+						case 'four':
+							dialogist = '?';
+							dialogue = 'Some things are best left remembered';
+						case 'pbo':
+							dialogist = 'PEO-B';
+							dialogue = "I was going to be BIG in the NEW update, but soruz is such a BEE that he only buzz BUZZ buzzes and touches anything related to PEO once in a BLUE moon. (My body was changed multiple times, HELP me.)";
+						case 'piump':
+							dialogist = 'Piump';
+							dialogue = "Hi stranger! I was eating rocks in the woods when I felt some music coming from a nearby mansion. That music rocked so I decided to find where the music was... Now I'm here and I'll probably stay here because this track is really delicious. Oh, and sorry if you want to talk more, I'm not really able to understand what you say as I'm completely deaf.";
+						case 'skull':
+							dialogist = 'Skull';
+							dialogue = "Human! You may probably wonder how I got to this state! It's a long story so let me sum it up. I was once a very handsome young man, I started a family and life was really great. But one day I sort of got bored and decided that I put myself into a meat grinder alongside my family. End of the story. Now I'm standing on my very funny bone, and next to me there's my kid Scavier! Honestly I never liked him.";
+						case 'pumpic':
+							dialogist = 'Pumpic';
+							dialogue = "I'm the Pumpic.";
+						case 'five':
+							dialogist = 'isdeddanny';
+							dialogue = "meow";
+						case 'ingit':
+							dialogist = 'Zgintus';
+							dialogue = 'Chewing b';
+						default:
+					}
+					Alert.alert('[${dialogist}]', dialogue);
+					gotRandiInteraction = true;
+				}
+			}
+			else {
+				randi.colorTransform.redOffset = 0;
+				randi.colorTransform.greenOffset = 0;
+				randi.colorTransform.blueOffset = 0;
+			}
 		}
 	}
 

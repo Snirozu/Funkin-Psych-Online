@@ -91,7 +91,7 @@ class PicoBlazinHandler
 
 	public function noteMiss(note:Note)
 	{
-		//trace('missed note!');
+		//Log.trace('missed note!');
 		if (isDarnellInUppercut())
 		{
 			playUppercutHitAnim();

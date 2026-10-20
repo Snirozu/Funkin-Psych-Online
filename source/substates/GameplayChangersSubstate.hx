@@ -106,6 +106,9 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		var option:GameplayOption = new GameplayOption('No Hurt Notes', 'nobadnotes', 'bool', false);
 		optionsArray.push(option);
 
+		var option:GameplayOption = new GameplayOption('No Modchart', 'nomodchart', 'bool', false);
+		optionsArray.push(option);
+
 		GameClient.send("status", "In the Game Changers Menu");
 	}
 
@@ -302,7 +305,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 											updateTextFrom(oOption);
 										}
 									}
-									//trace(curOption.options[num]);
+									//Log.trace(curOption.options[num]);
 							}
 							updateTextFrom(curOption);
 							curOption.change();

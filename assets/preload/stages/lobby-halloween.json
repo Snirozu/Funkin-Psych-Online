@@ -1,0 +1,196 @@
+{
+	"camera_boyfriend": [
+		0,
+		0
+	],
+	"_editorMeta": {
+		"boyfriend": "bf",
+		"gf": "gf",
+		"dad": "pico"
+	},
+	"preload": {
+		"images/stage_light": 2,
+		"images/stagecurtains": 2,
+		"images/stagefront": 3,
+		"images/stageback": 3
+	},
+	"girlfriend": [
+		400,
+		130
+	],
+	"stageUI": "",
+	"boyfriend": [
+		770,
+		100
+	],
+	"objects": [
+		{
+			"x": -1270,
+			"y": -469,
+			"scale": [
+				1.2,
+				1.2
+			],
+			"image": "lobby-halloween/bg",
+			"flipX": false,
+			"filters": 3,
+			"color": "FFFFFF",
+			"angle": 0,
+			"name": "bg",
+			"antialiasing": true,
+			"flipY": false,
+			"scroll": [
+				1,
+				1
+			],
+			"alpha": 1,
+			"type": "sprite"
+		},
+		{
+			"type": "gf"
+		},
+		{
+			"type": "dad"
+		},
+		{
+			"type": "boyfriend"
+		},
+		{
+			"x": 1318,
+			"y": 411,
+			"scale": [
+				1.5,
+				1.5
+			],
+			"image": "lobby-halloween/randi",
+			"flipX": false,
+			"filters": 3,
+			"color": "FFFFFF",
+			"angle": 0,
+			"name": "randi",
+			"firstAnimation": "blud",
+			"antialiasing": true,
+			"flipY": false,
+			"scroll": [
+				1,
+				1
+			],
+			"alpha": 1,
+			"animations": [
+				{
+					"offsets": [
+						0,
+						-153
+					],
+					"loop": true,
+					"fps": 24,
+					"anim": "ananasy",
+					"indices": [],
+					"name": "randi_ananasy"
+				},
+				{
+					"offsets": null,
+					"loop": true,
+					"fps": 24,
+					"anim": "blud",
+					"indices": [],
+					"name": "randi_blud"
+				},
+				{
+					"offsets": [
+						-57,
+						12
+					],
+					"loop": true,
+					"fps": 24,
+					"anim": "four",
+					"indices": [],
+					"name": "randi_four"
+				},
+				{
+					"offsets": [
+						-11,
+						-156
+					],
+					"loop": true,
+					"fps": 24,
+					"anim": "pbo",
+					"indices": [],
+					"name": "randi_pbo"
+				},
+				{
+					"offsets": [
+						-38,
+						-13
+					],
+					"loop": true,
+					"fps": 24,
+					"anim": "piump",
+					"indices": [],
+					"name": "randi_piump"
+				},
+				{
+					"offsets": [
+						-23,
+						-59
+					],
+					"loop": true,
+					"fps": 24,
+					"anim": "skull",
+					"indices": [],
+					"name": "randi_skull"
+				},
+				{
+					"offsets": [
+						4,
+						105
+					],
+					"indices": [],
+					"fps": 24,
+					"anim": "ingit",
+					"loop": false,
+					"name": "randi_ingit"
+				},
+				{
+					"offsets": [
+						-44,
+						-231
+					],
+					"indices": [],
+					"fps": 24,
+					"anim": "pumpic",
+					"loop": false,
+					"name": "randi_pumpic"
+				},
+				{
+					"offsets": [
+						-38,
+						95
+					],
+					"indices": [],
+					"fps": 24,
+					"anim": "five",
+					"loop": true,
+					"name": "randi_five"
+				}
+			],
+			"type": "animatedSprite"
+		}
+	],
+	"camera_girlfriend": [
+		0,
+		0
+	],
+	"defaultZoom": 0.65,
+	"camera_speed": 1,
+	"directory": "week3",
+	"opponent": [
+		100,
+		100
+	],
+	"camera_opponent": [
+		0,
+		0
+	],
+	"hide_girlfriend": false
+}

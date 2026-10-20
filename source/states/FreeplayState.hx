@@ -207,12 +207,24 @@ class FreeplayState extends MusicBeatState
 
 		FlxG.mouse.visible = false;
 		FlxG.autoPause = false;
+
+		camera = initPsychCamera();
+		itemsCamera = new FlxCamera();
+		itemsCamera.bgColor.alpha = 0;
+		hudCamera = new FlxCamera();
+		hudCamera.bgColor.alpha = 0;
+		FlxG.cameras.add(itemsCamera, false);
+		FlxG.cameras.add(hudCamera, false);
+		
+		CustomFadeTransition.nextCamera = hudCamera;
+
+		super.create();
 		
 		persistentUpdate = true;
 		PlayState.isStoryMode = false;
 		var stamp = haxe.Timer.stamp();
 		WeekData.reloadWeekFiles(false);
-		trace(haxe.Timer.stamp() - stamp);
+		Log.infoTrace(haxe.Timer.stamp() - stamp);
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
@@ -246,7 +258,7 @@ class FreeplayState extends MusicBeatState
 				addSong(song[0], i, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]), song[3], song[4]);
 			}
 		}
-		trace(haxe.Timer.stamp() - stamp);
+		Log.infoTrace(haxe.Timer.stamp() - stamp);
 
 		Mods.loadTopMod();
 
@@ -267,15 +279,6 @@ class FreeplayState extends MusicBeatState
 		bg.scrollFactor.set();
 		add(bg);
 		bg.screenCenter();
-
-		itemsCamera = new FlxCamera();
-		itemsCamera.bgColor.alpha = 0;
-		hudCamera = new FlxCamera();
-		hudCamera.bgColor.alpha = 0;
-		FlxG.cameras.add(itemsCamera, false);
-		FlxG.cameras.add(hudCamera, false);
-		
-		CustomFadeTransition.nextCamera = hudCamera;
 
 		renderSongs = new FlxTypedGroup<FlxSprite>();
 		renderSongs.cameras = [itemsCamera];
@@ -353,7 +356,7 @@ class FreeplayState extends MusicBeatState
 
 		Mods.loadTopMod();
 
-		trace("loading songs");
+		Log.infoTrace("loading songs");
 		var stamp = haxe.Timer.stamp();
 		var drawTime = Sys.time();
 
@@ -393,14 +396,14 @@ class FreeplayState extends MusicBeatState
 			}
 			// initSongIcons.push(icon);
 		}
-		trace(haxe.Timer.stamp() - stamp);
+		Log.infoTrace(haxe.Timer.stamp() - stamp);
 		WeekData.setDirectoryFromWeek();
 
 		var stamp = haxe.Timer.stamp();
 		loadCharacterWeeks();
-		trace(haxe.Timer.stamp() - stamp);
+		Log.infoTrace(haxe.Timer.stamp() - stamp);
 
-		trace("finished loading songs (" + FlxMath.roundDecimal(Sys.time() - drawTime, 2) + "s)"
+		Log.infoTrace("finished loading songs (" + FlxMath.roundDecimal(Sys.time() - drawTime, 2) + "s)"
 		+ (ClientPrefs.data.disableFreeplayAlphabet ? ' (fast render)' : '')
 		+ (ClientPrefs.data.disableFreeplayIcons ? ' (no icons)' : '')
 		);
@@ -423,7 +426,7 @@ class FreeplayState extends MusicBeatState
 
 		var stamp = haxe.Timer.stamp();
 		updateGroups();
-		trace(haxe.Timer.stamp() - stamp);
+		Log.infoTrace(haxe.Timer.stamp() - stamp);
 
 		// sickScore = new FlxSprite(Paths.image('sickScore'));
 		// sickScore.antialiasing = ClientPrefs.data.antialiasing;
@@ -663,8 +666,6 @@ class FreeplayState extends MusicBeatState
 		changeSelection();
 		updateTexts();
 		searchString = searchString;
-
-		super.create();
 
 		CustomFadeTransition.nextCamera = hudCamera;
 
@@ -1155,7 +1156,7 @@ class FreeplayState extends MusicBeatState
 							var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
 
 							updateMod();
-							trace('Song mod directory: "${Mods.currentModDirectory}"');
+							Log.infoTrace('Song mod directory: "${Mods.currentModDirectory}"');
 							final modUrl:String = online.mods.OnlineMods.getModURL(Mods.currentModDirectory);
 
 							persistentUpdate = false;
@@ -1171,11 +1172,11 @@ class FreeplayState extends MusicBeatState
 										modUrl,
 										Difficulty.list
 									];
-									trace(data);
+									Log.infoTrace(data);
 									GameClient.send("setSong", data);
 								}
 								catch (e:Dynamic) {
-									trace('ERROR! $e');
+									Log.error(e);
 
 									var errorStr:String = e.toString();
 									if (errorStr.startsWith('[file_contents,assets/data/'))
@@ -1214,7 +1215,7 @@ class FreeplayState extends MusicBeatState
 								openSubState(new GameplayChangersSubstate());
 							}
 							catch (e:Dynamic) {
-								trace('ERROR! $e');
+								Log.error(e);
 
 								var errorStr:String = e.toString();
 								if (errorStr.startsWith('[file_contents,assets/data/'))
@@ -1356,14 +1357,20 @@ class FreeplayState extends MusicBeatState
 
 		if (futureIcon != null) {
 			if (futureIcon.isComplete || futureIcon.isError) {
-				if (!futureIcon.isError && futureIcon.value != null) {
-					var icon = new HealthIcon(null, false);
-					icon.loadIcon(Paths.bitmapToGraphic(futureIconPath, futureIcon.value));
-					icon.scrollFactor.set(1, 1);
-					songsIcons.set(futureIndex, icon);
-					changeSelection(0, false);
+				try {
+					if (!futureIcon.isError && futureIcon.value != null) {
+						var iconBitmap = futureIcon.value;
+						var icon = new HealthIcon(null, false);
+						icon.loadIcon(Paths.bitmapToGraphic(futureIconPath, iconBitmap));
+						icon.scrollFactor.set(1, 1);
+						songsIcons.set(futureIndex, icon);
+						changeSelection(0, false);
+					}
+					futureIcon = null;
 				}
-				futureIcon = null;
+				catch (exc) {
+					Log.error(exc);
+				}
 			}
 		}
 		else if (futureQueue.length > 0) {
@@ -1462,7 +1469,7 @@ class FreeplayState extends MusicBeatState
 	function loadSong() {
 		var formatSong = Highscore.formatSong(getSongName().toLowerCase(), curDifficulty);
 		if (_ledSong != formatSong) {
-			trace('Loading song: ' + formatSong);
+			Log.info('Loading song: ' + formatSong);
 			PlayState.loadSong(formatSong, getSongName().toLowerCase());
 		}
 		_ledSong = formatSong;
@@ -1737,7 +1744,7 @@ class FreeplayState extends MusicBeatState
 				#end
 			}
 			catch (e:Dynamic) {
-				trace('ERROR! $e');
+				Log.error(e);
 
 				var errorStr:String = e.toString();
 				if (errorStr.startsWith('[file_contents,assets/data/'))
@@ -1960,7 +1967,7 @@ class FreeplayState extends MusicBeatState
 				songText.scaleX = Math.min(1, 980 / songText.width);
 				if (songText is online.objects.AlphaLikeText)
 					cast (songText, online.objects.AlphaLikeText).updateHitbox();
-				// trace(i + ' new text!');
+				// Log.trace(i + ' new text!');
 			}
 
 			songText.targetY = i - centerOfRenders + curSelected;
@@ -1984,8 +1991,8 @@ class FreeplayState extends MusicBeatState
 				heart.offset.x = songIcon != null ? 0 : -(songText.width + 10);
 			}
 		}
-		// trace(foundTexts);
-		// trace(_debTxt);
+		// Log.trace(foundTexts);
+		// Log.trace(_debTxt);
 
 		var bullShit:Int = 0;
 
@@ -2247,13 +2254,13 @@ class FreeplayState extends MusicBeatState
 			PlayState.isStoryMode = false;
 			PlayState.storyDifficulty = curDifficulty;
 
-			trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
+			Log.info('CURRENT WEEK: ' + WeekData.getWeekFileName());
 			if (colorTween != null) {
 				colorTween.cancel();
 			}
 		}
 		catch (e:Dynamic) {
-			trace('ERROR! $e');
+			Log.error(e);
 
 			PlayState.replayData = null;
 

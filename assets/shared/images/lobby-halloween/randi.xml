@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="randi.png">
+	<!-- Created with Adobe Animate version 23.0.2.103 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="randi_ananasy0000" x="0" y="0" width="196" height="174"/>
+	<SubTexture name="randi_blud0000" x="197" y="0" width="149" height="229"/>
+	<SubTexture name="randi_blud0001" x="197" y="0" width="149" height="229"/>
+	<SubTexture name="randi_blud0002" x="347" y="0" width="149" height="229"/>
+	<SubTexture name="randi_blud0003" x="347" y="0" width="149" height="229"/>
+	<SubTexture name="randi_five0000" x="497" y="0" width="143" height="321"/>
+	<SubTexture name="randi_five0001" x="497" y="0" width="143" height="321"/>
+	<SubTexture name="randi_five0002" x="641" y="0" width="143" height="321"/>
+	<SubTexture name="randi_five0003" x="641" y="0" width="143" height="321"/>
+	<SubTexture name="randi_four0000" x="785" y="0" width="157" height="289"/>
+	<SubTexture name="randi_four0001" x="785" y="0" width="157" height="289"/>
+	<SubTexture name="randi_ingit0000" x="0" y="322" width="180" height="332"/>
+	<SubTexture name="randi_ingit0001" x="0" y="322" width="180" height="332"/>
+	<SubTexture name="randi_ingit0002" x="181" y="322" width="180" height="332"/>
+	<SubTexture name="randi_ingit0003" x="181" y="322" width="180" height="332"/>
+	<SubTexture name="randi_pbo0000" x="362" y="322" width="186" height="169"/>
+	<SubTexture name="randi_pbo0001" x="362" y="322" width="186" height="169"/>
+	<SubTexture name="randi_pbo0002" x="549" y="322" width="186" height="169"/>
+	<SubTexture name="randi_pbo0003" x="549" y="322" width="186" height="169"/>
+	<SubTexture name="randi_piump0000" x="736" y="322" width="146" height="259"/>
+	<SubTexture name="randi_piump0001" x="736" y="322" width="146" height="259"/>
+	<SubTexture name="randi_piump0002" x="0" y="655" width="146" height="259"/>
+	<SubTexture name="randi_piump0003" x="0" y="655" width="146" height="259"/>
+	<SubTexture name="randi_pumpic0000" x="147" y="655" width="136" height="104"/>
+	<SubTexture name="randi_pumpic0001" x="147" y="655" width="136" height="104"/>
+	<SubTexture name="randi_pumpic0002" x="284" y="655" width="136" height="104"/>
+	<SubTexture name="randi_pumpic0003" x="284" y="655" width="136" height="104"/>
+	<SubTexture name="randi_skull0000" x="421" y="655" width="146" height="229"/>
+	<SubTexture name="randi_skull0001" x="421" y="655" width="146" height="229"/>
+</TextureAtlas>

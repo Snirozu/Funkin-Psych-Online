@@ -229,7 +229,7 @@ class DropShadow
 	{
 		// NOTE: uv.width is actually the right pos and uv.height is the bottom pos
 		if(frame.uv != null)
-			shader.uFrameBounds.value = [frame.uv.x, frame.uv.y, frame.uv.width, frame.uv.height];
+			shader.uFrameBounds.value = [frame.uv.left, frame.uv.top, frame.uv.right, frame.uv.bottom];
 
 		// if a frame is rotated the shader will look completely wrong lol
 		shader.angOffset.value = [frame.angle * FlxAngle.TO_RAD];

@@ -9,6 +9,35 @@ import lime.app.Application;
 
 class ErrorHandledShader extends FlxShader implements IErrorHandler
 {
+	public static final FALLBACK_VERTEX:String = "
+		attribute float openfl_Alpha;
+		attribute vec4 openfl_Position;
+		attribute vec2 openfl_TextureCoord;
+		varying float openfl_Alphav;
+		varying vec2 openfl_TextureCoordv;
+		uniform mat4 openfl_Matrix;
+		
+		void main(void) {
+			openfl_Alphav = openfl_Alpha;
+			openfl_TextureCoordv = openfl_TextureCoord;
+			gl_Position = openfl_Matrix * openfl_Position;
+		}
+	";
+
+	public static final FALLBACK_FRAGMENT:String = "
+		#ifdef GL_ES
+		precision mediump float;
+		#endif
+		varying float openfl_Alphav;
+		varying vec2 openfl_TextureCoordv;
+		uniform sampler2D bitmap;
+		
+		void main(void) {
+			vec4 color = texture2D(bitmap, openfl_TextureCoordv);
+			gl_FragColor = color * openfl_Alphav;
+		}
+	";
+
 	public var shaderName:String = '';
 	public dynamic function onError(error:Dynamic):Void {}
 	public function new(?shaderName:String)
@@ -27,7 +56,8 @@ class ErrorHandledShader extends FlxShader implements IErrorHandler
 		catch (error)
 		{
 			ErrorHandledShader.crashSave(this.shaderName, error, onError);
-			return null;
+			final res = super.__createGLProgram(ErrorHandledShader.FALLBACK_VERTEX, ErrorHandledShader.FALLBACK_FRAGMENT); // normally causes dissapearance of sprites if returned null
+			return res;
 		}
 	}
 	
@@ -36,9 +66,6 @@ class ErrorHandledShader extends FlxShader implements IErrorHandler
 		if(shaderName == null) shaderName = 'unnamed';
 		var alertTitle:String = 'Error on Shader: "$shaderName"';
 
-		trace(error);
-
-		#if !debug
 		// Save a crash log on Release builds
 		var errMsg:String = "";
 		var dateNow:String = Date.now().toString().replace(" ", "_").replace(":", "'");
@@ -47,11 +74,10 @@ class ErrorHandledShader extends FlxShader implements IErrorHandler
 			FileSystem.createDirectory('./crash/');
 
 		var crashLogPath:String = './crash/shader_${shaderName}_${dateNow}.txt';
-		File.saveContent(crashLogPath, error);
-		Application.current.window.alert('Error log saved at: $crashLogPath', alertTitle);
-		#else
-		Application.current.window.alert('Error logs aren\'t created on debug builds, check the trace log instead.', alertTitle);
-		#end
+		if (ClientPrefs.isDebug()) {
+			File.saveContent(crashLogPath, error);
+			Log.error(alertTitle, 'Error log saved at: $crashLogPath');
+		}
 
 		onError(error);
 	}
@@ -77,7 +103,8 @@ class ErrorHandledRuntimeShader extends FlxRuntimeShader implements IErrorHandle
 		catch (error)
 		{
 			ErrorHandledShader.crashSave(this.shaderName, error, onError);
-			return null;
+			final res = super.__createGLProgram(ErrorHandledShader.FALLBACK_VERTEX, ErrorHandledShader.FALLBACK_FRAGMENT); 
+			return res;
 		}
 	}
 }

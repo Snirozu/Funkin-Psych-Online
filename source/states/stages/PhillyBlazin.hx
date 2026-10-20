@@ -166,7 +166,7 @@ class PhillyBlazin extends BaseStage
 		rainShader = new RainShader();
 		rainShader.scale = FlxG.height / 200;
 		rainShader.intensity = 0.5;
-		FlxG.camera.setFilters([new ShaderFilter(rainShader)]);
+		FlxG.camera.filters = [new ShaderFilter(rainShader)];
 	}
 
 	function precacheAll()
@@ -245,21 +245,21 @@ class PhillyBlazin extends BaseStage
 	var darnellFight:DarnellBlazinHandler = new DarnellBlazinHandler();
 	override function goodNoteHit(note:Note)
 	{
-		//trace('hit note! ${note.noteType}');
+		//Log.trace('hit note! ${note.noteType}');
 		rainTimeScale += 0.7;
 		picoFight.noteHit(note);
 		darnellFight.noteHit(note);
 	}
 	override function noteMiss(note:Note)
 	{
-		//trace('missed note!');
+		//Log.trace('missed note!');
 		picoFight.noteMiss(note);
 		darnellFight.noteMiss(note);
 	}
 
 	override function noteMissPress(direction:Int)
 	{
-		//trace('misinput!');
+		//Log.trace('misinput!');
 		picoFight.noteMissPress(direction);
 		darnellFight.noteMissPress(direction);
 	}
@@ -267,7 +267,7 @@ class PhillyBlazin extends BaseStage
 	// Darnell Note functions
 	override function opponentNoteHit(note:Note)
 	{
-		//trace('opponent hit!');
+		//Log.trace('opponent hit!');
 		picoFight.noteMiss(note);
 		darnellFight.noteMiss(note);
 	}

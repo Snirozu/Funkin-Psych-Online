@@ -12,7 +12,7 @@ class VUtil {
     public static function convertVSlice(path:String) {
 		path = path.replace("-metadata", "-chart");
 
-		trace(path);
+		Log.infoTrace(path);
 
 		var semen = path.replace("\\", "/").split("/");
 		var songID = semen[semen.length - 1].split("-chart")[0];
@@ -92,7 +92,7 @@ class VUtil {
 						]
 						);
 					default:
-						Sys.println("ignoring " + event.e);
+						Log.info("ignoring " + event.e);
 				}
 			}
 			File.saveContent(Path.join([exportPath, 'events${path.contains("-erect") ? "-erect" : ""}.json']), Json.stringify({song: {events: events}}));

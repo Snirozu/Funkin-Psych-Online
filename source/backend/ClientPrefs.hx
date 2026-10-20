@@ -12,6 +12,13 @@ import flixel.input.gamepad.FlxGamepadInputID;
 
 import states.TitleState;
 
+enum abstract InputType(Int) from Int from UInt to Int to UInt
+{
+	var KEYBOARD:Int = (1 << 0);
+	var GAMEPAD:Int = (1 << 1);
+	var MIDI:Int = (1 << 2);
+}
+
 // Add a variable here and it will get automatically saved
 class SaveVariables {
 	public var downScroll:Bool = false;
@@ -60,6 +67,7 @@ class SaveVariables {
 		'botplay' => false,
 		'opponentplay' => false,
 		'nobadnotes' => false,
+		'nomodchart' => false,
 		'mania' => '(Chart)',
 		'scrollspeedbymania' => false
 	];
@@ -78,9 +86,15 @@ class SaveVariables {
 	public var trustedSources:Array<String> = ["https://gamebanana.com/"];
 	public var comboOffsetOP1:Array<Int> = [0, 0, 0, 0];
 	public var comboOffsetOP2:Array<Int> = [0, 0, 0, 0];
-	public var disableStrumMovement:Bool = false;
 	public var unlockFramerate:Bool = false;
-	public var debugMode:Bool = false;
+	public var debugMode(default, set):Bool = false;
+	function set_debugMode(v:Bool) {
+		if (v && !externs.WinAPI.hasConsole())
+			externs.WinAPI.openConsole();
+		if (!v && externs.WinAPI.hasConsole())
+			externs.WinAPI.closeConsole();
+		return debugMode = v;
+	}
 	public var disableReplays:Bool = false;
 	public var disableSubmiting:Bool = false;
 	public var showNoteTiming:Bool = false;
@@ -256,12 +270,33 @@ class ClientPrefs {
 		'sidebar'		=> [],
 		'fav'			=> [Y]
 	];
+	public static var midiBinds:Map<String, Array<Int>> = [
+		'note_up'		=> [],
+		'note_left'		=> [],
+		'note_down'		=> [],
+		'note_right'	=> [],
+		'ui_up'			=> [],
+		'ui_left'		=> [],
+		'ui_down'		=> [],
+		'ui_right'		=> [],
+		'accept'		=> [],
+		'back'			=> [],
+		'pause'			=> [],
+		'reset'			=> [],
+		'taunt'			=> [],
+		'sidebar'		=> [],
+		'fav'			=> []
+	];
+
 	public static var defaultKeys:Map<String, Array<FlxKey>> = null;
 	public static var defaultButtons:Map<String, Array<FlxGamepadInputID>> = null;
+	public static var defaultMidi:Map<String, Array<Int>> = null;
 
-	public static function resetKeys(controller:Null<Bool> = null) //Null = both, False = Keyboard, True = Controller
+	public static function resetKeys(type:InputType = null) //Null = both, False = Keyboard, True = Controller
 	{
-		if(controller != true)
+		type ??= InputType.KEYBOARD | InputType.GAMEPAD | InputType.MIDI;
+
+		if((type & InputType.KEYBOARD) == InputType.KEYBOARD)
 		{
 			for (key in keyBinds.keys())
 			{
@@ -269,7 +304,7 @@ class ClientPrefs {
 					keyBinds.set(key, defaultKeys.get(key).copy());
 			}
 		}
-		if(controller != false)
+		if((type & InputType.GAMEPAD) == InputType.GAMEPAD)
 		{
 			for (button in gamepadBinds.keys())
 			{
@@ -277,23 +312,35 @@ class ClientPrefs {
 					gamepadBinds.set(button, defaultButtons.get(button).copy());
 			}
 		}
+		if((type & InputType.MIDI) == InputType.MIDI)
+		{
+			for (key in midiBinds.keys())
+			{
+				if(defaultMidi.exists(key))
+					midiBinds.set(key, defaultMidi.get(key).copy());
+			}
+		}
 	}
 
 	public static function clearInvalidKeys(key:String) {
 		var keyBind:Array<FlxKey> = keyBinds.get(key);
 		var gamepadBind:Array<FlxGamepadInputID> = gamepadBinds.get(key);
+		var midiBind:Array<Int> = midiBinds.get(key);
+
 		while(keyBind != null && keyBind.contains(NONE)) keyBind.remove(NONE);
 		while(gamepadBind != null && gamepadBind.contains(NONE)) gamepadBind.remove(NONE);
+		while(midiBind != null && midiBind.contains(-1)) midiBind.remove(-1);
 	}
 
 	public static function loadDefaultKeys() {
 		defaultKeys = keyBinds.copy();
 		defaultButtons = gamepadBinds.copy();
+		defaultMidi = midiBinds.copy();
 	}
 
 	public static function saveSettings() {
 		for (key in Reflect.fields(data)) {
-			//trace('saved variable: $key');
+			//Log.info('saved variable: $key');
 			Reflect.setField(FlxG.save.data, key, Reflect.field(data, key));
 		}
 		#if ACHIEVEMENTS_ALLOWED Achievements.save(); #end
@@ -304,6 +351,7 @@ class ClientPrefs {
 		save.bind('controls_v3', CoolUtil.getSavePath());
 		save.data.keyboard = keyBinds;
 		save.data.gamepad = gamepadBinds;
+		save.data.midi = midiBinds;
 		save.flush();
 		FlxG.log.add("Settings saved!");
 	}
@@ -328,8 +376,9 @@ class ClientPrefs {
 
 		for (key in Reflect.fields(data)) {
 			if (key != 'gameplaySettings' && Reflect.hasField(FlxG.save.data, key)) {
-				//trace('loaded variable: $key');
-				Reflect.setField(data, key, Reflect.field(FlxG.save.data, key));
+				//Log.info('loaded variable: $key');
+				// setProperty calls the setter
+				Reflect.setProperty(data, key, Reflect.field(FlxG.save.data, key));
 			}
 		}
 		
@@ -414,6 +463,12 @@ class ClientPrefs {
 				var loadedControls:Map<String, Array<FlxGamepadInputID>> = save.data.gamepad;
 				for (control => keys in loadedControls) {
 					/*if(gamepadBinds.exists(control))*/ gamepadBinds.set(control, keys);
+				}
+			}
+			if(save.data.midi != null) {
+				var loadedControls:Map<String, Array<Int>> = save.data.midi;
+				for (control => keys in loadedControls) {
+					/*if(gamepadBinds.exists(control))*/ midiBinds.set(control, keys);
 				}
 			}
 			reloadVolumeKeys();

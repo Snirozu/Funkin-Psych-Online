@@ -94,7 +94,7 @@ class Paths
 				try {
 					obj.destroy();
 				} catch (exc) {
-					trace(exc);
+					Log.error(exc);
 				}
 			}
 		}
@@ -102,7 +102,7 @@ class Paths
 		// clear all sounds that are cached
 		for (key in currentTrackedSounds.keys()) {
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key) && key != null) {
-				//trace('test: ' + dumpExclusions, key);
+				//Log.info('test: ' + dumpExclusions, key);
 				Assets.cache.clear(key);
 				currentTrackedSounds.remove(key);
 			}
@@ -294,7 +294,7 @@ class Paths
 
 		//STOP FUCKING USING TRACE ITS CPU HEAVY
 		if (lastImageErrorFile != file && ClientPrefs.isDebug()) {
-			Sys.println('Paths.image(): oh no its returning null NOOOO ($file)');
+			Log.warn('Paths.image(): oh no its returning null NOOOO ($file)');
 			lastImageErrorFile = file;
 		}
 		return null;
@@ -334,7 +334,7 @@ class Paths
 
 		//STOP FUCKING USING TRACE ITS CPU HEAVY
 		if (lastImageErrorFile != file && ClientPrefs.isDebug()) {
-			Sys.println('Paths.asyncBitmap(): oh no its returning null NOOOO ($file)');
+			Log.warn('Paths.asyncBitmap(): oh no its returning null NOOOO ($file)');
 			lastImageErrorFile = file;
 		}
 		return null;
@@ -419,6 +419,18 @@ class Paths
 		return false;
 	}
 
+	public static function contextFileExists(key:String, type:AssetType, ?library:String = null) {
+		if (Mods.currentModDirectory == null || Mods.currentModDirectory.trim().length < 1) {
+			return OpenFlAssets.exists(getPath(key, type, library, false));
+		}
+
+		#if MODS_ALLOWED
+		if (FileSystem.exists(mods(Mods.currentModDirectory + '/' + key)) || FileSystem.exists(mods(key)))
+			return true;
+		#end
+		return false;
+	}
+
 	// less optimized but automatic handling
 	static public function getAtlas(key:String, ?library:String = null):FlxAtlasFrames
 	{
@@ -485,6 +497,21 @@ class Paths
 		return frames;
 	}
 
+	inline static public function getAsepriteAtlas(key:String, ?parentFolder:String = null, ?allowGPU:Bool = true):FlxAtlasFrames
+	{
+		var imageLoaded:FlxGraphic = image(key, parentFolder, allowGPU);
+		#if MODS_ALLOWED
+		var jsonExists:Bool = false;
+
+		var json:String = modsImagesJson(key);
+		if(FileSystem.exists(json)) jsonExists = true;
+
+		return FlxAtlasFrames.fromTexturePackerJson(imageLoaded, (jsonExists ? File.getContent(json) : getPath('images/$key.json', TEXT, parentFolder)));
+		#else
+		return FlxAtlasFrames.fromTexturePackerJson(imageLoaded, getPath('images/$key.json', TEXT, parentFolder));
+		#end
+	}
+
 	static var invalidChars = ~/[~&\\;:<>#]/;
 	static var hideChars = ~/[.,'"%?!]/;
 
@@ -504,7 +531,7 @@ class Paths
 				}
 			} catch (e:Dynamic) {
 				if (ClientPrefs.isDebug())
-					Sys.println('Paths.returnSound(): SOUND NOT FOUND: $key');
+					Log.warn('Paths.returnSound(): SOUND NOT FOUND: $key');
 				return null;
 			}
 			localTrackedAssets.push(key);
@@ -514,7 +541,7 @@ class Paths
 		// I hate this so god damn much
 		var gottenPath:String = getPath('$path/$key.$SOUND_EXT', SOUND, library);
 		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
-		// trace(gottenPath);
+		// Log.info(gottenPath);
 		try {
 			if(!currentTrackedSounds.exists(gottenPath))
 			#if MODS_ALLOWED
@@ -529,7 +556,7 @@ class Paths
 			#end
 		} catch (e:Dynamic) {
 			if (ClientPrefs.isDebug())
-				Sys.println('Paths.returnSound(): SOUND NOT FOUND: $key');
+				Log.warn('Paths.returnSound(): SOUND NOT FOUND: $key');
 			return null;
 		}
 		localTrackedAssets.push(gottenPath);
@@ -569,6 +596,9 @@ class Paths
 		return modFolders('images/' + key + '.txt');
 	}
 
+	inline static public function modsImagesJson(key:String)
+		return modFolders('images/' + key + '.json');
+
 	/* Goes unused for now
 
 	inline static public function modsShaderFragment(key:String, ?library:String)
@@ -596,9 +626,9 @@ class Paths
 				var fullNewFilePath = Path.join([dirToSearch,file]);
 				if (FileSystem.isDirectory(fullNewFilePath))
 					continue;
-				trace("Current file: " + file + ", looking for " + fileName);
+				Log.infoTrace("Current file: " + file + ", looking for " + fileName);
 				if (file.toLowerCase() == fileName.toLowerCase()) {
-					trace("Filename is real! It's " + file);
+					Log.infoTrace("Filename is real! It's " + file);
 					return fullNewFilePath;
 				}
 			}
@@ -669,7 +699,7 @@ class Paths
 				if (!changedAtlasJson) {
 					spriteJson = getTextFromFile('images/$originalPath/spritemap$st.json');
 					if (spriteJson != null) {
-						// trace('found Sprite Json');
+						// Log.info('found Sprite Json');
 						changedImage = true;
 						changedAtlasJson = true;
 						loadSpriteMap(frames, spriteJson, folderOrImg = Paths.image('$originalPath/spritemap$st'));
@@ -677,7 +707,7 @@ class Paths
 					}
 				}
 				else if (Paths.fileExists('images/$originalPath/spritemap$st.png', IMAGE)) {
-					// trace('found Sprite PNG');
+					// Log.info('found Sprite PNG');
 					changedImage = true;
 					loadSpriteMap(frames, spriteJson, folderOrImg = Paths.image('$originalPath/spritemap$st'));
 					break;
@@ -685,21 +715,21 @@ class Paths
 			}
 
 			if (!changedImage) {
-				// trace('Changing folderOrImg to FlxGraphic');
+				// Log.info('Changing folderOrImg to FlxGraphic');
 				changedImage = true;
 				loadSpriteMap(frames, spriteJson, folderOrImg = Paths.image(originalPath));
 			}
 
 			if (!changedAnimJson) {
-				// trace('found Animation Json');
+				// Log.info('found Animation Json');
 				changedAnimJson = true;
 				animationJson = getTextFromFile('images/$originalPath/Animation.json');
 			}
 		}
 
-		// trace(folderOrImg);
-		// trace(spriteJson);
-		// trace(animationJson);
+		// Log.info(folderOrImg);
+		// Log.info(spriteJson);
+		// Log.info(animationJson);
 
 		spr.loadSeparateAtlas(animationJson, frames);
 	}

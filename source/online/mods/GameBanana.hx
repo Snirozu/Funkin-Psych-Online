@@ -123,7 +123,7 @@ class GameBanana {
 					ss = Json.parse(arr[10]);
 				}
 				catch (exc) {
-					trace(exc);
+					Log.error(exc);
 					return;
 				}
 	

@@ -237,7 +237,7 @@ class ModsMenuState extends MusicBeatState
 			var oldModName = modsList[curSelected][0];
 			OnlineMods.downloadMod(modURL, true, modName -> {
 				if (modName != oldModName) {
-					Sys.println("names conflict: " + modName + " to " + oldModName);
+					Log.warn("names conflict: " + modName + " to " + oldModName);
 					var list:ModsList = Mods.parseList();
 					var swagMods:Array<Dynamic> = [];
 					for (mod in list.all) swagMods.push([mod, list.enabled.contains(mod)]);
@@ -265,7 +265,7 @@ class ModsMenuState extends MusicBeatState
 			var path = haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]]);
 			if(FileSystem.exists(path) && FileSystem.isDirectory(path))
 			{
-				trace('Trying to delete directory ' + path);
+				Log.infoTrace('Trying to delete directory ' + path);
 				try
 				{
 					FileUtils.removeFiles(path);
@@ -286,7 +286,7 @@ class ModsMenuState extends MusicBeatState
 				}
 				catch(e)
 				{
-					trace('Error deleting directory: ' + e);
+					Log.error('Error deleting directory', e);
 				}
 
 				if (mods.length <= 0) {
@@ -361,7 +361,7 @@ class ModsMenuState extends MusicBeatState
 		// 	var path = haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]]);
 		// 	if(FileSystem.exists(path) && FileSystem.isDirectory(path))
 		// 	{
-		// 		trace('Trying to delete directory ' + path);
+		// 		Log.trace('Trying to delete directory ' + path);
 		// 		try
 		// 		{
 		// 			FileUtils.removeFiles(path);
@@ -380,7 +380,7 @@ class ModsMenuState extends MusicBeatState
 		// 		}
 		// 		catch(e)
 		// 		{
-		// 			trace('Error deleting directory: ' + e);
+		// 			Log.trace('Error deleting directory: ' + e);
 		// 		}
 
 		// 		if (mods.length <= 0) {
@@ -796,7 +796,7 @@ class ModsMenuState extends MusicBeatState
 				var uncompressingFile:Bytes = new Uncompress().run(File.getBytes(rawZip));
 				if (uncompressingFile.done)
 				{
-					trace('test');
+					Log.trace('test');
 					_file = null;
 					return;
 				}
@@ -804,7 +804,7 @@ class ModsMenuState extends MusicBeatState
 		}
 		_file = null;
 		canExit = true;
-		trace("File couldn't be loaded! Wtf?");
+		Log.trace("File couldn't be loaded! Wtf?");
 	}
 
 	function onLoadCancel(_):Void
@@ -814,7 +814,7 @@ class ModsMenuState extends MusicBeatState
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 		_file = null;
 		canExit = true;
-		trace("Cancelled file loading.");
+		Log.trace("Cancelled file loading.");
 	}
 
 	function onLoadError(_):Void
@@ -824,7 +824,7 @@ class ModsMenuState extends MusicBeatState
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 		_file = null;
 		canExit = true;
-		trace("Problem loading file");
+		Log.trace("Problem loading file");
 	}*/
 }
 
@@ -888,7 +888,7 @@ class ModMetadata
 				{
 					var errorTitle = 'Mod name: ' + name;
 					var errorMsg = 'An error occurred: $e';
-					trace('$errorTitle - $errorMsg');
+					Log.error('$errorTitle - $errorMsg');
 				}
 			}
 		}

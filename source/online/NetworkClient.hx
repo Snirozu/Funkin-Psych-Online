@@ -42,7 +42,7 @@ class NetworkClient {
             });
 		}, (exc) -> {
 			connecting = false;
-            trace(ShitUtil.prettyError(exc));
+            Log.error(exc);
 		});
     }
 
@@ -53,7 +53,7 @@ class NetworkClient {
 			Waiter.putPersist(() -> {
 				ChatTab.addMessage('Failed to connect to the network chatroom! (Reopen this tab to try again)');
 			});
-            //trace(err);
+            //Log.error(err);
             return;
         }
 
@@ -116,18 +116,18 @@ class NetworkClient {
 
 		room.onError += (code:Int, e:String) -> {
 			Thread.safeCatch(() -> {
-				Sys.println("NetworkRoom.onError: " + code + " - " + e);
+				Log.error("NetworkRoom.onError: " + code + " - " + e);
 				if (code == 524)
 					return;
 				Alert.alert("Network Room error!", "room.onError: " + ShitUtil.prettyStatus(code) + "\n" + ShitUtil.readableError(e));
             }, e -> {
-				trace(ShitUtil.prettyError(e));
+				Log.error(e);
             });
 		}
 
 		room.onLeave += (code) -> {
 			Thread.safeCatch(() -> {
-				trace(code);
+				Log.infoTrace(code);
 
 				Waiter.putPersist(() -> {
 					ChatTab.addMessage('Disconnected from the chatroom');
@@ -137,25 +137,25 @@ class NetworkClient {
 				NetworkClient.room = null;
 
 				Thread.safeCatch(() -> {
-					trace("Left/Kicked from the Network room!");
+					Log.info("Left/Kicked from the Network room!");
 
 					connecting = true;
 					client.reconnect(recToken, NetworkSchema, (err, newRoom) -> {
-						trace("Reconnecting to the Network room");
+						Log.info("Reconnecting to the Network room");
 						joinCallback(err, newRoom, true);
 					});
 				}, e -> {
 					NetworkClient.room = null;
 					connecting = false;
-					trace(ShitUtil.prettyError(e));
+					Log.error(e);
 				});
 			}, e -> {
-				trace(ShitUtil.prettyError(e));
+				Log.error(e);
 			});
 		}
 
 		room.send('loggedMessagesAfter', ChatTab.lastLogDate);
 
-        trace("Joined Network Room!");
+        Log.info("Joined Network Room!");
     }
 }

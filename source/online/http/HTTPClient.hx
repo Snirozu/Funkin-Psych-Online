@@ -111,7 +111,7 @@ class HTTPClient {
 						continue;
 					}
 					if (ClientPrefs.isDebug())
-						trace('Failed to connect!');
+						Log.error('Failed to connect!', e);
 					throw e;
 				}
 			}
@@ -137,7 +137,7 @@ class HTTPClient {
 					}
 
 					if (ClientPrefs.isDebug())
-						trace('Failed to read header!');
+						Log.error('Failed to read header!', e);
 					throw e;
 				}
 			}
@@ -169,7 +169,7 @@ class HTTPClient {
 						break;
 					}
 					if (ClientPrefs.isDebug())
-						trace('Failed to read headers!');
+						Log.error('Failed to read headers!', e);
 					throw e;
 				}
 			}
@@ -250,7 +250,7 @@ class HTTPClient {
 				exc = new Exception('Socket Closed');
 
 			if (ClientPrefs.isDebug())
-				trace('Status: $status ' + ShitUtil.prettyError(exc) + "\nLine: " + response.statusLine);
+				Log.error('Status: $status ' + response.statusLine, exc);
 
 			response.exception = exc;
 		}

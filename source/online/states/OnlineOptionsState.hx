@@ -139,7 +139,7 @@ class OnlineOptionsState extends MusicBeatState {
 				online.network.FunkinNetwork.ping();
 			}
 			catch (exc) {
-				trace(exc);
+				Log.error(exc);
 			}
 		}));
 		networkServerOption.inputs[0].text = GameClient.networkServerAddress;

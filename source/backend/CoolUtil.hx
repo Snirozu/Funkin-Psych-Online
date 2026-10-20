@@ -28,7 +28,7 @@ class CoolUtil
 		if (Math.abs(stamp) < 0.01)
 			return false;
 
-		Sys.println('[' + pos.className + '::' + pos.lineNumber + '] ' + Math.abs(stamp));
+		Log.infoTrace('[' + pos.className + '::' + pos.lineNumber + '] ' + Math.abs(stamp), pos);
 		return true;
 	}
 

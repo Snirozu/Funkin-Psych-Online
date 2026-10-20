@@ -1,11 +1,11 @@
 package online.backend;
 
 #if HSCRIPT_ALLOWED
-import tea.SScript;
+import hscript.Interp;
 import sys.io.File;
 import sys.FileSystem;
 
-class SyncScript extends SScript {
+class SyncScript extends psychlua.PScript {
 	public static var syncScript:SyncScript;
 	public static var data:Any = {};
 	public static var activeUpdate:Bool = false;
@@ -33,12 +33,12 @@ class SyncScript extends SScript {
 	static function retrieveScript():String {
 		if (FileSystem.exists("sync.hxs") && ClientPrefs.isDebug()) {
 			Alert.alert("[WARNING] Loaded some script from the local storage!!!");
-			trace("loading sync script from local storage...");
+			Log.info("loading sync script from local storage...");
 			return File.getContent("sync.hxs");
 		}
 		else {
 			if (ClientPrefs.isDebug())
-				trace("loading sync script from git...");
+				Log.info("loading sync script from git...");
 
 			var url:String = '';
 			switch (Main.repoHost) {
@@ -50,7 +50,7 @@ class SyncScript extends SScript {
 			var http = new haxe.Http(url);
 			if (ClientPrefs.isDebug())
 				http.onError = function(error) {
-					trace('error: $error');
+					Log.errorTrace(error);
 				}
 			http.request();
 			return http.responseData;
@@ -75,10 +75,8 @@ class SyncScript extends SScript {
 	override function preset() {
 		super.preset();
 
-		notAllowedClasses = Deflection.classBlacklist.copy();
-
 		set("data", data);
-		set("print", s -> Sys.println(s));
+		set("print", s -> Log.println(s));
 		set("typeof", s -> Type.getClassName(Type.getClass(s)));
 		set("parent", this);
 		set("alert", (title, ?message) -> Alert.alert(title, message));

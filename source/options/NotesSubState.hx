@@ -206,7 +206,7 @@ class NotesSubState extends MusicBeatSubstate
 		var changedToController:Bool = false;
 		if(controls.controllerMode != _lastControllerMode)
 		{
-			//trace('changed controller mode');
+			//Log.trace('changed controller mode');
 			FlxG.mouse.visible = !controls.controllerMode;
 			controllerPointer.visible = controls.controllerMode;
 
@@ -267,7 +267,7 @@ class NotesSubState extends MusicBeatSubstate
 				hexTypeNum++;
 			else if(allowedTypeKeys.exists(keyPressed))
 			{
-				//trace('keyPressed: $keyPressed, lil str: ' + allowedTypeKeys.get(keyPressed));
+				//Log.trace('keyPressed: $keyPressed, lil str: ' + allowedTypeKeys.get(keyPressed));
 				var curColor:String = alphabetHex.text;
 				var newColor:String = curColor.substring(0, hexTypeNum) + allowedTypeKeys.get(keyPressed) + curColor.substring(hexTypeNum + 1);
 
@@ -343,7 +343,7 @@ class NotesSubState extends MusicBeatSubstate
 			{
 				Clipboard.text = getShaderColor().toHexString(false, false);
 				FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
-				trace('copied: ' + Clipboard.text);
+				Log.info('copied: ' + Clipboard.text);
 			}
 			hexTypeNum = -1;
 		}
@@ -354,7 +354,7 @@ class NotesSubState extends MusicBeatSubstate
 			{
 				var formattedText = Clipboard.text.trim().toUpperCase().replace('#', '').replace('0x', '');
 				var newColor:Null<FlxColor> = FlxColor.fromString('#' + formattedText);
-				//trace('#${Clipboard.text.trim().toUpperCase()}');
+				//Log.trace('#${Clipboard.text.trim().toUpperCase()}');
 				if(newColor != null && formattedText.length == 6)
 				{
 					setShaderColor(newColor);
@@ -465,7 +465,7 @@ class NotesSubState extends MusicBeatSubstate
 					var mouse:FlxPoint = pointerFlxPoint();
 					var hue:Float = FlxMath.wrap(FlxMath.wrap(Std.int(mouse.degreesTo(center)), 0, 360) - 90, 0, 360);
 					var sat:Float = FlxMath.bound(mouse.dist(center) / colorWheel.width*2, 0, 1);
-					//trace('$hue, $sat');
+					//Log.trace('$hue, $sat');
 					if(sat != 0) setShaderColor(FlxColor.fromHSB(hue, sat, _storedColor.brightness));
 					else setShaderColor(FlxColor.fromRGBFloat(_storedColor.brightness, _storedColor.brightness, _storedColor.brightness));
 					updateColors();
@@ -529,7 +529,7 @@ class NotesSubState extends MusicBeatSubstate
 
 	function centerHexTypeLine()
 	{
-		//trace(hexTypeNum);
+		//Log.trace(hexTypeNum);
 		if(hexTypeNum > 0)
 		{
 			var letter = alphabetHex.letters[hexTypeNum-1];

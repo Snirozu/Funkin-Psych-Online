@@ -213,7 +213,7 @@ class ShaderFunctions
 			var shader:FlxRuntimeShader = getShader(obj);
 			if(shader == null)
 			{
-				funk.luaTrace("setShaderFloat: Shader is not FlxRuntimeShader!", false, false, FlxColor.RED);
+				funk.luaTrace("setShaderFloat: Shader " + obj + " is not FlxRuntimeShader!", false, false, FlxColor.RED);
 				return false;
 			}
 			shader.setFloat(prop, value);
@@ -249,11 +249,11 @@ class ShaderFunctions
 				return false;
 			}
 
-			// trace('bitmapdatapath: $bitmapdataPath');
+			// Log.trace('bitmapdatapath: $bitmapdataPath');
 			var value = Paths.image(bitmapdataPath);
 			if(value != null && value.bitmap != null)
 			{
-				// trace('Found bitmapdata. Width: ${value.bitmap.width} Height: ${value.bitmap.height}');
+				// Log.trace('Found bitmapdata. Width: ${value.bitmap.width} Height: ${value.bitmap.height}');
 				shader.setSampler2D(prop, value.bitmap);
 				return true;
 			}

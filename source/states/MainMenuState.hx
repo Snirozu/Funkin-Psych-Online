@@ -210,7 +210,7 @@ class MainMenuState extends MusicBeatState
 		#end
 		#end
 
-		if (leDate.getMonth() == 9) {
+		if (leDate.getMonth() == 9 || (leDate.getMonth() == 10 && leDate.getDate() <= 2)) {
 			online.backend.DateEvent.isHalloween = true;
 		}
 

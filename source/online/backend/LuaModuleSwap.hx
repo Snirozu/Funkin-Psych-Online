@@ -366,8 +366,7 @@ class LuaModuleSwap {
 								Reflect.setField(obj, field, result);
 							} catch (exc) {
 								if (backend.ClientPrefs.isDebug()) {
-									trace(field);
-									trace(exc);
+									Log.error(field, exc);
 								}
 							}
 

@@ -34,10 +34,10 @@ class SocketSys extends Socket2 {
             this.impl.setBlocking(false);
             //this.impl.setBlocking(true);
             this.sendConnect = true;
-            if (debug) trace('socket.connected!');
+            if (debug) Log.trace('socket.connected!');
         } catch (e:Dynamic) {
             this.sendError = true;
-            if (debug) trace('socket.error! $e');
+            if (debug) Log.trace('socket.error! $e');
         }
 
 		return this;
@@ -61,20 +61,20 @@ class SocketSys extends Socket2 {
 		if (!wasCloseSent) {
 
 			wasCloseSent = true;
-			if (debug) trace('socket.onclose!');
+			if (debug) Log.trace('socket.onclose!');
 			onclose();
 		}
     }
 
     override public function process() {
         if (sendConnect) {
-            if (debug) trace('socket.onconnect!');
+            if (debug) Log.trace('socket.onconnect!');
             sendConnect = false;
             onconnect();
         }
 
         if (sendError) {
-            if (debug) trace('socket.onerror!');
+            if (debug) Log.trace('socket.onerror!');
             sendError = false;
             onerror();
         }
@@ -85,7 +85,7 @@ class SocketSys extends Socket2 {
 			result = sys.net.Socket.select([this.impl], [this.impl], [this.impl], 0.4);
 		}
 		catch (e:Dynamic) {
-			if(debug) trace('closing socket because of $e');
+			if(debug) Log.trace('closing socket because of $e');
 			needClose = true;
 		}
 
@@ -105,7 +105,7 @@ class SocketSys extends Socket2 {
                         (e:Error).match(Error.Custom(Error.Blocked)) ||
                         (e:Error).match(Error.Blocked))
                     ));
-					if(needClose && debug) trace('closing socket because of $e');
+					if(needClose && debug) Log.trace('closing socket because of $e');
 				}
 				ondata(out.readAllAvailableBytes());
 			}
@@ -129,7 +129,7 @@ class SocketSys extends Socket2 {
     }
 
     override public function send(data:Bytes) {
-        //trace('sending:$data');
+        //Log.trace('sending:$data');
         var output:haxe.io.Output = this.impl.output;
         output.writeBytes(data, 0, data.length); // changed line
         output.flush();

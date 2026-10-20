@@ -93,6 +93,8 @@ class Controls
 	//Gamepad & Keyboard stuff
 	public var keyboardBinds:Map<String, Array<FlxKey>>;
 	public var gamepadBinds:Map<String, Array<FlxGamepadInputID>>;
+	public var midiBinds:Map<String, Array<Int>>;
+
 	public function justPressed(key:String)
 	{
 		if (moodyBlues != null && moodyBlues.ALLOWED_BINDS.contains(key)) {
@@ -100,9 +102,15 @@ class Controls
 		}
 
 		var result:Bool = (FlxG.keys.anyJustPressed(keyboardBinds[key]) == true);
-		if(result) controllerMode = false;
+		
+		if (result) controllerMode = false;
+		else {
+			result = _myGamepadJustPressed(gamepadBinds[key]) == true || MidiControls.anyJustPressed(midiBinds[key]);
+			if (result)
+				controllerMode = true;
+		}
 
-		return result || _myGamepadJustPressed(gamepadBinds[key]) == true;
+		return result;
 	}
 
 	public function pressed(key:String)
@@ -114,8 +122,13 @@ class Controls
 
 		var result:Bool = (FlxG.keys.anyPressed(keyboardBinds[key]) == true);
 		if(result) controllerMode = false;
+		else {
+			result = _myGamepadPressed(gamepadBinds[key]) == true || MidiControls.anyPressed(midiBinds[key]);
+			if (result)
+				controllerMode = true;
+		}
 
-		return result || _myGamepadPressed(gamepadBinds[key]) == true;
+		return result;
 	}
 
 	public function justReleased(key:String)
@@ -127,8 +140,13 @@ class Controls
 
 		var result:Bool = (FlxG.keys.anyJustReleased(keyboardBinds[key]) == true);
 		if(result) controllerMode = false;
+		else {
+			result = _myGamepadJustReleased(gamepadBinds[key]) == true || MidiControls.anyJustReleased(midiBinds[key]);
+			if (result)
+				controllerMode = true;
+		}
 
-		return result || _myGamepadJustReleased(gamepadBinds[key]) == true;
+		return result;
 	}
 
 	public var controllerMode:Bool = false;
@@ -186,5 +204,6 @@ class Controls
 	{
 		keyboardBinds = ClientPrefs.keyBinds;
 		gamepadBinds = ClientPrefs.gamepadBinds;
+		midiBinds = ClientPrefs.midiBinds;
 	}
 }

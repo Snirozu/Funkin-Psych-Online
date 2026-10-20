@@ -67,7 +67,6 @@ class OnlineState extends MusicBeatState {
 	var twitter:FlxSprite;
 
     function onRoomJoin(err:Dynamic) {
-		trace(err);
 		if (err != null) {
 			disableInput = false;
 			return;

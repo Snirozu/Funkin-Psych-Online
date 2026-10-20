@@ -166,7 +166,7 @@ class SideUI extends WSprite {
 				curTab.keyDown(e);
 
 				if (e.keyCode == Keyboard.F1) {
-					trace("reloading syncscript!");
+					Log.info("reloading syncscript!");
 					online.backend.SyncScript.initScript();
 				}
 			}

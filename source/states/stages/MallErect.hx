@@ -109,7 +109,7 @@ class MallErect extends BaseStage
 	var _dadShoot:Sound;
 
 	function prepareSanta() {
-		trace("santa is about to fucking die");
+		Log.info("santa is about to fucking die");
 
 		santaSpeak = new FlxAnimate(0, 0);
 		santaSpeak.antialiasing = ClientPrefs.data.antialiasing;

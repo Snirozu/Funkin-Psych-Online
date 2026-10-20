@@ -202,7 +202,7 @@ class FranksSpiritsBowling extends BaseStage {
 	override function update(elapsed:Float) {
 		@:privateAccess
 		if (rimlightCamera != null) {
-			rimlightCamera.scroll.copyFrom(game.camGame.scroll);
+			rimlightCamera.scroll.copyFrom(cast(game.camGame.scroll, flixel.math.FlxPoint));
 			rimlightCamera.zoom = game.camGame.zoom;
 		}
 	}

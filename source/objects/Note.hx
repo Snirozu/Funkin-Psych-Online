@@ -77,7 +77,11 @@ class Note extends FlxSprite
 	public var lowPriority:Bool = false;
 
 	public static var rankedManiaKeysList:Array<Int> = [4, 5, 6, 7, 8, 9];
-	public static var maniaKeysList:Array<Int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 20, 21, 26, 50, 55, 61];
+	// 4-9 - common sizes
+	// 25 - black keys (61 keyboard)
+	// 36 - white keys (61 keyboard)
+	// 61 - look previous comments
+	public static var maniaKeysList:Array<Int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 20, 21, 25, 26, 36, 50, 55, 61];
 	public static var maniaKeysStringList:Array<String> = [for (keys in maniaKeysList) '${keys}k'];
 	public static var maniaKeys(default, set):Int = 4;
 	static function set_maniaKeys(v) {
@@ -94,7 +98,7 @@ class Note extends FlxSprite
 	}
 	public static var noteScale(get, default):Float = 0.7;
 	static function get_noteScale() {
-		return (swagWidth * 4) / (swagWidth * Math.max(4, maniaKeys)) * (1 + (0.1 * (Math.min(9, Math.max(4, maniaKeys)) - 4)));
+		return (swagWidth * (maniaKeys >= 20 ? 9 : 4)) / (swagWidth * Math.max(4, maniaKeys)) * (1 + (0.1 * (Math.min(9, Math.max(4, maniaKeys)) - 4)));
 	}
 
 	public static function getNoteOffsetX() {
@@ -128,9 +132,9 @@ class Note extends FlxSprite
 	public var copyAngle:Bool = true;
 	public var copyAlpha(get, default):Bool = true;
 
-	function get_copyX():Bool { return isForceShowed() ? true : copyX; }
-	function get_copyY():Bool { return isForceShowed() ? true : copyY; }
-	function get_copyAlpha():Bool { return isForceShowed() ? true : copyAlpha; }
+	function get_copyX():Bool { return isNoModchart() ? true : copyX; }
+	function get_copyY():Bool { return isNoModchart() ? true : copyY; }
+	function get_copyAlpha():Bool { return isNoModchart() ? true : copyAlpha; }
 
 	public var hitHealth:Float = 0.02;
 	public var missHealth:Float = 0.1;
@@ -163,7 +167,7 @@ class Note extends FlxSprite
 	private function set_multSpeed(value:Float):Float {
 		resizeByRatio(value / multSpeed);
 		multSpeed = value;
-		//trace('fuck cock');
+		//Log.trace('fuck cock');
 		return value;
 	}
 
@@ -321,7 +325,7 @@ class Note extends FlxSprite
 			}
 		}
 
-		// trace(prevNote);
+		// Log.trace(prevNote);
 
 		if(prevNote != null)
 			prevNote.nextNote = this;
@@ -392,7 +396,7 @@ class Note extends FlxSprite
 					ClientPrefs.getRGBPixelColor(mustPress == (GameClient.getPlayerSelf()?.bfSide ?? true) ? 0 : 1)[noteData]
 				;
 			} catch (exc) {
-				trace(exc);
+				Log.error(exc);
 			}
 			
 			if (noteData > -1 && arr != null && arr.length >= 3)
@@ -466,7 +470,8 @@ class Note extends FlxSprite
 			if (graphic == null) {
 				Note.colArray = getColArrayFromKeys(true);
 				var graphic = Paths.image('pixelUI/' + skinPixel + skinPostfix);
-				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 5));
+				if (graphic != null)
+					loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 5));
 			}
 			loadPixelNoteAnims();
 			antialiasing = false;
@@ -533,7 +538,7 @@ class Note extends FlxSprite
 
 	override function update(elapsed:Float)
 	{
-		if (isForceShowed()) {
+		if (isNoModchart()) {
 			@:bypassAccessor x = followX; 
 			@:bypassAccessor y = followY; 
 			@:bypassAccessor alpha = noteAlpha; 
@@ -642,63 +647,63 @@ class Note extends FlxSprite
 	}
 
 	override function set_visible(value:Bool):Bool {
-		if (following != null && isForceShowed()) {
+		if (following != null && isNoModchart()) {
 			return super.set_visible(following.visible);
 		}
 		return super.set_visible(value);
 	}
 
 	override function set_alpha(value:Float):Float {
-		if (following != null && isForceShowed()) {
+		if (following != null && isNoModchart()) {
 			return super.set_alpha(following.alpha);
 		}
 		return super.set_alpha(value);
 	}
 
 	override function set_x(value:Float):Float {
-		if (following != null && isForceShowed()) {
+		if (following != null && isNoModchart()) {
 			return x;
 		}
 		return super.set_x(value);
 	}
 
 	override function set_y(value:Float):Float {
-		if (following != null && isForceShowed()) {
+		if (following != null && isNoModchart()) {
 			return y;
 		}
 		return super.set_y(value);
 	}
 
 	function set_multAlpha(value:Float):Float {
-		if (following != null && isForceShowed()) {
+		if (following != null && isNoModchart()) {
 			return multAlpha;
 		}
 		return multAlpha = value;
 	}
 
 	@:unreflective @:isVar public var followX(get, set):Float;
-	@:unreflective function get_followX():Float { return isForceShowed() ? followX : x; }
+	@:unreflective function get_followX():Float { return isNoModchart() ? followX : x; }
 	@:unreflective function set_followX(value:Float):Float {
 		@:bypassAccessor x = value;
 		return followX = value;
 	}
 
 	@:unreflective @:isVar public var followY(get, set):Float;
-	@:unreflective function get_followY():Float { return isForceShowed() ? followY : y; }
+	@:unreflective function get_followY():Float { return isNoModchart() ? followY : y; }
 	@:unreflective function set_followY(value:Float):Float {
 		@:bypassAccessor y = value;
 		return followY = value;
 	}
 
 	@:unreflective @:isVar public var noteAlpha(get, set):Float;
-	@:unreflective function get_noteAlpha():Float { return isForceShowed() ? noteAlpha : alpha; }
+	@:unreflective function get_noteAlpha():Float { return isNoModchart() ? noteAlpha : alpha; }
 	@:unreflective function set_noteAlpha(value:Float):Float {
 		@:bypassAccessor alpha = value;
 		return noteAlpha = value;
 	}
 
-	function isForceShowed() {
-		return following?.forceShow ?? false;
+	function isNoModchart() {
+		return following?.noModchart ?? false;
 	}
 
 	var lastTexture:String = '';

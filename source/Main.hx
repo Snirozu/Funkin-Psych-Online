@@ -1,5 +1,6 @@
 package;
 
+import flixel.addons.transition.FlxTransitionableState;
 import online.GameClient;
 import states.MainMenuState;
 import externs.WinAPI;
@@ -37,6 +38,8 @@ class FunkinFlxGame extends FlxGame {
 		}
 		catch (e:Dynamic) {
 			Main.onCrash(e, false);
+			FlxTransitionableState.skipNextTransIn = true;
+			FlxTransitionableState.skipNextTransOut = true;
 			FlxG.switchState(() -> new MainMenuState());
 		}
 	}
@@ -83,6 +86,9 @@ class Main extends Sprite
 
 	public static function main():Void
 	{
+		hscript.Interp.importRedirects = online.backend.Deflection.CLASS_ALIASES.copy();
+        hscript.Config.IMPORT_BLACKLIST = online.backend.Deflection.classPathsBlacklist.copy();
+
 		// cpp.vm.Profiler.start("profiler.txt");
 		if (Path.normalize(Sys.getCwd()) != Path.normalize(lime.system.System.applicationDirectory)) {
 			Sys.setCwd(lime.system.System.applicationDirectory);
@@ -231,7 +237,7 @@ class Main extends Sprite
 
 		#if CHECK_FOR_UPDATES
 		if (ClientPrefs.data.checkForUpdates) {
-			trace('checking for update');
+			Log.info('checking for update');
 			// should've done that earlier
 			var response = new online.http.HTTPClient("https://api.github.com/repos/Snirozu/Funkin-Psych-Online/releases/latest").request();
 			Main.repoHost = 'github';
@@ -246,7 +252,7 @@ class Main extends Sprite
 				Main.updateVersion = latestRelease.tag_name;
 				Main.updatePageURL = latestRelease.html_url;
 				var curVersion:String = Main.PSYCH_ONLINE_VERSION.trim();
-				trace('version online: ' + Main.updateVersion + ', your version: ' + curVersion);
+				Log.info('version online: ' + Main.updateVersion + ', your version: ' + curVersion);
 
 				var updatVer:Array<Int> = Main.updateVersion.split('.').map(s -> {
 					return Std.parseInt(s);
@@ -262,11 +268,11 @@ class Main extends Sprite
 					states.TitleState.inDev = true;
 				}
 				else {
-					trace('comparing ' + updatVer + ' > ' + curVer);
+					Log.info('comparing ' + updatVer + ' > ' + curVer);
 					for (i => num in updatVer) {
 						if (num < curVer[i] ?? 0) {
 							states.TitleState.inDev = true;
-							trace('running on indev build! [' + i + "]");
+							Log.info('running on indev build! [' + i + "]");
 							lime.app.Application.current.window.title = lime.app.Application.current.window.title + ' [DEV]';
 							break;
 						}
@@ -285,21 +291,21 @@ class Main extends Sprite
 							}
 							Main.wankyUpdate = 'A new ${updateTitle} is available!\n(Click here to update)';
 							states.TitleState.mustUpdate = true;
-							trace('update version is newer! [' + i + "]");
+							Log.warn('update version is newer! [' + i + "]");
 							break;
 						}
 						if (i == updatVer.length - 1) {
-							trace('running on latest version!');
+							Log.info('running on latest version!');
 						}
 					}
 				}
 			}
 			else {
 				Main.repoHost = null;
-				trace(response.getError());
+				Log.info(response.getError());
 			}
 		}
-		trace(Main.repoHost);
+		Log.info(Main.repoHost);
 		#end
 
 		GameClient.updateAddresses();
@@ -309,13 +315,14 @@ class Main extends Sprite
 		addChild(new online.gui.DownloadAlert.DownloadAlerts());
 
 		FlxG.plugins.add(new online.backend.Waiter());
+		FlxG.plugins.add(@:privateAccess new backend.MidiControls());
 
 		online.backend.Thread.repeat(() -> {
 			try {
 				online.network.FunkinNetwork.ping();
 			}
 			catch (exc) {
-				trace(exc);
+				Log.error(exc);
 			}
 		}, 60, _ -> {}); // ping the server every minute
 		
@@ -390,7 +397,7 @@ class Main extends Sprite
 
 	public static function onCrash(exc:Dynamic, ?closeGame:Bool = true):Void
 	{
-		trace(" . CRASHED . ");
+		Log.println(" . CRASHED . ");
 
 		if (exc == null)
 			exc = new Exception("Empty Uncaught Exception");
@@ -420,12 +427,12 @@ class Main extends Sprite
 		alertMsg += "\n\nCommit: " + GIT_COMMIT + "\n";
 		alertMsg += "Version: " + PSYCH_ONLINE_VERSION + (TitleState.mustUpdate ? ' (OUTDATED)' : '') + "\n";
 
-		Sys.println(alertMsg);
+		Log.error(alertMsg);
 
 		if (!FileSystem.exists("./crash/"))
 			FileSystem.createDirectory("./crash/");
 		File.saveContent(path, alertMsg);
-		Sys.println("Crash dump saved in " + Path.normalize(path));
+		Log.info("Crash dump saved in " + Path.normalize(path));
 		
 		var daLine:Int = 0;
 		var daFile:String = '';

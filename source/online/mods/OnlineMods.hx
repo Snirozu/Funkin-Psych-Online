@@ -150,7 +150,7 @@ class OnlineMods {
 						beginFolder = forFiles.join("/") + "/";
 						ignoreRest = true;
 						if (ClientPrefs.isDebug())
-							trace(beginFolder + ' -> ' + parentFolder);
+							Log.info(beginFolder + ' -> ' + parentFolder);
 						return;
 					}
 					forFiles.push(file);
@@ -190,7 +190,7 @@ class OnlineMods {
 				zipFiles = Reader.readZip(file);
 			}
 			catch (exc) {
-				trace(exc, CallStack.toString(exc.stack));
+				Log.error(exc);
 				file.close();
 				Waiter.putPersist(() -> {
 					Alert.alert("Mod's data is corrupted or invalid!", exc + "\n" + CallStack.toString(exc.stack) + "\n\n" + fileName);
@@ -216,7 +216,7 @@ class OnlineMods {
 			}
 		}
 
-		trace(modName, parentFolder);
+		Log.infoTrace(modName+', '+parentFolder);
 
 		if (beginFolder == '/')
 			beginFolder = '';
@@ -247,7 +247,7 @@ class OnlineMods {
 				openPath: fileName,
 				mode: EXTRACT,
 				onError: (code, type) -> {
-					trace("RAR FAILED: " + code + " - " + type);
+					Log.errorTrace("RAR FAILED: " + code + " - " + type);
 					Waiter.putPersist(() -> {
 						Alert.alert("Extracting RAR failed!", '$code\n$type');
 					});
@@ -301,7 +301,7 @@ class OnlineMods {
 		if ((gbMod != null ? gbMod.rootCategory == "Skins" : false) && !FileSystem.exists(Paths.mods(modName + '/pack.json'))) {
 			var isLegacy = false;
 			if (FileSystem.exists(Paths.mods(modName + '/images/BOYFRIEND.png'))) {
-				Sys.println("Legacy mod detected! (Converting)");
+				Log.info("Legacy mod detected! (Converting)");
 
 				FileSystem.createDirectory(Paths.mods(modName + '/images/characters/'));
 				FileSystem.rename(Paths.mods(modName + '/images/BOYFRIEND.png'), Paths.mods(modName + '/images/characters/BOYFRIEND.png'));
@@ -328,7 +328,7 @@ class OnlineMods {
 			}));
 		}
 		else { // if (/*(gbMod != null ? gbMod.rootCategory == "Executables" : */isExecutable) { // sometimes dum dum people put their non-exe mods to that section
-			trace("Regular mod found! Converting...");
+			Log.info("Regular mod found! Converting...");
 			if (isExecutable) {
 				for (file in FileSystem.readDirectory(Paths.mods(modName))) {
 					if (file != "assets" && file != "mods")
@@ -422,7 +422,7 @@ class OnlineMods {
 					}
 				}
 				catch (exc) {
-					Sys.println("failed to include a song " + exc);
+					Log.error("failed to include a song ", exc);
 				}
 			});
 			var _normalIndex = -1;
@@ -491,7 +491,7 @@ class OnlineMods {
 					onSuccess(modName);
 			}
 			catch (exc) {
-				Sys.println(exc);
+				Log.error(exc);
 			}
 
 			if (modLink == null && !(FlxG.state is PlayState) && checkMods()) {

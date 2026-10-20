@@ -85,7 +85,7 @@ class ProfileBox extends FlxSpriteGroup {
 	}
 
     public function creativo() {
-		#if SDEBUG trace(FlxG.state == _ste); #end
+		#if SDEBUG Log.infoTrace(FlxG.state == _ste); #end
 
 		if (destroyed)
 			return;

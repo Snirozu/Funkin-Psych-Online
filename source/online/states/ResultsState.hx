@@ -619,10 +619,11 @@ class ResultsState extends MusicBeatState {
 				var msc = null;
 				if (ClientPrefs.data.currentSkin != null) {
 					ShitUtil.tempSwitchMod(ClientPrefs.data.currentSkin[3], () -> {
-						msc = Paths.music(Paths.formatToSongPath('breakfast-' + ClientPrefs.data.currentSkin[0]));
+						final pauseMusic = ClientPrefs.data.currentSkin[0] == 'vektor' ? 'dinner' : ClientPrefs.data.pauseMusic;
+						msc = Paths.music(Paths.formatToSongPath(pauseMusic + '-' + ClientPrefs.data.currentSkin[0]));
 					});
 				}
-				msc ??= Paths.music(Paths.formatToSongPath('breakfast'));
+				msc ??= Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic));
 				FlxG.sound.playMusic(msc, 0);
 				FlxG.sound.music.fadeIn(5, 0, 0.7);
 			};
@@ -652,7 +653,7 @@ class ResultsState extends MusicBeatState {
 
 		#if lumod
 		if (FlxG.keys.justPressed.F12) {
-			trace('reloading lumod');
+			Log.info('reloading lumod');
 			// Lumod.storage.scripts.clear();
 			lmLoad();
 		}

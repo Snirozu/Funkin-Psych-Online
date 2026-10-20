@@ -16,7 +16,7 @@ class SelectStageSubstate extends MusicBeatSubstate {
     override function create() {
 		super.create();
 
-		trace(GameClient.room.state.stageName);
+		Log.infoTrace(GameClient.room.state.stageName);
 		
 		blurFilter = new BlurFilter();
 		for (cam in FlxG.cameras.list) {

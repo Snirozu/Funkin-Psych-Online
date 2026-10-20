@@ -20,11 +20,11 @@ class Macros {
 						if (field.access.contains(Access.AStatic))
                             fieldAccess.push(Access.AStatic);
 
-                        fields.push({
-                            name: "get_" + field.name,
-                            access: fieldAccess,
-                            kind: FieldType.FFun({
-                                args: [],
+						fields.push({
+							name: "get_" + field.name,
+							access: fieldAccess,
+							kind: FieldType.FFun({
+								args: [],
 								expr: meta.name == ":forwardGetter" || meta.params[1] == null ?
 									macro {
 										return ${meta.params[0]}
@@ -33,11 +33,11 @@ class Macros {
 									if (${meta.params[0]} == null)
 										${meta.params[0]} = ${meta.params[1]};
 
-                                    return ${meta.params[0]}
-                                }
-                            }),
-                            pos: pos,
-                        });
+									return ${meta.params[0]}
+								}
+							}),
+							pos: pos,
+						});
 
 						if (meta.name != ":forwardGetter") {
 							fields.push({
@@ -54,6 +54,7 @@ class Macros {
 								pos: pos,
 							});
 						}
+
                         break;
                     }
                 }

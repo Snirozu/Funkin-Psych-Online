@@ -501,7 +501,7 @@ class PhillyStreets extends BaseStage
 				rainShaderEndIntensity = 0.4;
 		}
 		rainShader.intensity = rainShaderStartIntensity;
-		FlxG.camera.setFilters([new ShaderFilter(rainShader)]);
+		FlxG.camera.filters = [new ShaderFilter(rainShader)];
 	}
 	
 	var currentNeneState:NeneState = STATE_DEFAULT;
@@ -943,12 +943,12 @@ class PhillyStreets extends BaseStage
 									if(tmr2.loopsLeft == 0)
 									{
 										boyfriend.visible = true;
-										//trace('test 2');
+										//Log.trace('test 2');
 									}
 								}, 30);
 							}
 						}, 30);
-						//trace('test');
+						//Log.trace('test');
 					}
 					boyfriend.animation.finishCallback = null;
 				}

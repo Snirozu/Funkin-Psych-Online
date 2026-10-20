@@ -10,7 +10,7 @@ import openfl.Lib;
 import away3d.containers.ObjectContainer3D;
 import flixel.input.keyboard.FlxKey;
 import flixel.FlxState;
-import tea.SScript;
+import psychlua.PScript;
 import sys.io.File;
 import sys.FileSystem;
 import away3d.cameras.lenses.PerspectiveLens;
@@ -71,12 +71,13 @@ class ScriptedState3D extends FlxState3D {
 	}
 
 	@:unreflective
-	static var script:SScript;
+	static var script:PScript;
 	function initScript(path:String) {
-		trace(path);
-		script = new SScript(path);
+		Log.infoTrace(path);
+		script = new PScript();
+		script.doFile(path);
 		script.set("this", this);
-		script.set("print", s -> Sys.println(s));
+		script.set("print", s -> Log.println(s));
 		script.set("typeof", s -> Type.getClassName(Type.getClass(s)));
 		script.set("alert", (title, ?message) -> Alert.alert(title, message));
 		#if !display
@@ -86,9 +87,6 @@ class ScriptedState3D extends FlxState3D {
 			script.set(Type.getClassName(cls).split('.').pop(), cls);
 		}
 		#end
-		for (block in Deflection.classBlacklist) {
-			script.notAllowedClasses.push(block);
-		}
 	}
 
 	public static function dispatch(func:String, ?args:Array<Any>) {

@@ -6,8 +6,13 @@ import psychlua.FunkinLua;
 import psychlua.CustomSubstate;
 
 #if HSCRIPT_ALLOWED
-import tea.SScript;
-class HScript extends SScript
+import hscript.*;
+import hscript.Expr.Error;
+import hscript.Parser;
+#end
+
+#if HSCRIPT_ALLOWED
+class HScript extends PScript
 {
 	public var parentLua:FunkinLua;
 	
@@ -16,7 +21,7 @@ class HScript extends SScript
 		if(parent.hscript == null)
 		{
 			if (ClientPrefs.isDebug())
-				Sys.println('Initializing hscript interp for: ${parent.scriptName}');
+				Log.info('Initializing hscript interp for: ${parent.scriptName}');
 			parent.hscript = new HScript(parent);
 		}
 	}
@@ -27,16 +32,16 @@ class HScript extends SScript
 		if(hs == null)
 		{
 			if (ClientPrefs.isDebug())
-				Sys.println('Initializing hscript interp for: ${parent.scriptName}');
+				Log.info('Initializing hscript interp for: ${parent.scriptName}');
 			parent.hscript = new HScript(parent, code);
 		}
 		else
 		{
-			hs.doString(code);
+			hs.doString(code, parent.scriptName);
 			@:privateAccess
 			if(hs.parsingException != null)
 			{
-				PlayState.instance.addTextToDebug('ERROR ON LOADING (${hs.origin}): ${hs.parsingException.message}', FlxColor.RED);
+				PlayState.instance.addTextToDebug('ERROR ON LOADING (${hs.origin}): ${hs.parsingException}', FlxColor.RED);
 			}
 		}
 	}
@@ -48,26 +53,28 @@ class HScript extends SScript
 		if (file == null)
 			file = '';
 	
-		super(file, false, false);
-		setSpecialObject(FlxG.state, true, []);
+		super();
+
+		setSpecialObject(FlxG.state);
 		parentLua = parent;
 		if (parent != null)
 		{
 			origin = parent.scriptName;
 			modFolder = parent.modFolder;
 		}
-		if (scriptFile != null && scriptFile.length > 0)
+		else if (scriptFile != null && scriptFile.length > 0)
 			origin = scriptFile;
+		scriptFile = origin;
 		preset();
-		execute();
+
+		doScript(null, file);
+		call('new', []);
 	}
 
 	override function preset()
 	{
 		#if HSCRIPT_ALLOWED
 		super.preset();
-
-		notAllowedClasses = Deflection.classBlacklist.copy();
 
 		#if VIDEOS_ALLOWED
 		set('FlxVideo', hxcodec.flixel.FlxVideo);
@@ -182,7 +189,7 @@ class HScript extends SScript
 			}
 		});
 		set('parentLua', parentLua);
-		set('this', this);
+		set('this', {});
 		set('game', PlayState.instance);
 		set('buildTarget', FunkinLua.getBuildTarget());
 		set('customSubstate', CustomSubstate.instance);
@@ -211,7 +218,7 @@ class HScript extends SScript
 	}
 
 
-	public function executeCode(?funcToRun:String = null, ?funcArgs:Array<Dynamic> = null):TeaCall
+	public function executeCode(?funcToRun:String = null, ?funcArgs:Array<Dynamic> = null)//:TeaCall
 	{
 		if (funcToRun == null)
 			return null;
@@ -245,7 +252,7 @@ class HScript extends SScript
 		return callValue;
 	}
 
-	public function executeFunction(funcToRun:String = null, funcArgs:Array<Dynamic>):TeaCall
+	public function executeFunction(funcToRun:String = null, ?funcArgs:Array<Dynamic> = null)//:TeaCall
 	{
 		if (funcToRun == null)
 			return null;
@@ -257,9 +264,9 @@ class HScript extends SScript
 	{
 		#if LUA_ALLOWED
 		funk.addLocalCallback("runHaxeCode", function(codeToRun:String, ?varsToBring:Any = null, ?funcToRun:String = null, ?funcArgs:Array<Dynamic> = null):Dynamic {
-			#if SScript
+			#if HSCRIPT_ALLOWED
 			initHaxeModuleCode(funk, codeToRun);
-			final retVal:TeaCall = funk.hscript.executeCode(funcToRun, funcArgs);
+			final retVal = funk.hscript.executeCode(funcToRun, funcArgs);
 			if (retVal != null) {
 				if(retVal.succeeded)
 					return (retVal.returnValue == null || LuaUtils.isOfTypes(retVal.returnValue, [Bool, Int, Float, String, Array])) ? retVal.returnValue : null;
@@ -319,7 +326,7 @@ class HScript extends SScript
 			}
 
 			#if HSCRIPT_ALLOWED
-			SScript.globalVariables[libName] = c;
+			PScript.globalVariables[libName] = c;
 			#end
 
 			#if HSCRIPT_ALLOWED

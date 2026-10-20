@@ -164,7 +164,7 @@ class MonitorMacro {
 
 	static var logOutput:sys.io.FileOutput;
 	public static inline function log(o:Dynamic) {
-		Sys.println(o);
+		Log.info(o);
 		if (logOutput == null) {
 			// sys.io.File.saveContent('monitor_output.txt', '');
 			logOutput = sys.io.File.append('monitor_output.txt', false);

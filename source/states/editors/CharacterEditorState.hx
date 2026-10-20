@@ -74,16 +74,14 @@ class CharacterEditorState extends MusicBeatState {
 		// if (ClientPrefs.data.cacheOnGPU)
 		// 	Paths.clearStoredMemory();
 
-		camEditor = new FlxCamera();
+		camEditor = initPsychCamera();
 		camHUD = new FlxCamera();
 		camHUD.bgColor.alpha = 0;
 		camMenu = new FlxCamera();
 		camMenu.bgColor.alpha = 0;
 
-		FlxG.cameras.reset(camEditor);
 		FlxG.cameras.add(camHUD, false);
 		FlxG.cameras.add(camMenu, false);
-		FlxG.cameras.setDefaultDrawTarget(camEditor, true);
 
 		bgLayer = new FlxTypedGroup<FlxSprite>();
 		add(bgLayer);
@@ -837,7 +835,7 @@ class CharacterEditorState extends MusicBeatState {
 
 			reloadAnimationDropDown();
 			genBoyOffsets();
-			trace('Added/Updated animation: ' + animationInputText.text);
+			Log.infoTrace('Added/Updated animation: ' + animationInputText.text);
 		});
 
 		var removeButton:FlxButton = new FlxButton(180, addUpdateButton.y, "Remove", function() {
@@ -861,7 +859,7 @@ class CharacterEditorState extends MusicBeatState {
 					}
 					reloadAnimationDropDown();
 					genBoyOffsets();
-					trace('Removed animation: ' + animationInputText.text);
+					Log.infoTrace('Removed animation: ' + animationInputText.text);
 					break;
 				}
 			}
@@ -1529,7 +1527,7 @@ class CharacterEditorState extends MusicBeatState {
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		FlxG.log.error("Problem saving file");
+		Log.error("Problem saving file");
 	}
 
 	function saveCharacter() {

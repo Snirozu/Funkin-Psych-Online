@@ -1,5 +1,6 @@
 package online.states;
 
+import flixel.FlxBasic;
 import online.states.DownloaderState.ModProvider;
 import flixel.input.keyboard.FlxKey;
 import backend.InputFormatter;
@@ -153,8 +154,12 @@ class SkinsState extends MusicBeatState {
 		camFollow.setPosition(FlxG.width / 2, FlxG.height / 2);
 
 		blackRectangle = new FlxSprite();
-		blackRectangle.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
-		blackRectangle.cameras = [hud];
+		blackRectangle.makeGraphic(1, 1, FlxColor.BLACK);
+		blackRectangle.setGraphicSize(FlxG.width * 5, FlxG.height * 5);
+		blackRectangle.updateHitbox();
+		blackRectangle.scrollFactor.set(0, 0);
+		blackRectangle.cameras = [characterCamera];
+		blackRectangle.screenCenter();
 
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xff303030;
@@ -664,10 +669,16 @@ class SkinsState extends MusicBeatState {
 
 			if (character.members[0] != null)
 				character.members[0].playAnim("hey", true);
+
+			FlxTween.tween(camera, {zoom: camera.zoom + 0.15}, 0.4, {ease: FlxEase.elasticInOut});
+			FlxTween.tween(characterCamera, {zoom: characterCamera.zoom + 0.15}, 0.4, {ease: FlxEase.elasticInOut});
         }
 
 		if (controls.BACK || (!FlxG.keys.pressed.SHIFT && controls.ACCEPT)) {
 			stopUpdates = true;
+
+			FlxTween.tween(hud, {alpha: 0}, 0.5, {ease: FlxEase.quadIn});
+
 			FlxTimer.wait(1, () -> {
 				switchState(() -> Type.createInstance(backClass, []));
 			});
@@ -864,7 +875,7 @@ class SkinsState extends MusicBeatState {
 
 		if (charactersList[curCharacter] != null) {
 			if (ClientPrefs.isDebug())
-				Sys.println(charactersList[curCharacter]);
+				Log.infoTrace(charactersList[curCharacter]);
 			// Mods.currentModDirectory = charactersMod.get(curCharName);
 			// var characterWeek = ShitUtil.getJson('characters_weeks/' + curSkin[1]);
 			// overChart.clear();

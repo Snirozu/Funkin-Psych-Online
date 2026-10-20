@@ -23,7 +23,7 @@ class NicommentsView extends FlxTypedGroup<Nicomment> {
 			var comment = songComments.shift();
 
 			if (ClientPrefs.isDebug())
-				trace(comment);
+				Log.infoTrace(comment);
 
 			final row = rows.shift();
 			rows.insert(FlxG.random.int(rows.length - 3, rows.length - 1), row);

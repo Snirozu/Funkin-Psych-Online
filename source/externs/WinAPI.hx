@@ -13,7 +13,8 @@ package externs;
 
 @:cppFileCode('
 #include "dwmapi.h"
-#include "winuser.h"
+#include <windows.h>
+#include <stdio.h>
 
 #define WM_SETICON 0x0080
 
@@ -101,4 +102,49 @@ class WinAPI {
     ')
 	#end
 	public static function ask(title:String, content:String, yesCallback:Void->Void, noCallback:Void->Void):Void {}
+
+    #if (windows && cpp)
+	@:functionCode('
+    if (AllocConsole()) {
+        FILE* fp;
+        freopen_s(&fp, "CONOUT$", "w", stdout);
+        freopen_s(&fp, "CONOUT$", "w", stderr);
+        freopen_s(&fp, "CONIN$", "r", stdin);
+
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hOut != INVALID_HANDLE_VALUE) {
+            DWORD dwMode = 0;
+            if (GetConsoleMode(hOut, &dwMode)) {
+                dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                SetConsoleMode(hOut, dwMode);
+            }
+        }
+    }
+    ')
+	#end
+	public static function openConsole():Void {}
+
+    #if (windows && cpp)
+	@:functionCode('
+    HWND hwnd = GetConsoleWindow();
+    if (hwnd != NULL) {
+        PostMessage(hwnd, WM_CLOSE, 0, 0);
+    }
+
+    fflush(stdout);
+    fflush(stderr);
+    FreeConsole();
+    ')
+	#end
+    public static function closeConsole():Void {}
+
+    public static function hasConsole():Bool {
+        #if (windows && cpp)
+        return untyped __cpp__('
+            GetConsoleWindow() != NULL;
+        ');
+        #else
+        return false;
+        #end
+    }
 }
