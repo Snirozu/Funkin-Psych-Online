@@ -76,6 +76,15 @@ class Auth {
 
 		if ((saveData.id == null || saveData.token == null) && FileSystem.exists(savePath))
 			FileSystem.deleteFile(savePath);
+
+		if (saveData.id == null || saveData.token == null) {
+			saveData = {
+				id: authID,
+				token: authToken,
+			}
+		}
+		File.saveContent(savePath, Json.stringify(saveData));
+		trace("Saved Auth Credentials...");
     }
 
 	public static function saveClose() {
