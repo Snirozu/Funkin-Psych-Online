@@ -106,7 +106,7 @@
 		<haxelib version="3.2.2" name="flixel-addons"/>
 		<haxelib version="1.5.1" name="flixel-tools"/>
 		<haxelib version="2.6.4" name="flixel-ui"/>
-		<haxelib version="4.3.2" name="hxcpp"/>
+		<haxelib version="6.0.0-rc.1" name="libhxcpp"/>
 		<haxelib version="1.4.0" name="tjson"/>
 		<haxelib version="0.17.13" name="colyseus"/>
 		<haxelib version="1.0.15" name="colyseus-websocket"/>

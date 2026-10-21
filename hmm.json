@@ -36,9 +36,9 @@
       "version": "2.6.4"
     },
     {
-      "name": "hxcpp",
+      "name": "libhxcpp",
       "type": "haxelib",
-      "version": "4.3.2"
+      "version": "6.0.0-rc.1"
     },
     {
       "name": "tjson",
