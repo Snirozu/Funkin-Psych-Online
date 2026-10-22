@@ -17,6 +17,7 @@ import flixel.util.FlxStringUtil;
 
 import states.StoryMenuState;
 import states.FreeplayState;
+import states.GameplayChangersSubstate;
 import options.OptionsState;
 import online.gui.Alert;
 import online.util.FileUtils;
@@ -40,6 +41,8 @@ class PauseSubState extends MusicBeatSubstate
 	var missingTextBG:FlxSprite;
 	var missingText:FlxText;
 
+	var changedModifiers:Bool = false;
+
 	public static var songName:String = '';
 
 	public function new(x:Float, y:Float)
@@ -47,7 +50,7 @@ class PauseSubState extends MusicBeatSubstate
 		super();
 
 		if (!GameClient.isConnected()) {
-			menuItemsOG = ['Resume', 'Restart Song', 'Change Difficulty', 'Options', 'Exit to menu'];
+			menuItemsOG = ['Resume', 'Restart Song', 'Change Difficulty', 'Change Modifiers', 'Options', 'Exit to menu'];
 
 			if(Difficulty.list.length < 2) menuItemsOG.remove('Change Difficulty'); //No need to change difficulty if there is only one!
 
@@ -384,6 +387,18 @@ class PauseSubState extends MusicBeatSubstate
 					}
 					OptionsState.onPlayState = true;
 					OptionsState.onOnlineRoom = false;
+				case 'Change Modifiers':
+					var oldGameplaySettings:Map<String, Dynamic> = ClientPrefs.gameplaySettings;
+					openSubState(new GameplayChangersSubstate());
+					var hasChanged:Bool = false;
+
+					for (k => v in oldGameplaySettings) {
+						if (v != ClientPrefs.gameplaySettings[k]) {
+							if (!changedModifiers) menuItems.remove("Resume");
+							changedModifiers = true;
+							break;
+						}
+					}
 				case "Exit to menu":
 					#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 					PlayState.deathCounter = 0;
