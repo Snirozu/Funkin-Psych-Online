@@ -25,15 +25,15 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
 
-      - uses: krdlab/setup-haxe@master
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: 4.3.7
 
       - name: Retrieve Cache
         id: cache-linux
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             export/release/linux/**
@@ -55,7 +55,7 @@ jobs:
       - name: Compile
         run: haxelib run lime build Project.xml linux
       - name: Publish Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linuxBuild
           path: 'export/release/linux/bin'
@@ -64,15 +64,15 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2.3.0
+      - uses: actions/checkout@v7
 
-      - uses: krdlab/setup-haxe@master
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: 4.3.7
 
       - name: Retrieve Cache
         id: cache-windows
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             export/release/windows/**
@@ -92,7 +92,7 @@ jobs:
       - name: Compile
         run: haxelib run lime build windows
       - name: Publish Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windowsBuild
           path: export/release/windows/bin
@@ -101,15 +101,15 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
 
-      - uses: krdlab/setup-haxe@master
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: 4.3.7
 
       - name: Retrieve Cache
         id: cache-macos
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             export/release/macos/**
@@ -128,7 +128,7 @@ jobs:
       - name: Compile
         run: arch -x86_64 haxelib run lime build mac
       - name: Publish Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: macBuild
           path: export/release/macos/bin
@@ -139,17 +139,17 @@ jobs:
   #   # Steps represent a sequence of tasks that will be executed as part of the job
   #   steps:
   #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-  #     - uses: actions/checkout@v2
+  #     - uses: actions/checkout@v7
       
   #     - name: Retrieve Cache
-  #       uses: actions/cache@v4
+  #       uses: actions/cache@v6
   #       with:
   #         path: |
   #           export/release/android/haxe
   #           export/release/android/obj
   #         key: ${{ runner.os }}-cache
 
-  #     - uses: krdlab/setup-haxe@master
+  #     - uses: krdlab/setup-haxe@v2
   #       with:
   #         haxe-version: 4.3.2
       
@@ -184,7 +184,7 @@ jobs:
   #     - name: Compile
   #       run: haxelib run lime build Project.xml android -D HXCPP_M64 --app-version="4.0.0-${{ github.run_id}}"
   #     - name: Publish Artifact
-  #       uses: actions/upload-artifact@v4
+  #       uses: actions/upload-artifact@v7
   #       with:
   #         name: androidBuild (experimental)
   #         path: 'export/release/android/bin/app/build/outputs/apk'
@@ -194,10 +194,10 @@ jobs:
 
   #   steps:
   #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-  #     - uses: actions/checkout@v2
+  #     - uses: actions/checkout@v7
 
   #     - name: Retrieve Cache
-  #       uses: actions/cache@v4
+  #       uses: actions/cache@v6
   #       with:
   #         path: |
   #           export/release/ios/haxe
@@ -219,7 +219,7 @@ jobs:
   #     - name: Compile
   #       run: haxelib run lime build ios --app-version="4.0.0-${{ github.run_id}}"
   #     - name: Publish Artifact
-  #       uses: actions/upload-artifact@v4
+  #       uses: actions/upload-artifact@v7
   #       with:
   #         name: iOSBuild (experimental)
   #         path: export/release/ios/build/
@@ -245,7 +245,7 @@ jobs:
         prerelease: false
 
     - name: Download all workflow run artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
 
     - name: Zip artifacts
       run: |
@@ -291,7 +291,7 @@ jobs:
     # publish windows
 
     - name: Checkout windows build
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
       with:
         repository: Snirozu/Funkin-Psych-Online-Builds
         ref: 'windows'
@@ -314,7 +314,7 @@ jobs:
     # publish linux
     
     - name: Checkout linux build
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
       with:
         repository: Snirozu/Funkin-Psych-Online-Builds
         ref: 'linux'
@@ -337,7 +337,7 @@ jobs:
     # publish macos
     
     - name: Checkout macos build
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
       with:
         repository: Snirozu/Funkin-Psych-Online-Builds
         ref: 'macos'
